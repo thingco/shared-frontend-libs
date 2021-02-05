@@ -1,7 +1,7 @@
 import React from "react";
 
 import { useGraph } from "./Context";
-import { xAxisAnnotations, yAxisAnnotations } from "./projections";
+import { VerticalAlignment, xAxisAnnotations, yAxisAnnotations } from "./projections";
 import { steppedXAxisValues, steppedYAxisValues } from "./setup";
 
 export interface AxisAnnotationsProps {
@@ -22,7 +22,8 @@ export const XAxisAnnotations = ({
 	style = {},
 	annotations,
 	offsetY = 4,
-}: AxisAnnotationsProps): JSX.Element => {
+	position = "bottom",
+}: AxisAnnotationsProps & { position?: VerticalAlignment }): JSX.Element => {
 	style = { ...defaultAnnotationStyle, ...style };
 	const graph = useGraph();
 
@@ -30,7 +31,7 @@ export const XAxisAnnotations = ({
 
 	return (
 		<g style={style} data-componentid="x-axis-annotations">
-			{xAxisAnnotations(graph).map(({ x, y }, i) => (
+			{xAxisAnnotations(graph, position).map(({ x, y }, i) => (
 				<text
 					key={`${x}${y}${i}`}
 					x={x}

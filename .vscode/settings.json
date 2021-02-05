@@ -14,5 +14,9 @@
 		"typescript",
 		"typescriptreact"
 	],
-	"prettier.prettierPath": ".yarn/sdks/prettier/index.js"
+	"prettier.prettierPath": ".yarn/sdks/prettier/index.js",
+	"typescriptHero.imports.ignoredFromRemoval": [
+		"react",
+		"@emotion/react"
+	]
 }

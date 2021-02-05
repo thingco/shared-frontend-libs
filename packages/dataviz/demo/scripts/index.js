@@ -613,36 +613,69 @@
 	    return graph;
 	}
 
-	function createGraph({ xAxisMax, xAxisMin = 0, xAxisSize, xAxisStep = 1, xAxisValues, yAxisMax, yAxisMin = 0, yAxisSize, yAxisStep = 1, yAxisValues, }) {
-	    if (!(xAxisSize && yAxisSize)) {
-	        throw new Error("BOTH the x- and y-axis size MUST be provided to create the graph.");
-	    }
-	    if (!(xAxisValues && yAxisValues)) {
+	function createGraph({ xAxisMax, xAxisMin = 0, xAxisSize, xAxisScale, xAxisStep = 1, xAxisValues, yAxisMax, yAxisMin = 0, yAxisSize, yAxisScale, yAxisStep = 1, yAxisValues, }) {
+	    /**
+	     * If neither the x and y axis values are provided, cannot create the graph:
+	     */
+	    if (!xAxisValues && !yAxisValues) {
 	        throw new Error("ONE OR BOTH x- or y-axis value arrays MUST be provided to create the graph.");
 	    }
-	    if (!xAxisValues) {
+	    /**
+	     * If only one of the x/y axis values are provided, the other axis can be assumed
+	     * to be the length of the other (_ie_ the values are plotted on a range/in series):
+	     */
+	    if (yAxisValues && !xAxisValues) {
 	        xAxisValues = Array.from({ length: yAxisValues.length }, (_, i) => i + xAxisMin);
 	    }
-	    if (!yAxisValues) {
+	    else if (xAxisValues && !yAxisValues) {
 	        yAxisValues = Array.from({ length: xAxisValues.length }, (_, i) => i + yAxisMin);
 	    }
+	    // Once both of the arrays of values are populated, can infer the max values if not present:
 	    xAxisMax = xAxisMax ?? Math.max(...xAxisValues);
 	    yAxisMax = yAxisMax ?? Math.max(...yAxisValues);
-	    const xAxisScale = calculateScale(xAxisSize, xAxisMin, xAxisMax);
-	    const yAxisScale = calculateScale(yAxisSize, yAxisMin, yAxisMax);
+	    /**
+	     * If the x-axis size is *not* provided, then the scale *must* be
+	     * provided, otherwise the size of the axis cannot be calculated:
+	     */
+	    if ((!xAxisSize && !xAxisScale) || (xAxisSize && xAxisScale)) {
+	        throw new Error("EITHER the x-axis size OR the x-axis scale must be provided up-front or this graph axis cannot be plotted.");
+	    }
+	    else if (xAxisSize && !xAxisScale) {
+	        xAxisScale = calculateScale(xAxisSize, xAxisMin, xAxisMax);
+	    }
+	    else if (!xAxisSize && xAxisScale) {
+	        xAxisSize = calculateSize(xAxisScale, xAxisMin, xAxisMax);
+	    }
+	    /**
+	     * If the y-axis size is *not* provided, then the scale *must* be
+	     * provided, otherwise the size of the axis cannot be calculated:
+	     */
+	    if ((!yAxisSize && !yAxisScale) || (yAxisSize && yAxisScale)) {
+	        throw new Error("EITHER the y-axis size OR the y-axis scale must be provided up-front or this graph axis cannot be plotted.");
+	    }
+	    else if (yAxisSize && !yAxisScale) {
+	        yAxisScale = calculateScale(yAxisSize, yAxisMin, yAxisMax);
+	    }
+	    else if (!yAxisSize && yAxisScale) {
+	        yAxisSize = calculateSize(yAxisScale, yAxisMin, yAxisMax);
+	    }
 	    return {
 	        xAxisMax,
 	        xAxisMin,
-	        xAxisScale,
-	        xAxisSize,
+	        // All branches have been covered to populate following two values,
+	        // they cannot be undefined at this point, compiler is being overstrict:
+	        xAxisScale: xAxisScale,
+	        xAxisSize: xAxisSize,
 	        xAxisStep,
-	        xAxisValues,
+	        xAxisValues: xAxisValues,
 	        yAxisMax,
 	        yAxisMin,
-	        yAxisScale,
-	        yAxisSize,
+	        // All branches have been covered to populate following two values,
+	        // they cannot be undefined at this point, compiler is being overstrict:
+	        yAxisScale: yAxisScale,
+	        yAxisSize: yAxisSize,
 	        yAxisStep,
-	        yAxisValues,
+	        yAxisValues: yAxisValues,
 	    };
 	}
 	/**
@@ -660,6 +693,22 @@
 	 */
 	function calculateScale(axisSize, axisMin, axisMax) {
 	    return axisSize / (axisMax - axisMin);
+	}
+	/**
+	 * Examples:
+	 *
+	 * scale 10 min 0 max 10 size 100
+	 * scale 10 min -50 max 50 size 100
+	 * scale 10 min -25 max 75 size 100
+	 * scale 10 min -100 max 0 size 100
+	 *
+	 * @param {number} axisScale
+	 * @param {number} axisMin
+	 * @param {number} axisMax
+	 * @returns {number}
+	 */
+	function calculateSize(axisScale, axisMin, axisMax) {
+	    return (axisMax - axisMin) * axisScale;
 	}
 	/**
 	 * Examples:
@@ -705,6 +754,22 @@
 	 */
 	function projectYCoordToSVG({ yAxisMin, yAxisScale, yAxisSize }, axisCoord) {
 	    return yAxisSize - (axisCoord - yAxisMin) * yAxisScale;
+	}
+	/**
+	 * NOTE specific, limited use.
+	 *
+	 * As `projectXCoordToSVG`, which will result in an inverted graph,
+	 * 0 at top, max at bottom. The only usecase for this is a graph
+	 * that has an axis rendered top to bottom vertically.
+	 *
+	 * @param {GraphData} graphData
+	 * @param {number} graphData.yAxisMin
+	 * @param {number} graphData.yAxisScale
+	 * @param {number} axisCoord
+	 * @returns {number}
+	 */
+	function projectInvertedYCoordToSVG({ yAxisMin, yAxisScale }, axisCoord) {
+	    return (axisCoord - yAxisMin) * yAxisScale;
 	}
 	/**
 	 * Generate an array of x axis coordinates for stepped points along that axis. Used to place annotations.
@@ -761,14 +826,33 @@
 	    }
 	}
 
-	function yAxis(graph) {
-	    const xPlacement = graph.xAxisMin > 0 ? graph.xAxisMin : 0;
+	function verticalLineFullHeight(graph, xPosition) {
 	    return {
-	        x1: projectXCoordToSVG(graph, xPlacement),
-	        x2: projectXCoordToSVG(graph, xPlacement),
+	        x1: projectXCoordToSVG(graph, xPosition),
+	        x2: projectXCoordToSVG(graph, xPosition),
 	        y1: 0,
 	        y2: graph.yAxisSize,
 	    };
+	}
+	function horizontalLineFullWidth(graph, yPosition) {
+	    return {
+	        x1: 0,
+	        x2: graph.xAxisSize,
+	        y1: projectYCoordToSVG(graph, yPosition),
+	        y2: projectYCoordToSVG(graph, yPosition),
+	    };
+	}
+	function invertedHorizontalLineFullWidth(graph, yPosition) {
+	    return {
+	        x1: 0,
+	        x2: graph.xAxisSize,
+	        y1: projectInvertedYCoordToSVG(graph, yPosition),
+	        y2: projectInvertedYCoordToSVG(graph, yPosition),
+	    };
+	}
+	function yAxis(graph) {
+	    const xPlacement = graph.xAxisMin > 0 ? graph.xAxisMin : 0;
+	    return verticalLineFullHeight(graph, xPlacement);
 	}
 	function yAxisAnnotations(graph) {
 	    const xPlacement = graph.xAxisMin > 0 ? graph.xAxisMin : 0;
@@ -777,13 +861,8 @@
 	        y: projectYCoordToSVG(graph, v),
 	    }));
 	}
-	function yAxisGridLines(graph) {
-	    return steppedYAxisValues(graph).map((v) => ({
-	        x1: 0,
-	        x2: graph.xAxisSize,
-	        y1: projectYCoordToSVG(graph, v),
-	        y2: projectYCoordToSVG(graph, v),
-	    }));
+	function horizontalGridLines(graph) {
+	    return steppedYAxisValues(graph).map((v) => horizontalLineFullWidth(graph, v));
 	}
 	function yAxisSteps(graph) {
 	    return steppedYAxisValues(graph).map((v) => ({
@@ -793,29 +872,59 @@
 	        y2: projectYCoordToSVG(graph, v),
 	    }));
 	}
-	function xAxis(graph) {
-	    return { x1: 0, x2: graph.xAxisSize, y1: projectYCoordToSVG(graph, 0), y2: projectYCoordToSVG(graph, 0) };
+	function xAxis(graph, position = "bottom") {
+	    return horizontalLineFullWidth(graph, position === "top" ? graph.yAxisMax : 0);
 	}
-	function xAxisAnnotations(graph) {
+	function xAxisSteps(graph, position) {
+	    return steppedXAxisValues(graph).map((v) => ({
+	        x1: projectXCoordToSVG(graph, v),
+	        x2: projectXCoordToSVG(graph, v),
+	        y1: position === "top" ? projectYCoordToSVG(graph, graph.yAxisMax) : projectYCoordToSVG(graph, 0),
+	        y2: position === "top" ? projectYCoordToSVG(graph, graph.yAxisMax) - 2 : projectYCoordToSVG(graph, 0) + 2,
+	    }));
+	}
+	function xAxisAnnotations(graph, position = "bottom") {
 	    return steppedXAxisValues(graph).map((v) => ({
 	        x: projectXCoordToSVG(graph, v),
-	        y: projectYCoordToSVG(graph, 0),
+	        y: projectYCoordToSVG(graph, position === "top" ? graph.yAxisMax : 0),
 	    }));
 	}
-	function xAxisGridlines(graph) {
-	    return steppedXAxisValues(graph).map((v) => ({
-	        x1: projectXCoordToSVG(graph, v),
-	        x2: projectXCoordToSVG(graph, v),
-	        y1: 0,
-	        y2: graph.yAxisSize,
+	function verticalGridlines(graph) {
+	    return steppedXAxisValues(graph).map((v) => verticalLineFullHeight(graph, v));
+	}
+	function dotPoints(graph) {
+	    return graph.yAxisValues.map((v, i) => ({
+	        x: projectXCoordToSVG(graph, graph.xAxisValues[i]),
+	        y: projectYCoordToSVG(graph, v),
 	    }));
 	}
-	function xAxisSteps(graph) {
-	    return steppedXAxisValues(graph).map((v) => ({
-	        x1: projectXCoordToSVG(graph, v),
+	function linePoints(graph) {
+	    return graph.yAxisValues
+	        .map((v, i) => `${projectXCoordToSVG(graph, graph.xAxisValues[i])},${projectYCoordToSVG(graph, v)}`)
+	        .join(" ");
+	}
+	function horizontalLineBarPoints(graph) {
+	    return graph.xAxisValues.map((v, i) => ({
+	        x1: projectXCoordToSVG(graph, 0),
 	        x2: projectXCoordToSVG(graph, v),
+	        y1: projectYCoordToSVG(graph, graph.yAxisValues[i]),
+	        y2: projectYCoordToSVG(graph, graph.yAxisValues[i]),
+	    }));
+	}
+	function invertedHorizontalLineBarPoints(graph) {
+	    return graph.xAxisValues.map((v, i) => ({
+	        x1: projectXCoordToSVG(graph, 0),
+	        x2: projectXCoordToSVG(graph, v),
+	        y1: projectInvertedYCoordToSVG(graph, graph.yAxisValues[i]),
+	        y2: projectInvertedYCoordToSVG(graph, graph.yAxisValues[i]),
+	    }));
+	}
+	function verticalLineBarPoints(graph) {
+	    return graph.yAxisValues.map((v, i) => ({
+	        x1: projectXCoordToSVG(graph, graph.xAxisValues[i]),
+	        x2: projectXCoordToSVG(graph, graph.xAxisValues[i]),
 	        y1: projectYCoordToSVG(graph, 0),
-	        y2: projectYCoordToSVG(graph, 0) + 2,
+	        y2: projectYCoordToSVG(graph, v),
 	    }));
 	}
 
@@ -825,11 +934,11 @@
 	    fontWeight: "bold",
 	    textAnchor: "middle",
 	};
-	const XAxisAnnotations = ({ style = {}, annotations, offsetY = 4, }) => {
+	const XAxisAnnotations = ({ style = {}, annotations, offsetY = 4, position = "bottom", }) => {
 	    style = { ...defaultAnnotationStyle, ...style };
 	    const graph = useGraph();
 	    annotations = annotations ?? steppedXAxisValues(graph);
-	    return (react.createElement("g", { style: style, "data-componentid": "x-axis-annotations" }, xAxisAnnotations(graph).map(({ x, y }, i) => (react.createElement("text", { key: `${x}${y}${i}`, x: x, y: y - offsetY, "data-componentid": `x-axis-annotation-${x}${y}${i}` }, annotations && annotations[i])))));
+	    return (react.createElement("g", { style: style, "data-componentid": "x-axis-annotations" }, xAxisAnnotations(graph, position).map(({ x, y }, i) => (react.createElement("text", { key: `${x}${y}${i}`, x: x, y: y - offsetY, "data-componentid": `x-axis-annotation-${x}${y}${i}` }, annotations && annotations[i])))));
 	};
 	const YAxisAnnotations = ({ style = {}, offsetX = 2, offsetY = 0, annotations, }) => {
 	    style = { ...defaultAnnotationStyle, ...style };
@@ -844,10 +953,10 @@
 	    strokeLinecap: "round",
 	    strokeWidth: 1,
 	};
-	const XAxis = ({ style = defaultAxisStyle, showSteps = true, }) => {
+	const XAxis = ({ style = defaultAxisStyle, showSteps = true, position = "bottom", }) => {
 	    const graph = useGraph();
-	    const { x1, x2, y1, y2 } = xAxis(graph);
-	    const axisSteps = showSteps ? xAxisSteps(graph) : null;
+	    const { x1, x2, y1, y2 } = xAxis(graph, position);
+	    const axisSteps = showSteps ? xAxisSteps(graph, position) : null;
 	    return (react.createElement("g", { "data-componentid": "x-axis" },
 	        react.createElement("line", { style: style, x1: x1, x2: x2, y1: y1, y2: y2 }),
 	        axisSteps?.map(({ x1, x2, y1, y2 }, i) => (react.createElement("line", { key: `${x1}${x2}${y1}${y2}${i}`, style: style, x1: x1, x2: x2, y1: y1, y2: y2 })))));
@@ -861,34 +970,44 @@
 	        axisSteps?.map(({ x1, x2, y1, y2 }, i) => (react.createElement("line", { key: `${x1}${x2}${y1}${y2}${i}`, style: style, x1: x1, x2: x2, y1: y1, y2: y2 })))));
 	};
 
+	const Canvas = ({ children, padding = 10, style = {}, }) => {
+	    const graph = useGraph();
+	    const viewBoxMinX = 0 - (typeof padding === "number" ? padding : padding.left);
+	    const viewBoxMinY = 0 - (typeof padding === "number" ? padding : padding.top);
+	    const viewBoxWidth = graph.xAxisSize +
+	        (typeof padding === "number" ? padding * 2 : padding.right + padding.left);
+	    const viewBoxHeight = graph.yAxisSize +
+	        (typeof padding === "number" ? padding * 2 : padding.top + padding.bottom);
+	    return (react.createElement("svg", { style: style, viewBox: `${viewBoxMinX} ${viewBoxMinY} ${viewBoxWidth} ${viewBoxHeight}`, width: "100%", height: "100%" }, children));
+	};
+
 	const defaultDataLineStyle = {
 	    fill: "none",
 	    stroke: "black",
 	    strokeLinecap: "round",
 	    strokeWidth: 1,
 	};
-	function projectedDataLinePoints(graph) {
-	    return graph.yAxisValues
-	        .map((v, i) => `${projectXCoordToSVG(graph, graph.xAxisValues[i])},${projectYCoordToSVG(graph, v)}`)
-	        .join(" ");
-	}
 	const DataLine = ({ style = {} }) => {
 	    style = { ...defaultDataLineStyle, ...style };
 	    const graph = useGraph();
-	    return react.createElement("polyline", { style: style, points: projectedDataLinePoints(graph) });
+	    return react.createElement("polyline", { style: style, points: linePoints(graph) });
 	};
-	function projectedHorizontalLineBarPoints(graph) {
-	    return graph.yAxisValues.map((v, i) => ({
-	        x1: projectXCoordToSVG(graph, graph.xAxisValues[i]),
-	        x2: projectXCoordToSVG(graph, graph.xAxisValues[i]),
-	        y1: projectYCoordToSVG(graph, 0),
-	        y2: projectYCoordToSVG(graph, v),
-	    }));
-	}
-	const DataHorizontalLineBar = ({ style = {}, }) => {
+	const VerticalLineBars = ({ style = {} }) => {
 	    style = { ...defaultDataLineStyle, ...style };
 	    const graph = useGraph();
-	    const lines = projectedHorizontalLineBarPoints(graph).map(({ x1, x2, y1, y2 }, i) => (react.createElement("line", { key: `${x1}${x2}${y1}${y2}${i}`, x1: x1, x2: x2, y1: y1, y2: y2 })));
+	    const lines = verticalLineBarPoints(graph).map(({ x1, x2, y1, y2 }, i) => (react.createElement("line", { key: `${x1}${x2}${y1}${y2}${i}`, x1: x1, x2: x2, y1: y1, y2: y2 })));
+	    return react.createElement("g", { style: style }, lines);
+	};
+	const HorizontalLineBars = ({ style = {} }) => {
+	    style = { ...defaultDataLineStyle, ...style };
+	    const graph = useGraph();
+	    const lines = horizontalLineBarPoints(graph).map(({ x1, x2, y1, y2 }, i) => (react.createElement("line", { key: `${x1}${x2}${y1}${y2}${i}`, x1: x1, x2: x2, y1: y1, y2: y2 })));
+	    return react.createElement("g", { style: style }, lines);
+	};
+	const InvertedHorizontalLineBars = ({ style = {}, }) => {
+	    style = { ...defaultDataLineStyle, ...style };
+	    const graph = useGraph();
+	    const lines = invertedHorizontalLineBarPoints(graph).map(({ x1, x2, y1, y2 }, i) => (react.createElement("line", { key: `${x1}${x2}${y1}${y2}${i}`, x1: x1, x2: x2, y1: y1, y2: y2 })));
 	    return react.createElement("g", { style: style }, lines);
 	};
 	const defaultDataDotsStyle = {
@@ -896,17 +1015,36 @@
 	    stroke: "white",
 	    strokeWidth: 1,
 	};
-	function projectedDotsPoints(graph) {
-	    return graph.yAxisValues.map((v, i) => ({
-	        x: projectXCoordToSVG(graph, graph.xAxisValues[i]),
-	        y: projectYCoordToSVG(graph, v),
-	    }));
-	}
-	const DataDots = ({ style = {}, r = 2 }) => {
+	const DataDots = ({ style = {}, r = 2, }) => {
 	    style = { ...defaultDataDotsStyle, ...style };
 	    const graph = useGraph();
-	    const dots = projectedDotsPoints(graph).map(({ x, y }, i) => (react.createElement("circle", { key: `${x}${y}${i}`, cx: x, cy: y, r: r })));
+	    const dots = dotPoints(graph).map(({ x, y }, i) => (react.createElement("circle", { key: `${x}${y}${i}`, cx: x, cy: y, r: r })));
 	    return react.createElement("g", { style: style }, dots);
+	};
+	const defaultAreaStyle = {
+	    stroke: "none",
+	    fill: "grey",
+	    opacity: 0.2,
+	};
+	const AreaFillXAxis = ({ style = {}, coordinateOverride, }) => {
+	    style = { ...defaultAreaStyle, ...style };
+	    let graph = useGraph();
+	    // If using as an overlay, there will be a new set of y-axis coordinates to plot:
+	    if (coordinateOverride) {
+	        graph = { ...graph, yAxisValues: coordinateOverride };
+	    }
+	    const points = `${projectXCoordToSVG(graph, 0)},${projectYCoordToSVG(graph, 0)} ${linePoints(graph)} ${projectXCoordToSVG(graph, graph.xAxisMax)},${projectYCoordToSVG(graph, 0)}`;
+	    return react.createElement("polygon", { style: style, points: points });
+	};
+	const AreaFillYAxis = ({ style = {}, coordinateOverride, }) => {
+	    style = { ...defaultAreaStyle, ...style };
+	    let graph = useGraph();
+	    // If using as an overlay, there will be a new set of y-axis coordinates to plot:
+	    if (coordinateOverride) {
+	        graph = { ...graph, xAxisValues: coordinateOverride };
+	    }
+	    const points = `${projectXCoordToSVG(graph, 0)},${projectYCoordToSVG(graph, 0)} ${linePoints(graph)} ${projectXCoordToSVG(graph, 0)},${projectYCoordToSVG(graph, graph.yAxisMax)}`;
+	    return react.createElement("polygon", { style: style, points: points });
 	};
 
 	const defaultGridLinesStyle = {
@@ -916,59 +1054,144 @@
 	};
 	const XAxisGridLines = ({ style = defaultGridLinesStyle, }) => {
 	    const graph = useGraph();
-	    return (react.createElement("g", { "data-componentid": "x-axis-gridlines" }, xAxisGridlines(graph).map(({ x1, x2, y1, y2 }, i) => (react.createElement("line", { key: `${x1}${x2}${y1}${y2}${i}`, x1: x1, x2: x2, y1: y1, y2: y2, style: style, "data-componentid": `x-axis-gridline-${x1}${x2}${y1}${y2}${i}` })))));
+	    return (react.createElement("g", { "data-componentid": "x-axis-gridlines" }, verticalGridlines(graph).map(({ x1, x2, y1, y2 }, i) => (react.createElement("line", { key: `${x1}${x2}${y1}${y2}${i}`, x1: x1, x2: x2, y1: y1, y2: y2, style: style, "data-componentid": `x-axis-gridline-${x1}${x2}${y1}${y2}${i}` })))));
 	};
 	const YAxisGridLines = ({ style = defaultGridLinesStyle, }) => {
 	    const graph = useGraph();
-	    return (react.createElement("g", { "data-componentid": "y-axis-gridlines" }, yAxisGridLines(graph).map(({ x1, x2, y1, y2 }, i) => (react.createElement("line", { key: `${x1}${x2}${y1}${y2}${i}`, x1: x1, x2: x2, y1: y1, y2: y2, style: style, "data-componentid": `y-axis-gridline-${x1}${x2}${y1}${y2}${i}` })))));
+	    return (react.createElement("g", { "data-componentid": "y-axis-gridlines" }, horizontalGridLines(graph).map(({ x1, x2, y1, y2 }, i) => (react.createElement("line", { key: `${x1}${x2}${y1}${y2}${i}`, x1: x1, x2: x2, y1: y1, y2: y2, style: style, "data-componentid": `y-axis-gridline-${x1}${x2}${y1}${y2}${i}` })))));
 	};
 
-	const Graph = ({ xAxisSize, xAxisMax, xAxisMin, xAxisStep, xAxisValues, yAxisSize, yAxisMax, yAxisMin, yAxisStep, yAxisValues, children, padding = 10, style, }) => {
+	const underlyingRangeInputStyle = {
+	    appearance: "none",
+	    background: "transparent",
+	    opacity: 0,
+	    display: "block",
+	    width: "100%",
+	    height: "100%",
+	};
+	const underlyingVerticalRangeInputStyle = {
+	    ...underlyingRangeInputStyle,
+	    WebkitAppearance: "slider-vertical",
+	    transform: "rotate(180deg)",
+	};
+	const defaultRangeStyle = {
+	    fill: "none",
+	    stroke: "black",
+	    strokeWidth: 2,
+	};
+	const ScrubberLeftToRight = ({ thumbStyle = {}, currentDataPointIndex, setCurrentDataPointIndex, }) => {
+	    thumbStyle = { ...defaultRangeStyle, ...thumbStyle };
+	    const graph = useGraph();
+	    const { x1, x2, y1, y2 } = verticalLineFullHeight(graph, 0);
+	    return (react.createElement(react.Fragment, null,
+	        react.createElement("g", { transform: `translate(${projectXCoordToSVG(graph, graph.xAxisValues[currentDataPointIndex])})` },
+	            react.createElement("line", { style: thumbStyle, x1: x1, x2: x2, y1: y1, y2: y2 })),
+	        react.createElement("foreignObject", { x: 0, y: 0, width: graph.xAxisSize, height: graph.yAxisSize, "data-componentid": "scrubbercontrol" },
+	            react.createElement("input", { onChange: (e) => setCurrentDataPointIndex(+e.target.value), type: "range", min: 0, max: graph.yAxisValues.length, step: 1, style: underlyingRangeInputStyle, value: currentDataPointIndex }))));
+	};
+	const ScrubberTopToBottom = ({ thumbStyle = {}, currentDataPointIndex, setCurrentDataPointIndex, }) => {
+	    thumbStyle = { ...defaultRangeStyle, ...thumbStyle };
+	    const graph = useGraph();
+	    const { x1, x2, y1, y2 } = invertedHorizontalLineFullWidth(graph, 0);
+	    /** NOTE TS typings for input elements do not include the `orient` property */
+	    const inputRef = react.useRef(null);
+	    react.useEffect(() => {
+	        if (inputRef != null && inputRef.current != null) {
+	            inputRef.current.setAttribute("orient", "vertical");
+	        }
+	    }, []);
+	    return (react.createElement(react.Fragment, null,
+	        react.createElement("g", { transform: `translate(0 ${projectInvertedYCoordToSVG(graph, graph.yAxisValues[currentDataPointIndex])})` },
+	            react.createElement("line", { style: thumbStyle, x1: x1, x2: x2, y1: y1, y2: y2 })),
+	        react.createElement("foreignObject", { x: 0, y: 0, width: graph.xAxisSize, height: graph.yAxisSize, "data-componentid": "scrubbercontrol" },
+	            react.createElement("input", { ref: inputRef, onChange: (e) => setCurrentDataPointIndex(+e.target.value), type: "range", min: 0, max: graph.yAxisValues.length, step: 1, style: underlyingVerticalRangeInputStyle, value: currentDataPointIndex }))));
+	};
+
+	const Graph = ({ children, xAxisSize, xAxisScale, xAxisMax, xAxisMin, xAxisStep, xAxisValues, yAxisSize, yAxisScale, yAxisMax, yAxisMin, yAxisStep, yAxisValues, }) => {
 	    const graph = createGraph({
 	        xAxisSize,
+	        xAxisScale,
 	        xAxisMax,
 	        xAxisMin,
 	        xAxisStep,
 	        xAxisValues,
 	        yAxisSize,
+	        yAxisScale,
 	        yAxisMax,
 	        yAxisMin,
 	        yAxisStep,
 	        yAxisValues,
 	    });
-	    const viewBoxMinX = 0 - (typeof padding === "number" ? padding : padding.left);
-	    const viewBoxMinY = 0 - (typeof padding === "number" ? padding : padding.top);
-	    const viewBoxWidth = graph.xAxisSize +
-	        (typeof padding === "number" ? padding * 2 : padding.right + padding.left);
-	    const viewBoxHeight = graph.yAxisSize +
-	        (typeof padding === "number" ? padding * 2 : padding.top + padding.bottom);
-	    return (react.createElement(GraphContext.Provider, { value: graph },
-	        react.createElement("svg", { style: style, viewBox: `${viewBoxMinX} ${viewBoxMinY} ${viewBoxWidth} ${viewBoxHeight}`, width: "100%", height: "100%" }, children)));
+	    return (react.createElement(GraphContext.Provider, { value: graph }, children));
 	};
+	Graph.Canvas = Canvas;
 	Graph.XAxisAnnotations = XAxisAnnotations;
 	Graph.YAxisAnnotations = YAxisAnnotations;
 	Graph.DataLine = DataLine;
 	Graph.DataDots = DataDots;
-	Graph.DataHorizontalLineBar = DataHorizontalLineBar;
+	Graph.VerticalLineBars = VerticalLineBars;
+	Graph.HorizontalLineBars = HorizontalLineBars;
+	Graph.InvertedHorizontalLineBars = InvertedHorizontalLineBars;
+	Graph.AreaFillXAxis = AreaFillXAxis;
+	Graph.AreaFillYAxis = AreaFillYAxis;
 	Graph.XAxis = XAxis;
 	Graph.XAxisGridLines = XAxisGridLines;
 	Graph.YAxis = YAxis;
 	Graph.YAxisGridLines = YAxisGridLines;
+	Graph.ScrubberLeftToRight = ScrubberLeftToRight;
+	Graph.ScrubberTopToBottom = ScrubberTopToBottom;
 
+	// prettier-ignore
+	const sampleSpeedgraphData = {
+	    SpeedGraph: {
+	        Locations: [[54.96455, -1.49052], [54.9646, -1.49075], [54.96461, -1.49099], [54.9646, -1.49116], [54.96458, -1.4917], [54.96457, -1.49189], [54.96457, -1.49189], [54.96433, -1.49186], [54.96398, -1.49176], [54.96392, -1.49173], [54.96254, -1.49123], [54.96119, -1.49062], [54.96049, -1.49029], [54.96037, -1.49016], [54.96031, -1.49002], [54.96029, -1.48989], [54.96029, -1.48989], [54.9603, -1.48974], [54.9603, -1.48974], [54.96036, -1.48964], [54.96054, -1.48934], [54.96084, -1.48885], [54.96084, -1.48885], [54.96119, -1.48823], [54.9615, -1.48767], [54.96181, -1.48706], [54.96193, -1.48678], [54.96203, -1.48652], [54.96216, -1.48608], [54.96216, -1.48608], [54.96229, -1.48574], [54.9624, -1.48545], [54.96257, -1.48491], [54.9627, -1.48445], [54.96282, -1.48395], [54.96296, -1.48327], [54.96314, -1.48218], [54.9632, -1.48174], [54.9633, -1.48104], [54.96336, -1.48067], [54.96338, -1.48054], [54.96343, -1.48022], [54.96352, -1.47985], [54.96355, -1.47973], [54.96368, -1.4792], [54.96383, -1.47868], [54.96423, -1.47747], [54.96452, -1.47662], [54.96513, -1.47494], [54.96521, -1.47472], [54.96523, -1.47468], [54.96527, -1.47459], [54.96535, -1.47452], [54.96538, -1.47449], [54.96543, -1.47449], [54.96552, -1.47447], [54.96559, -1.47442], [54.96566, -1.47434], [54.96571, -1.47428], [54.96596, -1.4739], [54.96599, -1.47371], [54.96598, -1.47364], [54.96597, -1.47355], [54.96594, -1.47341], [54.96591, -1.47336], [54.96591, -1.47336], [54.9659, -1.4732], [54.96591, -1.47308], [54.96592, -1.47301], [54.96593, -1.47292], [54.96595, -1.47283], [54.96598, -1.47273], [54.96602, -1.4726], [54.9664, -1.47158], [54.96676, -1.47061], [54.96705, -1.46981], [54.96774, -1.468], [54.96785, -1.46782], [54.9679, -1.46776], [54.9679, -1.46776], [54.96798, -1.46767], [54.96806, -1.46761], [54.96814, -1.46754], [54.96823, -1.46741], [54.96828, -1.46729], [54.96831, -1.46716], [54.96832, -1.46701], [54.96828, -1.46679], [54.96821, -1.46669], [54.96813, -1.46663], [54.968, -1.46664], [54.96794, -1.46661], [54.96794, -1.46661], [54.96781, -1.46653], [54.96752, -1.46602], [54.9674, -1.46572], [54.96728, -1.46544], [54.96696, -1.46447], [54.96668, -1.46344], [54.9664, -1.46238], [54.96561, -1.45955], [54.96556, -1.45934], [54.96481, -1.45675], [54.96475, -1.4564], [54.96474, -1.45637], [54.96475, -1.45632], [54.96475, -1.45624], [54.96474, -1.45617], [54.96472, -1.45612], [54.96469, -1.45607], [54.96466, -1.456], [54.96465, -1.45595], [54.96465, -1.45595], [54.9646, -1.45576], [54.9645, -1.45517], [54.96444, -1.45458], [54.96441, -1.45377], [54.96444, -1.45295], [54.96468, -1.45135], [54.96485, -1.45043], [54.96496, -1.44991], [54.96589, -1.44545], [54.96593, -1.44526], [54.96623, -1.4436], [54.96726, -1.43793], [54.96726, -1.43793], [54.96729, -1.43787], [54.96734, -1.43782], [54.96738, -1.4378], [54.96745, -1.43767], [54.96747, -1.4376], [54.96748, -1.43749], [54.96748, -1.43737], [54.96745, -1.43727], [54.96744, -1.43717], [54.96744, -1.43717], [54.96743, -1.43698], [54.96743, -1.43688], [54.96806, -1.43342], [54.96832, -1.43206], [54.96863, -1.43047], [54.96868, -1.43025], [54.96915, -1.42827], [54.96922, -1.42798], [54.96933, -1.42756], [54.96936, -1.42743], [54.96936, -1.42742], [54.96939, -1.42731], [54.96942, -1.42718], [54.96964, -1.42623], [54.97003, -1.42458], [54.971, -1.42049], [54.97118, -1.41974], [54.97178, -1.41728], [54.97179, -1.41727], [54.97187, -1.41719], [54.97187, -1.41719], [54.97192, -1.41716], [54.97195, -1.41716], [54.97202, -1.41715], [54.97209, -1.4171], [54.97216, -1.41701], [54.97219, -1.41688], [54.9722, -1.41674], [54.97218, -1.41658], [54.97215, -1.41649], [54.9721, -1.4164], [54.97207, -1.41635], [54.97195, -1.41588], [54.97186, -1.41428], [54.97183, -1.41365], [54.97179, -1.41285], [54.97173, -1.4115], [54.97172, -1.41133], [54.97171, -1.4112], [54.9717, -1.41075], [54.97171, -1.41074], [54.97173, -1.41072], [54.97177, -1.41069], [54.97178, -1.41068], [54.97179, -1.41068], [54.97179, -1.41068], [54.97191, -1.41065], [54.97203, -1.41059], [54.97205, -1.4106], [54.9723, -1.41067], [54.97242, -1.41072], [54.97255, -1.41077], [54.97283, -1.41088], [54.97287, -1.4109], [54.97343, -1.41115], [54.9737, -1.41124], [54.97379, -1.41127], [54.97379, -1.41127], [54.97398, -1.40989], [54.97398, -1.40989], [54.97433, -1.41006], [54.97433, -1.41006], [54.97449, -1.40913], [54.97482, -1.40745], [54.97497, -1.40656], [54.97497, -1.40656], [54.97497, -1.40656]],
+	        PointSpeeds: [4, 4, 4, 4, 4, 4, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 11, 11, 15, 15, 15, 15, 11, 11, 11, 11, 11, 11, 11, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 11, 11, 11, 11, 11, 11, 11, 11, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 4, 4, 5, 5, 6, 6, 6, 6, -9223372036854776000, -9223372036854776000],
+	        RoadSpeeds: [32, 32, 32, 32, 32, 32, 32, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32]
+	    }
+	};
+	// prettier-ignore
+	const speedgraphData = {
+	    locations: [[54.96455, -1.49052], [54.9646, -1.49075], [54.96461, -1.49099], [54.9646, -1.49116], [54.96458, -1.4917], [54.96457, -1.49189], [54.96457, -1.49189], [54.96433, -1.49186], [54.96398, -1.49176], [54.96392, -1.49173], [54.96254, -1.49123], [54.96119, -1.49062], [54.96049, -1.49029], [54.96037, -1.49016], [54.96031, -1.49002], [54.96029, -1.48989], [54.96029, -1.48989], [54.9603, -1.48974], [54.9603, -1.48974], [54.96036, -1.48964], [54.96054, -1.48934], [54.96084, -1.48885], [54.96084, -1.48885], [54.96119, -1.48823], [54.9615, -1.48767], [54.96181, -1.48706], [54.96193, -1.48678], [54.96203, -1.48652], [54.96216, -1.48608], [54.96216, -1.48608], [54.96229, -1.48574], [54.9624, -1.48545], [54.96257, -1.48491], [54.9627, -1.48445], [54.96282, -1.48395], [54.96296, -1.48327], [54.96314, -1.48218], [54.9632, -1.48174], [54.9633, -1.48104], [54.96336, -1.48067], [54.96338, -1.48054], [54.96343, -1.48022], [54.96352, -1.47985], [54.96355, -1.47973], [54.96368, -1.4792], [54.96383, -1.47868], [54.96423, -1.47747], [54.96452, -1.47662], [54.96513, -1.47494], [54.96521, -1.47472], [54.96523, -1.47468], [54.96527, -1.47459], [54.96535, -1.47452], [54.96538, -1.47449], [54.96543, -1.47449], [54.96552, -1.47447], [54.96559, -1.47442], [54.96566, -1.47434], [54.96571, -1.47428], [54.96596, -1.4739], [54.96599, -1.47371], [54.96598, -1.47364], [54.96597, -1.47355], [54.96594, -1.47341], [54.96591, -1.47336], [54.96591, -1.47336], [54.9659, -1.4732], [54.96591, -1.47308], [54.96592, -1.47301], [54.96593, -1.47292], [54.96595, -1.47283], [54.96598, -1.47273], [54.96602, -1.4726], [54.9664, -1.47158], [54.96676, -1.47061], [54.96705, -1.46981], [54.96774, -1.468], [54.96785, -1.46782], [54.9679, -1.46776], [54.9679, -1.46776], [54.96798, -1.46767], [54.96806, -1.46761], [54.96814, -1.46754], [54.96823, -1.46741], [54.96828, -1.46729], [54.96831, -1.46716], [54.96832, -1.46701], [54.96828, -1.46679], [54.96821, -1.46669], [54.96813, -1.46663], [54.968, -1.46664], [54.96794, -1.46661], [54.96794, -1.46661], [54.96781, -1.46653], [54.96752, -1.46602], [54.9674, -1.46572], [54.96728, -1.46544], [54.96696, -1.46447], [54.96668, -1.46344], [54.9664, -1.46238], [54.96561, -1.45955], [54.96556, -1.45934], [54.96481, -1.45675], [54.96475, -1.4564], [54.96474, -1.45637], [54.96475, -1.45632], [54.96475, -1.45624], [54.96474, -1.45617], [54.96472, -1.45612], [54.96469, -1.45607], [54.96466, -1.456], [54.96465, -1.45595], [54.96465, -1.45595], [54.9646, -1.45576], [54.9645, -1.45517], [54.96444, -1.45458], [54.96441, -1.45377], [54.96444, -1.45295], [54.96468, -1.45135], [54.96485, -1.45043], [54.96496, -1.44991], [54.96589, -1.44545], [54.96593, -1.44526], [54.96623, -1.4436], [54.96726, -1.43793], [54.96726, -1.43793], [54.96729, -1.43787], [54.96734, -1.43782], [54.96738, -1.4378], [54.96745, -1.43767], [54.96747, -1.4376], [54.96748, -1.43749], [54.96748, -1.43737], [54.96745, -1.43727], [54.96744, -1.43717], [54.96744, -1.43717], [54.96743, -1.43698], [54.96743, -1.43688], [54.96806, -1.43342], [54.96832, -1.43206], [54.96863, -1.43047], [54.96868, -1.43025], [54.96915, -1.42827], [54.96922, -1.42798], [54.96933, -1.42756], [54.96936, -1.42743], [54.96936, -1.42742], [54.96939, -1.42731], [54.96942, -1.42718], [54.96964, -1.42623], [54.97003, -1.42458], [54.971, -1.42049], [54.97118, -1.41974], [54.97178, -1.41728], [54.97179, -1.41727], [54.97187, -1.41719], [54.97187, -1.41719], [54.97192, -1.41716], [54.97195, -1.41716], [54.97202, -1.41715], [54.97209, -1.4171], [54.97216, -1.41701], [54.97219, -1.41688], [54.9722, -1.41674], [54.97218, -1.41658], [54.97215, -1.41649], [54.9721, -1.4164], [54.97207, -1.41635], [54.97195, -1.41588], [54.97186, -1.41428], [54.97183, -1.41365], [54.97179, -1.41285], [54.97173, -1.4115], [54.97172, -1.41133], [54.97171, -1.4112], [54.9717, -1.41075], [54.97171, -1.41074], [54.97173, -1.41072], [54.97177, -1.41069], [54.97178, -1.41068], [54.97179, -1.41068], [54.97179, -1.41068], [54.97191, -1.41065], [54.97203, -1.41059], [54.97205, -1.4106], [54.9723, -1.41067], [54.97242, -1.41072], [54.97255, -1.41077], [54.97283, -1.41088], [54.97287, -1.4109], [54.97343, -1.41115], [54.9737, -1.41124], [54.97379, -1.41127], [54.97379, -1.41127], [54.97398, -1.40989], [54.97398, -1.40989], [54.97433, -1.41006], [54.97433, -1.41006], [54.97449, -1.40913], [54.97482, -1.40745], [54.97497, -1.40656], [54.97497, -1.40656], [54.97497, -1.40656]],
+	    pointSpeeds: sampleSpeedgraphData.SpeedGraph.PointSpeeds.map((speed) => speed < 0 ? 0 : speed),
+	    roadSpeeds: [32, 32, 32, 32, 32, 32, 32, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32]
+	};
+	// const FASTEST_ROAD_SPEED = 490.4845989;
 	const App = () => {
+	    const [currentDataPoint, setCurrentDataPoint] = react.useState(0);
 	    return (react.createElement("main", null,
 	        react.createElement("section", null,
 	            react.createElement(Graph, { yAxisSize: 100, xAxisSize: 100, yAxisValues: [49, 50, 56, 56, 71, 74, 75, 76, 78, 83], yAxisMin: 0, yAxisMax: 100, yAxisStep: 25, xAxisMin: 1, xAxisMax: 10, xAxisValues: Array.from({ length: 10 }, (_, i) => i + 1) },
-	                react.createElement(Graph.YAxisGridLines, null),
-	                react.createElement(Graph.XAxisGridLines, null),
-	                react.createElement(Graph.YAxis, null),
-	                react.createElement(Graph.XAxis, null),
-	                react.createElement(Graph.YAxisAnnotations, { offsetY: 1, offsetX: -4 }),
-	                react.createElement(Graph.XAxisAnnotations, { offsetY: -6 }),
-	                react.createElement(Graph.DataLine, null),
-	                react.createElement(Graph.DataDots, null))),
+	                react.createElement(Graph.Canvas, null,
+	                    react.createElement(Graph.YAxisGridLines, null),
+	                    react.createElement(Graph.XAxisGridLines, null),
+	                    react.createElement(Graph.YAxis, null),
+	                    react.createElement(Graph.XAxis, null),
+	                    react.createElement(Graph.YAxisAnnotations, { offsetY: 1, offsetX: -4 }),
+	                    react.createElement(Graph.XAxisAnnotations, { offsetY: -6 }),
+	                    react.createElement(Graph.DataLine, null),
+	                    react.createElement(Graph.DataDots, null)))),
 	        react.createElement("section", null,
-	            react.createElement(Gauge, { value: 75, strokeWidth: 4 }))));
+	            react.createElement(Gauge, { value: 75, strokeWidth: 4 })),
+	        react.createElement("section", null),
+	        react.createElement("section", { style: { gridColumn: "1 / 4" } },
+	            react.createElement(Graph, { yAxisValues: speedgraphData.pointSpeeds, yAxisMin: 0, yAxisMax: Math.max(Math.max(...speedgraphData.pointSpeeds), Math.max(...speedgraphData.roadSpeeds)), yAxisSize: 200, yAxisStep: 10, xAxisScale: 4 },
+	                react.createElement(Graph.Canvas, { padding: { top: 10, right: 10, bottom: 10, left: 20 } },
+	                    react.createElement(Graph.XAxis, { showSteps: false }),
+	                    react.createElement(Graph.YAxis, null),
+	                    react.createElement(Graph.YAxisGridLines, null),
+	                    react.createElement(Graph.YAxisAnnotations, { offsetY: 2, offsetX: -4, style: { fontSize: 6 } }),
+	                    react.createElement(Graph.AreaFillXAxis, { coordinateOverride: speedgraphData.roadSpeeds }),
+	                    react.createElement(Graph.VerticalLineBars, null),
+	                    react.createElement(Graph.ScrubberLeftToRight, { currentDataPointIndex: currentDataPoint, setCurrentDataPointIndex: setCurrentDataPoint })))),
+	        react.createElement("section", { style: { gridRow: "3 / 5" } },
+	            react.createElement(Graph, { xAxisValues: speedgraphData.pointSpeeds, xAxisMin: 0, xAxisMax: Math.max(...speedgraphData.pointSpeeds), xAxisSize: 200, xAxisStep: 10, yAxisScale: 4 },
+	                react.createElement(Graph.Canvas, { padding: { top: 20, right: 10, bottom: 10, left: 10 } },
+	                    react.createElement(Graph.XAxisGridLines, null),
+	                    react.createElement(Graph.XAxisAnnotations, { offsetY: 4, offsetX: -4, style: { fontSize: 6 }, position: "top" }),
+	                    react.createElement(Graph.InvertedHorizontalLineBars, null),
+	                    react.createElement(Graph.ScrubberTopToBottom, { currentDataPointIndex: currentDataPoint, setCurrentDataPointIndex: setCurrentDataPoint })))),
+	        react.createElement("section", null),
+	        react.createElement("section", null)));
 	};
 	reactDom.render(react.createElement(App, null), document.getElementById("root"));
 

@@ -62,55 +62,89 @@ export function createGraph({
 	xAxisMax,
 	xAxisMin = 0,
 	xAxisSize,
+	xAxisScale,
 	xAxisStep = 1,
 	xAxisValues,
 	yAxisMax,
 	yAxisMin = 0,
 	yAxisSize,
+	yAxisScale,
 	yAxisStep = 1,
 	yAxisValues,
 }: GraphConstructor): GraphData {
-	if (!(xAxisSize && yAxisSize)) {
-		throw new Error(
-			"BOTH the x- and y-axis size MUST be provided to create the graph."
-		);
-	}
-	if (!(xAxisValues && yAxisValues)) {
+	/**
+	 * If neither the x and y axis values are provided, cannot create the graph:
+	 */
+	if (!xAxisValues && !yAxisValues) {
 		throw new Error(
 			"ONE OR BOTH x- or y-axis value arrays MUST be provided to create the graph."
 		);
 	}
-	if (!xAxisValues) {
+
+	/**
+	 * If only one of the x/y axis values are provided, the other axis can be assumed
+	 * to be the length of the other (_ie_ the values are plotted on a range/in series):
+	 */
+	if (yAxisValues && !xAxisValues) {
 		xAxisValues = Array.from(
 			{ length: yAxisValues.length },
 			(_, i) => i + xAxisMin
 		);
-	}
-	if (!yAxisValues) {
+	} else if (xAxisValues && !yAxisValues) {
 		yAxisValues = Array.from(
 			{ length: xAxisValues.length },
 			(_, i) => i + yAxisMin
 		);
 	}
-	xAxisMax = xAxisMax ?? Math.max(...xAxisValues);
-	yAxisMax = yAxisMax ?? Math.max(...yAxisValues);
+	// Once both of the arrays of values are populated, can infer the max values if not present:
+	xAxisMax = xAxisMax ?? Math.max(...(xAxisValues as number[]));
+	yAxisMax = yAxisMax ?? Math.max(...(yAxisValues as number[]));
 
-	const xAxisScale = calculateScale(xAxisSize, xAxisMin, xAxisMax);
-	const yAxisScale = calculateScale(yAxisSize, yAxisMin, yAxisMax);
+	/**
+	 * If the x-axis size is *not* provided, then the scale *must* be
+	 * provided, otherwise the size of the axis cannot be calculated:
+	 */
+	if ((!xAxisSize && !xAxisScale) || (xAxisSize && xAxisScale)) {
+		throw new Error(
+			"EITHER the x-axis size OR the x-axis scale must be provided up-front or this graph axis cannot be plotted."
+		);
+	} else if (xAxisSize && !xAxisScale) {
+		xAxisScale = calculateScale(xAxisSize, xAxisMin, xAxisMax);
+	} else if (!xAxisSize && xAxisScale) {
+		xAxisSize = calculateSize(xAxisScale, xAxisMin, xAxisMax);
+	}
+
+	/**
+	 * If the y-axis size is *not* provided, then the scale *must* be
+	 * provided, otherwise the size of the axis cannot be calculated:
+	 */
+	if ((!yAxisSize && !yAxisScale) || (yAxisSize && yAxisScale)) {
+		throw new Error(
+			"EITHER the y-axis size OR the y-axis scale must be provided up-front or this graph axis cannot be plotted."
+		);
+	} else if (yAxisSize && !yAxisScale) {
+		yAxisScale = calculateScale(yAxisSize, yAxisMin, yAxisMax);
+	} else if (!yAxisSize && yAxisScale) {
+		yAxisSize = calculateSize(yAxisScale, yAxisMin, yAxisMax);
+	}
 
 	return {
 		xAxisMax,
 		xAxisMin,
-		xAxisScale,
-		xAxisSize,
+		// All branches have been covered to populate following two values,
+		// they cannot be undefined at this point, compiler is being overstrict:
+		xAxisScale: xAxisScale as number,
+		xAxisSize: xAxisSize as number,
 		xAxisStep,
-		xAxisValues,
+		xAxisValues: xAxisValues as number[],
 		yAxisMax,
 		yAxisMin,
-		yAxisScale,
-		yAxisSize,
+		// All branches have been covered to populate following two values,
+		// they cannot be undefined at this point, compiler is being overstrict:
+		yAxisScale: yAxisScale as number,
+		yAxisSize: yAxisSize as number,
 		yAxisStep,
-		yAxisValues,
+		yAxisValues: yAxisValues as number[],
 	};
 }
 
@@ -133,6 +167,27 @@ export function calculateScale(
 	axisMax: number
 ): number {
 	return axisSize / (axisMax - axisMin);
+}
+
+/**
+ * Examples:
+ *
+ * scale 10 min 0 max 10 size 100
+ * scale 10 min -50 max 50 size 100
+ * scale 10 min -25 max 75 size 100
+ * scale 10 min -100 max 0 size 100
+ *
+ * @param {number} axisScale
+ * @param {number} axisMin
+ * @param {number} axisMax
+ * @returns {number}
+ */
+export function calculateSize(
+	axisScale: number,
+	axisMin: number,
+	axisMax: number
+): number {
+	return (axisMax - axisMin) * axisScale;
 }
 
 /**
@@ -186,6 +241,26 @@ export function projectYCoordToSVG(
 	axisCoord: number
 ): number {
 	return yAxisSize - (axisCoord - yAxisMin) * yAxisScale;
+}
+
+/**
+ * NOTE specific, limited use.
+ *
+ * As `projectXCoordToSVG`, which will result in an inverted graph,
+ * 0 at top, max at bottom. The only usecase for this is a graph
+ * that has an axis rendered top to bottom vertically.
+ *
+ * @param {GraphData} graphData
+ * @param {number} graphData.yAxisMin
+ * @param {number} graphData.yAxisScale
+ * @param {number} axisCoord
+ * @returns {number}
+ */
+export function projectInvertedYCoordToSVG(
+	{ yAxisMin, yAxisScale }: GraphData,
+	axisCoord: number
+): number {
+	return (axisCoord - yAxisMin) * yAxisScale;
 }
 
 /**

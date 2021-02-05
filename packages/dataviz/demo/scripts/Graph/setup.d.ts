@@ -56,7 +56,7 @@ export interface GraphData {
      */
     xAxisStep: number;
 }
-export declare function createGraph({ xAxisMax, xAxisMin, xAxisSize, xAxisStep, xAxisValues, yAxisMax, yAxisMin, yAxisSize, yAxisStep, yAxisValues, }: GraphConstructor): GraphData;
+export declare function createGraph({ xAxisMax, xAxisMin, xAxisSize, xAxisScale, xAxisStep, xAxisValues, yAxisMax, yAxisMin, yAxisSize, yAxisScale, yAxisStep, yAxisValues, }: GraphConstructor): GraphData;
 /**
  * Examples:
  *
@@ -71,6 +71,20 @@ export declare function createGraph({ xAxisMax, xAxisMin, xAxisSize, xAxisStep, 
  * @returns {number}
  */
 export declare function calculateScale(axisSize: number, axisMin: number, axisMax: number): number;
+/**
+ * Examples:
+ *
+ * scale 10 min 0 max 10 size 100
+ * scale 10 min -50 max 50 size 100
+ * scale 10 min -25 max 75 size 100
+ * scale 10 min -100 max 0 size 100
+ *
+ * @param {number} axisScale
+ * @param {number} axisMin
+ * @param {number} axisMax
+ * @returns {number}
+ */
+export declare function calculateSize(axisScale: number, axisMin: number, axisMax: number): number;
 /**
  * Examples:
  * coord at 5, size 100, min 0, max 10, scale 10 = 50
@@ -112,6 +126,20 @@ export declare function projectXCoordToSVG({ xAxisMin, xAxisScale }: GraphData, 
  * @returns {number}
  */
 export declare function projectYCoordToSVG({ yAxisMin, yAxisScale, yAxisSize }: GraphData, axisCoord: number): number;
+/**
+ * NOTE specific, limited use.
+ *
+ * As `projectXCoordToSVG`, which will result in an inverted graph,
+ * 0 at top, max at bottom. The only usecase for this is a graph
+ * that has an axis rendered top to bottom vertically.
+ *
+ * @param {GraphData} graphData
+ * @param {number} graphData.yAxisMin
+ * @param {number} graphData.yAxisScale
+ * @param {number} axisCoord
+ * @returns {number}
+ */
+export declare function projectInvertedYCoordToSVG({ yAxisMin, yAxisScale }: GraphData, axisCoord: number): number;
 /**
  * Generate an array of x axis coordinates for stepped points along that axis. Used to place annotations.
  *

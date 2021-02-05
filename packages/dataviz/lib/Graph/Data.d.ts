@@ -1,24 +1,15 @@
 import React from "react";
-import { GraphData } from "./setup";
-export interface DataLineProps {
+export interface DataProps {
     style?: React.CSSProperties;
+    coordinateOverride?: number[];
 }
-export declare function projectedDataLinePoints(graph: GraphData): string;
-export declare const DataLine: ({ style }: DataLineProps) => JSX.Element;
-export declare function projectedHorizontalLineBarPoints(graph: GraphData): {
-    x1: number;
-    x2: number;
-    y1: number;
-    y2: number;
-}[];
-export declare const DataHorizontalLineBar: ({ style, }: DataLineProps) => JSX.Element;
-export interface DataDotsProps {
-    style?: React.CSSProperties;
-    r?: number;
-}
-export declare function projectedDotsPoints(graph: GraphData): {
-    x: number;
-    y: number;
-}[];
-export declare const DataDots: ({ style, r }: DataDotsProps) => JSX.Element;
+export declare const DataLine: ({ style }: DataProps) => JSX.Element;
+export declare const VerticalLineBars: ({ style }: DataProps) => JSX.Element;
+export declare const HorizontalLineBars: ({ style }: DataProps) => JSX.Element;
+export declare const InvertedHorizontalLineBars: ({ style, }: DataProps) => JSX.Element;
+export declare const DataDots: ({ style, r, }: DataProps & {
+    r?: number | undefined;
+}) => JSX.Element;
+export declare const AreaFillXAxis: ({ style, coordinateOverride, }: DataProps) => JSX.Element;
+export declare const AreaFillYAxis: ({ style, coordinateOverride, }: DataProps) => JSX.Element;
 //# sourceMappingURL=Data.d.ts.map

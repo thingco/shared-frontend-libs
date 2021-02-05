@@ -39,36 +39,69 @@ function useGraph() {
     return graph;
 }
 
-function createGraph({ xAxisMax, xAxisMin = 0, xAxisSize, xAxisStep = 1, xAxisValues, yAxisMax, yAxisMin = 0, yAxisSize, yAxisStep = 1, yAxisValues, }) {
-    if (!(xAxisSize && yAxisSize)) {
-        throw new Error("BOTH the x- and y-axis size MUST be provided to create the graph.");
-    }
-    if (!(xAxisValues && yAxisValues)) {
+function createGraph({ xAxisMax, xAxisMin = 0, xAxisSize, xAxisScale, xAxisStep = 1, xAxisValues, yAxisMax, yAxisMin = 0, yAxisSize, yAxisScale, yAxisStep = 1, yAxisValues, }) {
+    /**
+     * If neither the x and y axis values are provided, cannot create the graph:
+     */
+    if (!xAxisValues && !yAxisValues) {
         throw new Error("ONE OR BOTH x- or y-axis value arrays MUST be provided to create the graph.");
     }
-    if (!xAxisValues) {
+    /**
+     * If only one of the x/y axis values are provided, the other axis can be assumed
+     * to be the length of the other (_ie_ the values are plotted on a range/in series):
+     */
+    if (yAxisValues && !xAxisValues) {
         xAxisValues = Array.from({ length: yAxisValues.length }, (_, i) => i + xAxisMin);
     }
-    if (!yAxisValues) {
+    else if (xAxisValues && !yAxisValues) {
         yAxisValues = Array.from({ length: xAxisValues.length }, (_, i) => i + yAxisMin);
     }
+    // Once both of the arrays of values are populated, can infer the max values if not present:
     xAxisMax = xAxisMax ?? Math.max(...xAxisValues);
     yAxisMax = yAxisMax ?? Math.max(...yAxisValues);
-    const xAxisScale = calculateScale(xAxisSize, xAxisMin, xAxisMax);
-    const yAxisScale = calculateScale(yAxisSize, yAxisMin, yAxisMax);
+    /**
+     * If the x-axis size is *not* provided, then the scale *must* be
+     * provided, otherwise the size of the axis cannot be calculated:
+     */
+    if ((!xAxisSize && !xAxisScale) || (xAxisSize && xAxisScale)) {
+        throw new Error("EITHER the x-axis size OR the x-axis scale must be provided up-front or this graph axis cannot be plotted.");
+    }
+    else if (xAxisSize && !xAxisScale) {
+        xAxisScale = calculateScale(xAxisSize, xAxisMin, xAxisMax);
+    }
+    else if (!xAxisSize && xAxisScale) {
+        xAxisSize = calculateSize(xAxisScale, xAxisMin, xAxisMax);
+    }
+    /**
+     * If the y-axis size is *not* provided, then the scale *must* be
+     * provided, otherwise the size of the axis cannot be calculated:
+     */
+    if ((!yAxisSize && !yAxisScale) || (yAxisSize && yAxisScale)) {
+        throw new Error("EITHER the y-axis size OR the y-axis scale must be provided up-front or this graph axis cannot be plotted.");
+    }
+    else if (yAxisSize && !yAxisScale) {
+        yAxisScale = calculateScale(yAxisSize, yAxisMin, yAxisMax);
+    }
+    else if (!yAxisSize && yAxisScale) {
+        yAxisSize = calculateSize(yAxisScale, yAxisMin, yAxisMax);
+    }
     return {
         xAxisMax,
         xAxisMin,
-        xAxisScale,
-        xAxisSize,
+        // All branches have been covered to populate following two values,
+        // they cannot be undefined at this point, compiler is being overstrict:
+        xAxisScale: xAxisScale,
+        xAxisSize: xAxisSize,
         xAxisStep,
-        xAxisValues,
+        xAxisValues: xAxisValues,
         yAxisMax,
         yAxisMin,
-        yAxisScale,
-        yAxisSize,
+        // All branches have been covered to populate following two values,
+        // they cannot be undefined at this point, compiler is being overstrict:
+        yAxisScale: yAxisScale,
+        yAxisSize: yAxisSize,
         yAxisStep,
-        yAxisValues,
+        yAxisValues: yAxisValues,
     };
 }
 /**
@@ -86,6 +119,22 @@ function createGraph({ xAxisMax, xAxisMin = 0, xAxisSize, xAxisStep = 1, xAxisVa
  */
 function calculateScale(axisSize, axisMin, axisMax) {
     return axisSize / (axisMax - axisMin);
+}
+/**
+ * Examples:
+ *
+ * scale 10 min 0 max 10 size 100
+ * scale 10 min -50 max 50 size 100
+ * scale 10 min -25 max 75 size 100
+ * scale 10 min -100 max 0 size 100
+ *
+ * @param {number} axisScale
+ * @param {number} axisMin
+ * @param {number} axisMax
+ * @returns {number}
+ */
+function calculateSize(axisScale, axisMin, axisMax) {
+    return (axisMax - axisMin) * axisScale;
 }
 /**
  * Examples:
@@ -131,6 +180,22 @@ function projectXCoordToSVG({ xAxisMin, xAxisScale }, axisCoord) {
  */
 function projectYCoordToSVG({ yAxisMin, yAxisScale, yAxisSize }, axisCoord) {
     return yAxisSize - (axisCoord - yAxisMin) * yAxisScale;
+}
+/**
+ * NOTE specific, limited use.
+ *
+ * As `projectXCoordToSVG`, which will result in an inverted graph,
+ * 0 at top, max at bottom. The only usecase for this is a graph
+ * that has an axis rendered top to bottom vertically.
+ *
+ * @param {GraphData} graphData
+ * @param {number} graphData.yAxisMin
+ * @param {number} graphData.yAxisScale
+ * @param {number} axisCoord
+ * @returns {number}
+ */
+function projectInvertedYCoordToSVG({ yAxisMin, yAxisScale }, axisCoord) {
+    return (axisCoord - yAxisMin) * yAxisScale;
 }
 /**
  * Generate an array of x axis coordinates for stepped points along that axis. Used to place annotations.
@@ -187,14 +252,33 @@ function steppedYAxisValues({ yAxisMin, yAxisMax, yAxisStep, }) {
     }
 }
 
-function yAxis(graph) {
-    const xPlacement = graph.xAxisMin > 0 ? graph.xAxisMin : 0;
+function verticalLineFullHeight(graph, xPosition) {
     return {
-        x1: projectXCoordToSVG(graph, xPlacement),
-        x2: projectXCoordToSVG(graph, xPlacement),
+        x1: projectXCoordToSVG(graph, xPosition),
+        x2: projectXCoordToSVG(graph, xPosition),
         y1: 0,
         y2: graph.yAxisSize,
     };
+}
+function horizontalLineFullWidth(graph, yPosition) {
+    return {
+        x1: 0,
+        x2: graph.xAxisSize,
+        y1: projectYCoordToSVG(graph, yPosition),
+        y2: projectYCoordToSVG(graph, yPosition),
+    };
+}
+function invertedHorizontalLineFullWidth(graph, yPosition) {
+    return {
+        x1: 0,
+        x2: graph.xAxisSize,
+        y1: projectInvertedYCoordToSVG(graph, yPosition),
+        y2: projectInvertedYCoordToSVG(graph, yPosition),
+    };
+}
+function yAxis(graph) {
+    const xPlacement = graph.xAxisMin > 0 ? graph.xAxisMin : 0;
+    return verticalLineFullHeight(graph, xPlacement);
 }
 function yAxisAnnotations(graph) {
     const xPlacement = graph.xAxisMin > 0 ? graph.xAxisMin : 0;
@@ -203,13 +287,8 @@ function yAxisAnnotations(graph) {
         y: projectYCoordToSVG(graph, v),
     }));
 }
-function yAxisGridLines(graph) {
-    return steppedYAxisValues(graph).map((v) => ({
-        x1: 0,
-        x2: graph.xAxisSize,
-        y1: projectYCoordToSVG(graph, v),
-        y2: projectYCoordToSVG(graph, v),
-    }));
+function horizontalGridLines(graph) {
+    return steppedYAxisValues(graph).map((v) => horizontalLineFullWidth(graph, v));
 }
 function yAxisSteps(graph) {
     return steppedYAxisValues(graph).map((v) => ({
@@ -219,29 +298,59 @@ function yAxisSteps(graph) {
         y2: projectYCoordToSVG(graph, v),
     }));
 }
-function xAxis(graph) {
-    return { x1: 0, x2: graph.xAxisSize, y1: projectYCoordToSVG(graph, 0), y2: projectYCoordToSVG(graph, 0) };
+function xAxis(graph, position = "bottom") {
+    return horizontalLineFullWidth(graph, position === "top" ? graph.yAxisMax : 0);
 }
-function xAxisAnnotations(graph) {
+function xAxisSteps(graph, position) {
+    return steppedXAxisValues(graph).map((v) => ({
+        x1: projectXCoordToSVG(graph, v),
+        x2: projectXCoordToSVG(graph, v),
+        y1: position === "top" ? projectYCoordToSVG(graph, graph.yAxisMax) : projectYCoordToSVG(graph, 0),
+        y2: position === "top" ? projectYCoordToSVG(graph, graph.yAxisMax) - 2 : projectYCoordToSVG(graph, 0) + 2,
+    }));
+}
+function xAxisAnnotations(graph, position = "bottom") {
     return steppedXAxisValues(graph).map((v) => ({
         x: projectXCoordToSVG(graph, v),
-        y: projectYCoordToSVG(graph, 0),
+        y: projectYCoordToSVG(graph, position === "top" ? graph.yAxisMax : 0),
     }));
 }
-function xAxisGridlines(graph) {
-    return steppedXAxisValues(graph).map((v) => ({
-        x1: projectXCoordToSVG(graph, v),
-        x2: projectXCoordToSVG(graph, v),
-        y1: 0,
-        y2: graph.yAxisSize,
+function verticalGridlines(graph) {
+    return steppedXAxisValues(graph).map((v) => verticalLineFullHeight(graph, v));
+}
+function dotPoints(graph) {
+    return graph.yAxisValues.map((v, i) => ({
+        x: projectXCoordToSVG(graph, graph.xAxisValues[i]),
+        y: projectYCoordToSVG(graph, v),
     }));
 }
-function xAxisSteps(graph) {
-    return steppedXAxisValues(graph).map((v) => ({
-        x1: projectXCoordToSVG(graph, v),
+function linePoints(graph) {
+    return graph.yAxisValues
+        .map((v, i) => `${projectXCoordToSVG(graph, graph.xAxisValues[i])},${projectYCoordToSVG(graph, v)}`)
+        .join(" ");
+}
+function horizontalLineBarPoints(graph) {
+    return graph.xAxisValues.map((v, i) => ({
+        x1: projectXCoordToSVG(graph, 0),
         x2: projectXCoordToSVG(graph, v),
+        y1: projectYCoordToSVG(graph, graph.yAxisValues[i]),
+        y2: projectYCoordToSVG(graph, graph.yAxisValues[i]),
+    }));
+}
+function invertedHorizontalLineBarPoints(graph) {
+    return graph.xAxisValues.map((v, i) => ({
+        x1: projectXCoordToSVG(graph, 0),
+        x2: projectXCoordToSVG(graph, v),
+        y1: projectInvertedYCoordToSVG(graph, graph.yAxisValues[i]),
+        y2: projectInvertedYCoordToSVG(graph, graph.yAxisValues[i]),
+    }));
+}
+function verticalLineBarPoints(graph) {
+    return graph.yAxisValues.map((v, i) => ({
+        x1: projectXCoordToSVG(graph, graph.xAxisValues[i]),
+        x2: projectXCoordToSVG(graph, graph.xAxisValues[i]),
         y1: projectYCoordToSVG(graph, 0),
-        y2: projectYCoordToSVG(graph, 0) + 2,
+        y2: projectYCoordToSVG(graph, v),
     }));
 }
 
@@ -251,11 +360,11 @@ const defaultAnnotationStyle = {
     fontWeight: "bold",
     textAnchor: "middle",
 };
-const XAxisAnnotations = ({ style = {}, annotations, offsetY = 4, }) => {
+const XAxisAnnotations = ({ style = {}, annotations, offsetY = 4, position = "bottom", }) => {
     style = { ...defaultAnnotationStyle, ...style };
     const graph = useGraph();
     annotations = annotations ?? steppedXAxisValues(graph);
-    return (React.createElement("g", { style: style, "data-componentid": "x-axis-annotations" }, xAxisAnnotations(graph).map(({ x, y }, i) => (React.createElement("text", { key: `${x}${y}${i}`, x: x, y: y - offsetY, "data-componentid": `x-axis-annotation-${x}${y}${i}` }, annotations && annotations[i])))));
+    return (React.createElement("g", { style: style, "data-componentid": "x-axis-annotations" }, xAxisAnnotations(graph, position).map(({ x, y }, i) => (React.createElement("text", { key: `${x}${y}${i}`, x: x, y: y - offsetY, "data-componentid": `x-axis-annotation-${x}${y}${i}` }, annotations && annotations[i])))));
 };
 const YAxisAnnotations = ({ style = {}, offsetX = 2, offsetY = 0, annotations, }) => {
     style = { ...defaultAnnotationStyle, ...style };
@@ -270,10 +379,10 @@ const defaultAxisStyle = {
     strokeLinecap: "round",
     strokeWidth: 1,
 };
-const XAxis = ({ style = defaultAxisStyle, showSteps = true, }) => {
+const XAxis = ({ style = defaultAxisStyle, showSteps = true, position = "bottom", }) => {
     const graph = useGraph();
-    const { x1, x2, y1, y2 } = xAxis(graph);
-    const axisSteps = showSteps ? xAxisSteps(graph) : null;
+    const { x1, x2, y1, y2 } = xAxis(graph, position);
+    const axisSteps = showSteps ? xAxisSteps(graph, position) : null;
     return (React.createElement("g", { "data-componentid": "x-axis" },
         React.createElement("line", { style: style, x1: x1, x2: x2, y1: y1, y2: y2 }),
         axisSteps?.map(({ x1, x2, y1, y2 }, i) => (React.createElement("line", { key: `${x1}${x2}${y1}${y2}${i}`, style: style, x1: x1, x2: x2, y1: y1, y2: y2 })))));
@@ -287,34 +396,44 @@ const YAxis = ({ style = defaultAxisStyle, showSteps = true, }) => {
         axisSteps?.map(({ x1, x2, y1, y2 }, i) => (React.createElement("line", { key: `${x1}${x2}${y1}${y2}${i}`, style: style, x1: x1, x2: x2, y1: y1, y2: y2 })))));
 };
 
+const Canvas = ({ children, padding = 10, style = {}, }) => {
+    const graph = useGraph();
+    const viewBoxMinX = 0 - (typeof padding === "number" ? padding : padding.left);
+    const viewBoxMinY = 0 - (typeof padding === "number" ? padding : padding.top);
+    const viewBoxWidth = graph.xAxisSize +
+        (typeof padding === "number" ? padding * 2 : padding.right + padding.left);
+    const viewBoxHeight = graph.yAxisSize +
+        (typeof padding === "number" ? padding * 2 : padding.top + padding.bottom);
+    return (React.createElement("svg", { style: style, viewBox: `${viewBoxMinX} ${viewBoxMinY} ${viewBoxWidth} ${viewBoxHeight}`, width: "100%", height: "100%" }, children));
+};
+
 const defaultDataLineStyle = {
     fill: "none",
     stroke: "black",
     strokeLinecap: "round",
     strokeWidth: 1,
 };
-function projectedDataLinePoints(graph) {
-    return graph.yAxisValues
-        .map((v, i) => `${projectXCoordToSVG(graph, graph.xAxisValues[i])},${projectYCoordToSVG(graph, v)}`)
-        .join(" ");
-}
 const DataLine = ({ style = {} }) => {
     style = { ...defaultDataLineStyle, ...style };
     const graph = useGraph();
-    return React.createElement("polyline", { style: style, points: projectedDataLinePoints(graph) });
+    return React.createElement("polyline", { style: style, points: linePoints(graph) });
 };
-function projectedHorizontalLineBarPoints(graph) {
-    return graph.yAxisValues.map((v, i) => ({
-        x1: projectXCoordToSVG(graph, graph.xAxisValues[i]),
-        x2: projectXCoordToSVG(graph, graph.xAxisValues[i]),
-        y1: projectYCoordToSVG(graph, 0),
-        y2: projectYCoordToSVG(graph, v),
-    }));
-}
-const DataHorizontalLineBar = ({ style = {}, }) => {
+const VerticalLineBars = ({ style = {} }) => {
     style = { ...defaultDataLineStyle, ...style };
     const graph = useGraph();
-    const lines = projectedHorizontalLineBarPoints(graph).map(({ x1, x2, y1, y2 }, i) => (React.createElement("line", { key: `${x1}${x2}${y1}${y2}${i}`, x1: x1, x2: x2, y1: y1, y2: y2 })));
+    const lines = verticalLineBarPoints(graph).map(({ x1, x2, y1, y2 }, i) => (React.createElement("line", { key: `${x1}${x2}${y1}${y2}${i}`, x1: x1, x2: x2, y1: y1, y2: y2 })));
+    return React.createElement("g", { style: style }, lines);
+};
+const HorizontalLineBars = ({ style = {} }) => {
+    style = { ...defaultDataLineStyle, ...style };
+    const graph = useGraph();
+    const lines = horizontalLineBarPoints(graph).map(({ x1, x2, y1, y2 }, i) => (React.createElement("line", { key: `${x1}${x2}${y1}${y2}${i}`, x1: x1, x2: x2, y1: y1, y2: y2 })));
+    return React.createElement("g", { style: style }, lines);
+};
+const InvertedHorizontalLineBars = ({ style = {}, }) => {
+    style = { ...defaultDataLineStyle, ...style };
+    const graph = useGraph();
+    const lines = invertedHorizontalLineBarPoints(graph).map(({ x1, x2, y1, y2 }, i) => (React.createElement("line", { key: `${x1}${x2}${y1}${y2}${i}`, x1: x1, x2: x2, y1: y1, y2: y2 })));
     return React.createElement("g", { style: style }, lines);
 };
 const defaultDataDotsStyle = {
@@ -322,17 +441,36 @@ const defaultDataDotsStyle = {
     stroke: "white",
     strokeWidth: 1,
 };
-function projectedDotsPoints(graph) {
-    return graph.yAxisValues.map((v, i) => ({
-        x: projectXCoordToSVG(graph, graph.xAxisValues[i]),
-        y: projectYCoordToSVG(graph, v),
-    }));
-}
-const DataDots = ({ style = {}, r = 2 }) => {
+const DataDots = ({ style = {}, r = 2, }) => {
     style = { ...defaultDataDotsStyle, ...style };
     const graph = useGraph();
-    const dots = projectedDotsPoints(graph).map(({ x, y }, i) => (React.createElement("circle", { key: `${x}${y}${i}`, cx: x, cy: y, r: r })));
+    const dots = dotPoints(graph).map(({ x, y }, i) => (React.createElement("circle", { key: `${x}${y}${i}`, cx: x, cy: y, r: r })));
     return React.createElement("g", { style: style }, dots);
+};
+const defaultAreaStyle = {
+    stroke: "none",
+    fill: "grey",
+    opacity: 0.2,
+};
+const AreaFillXAxis = ({ style = {}, coordinateOverride, }) => {
+    style = { ...defaultAreaStyle, ...style };
+    let graph = useGraph();
+    // If using as an overlay, there will be a new set of y-axis coordinates to plot:
+    if (coordinateOverride) {
+        graph = { ...graph, yAxisValues: coordinateOverride };
+    }
+    const points = `${projectXCoordToSVG(graph, 0)},${projectYCoordToSVG(graph, 0)} ${linePoints(graph)} ${projectXCoordToSVG(graph, graph.xAxisMax)},${projectYCoordToSVG(graph, 0)}`;
+    return React.createElement("polygon", { style: style, points: points });
+};
+const AreaFillYAxis = ({ style = {}, coordinateOverride, }) => {
+    style = { ...defaultAreaStyle, ...style };
+    let graph = useGraph();
+    // If using as an overlay, there will be a new set of y-axis coordinates to plot:
+    if (coordinateOverride) {
+        graph = { ...graph, xAxisValues: coordinateOverride };
+    }
+    const points = `${projectXCoordToSVG(graph, 0)},${projectYCoordToSVG(graph, 0)} ${linePoints(graph)} ${projectXCoordToSVG(graph, 0)},${projectYCoordToSVG(graph, graph.yAxisMax)}`;
+    return React.createElement("polygon", { style: style, points: points });
 };
 
 const defaultGridLinesStyle = {
@@ -342,44 +480,92 @@ const defaultGridLinesStyle = {
 };
 const XAxisGridLines = ({ style = defaultGridLinesStyle, }) => {
     const graph = useGraph();
-    return (React.createElement("g", { "data-componentid": "x-axis-gridlines" }, xAxisGridlines(graph).map(({ x1, x2, y1, y2 }, i) => (React.createElement("line", { key: `${x1}${x2}${y1}${y2}${i}`, x1: x1, x2: x2, y1: y1, y2: y2, style: style, "data-componentid": `x-axis-gridline-${x1}${x2}${y1}${y2}${i}` })))));
+    return (React.createElement("g", { "data-componentid": "x-axis-gridlines" }, verticalGridlines(graph).map(({ x1, x2, y1, y2 }, i) => (React.createElement("line", { key: `${x1}${x2}${y1}${y2}${i}`, x1: x1, x2: x2, y1: y1, y2: y2, style: style, "data-componentid": `x-axis-gridline-${x1}${x2}${y1}${y2}${i}` })))));
 };
 const YAxisGridLines = ({ style = defaultGridLinesStyle, }) => {
     const graph = useGraph();
-    return (React.createElement("g", { "data-componentid": "y-axis-gridlines" }, yAxisGridLines(graph).map(({ x1, x2, y1, y2 }, i) => (React.createElement("line", { key: `${x1}${x2}${y1}${y2}${i}`, x1: x1, x2: x2, y1: y1, y2: y2, style: style, "data-componentid": `y-axis-gridline-${x1}${x2}${y1}${y2}${i}` })))));
+    return (React.createElement("g", { "data-componentid": "y-axis-gridlines" }, horizontalGridLines(graph).map(({ x1, x2, y1, y2 }, i) => (React.createElement("line", { key: `${x1}${x2}${y1}${y2}${i}`, x1: x1, x2: x2, y1: y1, y2: y2, style: style, "data-componentid": `y-axis-gridline-${x1}${x2}${y1}${y2}${i}` })))));
 };
 
-const Graph = ({ xAxisSize, xAxisMax, xAxisMin, xAxisStep, xAxisValues, yAxisSize, yAxisMax, yAxisMin, yAxisStep, yAxisValues, children, padding = 10, style, }) => {
+const underlyingRangeInputStyle = {
+    appearance: "none",
+    background: "transparent",
+    opacity: 0,
+    display: "block",
+    width: "100%",
+    height: "100%",
+};
+const underlyingVerticalRangeInputStyle = {
+    ...underlyingRangeInputStyle,
+    WebkitAppearance: "slider-vertical",
+    transform: "rotate(180deg)",
+};
+const defaultRangeStyle = {
+    fill: "none",
+    stroke: "black",
+    strokeWidth: 2,
+};
+const ScrubberLeftToRight = ({ thumbStyle = {}, currentDataPointIndex, setCurrentDataPointIndex, }) => {
+    thumbStyle = { ...defaultRangeStyle, ...thumbStyle };
+    const graph = useGraph();
+    const { x1, x2, y1, y2 } = verticalLineFullHeight(graph, 0);
+    return (React.createElement(React.Fragment, null,
+        React.createElement("g", { transform: `translate(${projectXCoordToSVG(graph, graph.xAxisValues[currentDataPointIndex])})` },
+            React.createElement("line", { style: thumbStyle, x1: x1, x2: x2, y1: y1, y2: y2 })),
+        React.createElement("foreignObject", { x: 0, y: 0, width: graph.xAxisSize, height: graph.yAxisSize, "data-componentid": "scrubbercontrol" },
+            React.createElement("input", { onChange: (e) => setCurrentDataPointIndex(+e.target.value), type: "range", min: 0, max: graph.yAxisValues.length, step: 1, style: underlyingRangeInputStyle, value: currentDataPointIndex }))));
+};
+const ScrubberTopToBottom = ({ thumbStyle = {}, currentDataPointIndex, setCurrentDataPointIndex, }) => {
+    thumbStyle = { ...defaultRangeStyle, ...thumbStyle };
+    const graph = useGraph();
+    const { x1, x2, y1, y2 } = invertedHorizontalLineFullWidth(graph, 0);
+    /** NOTE TS typings for input elements do not include the `orient` property */
+    const inputRef = React.useRef(null);
+    React.useEffect(() => {
+        if (inputRef != null && inputRef.current != null) {
+            inputRef.current.setAttribute("orient", "vertical");
+        }
+    }, []);
+    return (React.createElement(React.Fragment, null,
+        React.createElement("g", { transform: `translate(0 ${projectInvertedYCoordToSVG(graph, graph.yAxisValues[currentDataPointIndex])})` },
+            React.createElement("line", { style: thumbStyle, x1: x1, x2: x2, y1: y1, y2: y2 })),
+        React.createElement("foreignObject", { x: 0, y: 0, width: graph.xAxisSize, height: graph.yAxisSize, "data-componentid": "scrubbercontrol" },
+            React.createElement("input", { ref: inputRef, onChange: (e) => setCurrentDataPointIndex(+e.target.value), type: "range", min: 0, max: graph.yAxisValues.length, step: 1, style: underlyingVerticalRangeInputStyle, value: currentDataPointIndex }))));
+};
+
+const Graph = ({ children, xAxisSize, xAxisScale, xAxisMax, xAxisMin, xAxisStep, xAxisValues, yAxisSize, yAxisScale, yAxisMax, yAxisMin, yAxisStep, yAxisValues, }) => {
     const graph = createGraph({
         xAxisSize,
+        xAxisScale,
         xAxisMax,
         xAxisMin,
         xAxisStep,
         xAxisValues,
         yAxisSize,
+        yAxisScale,
         yAxisMax,
         yAxisMin,
         yAxisStep,
         yAxisValues,
     });
-    const viewBoxMinX = 0 - (typeof padding === "number" ? padding : padding.left);
-    const viewBoxMinY = 0 - (typeof padding === "number" ? padding : padding.top);
-    const viewBoxWidth = graph.xAxisSize +
-        (typeof padding === "number" ? padding * 2 : padding.right + padding.left);
-    const viewBoxHeight = graph.yAxisSize +
-        (typeof padding === "number" ? padding * 2 : padding.top + padding.bottom);
-    return (React.createElement(GraphContext.Provider, { value: graph },
-        React.createElement("svg", { style: style, viewBox: `${viewBoxMinX} ${viewBoxMinY} ${viewBoxWidth} ${viewBoxHeight}`, width: "100%", height: "100%" }, children)));
+    return (React.createElement(GraphContext.Provider, { value: graph }, children));
 };
+Graph.Canvas = Canvas;
 Graph.XAxisAnnotations = XAxisAnnotations;
 Graph.YAxisAnnotations = YAxisAnnotations;
 Graph.DataLine = DataLine;
 Graph.DataDots = DataDots;
-Graph.DataHorizontalLineBar = DataHorizontalLineBar;
+Graph.VerticalLineBars = VerticalLineBars;
+Graph.HorizontalLineBars = HorizontalLineBars;
+Graph.InvertedHorizontalLineBars = InvertedHorizontalLineBars;
+Graph.AreaFillXAxis = AreaFillXAxis;
+Graph.AreaFillYAxis = AreaFillYAxis;
 Graph.XAxis = XAxis;
 Graph.XAxisGridLines = XAxisGridLines;
 Graph.YAxis = YAxis;
 Graph.YAxisGridLines = YAxisGridLines;
+Graph.ScrubberLeftToRight = ScrubberLeftToRight;
+Graph.ScrubberTopToBottom = ScrubberTopToBottom;
 
 export { Gauge, Graph, defaultColourMapper };
 //# sourceMappingURL=index.js.map
