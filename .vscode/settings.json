@@ -1,22 +1,22 @@
 {
-	"editor.formatOnSave": true,
-	"editor.defaultFormatter": "esbenp.prettier-vscode",
-	"search.exclude": {
-		"**/.yarn": true,
-		"**/.pnp.*": true
-	},
-	"typescript.tsdk": ".yarn/sdks/typescript/lib",
-	"typescript.enablePromptUseWorkspaceTsdk": true,
-	"eslint.nodePath": ".yarn/sdks",
-	"eslint.validate": [
-		"javascript",
-		"javascriptreact",
-		"typescript",
-		"typescriptreact"
-	],
-	"prettier.prettierPath": ".yarn/sdks/prettier/index.js",
-	"typescriptHero.imports.ignoredFromRemoval": [
-		"react",
-		"@emotion/react"
-	]
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "search.exclude": {
+    "**/.yarn": true,
+    "**/.pnp.*": true
+  },
+  "typescript.tsdk": ".yarn/sdks/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+  "eslint.nodePath": ".yarn/sdks",
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact"
+  ],
+  "prettier.prettierPath": ".yarn/sdks/prettier/index.js",
+  "typescriptHero.imports.ignoredFromRemoval": [
+    "react",
+    "@emotion/react"
+  ]
 }

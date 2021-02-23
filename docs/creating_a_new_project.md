@@ -578,3 +578,36 @@ So:
 - TS in packages _and_ at root.
 - Small deps like concurrent and rimraf in packages.
 - Remove global commands bar linting/testing/formatting.
+
+---
+
+# v2-ish
+
+So there is a packager for building libraries called [microbundle](https://github.com/developit/microbundle) which wraps Rollup + a few useful tools into a single package. I'll replace Rollup with this, as it is effectively zero-config.
+
+So I remove all mention of Rollup from the packages, then drop microbundle in as a dependency, add the correct fields to `package.json`, and update the build scripts. Simple enough (end it states which package is being built, so no finagling with adding a Rollup plugin to do that!).
+
+```
+  ...
+  "main": "lib/index.js",
+	"module": "lib/index.module.js",
+	"types": "lib/index.d.ts",
+  ...
+  "scripts": {
+    "clean": "yarn global:clean lib node_modules",
+		"bundle": "yarn microbundle",
+		"develop": "yarn clean && yarn microbundle watch",
+		"build": "yarn clean && yarn bundle",
+    ...
+  }
+```
+
+**NOTE** I'm cleaning `node_modules` here. Rollup builds a cache in `node_modules`. I want to clear it before build, then if I'm watching it will use the current cache. Clearing it slows things down on first build, but that's fine, tradeoff is ensuring clean builds.
+
+I also want a documentation website, so instead of a `demo/` folder within each package, all demos/docs/etc go in one place. For this, I'll just use an out-of-the-box solution, Facebook's [Docosaurus](https://v2.docusaurus.io/). Helpfully enough, this installs in a subdirectory which isolates everything in it from the rest of the repo:
+
+```
+npx @docusaurus/init@latest init website classic
+```
+
+After that, I [add Typescript support](https://v2.docusaurus.io/docs/typescript-support), then check it works and leave it at that: I'll come back to it later. I'll eventually use the UI library I'm going to build to style it, and I'll deploy it on GH Pages.

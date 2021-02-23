@@ -8,7 +8,8 @@ export declare type GraphPadding = number | {
 export interface CanvasProps {
     children: React.ReactNode;
     padding?: GraphPadding;
+    preserveAspectRatio?: string;
     style?: React.CSSProperties;
 }
-export declare const Canvas: ({ children, padding, style, }: CanvasProps) => JSX.Element;
+export declare const Canvas: ({ children, padding, preserveAspectRatio, style, }: CanvasProps) => JSX.Element;
 //# sourceMappingURL=Canvas.d.ts.map

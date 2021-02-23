@@ -5,7 +5,7 @@ export declare type GraphProps = GraphConstructor & {
 };
 export declare const Graph: {
     ({ children, xAxisSize, xAxisScale, xAxisMax, xAxisMin, xAxisStep, xAxisValues, yAxisSize, yAxisScale, yAxisMax, yAxisMin, yAxisStep, yAxisValues, }: GraphProps): JSX.Element;
-    Canvas: ({ children, padding, style, }: import("./Canvas").CanvasProps) => JSX.Element;
+    Canvas: ({ children, padding, preserveAspectRatio, style, }: import("./Canvas").CanvasProps) => JSX.Element;
     XAxisAnnotations: ({ style, annotations, offsetY, position, }: import("./Annotations").AxisAnnotationsProps & {
         position?: "top" | "zero" | "bottom" | undefined;
     }) => JSX.Element;
@@ -21,9 +21,9 @@ export declare const Graph: {
     XAxis: ({ style, showSteps, position, }: import("./Axes").AxisProps & {
         position?: "top" | "zero" | "bottom" | undefined;
     }) => JSX.Element;
-    XAxisGridLines: ({ style, }: import("./GridLines").GridLinesProps) => JSX.Element;
+    XAxisGridLines: ({ style }: import("./GridLines").GridLinesProps) => JSX.Element;
     YAxis: ({ style, showSteps, }: import("./Axes").AxisProps) => JSX.Element;
-    YAxisGridLines: ({ style, }: import("./GridLines").GridLinesProps) => JSX.Element;
+    YAxisGridLines: ({ style }: import("./GridLines").GridLinesProps) => JSX.Element;
     ScrubberHorizontal: ({ thumbStyle, currentDataPointIndex, setCurrentDataPointIndex, startPosition, }: import("./Scrubber").ScrubberControlProps & {
         startPosition: import("@thingco/graphviz").HorizontalAlignment;
     }) => JSX.Element;
@@ -31,4 +31,5 @@ export declare const Graph: {
         startPosition: import("@thingco/graphviz").VerticalAlignment;
     }) => JSX.Element;
 };
+export { useGraph } from "./Context";
 //# sourceMappingURL=Graph.d.ts.map
