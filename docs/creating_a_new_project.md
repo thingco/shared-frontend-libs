@@ -561,3 +561,20 @@ All very simple, and means it's just that bit simpler to run everything from roo
 ## VSCode rules
 
 The `.vscode` directory contains two files that configure the editor for this specific project. The `extensions.json` file means that the editr will prompt a user to install useful plugins that relate to this project. And the `settings.json` mainly provides rules that tell VSCode to use Yarn shims for the tooling SDKs (TS, ESLint, Prettier).
+
+---
+
+## Regarding package dependdencies
+
+I installed common dev dependencies at the root so that they were in one place. But tbh I think this is counterproductive and complicates things. All dependencies are common in a monorepo anyway: only one version of any one package of a specific version is ever installed, and the workspace/interactive tools include utilities to ensure versioning stars correct.
+
+By installing dev dependencies at a package level, I can avoid a lot of the shenanigans that occur when some tooling expects things to be in a specific directory. Also it will kill peer dependency warnings (for example, the rollup TS plugin complaining that TS is not present whan it actually is).
+
+So:
+
+- Jest at root: it is set up with different runs for different packages, no real issues there. (**REVIEW**).
+- ESLint at root.
+- Prettier at root.
+- TS in packages _and_ at root.
+- Small deps like concurrent and rimraf in packages.
+- Remove global commands bar linting/testing/formatting.
