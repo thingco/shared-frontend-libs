@@ -58,6 +58,12 @@ export interface GraphData {
 	xAxisStep: number;
 }
 
+/**
+ *
+ *
+ * @param {GraphConstructor} initObject - initial setup values
+ * @returns {GraphData} - a complete GraphData object
+ */
 export function createGraph({
 	xAxisMax,
 	xAxisMin = 0,
@@ -149,16 +155,25 @@ export function createGraph({
 }
 
 /**
+ * If an axis has a defined size, calculate the scaling factor using
+ * the size, the minimum and the maximum values. Inverse of `calculateSize`.
+ *
  * Examples:
  *
- * size 100 min 0 max 10 scale 10
- * size 100 min -50 max 50 scale 10
- * size 100 min -25 max 75 scale 10
- * size 100 min -100 max 0 scale 10
+ * ```
+ * > calculateScale(100, 0, 10)
+ * 10
+ * > calculateScale(100, -50, 50)
+ * 10
+ * > calculateScale(100, -25, 75)
+ * 10
+ * > calculateScale(100, -100, 0)
+ * 10
+ * ```
  *
- * @param {number} axisSize
- * @param {number} axisMin
- * @param {number} axisMax
+ * @param {number} axisSize - the required size in pixels
+ * @param {number} axisMin - the value the axis starts from
+ * @param {number} axisMax - the value the axis ends on
  * @returns {number}
  */
 export function calculateScale(
@@ -170,16 +185,25 @@ export function calculateScale(
 }
 
 /**
+ * If an axis has a defined scaling factor, calculate the size in pixels using
+ * the scale, the minimum and the maximum values. Inverse of `calculateScale`.
+ *
  * Examples:
  *
- * scale 10 min 0 max 10 size 100
- * scale 10 min -50 max 50 size 100
- * scale 10 min -25 max 75 size 100
- * scale 10 min -100 max 0 size 100
+ * ```
+ * > calculateSize(10, 0, 10)
+ * 100
+ * > calculateSize(10, -50, 50)
+ * 100
+ * > calculateSize(10, -25, 75)
+ * 100
+ * > calculateSize(10, -100, 0)
+ * 100
+ * ```
  *
- * @param {number} axisScale
- * @param {number} axisMin
- * @param {number} axisMax
+ * @param {number} axisScale - the scaling factor for the axis
+ * @param {number} axisMin - the value the axis starts from
+ * @param {number} axisMax - the value the axis ends on
  * @returns {number}
  */
 export function calculateSize(

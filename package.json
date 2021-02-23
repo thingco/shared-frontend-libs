@@ -51,6 +51,6 @@
 		}
 	},
 	"lint-staged": {
-		"*.{js,json, rjson, jsx,ts,tsx}": "yarn eslint --fix"
+		"*.{js,json,rjson,jsx,ts,tsx}": "yarn eslint --fix"
 	}
 }
