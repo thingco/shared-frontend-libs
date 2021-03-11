@@ -5,6 +5,13 @@ help:
     @echo ""
     @just --list
 
+update_yarn:
+    yarn set version latest
+    yarn plugin import version
+    yarn plugin import typescript
+    yarn plugin import workspace-tools
+    yarn plugin import interactive-tools
+
 # builds everything
 build_all:
     @echo "Building all packages"

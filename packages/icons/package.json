@@ -14,10 +14,10 @@
 		"lint": "yarn global:lint"
 	},
 	"devDependencies": {
-		"@types/react": "^17.0.1",
+		"@types/react": "^17.0.3",
 		"microbundle": "^0.13.0",
 		"react": "^17.0.1",
-		"typescript": "^4.1.3"
+		"typescript": "^4.2.3"
 	},
 	"peerDependencies": {
 		"react": "*"
