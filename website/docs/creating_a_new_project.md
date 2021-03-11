@@ -611,3 +611,16 @@ npx @docusaurus/init@latest init website classic
 ```
 
 After that, I [add Typescript support](https://v2.docusaurus.io/docs/typescript-support), then check it works and leave it at that: I'll come back to it later. I'll eventually use the UI library I'm going to build to style it, and I'll deploy it on GH Pages.
+
+## Husky
+
+[Husky](https://github.com/typicode/husky) recently updated to v5. The licence changed, and it is no longer free for non-open-source projects. As a result, the version is to be pinned at v4. Yarn can handle this via the `"resolutions"`
+field in the package.json:
+
+```
+  ...
+	"resolutions": {
+		"typicode/husky": "4.3.8"
+	},
+  ...
+```
