@@ -2872,6 +2872,9 @@ __metadata:
   dependencies:
     microbundle: ^0.13.0
     typescript: ^4.2.3
+    xstate: ^4.16.2
+  peerDependencies:
+    xstate: "*"
   languageName: unknown
   linkType: soft
 
@@ -17797,6 +17800,13 @@ resolve@1.17.0:
   version: 2.2.0
   resolution: "xmlchars@npm:2.2.0"
   checksum: 69bbb61e8d939873c8aa7d006d082944de2eb6f12f55e53fdfc670d544e677736b59e498ece303f264bd1dc39b77557eef1c1c9bfb09eb5e1e30ac552420d81e
+  languageName: node
+  linkType: hard
+
+"xstate@npm:^4.16.2":
+  version: 4.16.2
+  resolution: "xstate@npm:4.16.2"
+  checksum: eb6f5f49395a0e7862d16bf494ce9b33ec2324b690124b0b2d37276f518466d0bd08d3db5500d66727d016121b600af805e8784de7a2eae114a9c0a1d936f892
   languageName: node
   linkType: hard
 

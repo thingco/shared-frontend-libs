@@ -5620,7 +5620,8 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [
             ["@thingco/otp-auth", "workspace:packages/otp-auth"],
             ["microbundle", "npm:0.13.0"],
-            ["typescript", "patch:typescript@npm%3A4.2.3#builtin<compat/typescript>::version=4.2.3&hash=a45b0e"]
+            ["typescript", "patch:typescript@npm%3A4.2.3#builtin<compat/typescript>::version=4.2.3&hash=a45b0e"],
+            ["xstate", "npm:4.16.2"]
           ],
           "linkType": "SOFT",
         }]
@@ -23157,6 +23158,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/cache/xmlchars-npm-2.2.0-8b78f0f5e4-69bbb61e8d.zip/node_modules/xmlchars/",
           "packageDependencies": [
             ["xmlchars", "npm:2.2.0"]
+          ],
+          "linkType": "HARD",
+        }]
+      ]],
+      ["xstate", [
+        ["npm:4.16.2", {
+          "packageLocation": "./.yarn/cache/xstate-npm-4.16.2-ed374ccaa4-eb6f5f4939.zip/node_modules/xstate/",
+          "packageDependencies": [
+            ["xstate", "npm:4.16.2"]
           ],
           "linkType": "HARD",
         }]
