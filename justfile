@@ -12,12 +12,7 @@ update_yarn:
     yarn plugin import workspace-tools
     yarn plugin import interactive-tools
 
-# builds everything
-build_all:
-    @echo "Building all packages"
-    @yarn workspaces foreach --exclude website run build
-
-# builds all libraries, excluding the documentation website
+# builds all libraries (_ie_ excluding the documentation website)
 build_all_libraries:
     @echo "Building all packages"
     @yarn workspaces foreach --exclude website run build
@@ -27,10 +22,6 @@ build package:
     @echo "Building {{package}}"
     @yarn workspace {{package}} run build
 
-# builds and then watches all libraries, excluding the documentation website
-develop_all_libraries:
-    @echo "Building and watching all packages"
-    @yarn workspaces foreach --exclude website run develop
 
 # tests all packages
 test_all:

@@ -1,7 +1,7 @@
 {
 	"name": "@thingco/graphviz",
 	"description": "A small data visualisation library for ThingCo front ends. NOT a renderer, this just takes data and processes it to a form usable by a renderer",
-	"version": "0.1.0",
+	"version": "1.0.0-alpha.1",
 	"main": "lib/index.js",
 	"module": "lib/index.module.js",
 	"types": "lib/index.d.ts",
