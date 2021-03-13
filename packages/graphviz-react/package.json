@@ -1,7 +1,7 @@
 {
 	"name": "@thingco/graphviz-react",
 	"description": "React renderer bindings for the @thingco/graphviz library",
-	"version": "1.0.0-alpha.1",
+	"version": "0.0.0",
 	"main": "lib/index.js",
 	"module": "lib/index.module.js",
 	"types": "lib/index.d.ts",
