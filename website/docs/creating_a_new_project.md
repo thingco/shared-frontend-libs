@@ -612,7 +612,7 @@ npx @docusaurus/init@latest init website classic
 
 After that, I [add Typescript support](https://v2.docusaurus.io/docs/typescript-support), then check it works and leave it at that: I'll come back to it later. I'll eventually use the UI library I'm going to build to style it, and I'll deploy it on GH Pages.
 
-## Husky
+## Husky & githooks (updated)
 
 [Husky](https://github.com/typicode/husky) recently updated to v5. The licence changed, and it is no longer free for non-open-source projects. As a result, the version is to be pinned at v4. Yarn can handle this via the `"resolutions"`
 field in the package.json:
@@ -624,3 +624,31 @@ field in the package.json:
 	},
   ...
 ```
+
+For commits, although it's slightly onerous, I add [commitizen](http://commitizen.github.io/cz-cli/), which provides a CLI for commits, + the "cz-conventional-changelog" + "@commitlint/{cli, config-conventional}" deps.
+
+Commitizen is a CLI app, normally install globally. Instead, it sits only within this repo. I configure using:
+
+```
+  "scripts": {
+    ...
+    "cm": "cz",
+    ...
+  },
+  ...
+  "husky": {
+    "hooks": [
+      "prepare-commit-msg": "exec < /dev/tty && git cz --hook || true",
+      ...
+    }
+  },
+  ...
+	"config": {
+		"commitizen": {
+			"path": "cz-conventional-changelog"
+		}
+	}
+  ...
+```
+
+What these do in concert is, before the commit, open a CLI that prompts the committer to fill in a set of values that populate the commit in a consistent fashion.

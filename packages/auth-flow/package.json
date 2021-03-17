@@ -1,6 +1,6 @@
 {
-	"name": "@thingco/otp-auth",
-	"description": "An xstate-based flow for OTP authorisation",
+	"name": "@thingco/auth-flow",
+	"description": "xstate-based flows for authorisation",
 	"version": "0.1.0",
 	"main": "lib/index.js",
 	"module": "lib/index.module.js",
