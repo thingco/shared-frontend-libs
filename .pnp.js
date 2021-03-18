@@ -69,11 +69,9 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 							{
 								packageLocation: "./",
 								packageDependencies: [
-									["@types/concurrently", "npm:6.0.1"],
 									["@types/eslint", "npm:7.2.7"],
 									["@types/eslint-plugin-prettier", "npm:3.1.0"],
 									["@types/prettier", "npm:2.2.2"],
-									["@types/rimraf", "npm:3.0.0"],
 									[
 										"@typescript-eslint/eslint-plugin",
 										"virtual:3e93b9fab597b39555cebd964678671eff2df3026f28e25069090d327c329fa6e59179c94265beedb1b1469f6b665fe52ab5f6604108146b68635aa07ecc70e9#npm:4.17.0",
@@ -82,7 +80,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 										"@typescript-eslint/parser",
 										"virtual:3e93b9fab597b39555cebd964678671eff2df3026f28e25069090d327c329fa6e59179c94265beedb1b1469f6b665fe52ab5f6604108146b68635aa07ecc70e9#npm:4.17.0",
 									],
-									["concurrently", "npm:6.0.0"],
 									["eslint", "npm:7.21.0"],
 									[
 										"eslint-config-prettier",
@@ -108,7 +105,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 									["jest", "npm:26.6.3"],
 									["lint-staged", "npm:10.5.4"],
 									["prettier", "npm:2.2.1"],
-									["rimraf", "npm:3.0.2"],
 									[
 										"ts-jest",
 										"virtual:3e93b9fab597b39555cebd964678671eff2df3026f28e25069090d327c329fa6e59179c94265beedb1b1469f6b665fe52ab5f6604108146b68635aa07ecc70e9#npm:26.5.3",
@@ -2851,23 +2847,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 								packageDependencies: [
 									["@types/body-parser", "npm:1.19.0"],
 									["@types/connect", "npm:3.4.34"],
-									["@types/node", "npm:14.14.32"],
-								],
-								linkType: "HARD",
-							},
-						],
-					],
-				],
-				[
-					"@types/concurrently",
-					[
-						[
-							"npm:6.0.1",
-							{
-								packageLocation:
-									"./.yarn/cache/@types-concurrently-npm-6.0.1-1dca9032fb-760d76aba8.zip/node_modules/@types/concurrently/",
-								packageDependencies: [
-									["@types/concurrently", "npm:6.0.1"],
 									["@types/node", "npm:14.14.32"],
 								],
 								linkType: "HARD",
@@ -6148,20 +6127,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 								linkType: "HARD",
 							},
 						],
-						[
-							"npm:7.0.4",
-							{
-								packageLocation:
-									"./.yarn/cache/cliui-npm-7.0.4-d6b8a9edb6-c49ac1d13f.zip/node_modules/cliui/",
-								packageDependencies: [
-									["cliui", "npm:7.0.4"],
-									["string-width", "npm:4.2.2"],
-									["strip-ansi", "npm:6.0.0"],
-									["wrap-ansi", "npm:7.0.0"],
-								],
-								linkType: "HARD",
-							},
-						],
 					],
 				],
 				[
@@ -6461,31 +6426,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 								packageLocation:
 									"./.yarn/cache/concat-map-npm-0.0.1-85a921b7ee-554e28d9ee.zip/node_modules/concat-map/",
 								packageDependencies: [["concat-map", "npm:0.0.1"]],
-								linkType: "HARD",
-							},
-						],
-					],
-				],
-				[
-					"concurrently",
-					[
-						[
-							"npm:6.0.0",
-							{
-								packageLocation:
-									"./.yarn/cache/concurrently-npm-6.0.0-30b74cef1f-c5ef6bb312.zip/node_modules/concurrently/",
-								packageDependencies: [
-									["concurrently", "npm:6.0.0"],
-									["chalk", "npm:4.1.0"],
-									["date-fns", "npm:2.19.0"],
-									["lodash", "npm:4.17.21"],
-									["read-pkg", "npm:5.2.0"],
-									["rxjs", "npm:6.6.6"],
-									["spawn-command", "npm:0.0.2"],
-									["supports-color", "npm:8.1.1"],
-									["tree-kill", "npm:1.2.2"],
-									["yargs", "npm:16.2.0"],
-								],
 								linkType: "HARD",
 							},
 						],
@@ -6823,20 +6763,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 									["whatwg-mimetype", "npm:2.3.0"],
 									["whatwg-url", "npm:8.4.0"],
 								],
-								linkType: "HARD",
-							},
-						],
-					],
-				],
-				[
-					"date-fns",
-					[
-						[
-							"npm:2.19.0",
-							{
-								packageLocation:
-									"./.yarn/cache/date-fns-npm-2.19.0-225f089506-99ec34199c.zip/node_modules/date-fns/",
-								packageDependencies: [["date-fns", "npm:2.19.0"]],
 								linkType: "HARD",
 							},
 						],
@@ -16077,11 +16003,9 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 								packageLocation: "./",
 								packageDependencies: [
 									["shared-frontend-libs", "workspace:."],
-									["@types/concurrently", "npm:6.0.1"],
 									["@types/eslint", "npm:7.2.7"],
 									["@types/eslint-plugin-prettier", "npm:3.1.0"],
 									["@types/prettier", "npm:2.2.2"],
-									["@types/rimraf", "npm:3.0.0"],
 									[
 										"@typescript-eslint/eslint-plugin",
 										"virtual:3e93b9fab597b39555cebd964678671eff2df3026f28e25069090d327c329fa6e59179c94265beedb1b1469f6b665fe52ab5f6604108146b68635aa07ecc70e9#npm:4.17.0",
@@ -16090,7 +16014,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 										"@typescript-eslint/parser",
 										"virtual:3e93b9fab597b39555cebd964678671eff2df3026f28e25069090d327c329fa6e59179c94265beedb1b1469f6b665fe52ab5f6604108146b68635aa07ecc70e9#npm:4.17.0",
 									],
-									["concurrently", "npm:6.0.0"],
 									["eslint", "npm:7.21.0"],
 									[
 										"eslint-config-prettier",
@@ -16116,7 +16039,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 									["jest", "npm:26.6.3"],
 									["lint-staged", "npm:10.5.4"],
 									["prettier", "npm:2.2.1"],
-									["rimraf", "npm:3.0.2"],
 									[
 										"ts-jest",
 										"virtual:3e93b9fab597b39555cebd964678671eff2df3026f28e25069090d327c329fa6e59179c94265beedb1b1469f6b665fe52ab5f6604108146b68635aa07ecc70e9#npm:26.5.3",
@@ -16492,20 +16414,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 								packageLocation:
 									"./.yarn/cache/source-map-url-npm-0.4.1-747a1f6eba-ed94966781.zip/node_modules/source-map-url/",
 								packageDependencies: [["source-map-url", "npm:0.4.1"]],
-								linkType: "HARD",
-							},
-						],
-					],
-				],
-				[
-					"spawn-command",
-					[
-						[
-							"npm:0.0.2",
-							{
-								packageLocation:
-									"./.yarn/cache/spawn-command-npm-0.0.2-014d4d5d9f-961fb1551f.zip/node_modules/spawn-command/",
-								packageDependencies: [["spawn-command", "npm:0.0.2"]],
 								linkType: "HARD",
 							},
 						],
@@ -17090,18 +16998,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 								linkType: "HARD",
 							},
 						],
-						[
-							"npm:8.1.1",
-							{
-								packageLocation:
-									"./.yarn/cache/supports-color-npm-8.1.1-289e937149-0219f5c917.zip/node_modules/supports-color/",
-								packageDependencies: [
-									["supports-color", "npm:8.1.1"],
-									["has-flag", "npm:4.0.0"],
-								],
-								linkType: "HARD",
-							},
-						],
 					],
 				],
 				[
@@ -17520,20 +17416,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 									["tr46", "npm:2.0.2"],
 									["punycode", "npm:2.1.1"],
 								],
-								linkType: "HARD",
-							},
-						],
-					],
-				],
-				[
-					"tree-kill",
-					[
-						[
-							"npm:1.2.2",
-							{
-								packageLocation:
-									"./.yarn/cache/tree-kill-npm-1.2.2-3da0e5a759-967643efa4.zip/node_modules/tree-kill/",
-								packageDependencies: [["tree-kill", "npm:1.2.2"]],
 								linkType: "HARD",
 							},
 						],
@@ -19129,15 +19011,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 								linkType: "HARD",
 							},
 						],
-						[
-							"npm:5.0.5",
-							{
-								packageLocation:
-									"./.yarn/cache/y18n-npm-5.0.5-1fa41a2023-a7d41b0ccc.zip/node_modules/y18n/",
-								packageDependencies: [["y18n", "npm:5.0.5"]],
-								linkType: "HARD",
-							},
-						],
 					],
 				],
 				[
@@ -19214,24 +19087,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 								linkType: "HARD",
 							},
 						],
-						[
-							"npm:16.2.0",
-							{
-								packageLocation:
-									"./.yarn/cache/yargs-npm-16.2.0-547873d425-a79ce1f043.zip/node_modules/yargs/",
-								packageDependencies: [
-									["yargs", "npm:16.2.0"],
-									["cliui", "npm:7.0.4"],
-									["escalade", "npm:3.1.1"],
-									["get-caller-file", "npm:2.0.5"],
-									["require-directory", "npm:2.1.1"],
-									["string-width", "npm:4.2.2"],
-									["y18n", "npm:5.0.5"],
-									["yargs-parser", "npm:20.2.7"],
-								],
-								linkType: "HARD",
-							},
-						],
 					],
 				],
 				[
@@ -19269,15 +19124,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 								packageLocation:
 									"./.yarn/cache/yargs-parser-npm-20.2.6-909e598ff6-ed21fc0f35.zip/node_modules/yargs-parser/",
 								packageDependencies: [["yargs-parser", "npm:20.2.6"]],
-								linkType: "HARD",
-							},
-						],
-						[
-							"npm:20.2.7",
-							{
-								packageLocation:
-									"./.yarn/cache/yargs-parser-npm-20.2.7-5ab0b83136-124e7f1c24.zip/node_modules/yargs-parser/",
-								packageDependencies: [["yargs-parser", "npm:20.2.7"]],
 								linkType: "HARD",
 							},
 						],
