@@ -12,10 +12,10 @@ update_yarn:
     yarn plugin import workspace-tools
     yarn plugin import interactive-tools
 
-# builds all libraries (_ie_ excluding the documentation website)
+# builds all libraries (_ie_ excluding the playground website)
 build_all_libraries:
     @echo "Building all packages"
-    @yarn workspaces foreach --exclude website run build
+    @yarn workspaces foreach --exclude playground run build
 
 # bundles a single package (for example "just build @thingco/dataviz")
 build package:

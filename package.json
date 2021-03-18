@@ -11,10 +11,13 @@
 	"private": true,
 	"workspaces": [
 		"packages/*",
-		"website"
+		"website",
+		"playground"
 	],
 	"scripts": {
-		"cm": "cz",
+		"auth-flow-react": "yarn workspace @thingco/auth-flow-react",
+		"graphviz": "yarn workspace @thingco/graphviz",
+		"graphviz-react": "yarn workspace @thingco/graphviz-react",
 		"global:clean": "rimraf",
 		"global:compile": "cd $INIT_CWD && tsc --build",
 		"global:concurrently": "cd $INIT_CWD && concurrently",
@@ -24,8 +27,6 @@
 		"global:typecheck": "cd $INIT_CWD && tsc --noEmit"
 	},
 	"devDependencies": {
-		"@commitlint/cli": "^12.0.1",
-		"@commitlint/config-conventional": "^12.0.1",
 		"@types/concurrently": "^6.0.1",
 		"@types/eslint": "^7.2.7",
 		"@types/eslint-plugin-prettier": "^3.1.0",
@@ -33,9 +34,7 @@
 		"@types/rimraf": "^3.0.0",
 		"@typescript-eslint/eslint-plugin": "^4.17.0",
 		"@typescript-eslint/parser": "^4.17.0",
-		"commitizen": "^4.2.3",
 		"concurrently": "^6.0.0",
-		"cz-conventional-changelog": "^3.3.0",
 		"eslint": "^7.21.0",
 		"eslint-config-prettier": "^8.1.0",
 		"eslint-plugin-jsdoc": "^32.2.0",
@@ -55,18 +54,11 @@
 	},
 	"husky": {
 		"hooks": {
-			"prepare-commit-msg": "exec < /dev/tty && git cz --hook || true",
 			"pre-commit": "lint-staged"
 		}
 	},
 	"lint-staged": {
-		"*.{ts,tsx}": "tsc --noEmit",
 		"*.{js,json,rjson,jsx,ts,tsx}": "eslint --fix",
 		"*.{css,html,js,json,jsx,mjs,rjson,ts,tsx}": "prettier --write"
-	},
-	"config": {
-		"commitizen": {
-			"path": "cz-conventional-changelog"
-		}
 	}
 }

@@ -1,20 +1,26 @@
+import { useMachine } from "@xstate/react";
+import React from "react";
+
 import {
 	createOTPAuthServices,
 	defaultOTPContext,
 	OTPAuthenticator,
-} from "@thingco/auth-flow";
-import { useMachine } from "@xstate/react";
-import React from "react";
+} from "./auth-flow-otp";
 
 import type { State } from "xstate";
 import type {
 	OTPAuthenticatorContext,
 	OTPAuthenticatorEvent,
+	OTPAuthenticatorSchema,
 	OTPAuth,
-} from "@thingco/auth-flow";
+} from "./auth-flow-otp";
 
 export interface OTPAuthContextValue {
-	state: State<OTPAuthenticatorContext, OTPAuthenticatorEvent>;
+	state: State<
+		OTPAuthenticatorContext,
+		OTPAuthenticatorEvent,
+		OTPAuthenticatorSchema
+	>;
 	send: (e: OTPAuthenticatorEvent) => void;
 }
 
@@ -27,10 +33,10 @@ export interface OTPAuthProviderProps<SessionType, UserType> {
 }
 
 /**
- * @param root0
- * @param root0.children
- * @param root0.allowedRetries
- * @param root0.authServiceFunctions
+ * @param props
+ * @param {React.ReactNode} props.children
+ * @param {number} props.allowedRetries
+ * @param {OTPAuth<SessionType, UserType>} props.authServiceFunctions
  */
 export function OTPAuthProvider<SessionType, UserType>({
 	children,
@@ -43,6 +49,7 @@ export function OTPAuthProvider<SessionType, UserType>({
 	const [state, send] = useMachine(OTPAuthenticator, {
 		services,
 		context: { ...defaultOTPContext, otpEntryRetries: allowedRetries },
+		devTools: true,
 	});
 
 	return (
@@ -55,16 +62,31 @@ export function OTPAuthProvider<SessionType, UserType>({
 /**
  *
  */
-export function useOTPAuth(): OTPAuthContextValue {
+export function useOTPAuth(): OTPAuthContextValue & {
+	isLoading: boolean;
+	isAuthorised: boolean;
+} {
 	const ctx = React.useContext(OTPAuthContext);
+
 	if (ctx === null) {
 		throw new Error(
-			"OTP auth context has not been initialised properly: value is null. Please pass in correct init values."
+			"OTP auth context has not been initialised properly: value is null. Please pass in correct init values -- the provider expects a set of authorisation methods and these seem to be missing."
 		);
 	} else if (ctx === undefined) {
 		throw new Error(
 			"OTP auth values may only be consumed from below an OTPAuthProvider in the component tree. Have you added the provider at the top level of the app?"
 		);
 	}
-	return ctx;
+
+	const { state, send } = ctx;
+
+	const isAuthorised = state.value === "authorised";
+	const isLoading = /^validating/.test(state.value as string);
+
+	return {
+		state,
+		isLoading,
+		isAuthorised,
+		send,
+	};
 }
