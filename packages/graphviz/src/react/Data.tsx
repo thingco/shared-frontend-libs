@@ -1,6 +1,13 @@
-import { dotPoints, horizontalLineBarPoints, linePoints, px, py, verticalLineBarPoints } from "@thingco/graphviz";
 import React from "react";
 
+import {
+	dotPoints,
+	horizontalLineBarPoints,
+	linePoints,
+	px,
+	py,
+	verticalLineBarPoints,
+} from "../core";
 import { useGraph } from "./Context";
 
 export interface DataProps {
@@ -48,10 +55,7 @@ const defaultDataDotsStyle: React.CSSProperties = {
 	strokeWidth: 1,
 };
 
-export const DataDots = ({
-	style = {},
-	r = 2,
-}: DataProps & { r?: number }): JSX.Element => {
+export const DataDots = ({ style = {}, r = 2 }: DataProps & { r?: number }): JSX.Element => {
 	style = { ...defaultDataDotsStyle, ...style };
 	const graph = useGraph();
 	const dots = dotPoints(graph).map(({ x, y }, i) => (
@@ -66,10 +70,7 @@ const defaultAreaStyle: React.CSSProperties = {
 	opacity: 0.2,
 };
 
-export const AreaFillXAxis = ({
-	style = {},
-	coordinateOverride,
-}: DataProps): JSX.Element => {
+export const AreaFillXAxis = ({ style = {}, coordinateOverride }: DataProps): JSX.Element => {
 	style = { ...defaultAreaStyle, ...style };
 	let graph = useGraph();
 	// If using as an overlay, there will be a new set of y-axis coordinates to plot:
@@ -85,10 +86,7 @@ export const AreaFillXAxis = ({
 	return <polygon style={style} points={points} />;
 };
 
-export const AreaFillYAxis = ({
-	style = {},
-	coordinateOverride,
-}: DataProps): JSX.Element => {
+export const AreaFillYAxis = ({ style = {}, coordinateOverride }: DataProps): JSX.Element => {
 	style = { ...defaultAreaStyle, ...style };
 	let graph = useGraph();
 	// If using as an overlay, there will be a new set of y-axis coordinates to plot:
@@ -96,10 +94,10 @@ export const AreaFillYAxis = ({
 		graph = { ...graph, xAxisValues: coordinateOverride };
 	}
 
-	const points = `${px(graph, 0)},${py(graph, 0)} ${linePoints(graph)} ${px(
+	const points = `${px(graph, 0)},${py(graph, 0)} ${linePoints(graph)} ${px(graph, 0)},${py(
 		graph,
-		0
-	)},${py(graph, graph.yAxisMax)}`;
+		graph.yAxisMax
+	)}`;
 
 	return <polygon style={style} points={points} />;
 };

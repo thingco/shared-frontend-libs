@@ -1,6 +1,6 @@
-import { horizontalGridLines, verticalGridlines } from "@thingco/graphviz";
 import React from "react";
 
+import { horizontalGridLines, verticalGridlines } from "../core";
 import { useGraph } from "./Context";
 
 export interface GridLinesProps {

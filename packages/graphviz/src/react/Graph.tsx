@@ -1,11 +1,18 @@
-import { createGraph, GraphConstructor } from "@thingco/graphviz";
 import React from "react";
 
+import { createGraph, GraphConstructor } from "../core";
 import { XAxisAnnotations, YAxisAnnotations } from "./Annotations";
 import { XAxis, YAxis } from "./Axes";
 import { Canvas } from "./Canvas";
 import { GraphContext } from "./Context";
-import { AreaFillXAxis, AreaFillYAxis, DataDots, DataLine, HorizontalLineBars, VerticalLineBars } from "./Data";
+import {
+	AreaFillXAxis,
+	AreaFillYAxis,
+	DataDots,
+	DataLine,
+	HorizontalLineBars,
+	VerticalLineBars,
+} from "./Data";
 import { XAxisGridLines, YAxisGridLines } from "./GridLines";
 import { ScrubberHorizontal, ScrubberVertical } from "./Scrubber";
 
@@ -43,9 +50,7 @@ export const Graph = ({
 		yAxisValues,
 	});
 
-	return (
-		<GraphContext.Provider value={graph}>{children}</GraphContext.Provider>
-	);
+	return <GraphContext.Provider value={graph}>{children}</GraphContext.Provider>;
 };
 
 Graph.Canvas = Canvas;

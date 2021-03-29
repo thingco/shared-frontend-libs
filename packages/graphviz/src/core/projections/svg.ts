@@ -35,10 +35,7 @@ export type HorizontalAlignment = "left" | "zero" | "right";
  * @param {number} axisCoord
  * @returns {number}
  */
-export function projectXCoordToSVG(
-	{ xAxisMin, xAxisScale }: GraphData,
-	axisCoord: number
-): number {
+export function projectXCoordToSVG({ xAxisMin, xAxisScale }: GraphData, axisCoord: number): number {
 	return (axisCoord - xAxisMin) * xAxisScale;
 }
 
@@ -71,10 +68,11 @@ export function projectYCoordToSVG(
 
 export const py = projectYCoordToSVG;
 
-export function verticalLineFullHeight(
-	graph: GraphData,
-	xPosition: number
-): LineCoordinate {
+/**
+ * @param graph
+ * @param xPosition
+ */
+export function verticalLineFullHeight(graph: GraphData, xPosition: number): LineCoordinate {
 	return {
 		x1: px(graph, xPosition),
 		x2: px(graph, xPosition),
@@ -83,10 +81,11 @@ export function verticalLineFullHeight(
 	};
 }
 
-export function horizontalLineFullWidth(
-	graph: GraphData,
-	yPosition: number
-): LineCoordinate {
+/**
+ * @param graph
+ * @param yPosition
+ */
+export function horizontalLineFullWidth(graph: GraphData, yPosition: number): LineCoordinate {
 	return {
 		x1: 0,
 		x2: graph.xAxisSize,
@@ -95,12 +94,18 @@ export function horizontalLineFullWidth(
 	};
 }
 
+/**
+ * @param graph
+ */
 export function yAxis(graph: GraphData): LineCoordinate {
 	const xPlacement = graph.xAxisMin > 0 ? graph.xAxisMin : 0;
 
 	return verticalLineFullHeight(graph, xPlacement);
 }
 
+/**
+ * @param graph
+ */
 export function yAxisAnnotations(graph: GraphData): PointCoordinate[] {
 	const xPlacement = graph.xAxisMin > 0 ? graph.xAxisMin : 0;
 
@@ -110,12 +115,16 @@ export function yAxisAnnotations(graph: GraphData): PointCoordinate[] {
 	}));
 }
 
+/**
+ * @param graph
+ */
 export function horizontalGridLines(graph: GraphData): LineCoordinate[] {
-	return steppedYAxisValues(graph).map((v) =>
-		horizontalLineFullWidth(graph, v)
-	);
+	return steppedYAxisValues(graph).map((v) => horizontalLineFullWidth(graph, v));
 }
 
+/**
+ * @param graph
+ */
 export function yAxisSteps(graph: GraphData): LineCoordinate[] {
 	return steppedYAxisValues(graph).map((v) => ({
 		x1: px(graph, 0),
@@ -125,17 +134,19 @@ export function yAxisSteps(graph: GraphData): LineCoordinate[] {
 	}));
 }
 
+/**
+ * @param graph
+ * @param position
+ */
 export function xAxis(graph: GraphData, position = "bottom"): LineCoordinate {
-	return horizontalLineFullWidth(
-		graph,
-		position === "top" ? graph.yAxisMax : 0
-	);
+	return horizontalLineFullWidth(graph, position === "top" ? graph.yAxisMax : 0);
 }
 
-export function xAxisSteps(
-	graph: GraphData,
-	position: VerticalAlignment
-): LineCoordinate[] {
+/**
+ * @param graph
+ * @param position
+ */
+export function xAxisSteps(graph: GraphData, position: VerticalAlignment): LineCoordinate[] {
 	return steppedXAxisValues(graph).map((v) => ({
 		x1: px(graph, v),
 		x2: px(graph, v),
@@ -144,20 +155,27 @@ export function xAxisSteps(
 	}));
 }
 
-export function xAxisAnnotations(
-	graph: GraphData,
-	position = "bottom"
-): PointCoordinate[] {
+/**
+ * @param graph
+ * @param position
+ */
+export function xAxisAnnotations(graph: GraphData, position = "bottom"): PointCoordinate[] {
 	return steppedXAxisValues(graph).map((v) => ({
 		x: px(graph, v),
 		y: py(graph, position === "top" ? graph.yAxisMax : 0),
 	}));
 }
 
+/**
+ * @param graph
+ */
 export function verticalGridlines(graph: GraphData): LineCoordinate[] {
 	return steppedXAxisValues(graph).map((v) => verticalLineFullHeight(graph, v));
 }
 
+/**
+ * @param graph
+ */
 export function dotPoints(graph: GraphData): PointCoordinate[] {
 	return graph.yAxisValues.map((v, i) => ({
 		x: px(graph, graph.xAxisValues[i]),
@@ -165,12 +183,18 @@ export function dotPoints(graph: GraphData): PointCoordinate[] {
 	}));
 }
 
+/**
+ * @param graph
+ */
 export function linePoints(graph: GraphData): string {
 	return graph.yAxisValues
 		.map((v, i) => `${px(graph, graph.xAxisValues[i])},${py(graph, v)}`)
 		.join(" ");
 }
 
+/**
+ * @param graph
+ */
 export function horizontalLineBarPoints(graph: GraphData): LineCoordinate[] {
 	return graph.xAxisValues.map((v, i) => ({
 		x1: px(graph, 0),
@@ -180,6 +204,9 @@ export function horizontalLineBarPoints(graph: GraphData): LineCoordinate[] {
 	}));
 }
 
+/**
+ * @param graph
+ */
 export function verticalLineBarPoints(graph: GraphData): LineCoordinate[] {
 	return graph.yAxisValues.map((v, i) => ({
 		x1: px(graph, graph.xAxisValues[i]),

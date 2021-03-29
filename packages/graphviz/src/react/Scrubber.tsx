@@ -1,13 +1,13 @@
-import {
-  HorizontalAlignment,
-  horizontalLineFullWidth,
-  px,
-  py,
-  VerticalAlignment,
-  verticalLineFullHeight
-} from "@thingco/graphviz";
 import React from "react";
 
+import {
+	HorizontalAlignment,
+	horizontalLineFullWidth,
+	px,
+	py,
+	VerticalAlignment,
+	verticalLineFullHeight,
+} from "../core";
 import { useGraph } from "./Context";
 
 export interface ScrubberControlProps {
@@ -66,12 +66,7 @@ export const ScrubberHorizontal = ({
 
 	return (
 		<React.Fragment>
-			<g
-				transform={`translate(${px(
-					graph,
-					graph.xAxisValues[currentDataPointIndex]
-				)})`}
-			>
+			<g transform={`translate(${px(graph, graph.xAxisValues[currentDataPointIndex])})`}>
 				<line style={thumbStyle} x1={x1} x2={x2} y1={y1} y2={y2} />
 			</g>
 			<foreignObject
@@ -132,12 +127,7 @@ export const ScrubberVertical = ({
 
 	return (
 		<React.Fragment>
-			<g
-				transform={`translate(0 ${py(
-					graph,
-					graph.yAxisValues[currentDataPointIndex]
-				)})`}
-			>
+			<g transform={`translate(0 ${py(graph, graph.yAxisValues[currentDataPointIndex])})`}>
 				<line style={thumbStyle} x1={x1} x2={x2} y1={y1} y2={y2} />
 			</g>
 			<foreignObject

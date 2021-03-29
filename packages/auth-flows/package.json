@@ -3,7 +3,9 @@
 	"description": "XState-powered auth flows for React",
 	"version": "0.1.0",
 	"main": "lib/index.js",
-	"public": true,
+	"module": "lib/index.js",
+	"types": "lib/index.d.ts",
+	"public": false,
 	"publishConfig": {
 		"registry": "https://npm.pkg.github.com/"
 	},

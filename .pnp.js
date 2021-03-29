@@ -34,10 +34,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 					reference: "workspace:packages/graphviz",
 				},
 				{
-					name: "@thingco/graphviz-react",
-					reference: "workspace:packages/graphviz-react",
-				},
-				{
 					name: "@thingco/shared-frontend-libs-playground",
 					reference: "workspace:playground",
 				},
@@ -52,8 +48,13 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 						"workspace:packages/auth-flows",
 					],
 				],
-				["@thingco/graphviz", ["workspace:packages/graphviz"]],
-				["@thingco/graphviz-react", ["workspace:packages/graphviz-react"]],
+				[
+					"@thingco/graphviz",
+					[
+						"virtual:f6086b21c17868b77424a3895eecc30d0232d9f99fd340121daebaefe9ee674524dda7da9a395f1d840ab44009e2b4a0307b92e1a2cbc70ec3cdddf78b859584#workspace:packages/graphviz",
+						"workspace:packages/graphviz",
+					],
+				],
 				["@thingco/shared-frontend-libs-playground", ["workspace:playground"]],
 				["shared-frontend-libs", ["workspace:."]],
 			],
@@ -101,13 +102,8 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 										"virtual:3e93b9fab597b39555cebd964678671eff2df3026f28e25069090d327c329fa6e59179c94265beedb1b1469f6b665fe52ab5f6604108146b68635aa07ecc70e9#npm:4.2.0",
 									],
 									["husky", "npm:4.3.8"],
-									["jest", "npm:26.6.3"],
 									["lint-staged", "npm:10.5.4"],
 									["prettier", "npm:2.2.1"],
-									[
-										"ts-jest",
-										"virtual:3e93b9fab597b39555cebd964678671eff2df3026f28e25069090d327c329fa6e59179c94265beedb1b1469f6b665fe52ab5f6604108146b68635aa07ecc70e9#npm:26.5.3",
-									],
 									[
 										"typescript",
 										"patch:typescript@npm%3A4.2.3#builtin<compat/typescript>::version=4.2.3&hash=a45b0e",
@@ -2709,37 +2705,57 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 					"@thingco/graphviz",
 					[
 						[
-							"workspace:packages/graphviz",
+							"virtual:f6086b21c17868b77424a3895eecc30d0232d9f99fd340121daebaefe9ee674524dda7da9a395f1d840ab44009e2b4a0307b92e1a2cbc70ec3cdddf78b859584#workspace:packages/graphviz",
 							{
-								packageLocation: "./packages/graphviz/",
+								packageLocation:
+									"./.yarn/$$virtual/@thingco-graphviz-virtual-dc63d5e109/1/packages/graphviz/",
 								packageDependencies: [
-									["@thingco/graphviz", "workspace:packages/graphviz"],
+									[
+										"@thingco/graphviz",
+										"virtual:f6086b21c17868b77424a3895eecc30d0232d9f99fd340121daebaefe9ee674524dda7da9a395f1d840ab44009e2b4a0307b92e1a2cbc70ec3cdddf78b859584#workspace:packages/graphviz",
+									],
+									["@types/react", "npm:17.0.3"],
 									["@types/rimraf", "npm:3.0.0"],
+									["@types/thingco__graphviz", null],
+									["jest", "npm:26.6.3"],
+									["react", "npm:17.0.1"],
 									["rimraf", "npm:3.0.2"],
+									[
+										"ts-jest",
+										"virtual:f6086b21c17868b77424a3895eecc30d0232d9f99fd340121daebaefe9ee674524dda7da9a395f1d840ab44009e2b4a0307b92e1a2cbc70ec3cdddf78b859584#npm:26.5.3",
+									],
 									[
 										"typescript",
 										"patch:typescript@npm%3A4.2.3#builtin<compat/typescript>::version=4.2.3&hash=a45b0e",
 									],
 								],
+								packagePeers: [
+									"@thingco/graphviz",
+									"@types/react",
+									"@types/thingco__graphviz",
+									"react",
+								],
 								linkType: "SOFT",
 							},
 						],
-					],
-				],
-				[
-					"@thingco/graphviz-react",
-					[
 						[
-							"workspace:packages/graphviz-react",
+							"workspace:packages/graphviz",
 							{
-								packageLocation: "./packages/graphviz-react/",
+								packageLocation: "./packages/graphviz/",
 								packageDependencies: [
-									["@thingco/graphviz-react", "workspace:packages/graphviz-react"],
-									["@thingco/graphviz", "workspace:packages/graphviz"],
+									[
+										"@thingco/graphviz",
+										"virtual:f6086b21c17868b77424a3895eecc30d0232d9f99fd340121daebaefe9ee674524dda7da9a395f1d840ab44009e2b4a0307b92e1a2cbc70ec3cdddf78b859584#workspace:packages/graphviz",
+									],
 									["@types/react", "npm:17.0.3"],
 									["@types/rimraf", "npm:3.0.0"],
+									["jest", "npm:26.6.3"],
 									["react", "npm:17.0.1"],
 									["rimraf", "npm:3.0.2"],
+									[
+										"ts-jest",
+										"virtual:f6086b21c17868b77424a3895eecc30d0232d9f99fd340121daebaefe9ee674524dda7da9a395f1d840ab44009e2b4a0307b92e1a2cbc70ec3cdddf78b859584#npm:26.5.3",
+									],
 									[
 										"typescript",
 										"patch:typescript@npm%3A4.2.3#builtin<compat/typescript>::version=4.2.3&hash=a45b0e",
@@ -16796,13 +16812,8 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 										"virtual:3e93b9fab597b39555cebd964678671eff2df3026f28e25069090d327c329fa6e59179c94265beedb1b1469f6b665fe52ab5f6604108146b68635aa07ecc70e9#npm:4.2.0",
 									],
 									["husky", "npm:4.3.8"],
-									["jest", "npm:26.6.3"],
 									["lint-staged", "npm:10.5.4"],
 									["prettier", "npm:2.2.1"],
-									[
-										"ts-jest",
-										"virtual:3e93b9fab597b39555cebd964678671eff2df3026f28e25069090d327c329fa6e59179c94265beedb1b1469f6b665fe52ab5f6604108146b68635aa07ecc70e9#npm:26.5.3",
-									],
 									[
 										"typescript",
 										"patch:typescript@npm%3A4.2.3#builtin<compat/typescript>::version=4.2.3&hash=a45b0e",
@@ -18211,16 +18222,16 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 							},
 						],
 						[
-							"virtual:3e93b9fab597b39555cebd964678671eff2df3026f28e25069090d327c329fa6e59179c94265beedb1b1469f6b665fe52ab5f6604108146b68635aa07ecc70e9#npm:26.5.3",
+							"virtual:be93e41f18dd445d699e46c78ad75650527c4f5e5d5120d685234cbaa071b339a3116e6a967a8d04eb21d3e4167ea6e540c7b45dba9acd1881e6719a67664e80#npm:26.5.3",
 							{
 								packageLocation:
-									"./.yarn/$$virtual/ts-jest-virtual-3fdb8d28eb/0/cache/ts-jest-npm-26.5.3-94fff5bfc5-6f42972081.zip/node_modules/ts-jest/",
+									"./.yarn/$$virtual/ts-jest-virtual-d39c99b62e/0/cache/ts-jest-npm-26.5.3-94fff5bfc5-6f42972081.zip/node_modules/ts-jest/",
 								packageDependencies: [
 									[
 										"ts-jest",
-										"virtual:3e93b9fab597b39555cebd964678671eff2df3026f28e25069090d327c329fa6e59179c94265beedb1b1469f6b665fe52ab5f6604108146b68635aa07ecc70e9#npm:26.5.3",
+										"virtual:be93e41f18dd445d699e46c78ad75650527c4f5e5d5120d685234cbaa071b339a3116e6a967a8d04eb21d3e4167ea6e540c7b45dba9acd1881e6719a67664e80#npm:26.5.3",
 									],
-									["@types/jest", null],
+									["@types/jest", "npm:26.0.21"],
 									["@types/typescript", null],
 									["bs-logger", "npm:0.2.6"],
 									["buffer-from", "npm:1.1.1"],
@@ -18243,16 +18254,16 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 							},
 						],
 						[
-							"virtual:be93e41f18dd445d699e46c78ad75650527c4f5e5d5120d685234cbaa071b339a3116e6a967a8d04eb21d3e4167ea6e540c7b45dba9acd1881e6719a67664e80#npm:26.5.3",
+							"virtual:f6086b21c17868b77424a3895eecc30d0232d9f99fd340121daebaefe9ee674524dda7da9a395f1d840ab44009e2b4a0307b92e1a2cbc70ec3cdddf78b859584#npm:26.5.3",
 							{
 								packageLocation:
-									"./.yarn/$$virtual/ts-jest-virtual-d39c99b62e/0/cache/ts-jest-npm-26.5.3-94fff5bfc5-6f42972081.zip/node_modules/ts-jest/",
+									"./.yarn/$$virtual/ts-jest-virtual-f351e1debc/0/cache/ts-jest-npm-26.5.3-94fff5bfc5-6f42972081.zip/node_modules/ts-jest/",
 								packageDependencies: [
 									[
 										"ts-jest",
-										"virtual:be93e41f18dd445d699e46c78ad75650527c4f5e5d5120d685234cbaa071b339a3116e6a967a8d04eb21d3e4167ea6e540c7b45dba9acd1881e6719a67664e80#npm:26.5.3",
+										"virtual:f6086b21c17868b77424a3895eecc30d0232d9f99fd340121daebaefe9ee674524dda7da9a395f1d840ab44009e2b4a0307b92e1a2cbc70ec3cdddf78b859584#npm:26.5.3",
 									],
-									["@types/jest", "npm:26.0.21"],
+									["@types/jest", null],
 									["@types/typescript", null],
 									["bs-logger", "npm:0.2.6"],
 									["buffer-from", "npm:1.1.1"],

@@ -14,12 +14,13 @@
 		"playground"
 	],
 	"scripts": {
-		"auth-flows": "yarn workspace @thingco/auth-flows",
-		"graphviz": "yarn workspace @thingco/graphviz",
-		"graphviz-react": "yarn workspace @thingco/graphviz-react",
+		"packages:build-all": "yarn workspaces foreach --exclude playground build",
+		"packages:test-all": "yarn workspaces foreach --exclude playground test",
+		"package:auth-flows": "yarn workspace @thingco/auth-flows",
+		"package:graphviz": "yarn workspace @thingco/graphviz",
+		"package:graphviz-react": "yarn workspace @thingco/graphviz-react",
 		"playground": "yarn workspace @thingco/shared-frontend-libs-playground",
-		"global:test": "jest",
-		"global:update-yarn": "yarn set version latest && yarn plugin import version && yarn plugin import typescript && yarn plugin import workspace-tools && yarn plugin import interactive-tools"
+		"global:update-yarn": "yarn set version latest && yarn plugin import version && yarn plugin import typescript && yarn plugin import workspace-tools && yarn plugin import interactive-tools && yarn dlx @yarnpkg/pnpify --sdk"
 	},
 	"devDependencies": {
 		"@types/eslint": "^7.2.7",
@@ -34,10 +35,8 @@
 		"eslint-plugin-react": "^7.22.0",
 		"eslint-plugin-react-hooks": "^4.2.0",
 		"husky": "^4.3.8",
-		"jest": "^26.6.3",
 		"lint-staged": "^10.5.4",
 		"prettier": "^2.2.1",
-		"ts-jest": "^26.5.3",
 		"typescript": "^4.2.3"
 	},
 	"resolutions": {
