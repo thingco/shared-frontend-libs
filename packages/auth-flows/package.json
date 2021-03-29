@@ -5,11 +5,15 @@
 	"main": "lib/index.js",
 	"module": "lib/index.js",
 	"types": "lib/index.d.ts",
-	"public": false,
+	"public": true,
 	"publishConfig": {
 		"registry": "https://npm.pkg.github.com/"
 	},
-	"repository": "https://github.com/thingco/shared-frontend-libs/tree/master/packages/auth-flows",
+	"repository": {
+		"type": "git",
+		"url": "ssh://git@github.com:thingco/shared-frontend-libs.git",
+		"directory": "packages/auth-flows"
+	},
 	"scripts": {
 		"start": "yarn rimraf lib && yarn tsc --watch",
 		"build": "yarn rimraf lib && yarn tsc",
