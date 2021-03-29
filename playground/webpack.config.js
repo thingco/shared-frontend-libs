@@ -31,6 +31,14 @@ module.exports = {
 	},
 	resolve: {
 		extensions: [".mjs", ".tsx", ".ts", ".js", ".jsx"],
+		fallback: {
+			buffer: require.resolve("buffer/"),
+			crypto: require.resolve("crypto-browserify"),
+			events: require.resolve("events/"),
+			stream: require.resolve("stream/"),
+			string_decoder: require.resolve("string_decoder/"),
+			url: require.resolve("url/"),
+		},
 	},
 	plugins: [
 		new HtmlWebpackPlugin({

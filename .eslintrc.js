@@ -20,6 +20,14 @@ module.exports = {
 		"plugin:@typescript-eslint/recommended", // Uses the recommended rules from the @typescript-eslint/eslint-plugin
 		"prettier", // Uses eslint-config-prettier to disable ESLint rules that would conflict with prettier
 	],
+	overrides: [
+		{
+			files: ["**/*.test.{ts,tsx}"],
+			env: {
+				jest: true,
+			},
+		},
+	],
 
 	rules: {
 		// Place to specify ESLint rules. Can be used to overwrite rules specified from the extended configs

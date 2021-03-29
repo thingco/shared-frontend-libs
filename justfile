@@ -17,10 +17,10 @@ build_all_libraries:
     @echo "Building all packages"
     @yarn workspaces foreach --exclude playground run build
 
-# bundles a single package (for example "just build @thingco/dataviz")
+# bundles a single package (for example "just build dataviz")
 build package:
     @echo "Building {{package}}"
-    @yarn workspace {{package}} run build
+    @yarn {{package}} run build
 
 
 # tests all packages
