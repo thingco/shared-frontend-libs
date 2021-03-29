@@ -5,25 +5,23 @@ help:
     @echo ""
     @just --list
 
-# builds everything
-build_all:
-    @echo "Building all packages"
-    @yarn workspaces foreach --exclude website run build
+update_yarn:
+    yarn set version latest
+    yarn plugin import version
+    yarn plugin import typescript
+    yarn plugin import workspace-tools
+    yarn plugin import interactive-tools
 
-# builds all libraries, excluding the documentation website
+# builds all libraries (_ie_ excluding the playground website)
 build_all_libraries:
     @echo "Building all packages"
-    @yarn workspaces foreach --exclude website run build
+    @yarn workspaces foreach --exclude playground run build
 
-# bundles a single package (for example "just build @thingco/dataviz")
+# bundles a single package (for example "just build dataviz")
 build package:
     @echo "Building {{package}}"
-    @yarn workspace {{package}} run build
+    @yarn {{package}} run build
 
-# builds and then watches all libraries, excluding the documentation website
-develop_all_libraries:
-    @echo "Building and watching all packages"
-    @yarn workspaces foreach --exclude website run develop
 
 # tests all packages
 test_all:

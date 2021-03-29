@@ -2,10 +2,22 @@
 
 ## Overview
 
-A set of public, shared libraries for use in frontend React/React Native-based applications
+A set of shared libraries for use in frontend React/React Native-based applications
 
 ## Requirements
 
-- **Node**. This is a hard requirement. Ideally use latest stable version, but shouldn't matter too much.
+- **Node**. This is a hard requirement. Ideally use latest stable version, but shouldn't matter too much. (_NOTE_ there seem to be some issues around Node 15.x. If you are getting build issues and they seem to be Node-related, downgrade to 14.x).
 - **[Yarn](https://yarnpkg.com/getting-started/install)**. This is a hard requirement. The project uses features only available in Yarn.
-- **[Just](https://github.com/casey/just)**. This is not a hard requirement. Just is a task runner. It's easier to use a task runner than writing bash scripts, and Make is not particularly cross-platform. We aren't doing anything complicated here, it's just easier to collate common commands in one place.
+
+## Developing
+
+Libraries are in the `packages/` directory. Each library is aliased in the root `package.json`, so you can run commands (`build`, `start`, `test` _etc_) direct from root -- for example `yarn auth-flows build`. Detailed information for each library is within its README.
+
+Libraries are published as GitHub packages, available to all members of the ThingCo organisation.
+
+| Library               | Description                                                                |
+| --------------------- | -------------------------------------------------------------------------- |
+| `@thingco/auth-flows` | Drop-in React-based authorization flows, each with a configurable Provider |
+| `@thingco/graphviz`   | Static SVG-based chart/graph components for React/React Native             |
+
+The `playground/` directory contains the shell of a basic React app -- feel free to adjust that as you want to test out the libraries whilst developing.
