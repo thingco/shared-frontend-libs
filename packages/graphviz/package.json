@@ -9,11 +9,7 @@
 	"publishConfig": {
 		"registry": "https://npm.pkg.github.com/"
 	},
-	"repository": {
-		"type": "git",
-		"url": "ssh://git@github.com:thingco/shared-frontend-libs.git",
-		"directory": "packages/graphviz"
-	},
+	"repository": "https://github.com/thingco/shared-frontend-libs",
 	"scripts": {
 		"start": "yarn rimraf lib && yarn tsc --watch",
 		"build": "yarn rimraf lib && yarn tsc",

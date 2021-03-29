@@ -1401,7 +1401,6 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@thingco/graphviz@workspace:packages/graphviz"
   dependencies:
-    "@thingco/graphviz": "workspace:packages/graphviz"
     "@types/react": ^17.0.3
     "@types/rimraf": ^3.0.0
     jest: ^26.6.3
