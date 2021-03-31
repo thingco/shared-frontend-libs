@@ -7,8 +7,6 @@ import {
 	useCognitoOTPAuth,
 } from "..";
 
-const Loader = (): JSX.Element => <p data-testid="loader">Loading...</p>;
-
 const EmailInput = ({
 	inputValue,
 	setInputValue,
@@ -53,32 +51,31 @@ const Authorised = ({ send }: { send: (e: CognitoOTPAuthenticatorEvent) => void 
 
 const LoginForm = ({
 	isEmailInputStage,
+	isLoading,
+	isOtpInputStage,
 	send,
 }: {
 	isEmailInputStage: boolean;
+	isLoading: boolean;
+	isOtpInputStage: boolean;
 	send: (e: CognitoOTPAuthenticatorEvent) => void;
 }): JSX.Element => {
 	const [emailInput, setEmailInput] = React.useState("");
 	const [otpInput, setOtpInput] = React.useState("");
+
+	const submitHandler = (e: React.FormEvent) => {
+		e.preventDefault();
+		if (isEmailInputStage) send({ type: "SUBMIT_USER_IDENTIFIER", payload: emailInput });
+		if (isOtpInputStage) send({ type: "SUBMIT_OTP", payload: otpInput });
+		return;
+	};
+
 	return (
-		<form
-			onSubmit={(e) => {
-				e.preventDefault();
-				send(
-					isEmailInputStage
-						? { type: "SUBMIT_USER_IDENTIFIER", payload: emailInput }
-						: { type: "SUBMIT_OTP", payload: otpInput }
-				);
-			}}
-			data-testid="login-form"
-		>
-			{isEmailInputStage ? (
-				<EmailInput inputValue={emailInput} setInputValue={setEmailInput} />
-			) : (
-				<OTPInput inputValue={otpInput} setInputValue={setOtpInput} />
-			)}
-			<button type="submit" data-testid="submit-button">
-				Submit
+		<form onSubmit={submitHandler} data-testid="login-form">
+			{isEmailInputStage && <EmailInput inputValue={emailInput} setInputValue={setEmailInput} />}
+			{isOtpInputStage && <OTPInput inputValue={otpInput} setInputValue={setOtpInput} />}
+			<button type="submit" data-testid="submit-button" disabled={isLoading}>
+				{isLoading ? "Loading..." : "Submit"}
 			</button>
 		</form>
 	);
@@ -89,13 +86,17 @@ const AppEntry = (): JSX.Element => {
 
 	return (
 		<div>
-			{isLoading ? (
-				<Loader />
-			) : isAuthorised ? (
+			{isAuthorised ? (
 				<Authorised send={send} />
 			) : (
 				<LoginForm
-					isEmailInputStage={(state.value as string) === "awaitingUserIdentifier"}
+					isEmailInputStage={
+						state.matches("init") ||
+						state.matches("awaitingUserIdentifier") ||
+						state.matches("validatingUserIdentifier")
+					}
+					isOtpInputStage={state.matches("awaitingOtp") || state.matches("validatingOtp")}
+					isLoading={isLoading}
 					send={send}
 				/>
 			)}

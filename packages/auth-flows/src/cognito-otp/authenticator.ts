@@ -29,9 +29,7 @@ export const cognitoOTPAuthenticatorConfig: MachineConfig<
 				id: "sessionCheck",
 				src: "checkSession",
 				onDone: {
-					actions: assign<CognitoOTPAuthenticatorContext, DoneInvokeEvent<any>>({
-						sessionToken: (_ctx: CognitoOTPAuthenticatorContext, e: any) => e.data,
-					}),
+					actions: ["assignSessionToken"],
 					target: "authorised",
 				},
 				onError: {
@@ -89,7 +87,7 @@ export const cognitoOTPAuthenticatorConfig: MachineConfig<
 				onError: [
 					{
 						target: "awaitingOtp",
-						cond: (ctx) => ctx.otpEntryRetries > 0,
+						cond: "hasAvailableOtpRetries",
 						actions: assign<CognitoOTPAuthenticatorContext, DoneInvokeEvent<any>>({
 							otp: "",
 							errorMsg: (ctx) =>
@@ -99,7 +97,7 @@ export const cognitoOTPAuthenticatorConfig: MachineConfig<
 					},
 					{
 						target: "awaitingUserIdentifier",
-						cond: (ctx) => ctx.otpEntryRetries === 0,
+						cond: "otpRetriesExceeded",
 						actions: assign<CognitoOTPAuthenticatorContext>({
 							otp: "",
 							errorMsg: `Retries exceeded, please enter user identifier`,
@@ -116,9 +114,7 @@ export const cognitoOTPAuthenticatorConfig: MachineConfig<
 				id: "sessionValidation",
 				src: "checkSession",
 				onDone: {
-					actions: assign<CognitoOTPAuthenticatorContext, DoneInvokeEvent<any>>({
-						sessionToken: (_ctx: CognitoOTPAuthenticatorContext, e: any) => e.data,
-					}),
+					actions: ["assignSessionToken"],
 					target: "authorised",
 				},
 				onError: {
@@ -132,21 +128,16 @@ export const cognitoOTPAuthenticatorConfig: MachineConfig<
 				src: "signOut",
 				onError: {
 					target: "awaitingUserIdentifier",
-					// TODO on a logout Error, manually destroy any entries in local storage
-					actions: assign<CognitoOTPAuthenticatorContext>({
-						...defaultOTPContext,
-					}),
+					// REVEIW on a logout Error, manually destroy any entries in local storage?
+					actions: ["resetContext"],
 				},
 				onDone: {
 					target: "awaitingUserIdentifier",
-					actions: assign<CognitoOTPAuthenticatorContext, DoneInvokeEvent<any>>({
-						...defaultOTPContext,
-					}),
+					actions: ["resetContext"],
 				},
 			},
 		},
 		authorised: {
-			// type: "final",
 			on: {
 				REQUEST_LOG_OUT: {
 					target: "logOut",
@@ -167,10 +158,19 @@ export const cognitoOTPAuthenticatorOptions: MachineOptions<
 		mergeUserIdentifier: assign<CognitoOTPAuthenticatorContext, CognitoOTPAuthenticatorEvent>({
 			userIdentifier: (_ctx, { payload }) => payload ?? "",
 		}),
+		assignSessionToken: assign<CognitoOTPAuthenticatorContext, any>({
+			sessionToken: (_ctx: CognitoOTPAuthenticatorContext, e: any) => e.data,
+		}),
+		resetContext: assign<CognitoOTPAuthenticatorContext, any>({
+			...defaultOTPContext,
+		}),
 	},
 	activities: {},
 	delays: {},
-	guards: {},
+	guards: {
+		hasAvailableOtpRetries: (ctx) => ctx.otpEntryRetries > 0,
+		otpRetriesExceeded: (ctx) => ctx.otpEntryRetries <= 0,
+	},
 	services: {
 		checkSession: (_ctx) => {
 			throw new Error("No checkSession function defined");

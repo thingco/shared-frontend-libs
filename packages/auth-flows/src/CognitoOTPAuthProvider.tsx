@@ -28,9 +28,8 @@ export interface OTPAuthProviderProps<SessionType, UserType> {
 }
 
 /**
- * @param props
- * @param {React.ReactNode} props.children
- * @param {OTPAuth<SessionType, UserType>} props.authServiceFunctions
+ * @param {OTPAuthProviderProps<SessionType, UserType>} props
+ * @returns {JSX.Element}
  */
 export function CognitoOTPAuthProvider<SessionType, UserType>({
 	children,
@@ -70,8 +69,8 @@ export function useCognitoOTPAuth(): OTPAuthContextValue & {
 
 	const { state, send } = ctx;
 
-	const isAuthorised = state.value === "authorised";
-	const isLoading = /^validating/.test(state.value as string) || (state.value as string) === "init";
+	const isAuthorised = state.matches("authorised");
+	const isLoading = /^validating/.test(state.value as string) || state.matches("init");
 
 	return {
 		state,

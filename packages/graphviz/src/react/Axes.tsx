@@ -1,7 +1,7 @@
 import React from "react";
 
-import { VerticalAlignment, xAxis, xAxisSteps, yAxis, yAxisSteps } from "../core";
 import { useGraph } from "./Context";
+import { VerticalAlignment, xAxis, xAxisSteps, yAxis, yAxisSteps } from "./core";
 
 export interface AxisProps {
 	style?: React.CSSProperties;

@@ -2,56 +2,50 @@ import { fireEvent, render, RenderResult, waitFor } from "@testing-library/react
 import { createModel } from "@xstate/test";
 import React from "react";
 import { act } from "react-dom/test-utils";
-import { Machine } from "xstate";
+import { assign, Machine } from "xstate";
 
-import { cognitoOtpTestApi } from "./cognito-otp-test-api";
 import { CognitoOTPTestApp } from "./CognitoOTPTestApp";
 
 /**
- * @param stallTime
+ * Mock API functions
  */
-async function stall(stallTime = 500) {
-	await new Promise((resolve) => setTimeout(resolve, stallTime));
-}
-
-/**
- * Dummy user inputs
- */
-const VALID_USER_IDENTIFIER = "validemail@test.com";
-const INVALID_USER_IDENTIFIER = "invalidemail@test.com";
-const VALID_OTP = "123456";
-const INVALID_OTP = "invalidpassword";
+const checkSession = jest.fn();
+const validateUserIdentifier = jest.fn();
+const validateOtp = jest.fn();
+const signOut = jest.fn().mockRejectedValue(null);
 
 const uiEvents = {
-	SESSION_CHECK_SUCCESS: async () =>
-		await jest.spyOn(cognitoOtpTestApi, "checkSession").mockImplementation(async () => {
-			await stall();
-			return await "session token";
-		}),
-	SESSION_CHECK_FAILURE: async () =>
-		await jest.spyOn(cognitoOtpTestApi, "checkSession").mockImplementation(async () => {
-			await stall();
-			throw new Error();
-		}),
-	SUBMIT_USER_IDENTIFIER: {
-		exec: async ({ getByTestId }: any, event: any) => {
-			await fireEvent.change(getByTestId("email-input"), {
-				target: { value: event.value },
-			});
-			await fireEvent.click(getByTestId("submit-button"));
-		},
-		cases: [{ value: VALID_USER_IDENTIFIER }, { value: INVALID_USER_IDENTIFIER }],
+	SESSION_CHECK_SUCCESS: async () => {
+		// sessionResolver.resolve("session token");
+		checkSession.mockResolvedValue("session token");
 	},
-	USER_IDENTIFIER_CHECK_SUCCESS: {},
-	USER_IDENTIFIER_CHECK_FAILURE: {},
-	SUBMIT_OTP: {
-		exec: async ({ getByTestId }: any, event: any) => {
-			await fireEvent.change(getByTestId("otp-input"), {
-				target: { value: event.value },
-			});
-			await fireEvent.click(getByTestId("submit-button"));
-		},
-		cases: [{ value: VALID_OTP }, { value: INVALID_OTP }],
+	SESSION_CHECK_FAILURE: async () => {
+		// sessionResolver.reject(null);
+		checkSession.mockRejectedValue(null);
+	},
+	SUBMIT_USER_IDENTIFIER: async ({ getByTestId }: any) => {
+		await fireEvent.change(getByTestId("email-input"), {
+			target: { value: "dummyemail@test.com" },
+		});
+		await fireEvent.click(getByTestId("submit-button"));
+	},
+	USER_IDENTIFIER_CHECK_SUCCESS: async () => {
+		validateUserIdentifier.mockResolvedValue("user");
+	},
+	USER_IDENTIFIER_CHECK_FAILURE: async () => {
+		validateUserIdentifier.mockRejectedValue(null);
+	},
+	SUBMIT_OTP: async ({ getByTestId }: any) => {
+		await fireEvent.change(getByTestId("otp-input"), {
+			target: { value: "dummy OTP" },
+		});
+		await fireEvent.click(getByTestId("submit-button"));
+	},
+	OTP_CHECK_SUCCESS: async () => {
+		validateOtp.mockResolvedValue(null);
+	},
+	OTP_CHECK_FAILURE: async () => {
+		validateOtp.mockRejectedValue(null);
 	},
 	LOG_OUT: async ({ getByTestId }: any) => await fireEvent.click(getByTestId("logout-button")),
 };
@@ -59,17 +53,19 @@ const uiEvents = {
 const testMachineConfig = {
 	id: "authenticator-test",
 	initial: "validatingSession",
-	context: {},
+	context: {
+		otpRetries: 3,
+	},
 	states: {
 		validatingSession: {
 			on: {
 				SESSION_CHECK_SUCCESS: "authorised",
 				SESSION_CHECK_FAILURE: "awaitingUserIdentifier",
 			},
-			meta: {
-				test: async ({ getByTestId }: RenderResult) =>
-					waitFor(() => expect(getByTestId("loader")).not.toBeNull()),
-			},
+			// meta: {
+			// 	test: async ({ getByTestId }: RenderResult) =>
+			// 		waitFor(() => expect(getByTestId("loader")).not.toBeNull()),
+			// },
 		},
 		awaitingUserIdentifier: {
 			on: {
@@ -85,10 +81,10 @@ const testMachineConfig = {
 				USER_IDENTIFIER_CHECK_SUCCESS: "awaitingOtp",
 				USER_IDENTIFIER_CHECK_FAILURE: "awaitingUserIdentifier",
 			},
-			meta: {
-				test: async ({ getByTestId }: RenderResult) =>
-					waitFor(() => expect(getByTestId("loader")).not.toBeNull()),
-			},
+			// meta: {
+			// 	test: async ({ getByTestId }: RenderResult) =>
+			// 		waitFor(() => expect(getByTestId("loader")).not.toBeNull()),
+			// },
 		},
 		awaitingOtp: {
 			on: {
@@ -102,12 +98,23 @@ const testMachineConfig = {
 		validatingOtp: {
 			on: {
 				OTP_CHECK_SUCCESS: "validatingSession",
-				OTP_CHECK_FAILURE: "awaitingUserIdentifier",
+				OTP_CHECK_FAILURE: [
+					{
+						target: "awaitingUserIdentifier",
+						actions: assign({ otpRetries: 3 }),
+						cond: (ctx: any) => ctx.otpRetries === 0,
+					},
+					{
+						target: "awaitingOtp",
+						actions: assign({ otpRetries: (ctx: any) => ctx.otpRetries - 1 }),
+						cond: (ctx: any) => ctx.otpRetries > 0,
+					},
+				],
 			},
-			meta: {
-				test: async ({ getByTestId }: RenderResult) =>
-					waitFor(() => expect(getByTestId("loader")).not.toBeNull()),
-			},
+			// meta: {
+			// 	test: async ({ getByTestId }: RenderResult) =>
+			// 		waitFor(() => expect(getByTestId("loader")).not.toBeNull()),
+			// },
 		},
 		authorised: {
 			on: {
@@ -134,7 +141,17 @@ describe("Cognito OTP Flow", () => {
 			for (const path of plan.paths) {
 				it(path.description, async () => {
 					await act(async () => {
-						await path.test(render(<CognitoOTPTestApp authServiceFunctions={cognitoOtpTestApi} />));
+						const renderContext = await render(
+							<CognitoOTPTestApp
+								authServiceFunctions={{
+									checkSession,
+									validateUserIdentifier,
+									validateOtp,
+									signOut,
+								}}
+							/>
+						);
+						await path.test(renderContext);
 					});
 				});
 			}

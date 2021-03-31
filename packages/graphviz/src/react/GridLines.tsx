@@ -1,7 +1,7 @@
 import React from "react";
 
-import { horizontalGridLines, verticalGridlines } from "../core";
 import { useGraph } from "./Context";
+import { horizontalGridLines, verticalGridlines } from "./core";
 
 export interface GridLinesProps {
 	style?: React.CSSProperties;
