@@ -1,3 +1,4 @@
 undecided:
+  - "@thingco/auth-flows"
   - "@thingco/graphviz"
   - "@thingco/shared-frontend-libs-playground"

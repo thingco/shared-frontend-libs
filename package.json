@@ -19,6 +19,7 @@
 		"package:auth-flows": "yarn workspace @thingco/auth-flows",
 		"package:graphviz": "yarn workspace @thingco/graphviz",
 		"package:graphviz-react": "yarn workspace @thingco/graphviz-react",
+		"package:unit-formatter": "yarn workspace @thingco/unit-formatter",
 		"playground": "yarn workspace @thingco/shared-frontend-libs-playground",
 		"global:update-yarn": "yarn set version latest && yarn plugin import version && yarn plugin import typescript && yarn plugin import workspace-tools && yarn plugin import interactive-tools && yarn dlx @yarnpkg/pnpify --sdk"
 	},

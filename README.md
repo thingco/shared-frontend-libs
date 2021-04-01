@@ -15,9 +15,10 @@ Libraries are in the `packages/` directory. Each library is aliased in the root 
 
 Libraries are published as GitHub packages, available to all members of the ThingCo organisation.
 
-| Library               | Description                                                                |
-| --------------------- | -------------------------------------------------------------------------- |
-| `@thingco/auth-flows` | Drop-in React-based authorization flows, each with a configurable Provider |
-| `@thingco/graphviz`   | Static SVG-based chart/graph components for React/React Native             |
+| Library                   | Description                                                                |
+| ------------------------- | -------------------------------------------------------------------------- |
+| `@thingco/auth-flows`     | Drop-in React-based authorization flows, each with a configurable Provider |
+| `@thingco/graphviz`       | Static SVG-based chart/graph components for React/React Native             |
+| `@thingco/unit-formatter` | unit formatting functions packaged with a React provider                   |
 
 The `playground/` directory contains the shell of a basic React app -- feel free to adjust that as you want to test out the libraries whilst developing.

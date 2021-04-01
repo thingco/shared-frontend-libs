@@ -34,6 +34,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 					reference: "workspace:packages/graphviz",
 				},
 				{
+					name: "@thingco/unit-formatter",
+					reference: "workspace:packages/unit-formatter",
+				},
+				{
 					name: "@thingco/shared-frontend-libs-playground",
 					reference: "workspace:playground",
 				},
@@ -50,6 +54,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 				],
 				["@thingco/graphviz", ["workspace:packages/graphviz"]],
 				["@thingco/shared-frontend-libs-playground", ["workspace:playground"]],
+				["@thingco/unit-formatter", ["workspace:packages/unit-formatter"]],
 				["shared-frontend-libs", ["workspace:."]],
 			],
 			fallbackPool: [],
@@ -2553,6 +2558,30 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 					],
 				],
 				[
+					"@testing-library/jest-dom",
+					[
+						[
+							"npm:5.11.10",
+							{
+								packageLocation:
+									"./.yarn/cache/@testing-library-jest-dom-npm-5.11.10-0c42cd523e-25bf4cd9f6.zip/node_modules/@testing-library/jest-dom/",
+								packageDependencies: [
+									["@testing-library/jest-dom", "npm:5.11.10"],
+									["@babel/runtime", "npm:7.13.10"],
+									["@types/testing-library__jest-dom", "npm:5.9.5"],
+									["aria-query", "npm:4.2.2"],
+									["chalk", "npm:3.0.0"],
+									["css", "npm:3.0.0"],
+									["css.escape", "npm:1.5.1"],
+									["lodash", "npm:4.17.21"],
+									["redent", "npm:3.0.0"],
+								],
+								linkType: "HARD",
+							},
+						],
+					],
+				],
+				[
 					"@testing-library/react",
 					[
 						[
@@ -2786,6 +2815,46 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 										"virtual:eef7a203d4527cb0ea6497d57e431a822e04429c2e4b7eff294965c3401931c7d562fef206e673fdd2523a66137b25773e7b50fbffcfa26f8d7f582c02068c62#npm:3.11.2",
 									],
 									["xstate", "npm:4.16.2"],
+								],
+								linkType: "SOFT",
+							},
+						],
+					],
+				],
+				[
+					"@thingco/unit-formatter",
+					[
+						[
+							"workspace:packages/unit-formatter",
+							{
+								packageLocation: "./packages/unit-formatter/",
+								packageDependencies: [
+									["@thingco/unit-formatter", "workspace:packages/unit-formatter"],
+									["@testing-library/jest-dom", "npm:5.11.10"],
+									[
+										"@testing-library/react",
+										"virtual:be93e41f18dd445d699e46c78ad75650527c4f5e5d5120d685234cbaa071b339a3116e6a967a8d04eb21d3e4167ea6e540c7b45dba9acd1881e6719a67664e80#npm:11.2.5",
+									],
+									["@types/jest", "npm:26.0.21"],
+									["@types/react", "npm:17.0.3"],
+									["@types/react-dom", "npm:17.0.2"],
+									["@types/rimraf", "npm:3.0.0"],
+									["@types/testing-library__jest-dom", "npm:5.9.5"],
+									["jest", "npm:26.6.3"],
+									["react", "npm:17.0.1"],
+									[
+										"react-dom",
+										"virtual:be93e41f18dd445d699e46c78ad75650527c4f5e5d5120d685234cbaa071b339a3116e6a967a8d04eb21d3e4167ea6e540c7b45dba9acd1881e6719a67664e80#npm:17.0.1",
+									],
+									["rimraf", "npm:3.0.2"],
+									[
+										"ts-jest",
+										"virtual:be93e41f18dd445d699e46c78ad75650527c4f5e5d5120d685234cbaa071b339a3116e6a967a8d04eb21d3e4167ea6e540c7b45dba9acd1881e6719a67664e80#npm:26.5.3",
+									],
+									[
+										"typescript",
+										"patch:typescript@npm%3A4.2.3#builtin<compat/typescript>::version=4.2.3&hash=a45b0e",
+									],
 								],
 								linkType: "SOFT",
 							},
@@ -3210,6 +3279,19 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 								linkType: "HARD",
 							},
 						],
+						[
+							"npm:26.0.22",
+							{
+								packageLocation:
+									"./.yarn/cache/@types-jest-npm-26.0.22-1621c2cb77-4c98ed0585.zip/node_modules/@types/jest/",
+								packageDependencies: [
+									["@types/jest", "npm:26.0.22"],
+									["jest-diff", "npm:26.6.2"],
+									["pretty-format", "npm:26.6.2"],
+								],
+								linkType: "HARD",
+							},
+						],
 					],
 				],
 				[
@@ -3475,6 +3557,23 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 								packageLocation:
 									"./.yarn/cache/@types-tapable-npm-1.0.6-394f282d8c-01709a2f8d.zip/node_modules/@types/tapable/",
 								packageDependencies: [["@types/tapable", "npm:1.0.6"]],
+								linkType: "HARD",
+							},
+						],
+					],
+				],
+				[
+					"@types/testing-library__jest-dom",
+					[
+						[
+							"npm:5.9.5",
+							{
+								packageLocation:
+									"./.yarn/cache/@types-testing-library__jest-dom-npm-5.9.5-5a42b58918-32aa324a83.zip/node_modules/@types/testing-library__jest-dom/",
+								packageDependencies: [
+									["@types/testing-library__jest-dom", "npm:5.9.5"],
+									["@types/jest", "npm:26.0.22"],
+								],
 								linkType: "HARD",
 							},
 						],
@@ -6152,6 +6251,19 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 							},
 						],
 						[
+							"npm:3.0.0",
+							{
+								packageLocation:
+									"./.yarn/cache/chalk-npm-3.0.0-e813208025-4018b0c812.zip/node_modules/chalk/",
+								packageDependencies: [
+									["chalk", "npm:3.0.0"],
+									["ansi-styles", "npm:4.3.0"],
+									["supports-color", "npm:7.2.0"],
+								],
+								linkType: "HARD",
+							},
+						],
+						[
 							"npm:4.1.0",
 							{
 								packageLocation:
@@ -7058,6 +7170,25 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 					],
 				],
 				[
+					"css",
+					[
+						[
+							"npm:3.0.0",
+							{
+								packageLocation:
+									"./.yarn/cache/css-npm-3.0.0-ef426b63b3-a62cc8350f.zip/node_modules/css/",
+								packageDependencies: [
+									["css", "npm:3.0.0"],
+									["inherits", "npm:2.0.4"],
+									["source-map", "npm:0.6.1"],
+									["source-map-resolve", "npm:0.6.0"],
+								],
+								linkType: "HARD",
+							},
+						],
+					],
+				],
+				[
 					"css-select",
 					[
 						[
@@ -7086,6 +7217,20 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 								packageLocation:
 									"./.yarn/cache/css-what-npm-3.4.2-7b91a90423-f9f258ad62.zip/node_modules/css-what/",
 								packageDependencies: [["css-what", "npm:3.4.2"]],
+								linkType: "HARD",
+							},
+						],
+					],
+				],
+				[
+					"css.escape",
+					[
+						[
+							"npm:1.5.1",
+							{
+								packageLocation:
+									"./.yarn/cache/css.escape-npm-1.5.1-b24d2ba77a-44fe5e93fe.zip/node_modules/css.escape/",
+								packageDependencies: [["css.escape", "npm:1.5.1"]],
 								linkType: "HARD",
 							},
 						],
@@ -13488,6 +13633,20 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 					],
 				],
 				[
+					"min-indent",
+					[
+						[
+							"npm:1.0.1",
+							{
+								packageLocation:
+									"./.yarn/cache/min-indent-npm-1.0.1-77031f50e1-c3aeea46bc.zip/node_modules/min-indent/",
+								packageDependencies: [["min-indent", "npm:1.0.1"]],
+								linkType: "HARD",
+							},
+						],
+					],
+				],
+				[
 					"minimalistic-assert",
 					[
 						[
@@ -15724,6 +15883,24 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 					],
 				],
 				[
+					"redent",
+					[
+						[
+							"npm:3.0.0",
+							{
+								packageLocation:
+									"./.yarn/cache/redent-npm-3.0.0-31892f4906-78c8aa0a10.zip/node_modules/redent/",
+								packageDependencies: [
+									["redent", "npm:3.0.0"],
+									["indent-string", "npm:4.0.0"],
+									["strip-indent", "npm:3.0.0"],
+								],
+								linkType: "HARD",
+							},
+						],
+					],
+				],
+				[
 					"regenerator-runtime",
 					[
 						[
@@ -17113,6 +17290,19 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 								linkType: "HARD",
 							},
 						],
+						[
+							"npm:0.6.0",
+							{
+								packageLocation:
+									"./.yarn/cache/source-map-resolve-npm-0.6.0-6e67c9e55f-9bbd265693.zip/node_modules/source-map-resolve/",
+								packageDependencies: [
+									["source-map-resolve", "npm:0.6.0"],
+									["atob", "npm:2.1.2"],
+									["decode-uri-component", "npm:0.2.0"],
+								],
+								linkType: "HARD",
+							},
+						],
 					],
 				],
 				[
@@ -17685,6 +17875,23 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 								packageLocation:
 									"./.yarn/cache/strip-final-newline-npm-2.0.0-340c4f7c66-74dbd8a602.zip/node_modules/strip-final-newline/",
 								packageDependencies: [["strip-final-newline", "npm:2.0.0"]],
+								linkType: "HARD",
+							},
+						],
+					],
+				],
+				[
+					"strip-indent",
+					[
+						[
+							"npm:3.0.0",
+							{
+								packageLocation:
+									"./.yarn/cache/strip-indent-npm-3.0.0-519e75a28d-4a7860e943.zip/node_modules/strip-indent/",
+								packageDependencies: [
+									["strip-indent", "npm:3.0.0"],
+									["min-indent", "npm:1.0.1"],
+								],
 								linkType: "HARD",
 							},
 						],
