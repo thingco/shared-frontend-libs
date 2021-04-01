@@ -1,13 +1,13 @@
 import React from "react";
 
-import { useGraph } from "./Context";
 import {
 	steppedXAxisValues,
 	steppedYAxisValues,
 	VerticalAlignment,
 	xAxisAnnotations,
 	yAxisAnnotations,
-} from "./core";
+} from "../core";
+import { useGraph } from "./Context";
 
 export interface AxisAnnotationsProps {
 	style?: React.CSSProperties;

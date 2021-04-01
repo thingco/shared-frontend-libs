@@ -1,6 +1,5 @@
 import React from "react";
 
-import { useGraph } from "./Context";
 import {
 	dotPoints,
 	horizontalLineBarPoints,
@@ -8,7 +7,8 @@ import {
 	px,
 	py,
 	verticalLineBarPoints,
-} from "./core";
+} from "../core";
+import { useGraph } from "./Context";
 
 export interface DataProps {
 	style?: React.CSSProperties;

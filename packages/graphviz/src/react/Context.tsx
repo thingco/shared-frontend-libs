@@ -1,6 +1,6 @@
 import React from "react";
 
-import { GraphData } from "./core";
+import { GraphData } from "../core";
 
 /**
  * NOTE the context is defined apart from the Provider to prevent circular dependencies
