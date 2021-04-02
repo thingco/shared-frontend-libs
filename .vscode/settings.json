@@ -7,7 +7,7 @@
 	},
 	"typescript.tsdk": ".yarn/sdks/typescript/lib",
 	"typescript.enablePromptUseWorkspaceTsdk": true,
-	"eslint.nodePath": ".yarn/sdks/eslint",
+	"eslint.nodePath": ".yarn/sdks",
 	"eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact"],
 	"prettier.prettierPath": ".yarn/sdks/prettier/index.js",
 	"typescriptHero.imports.ignoredFromRemoval": ["react", "@emotion/react"]
