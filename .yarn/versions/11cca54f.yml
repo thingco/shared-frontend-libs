@@ -1,4 +1,5 @@
 undecided:
   - "@thingco/auth-flows"
   - "@thingco/graphviz"
+  - "@thingco/unit-formatter"
   - "@thingco/shared-frontend-libs-playground"

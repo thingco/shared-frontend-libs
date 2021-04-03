@@ -3714,6 +3714,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 									["@types/react", "npm:17.0.3"],
 									["@types/react-dom", "npm:17.0.2"],
 									["@types/rimraf", "npm:3.0.0"],
+									["@types/shortid", "npm:0.0.29"],
 									["@types/testing-library__jest-dom", "npm:5.9.5"],
 									["jest", "npm:26.6.3"],
 									["react", "npm:17.0.1"],
@@ -4504,6 +4505,20 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 									["@types/mime", "npm:1.3.2"],
 									["@types/node", "npm:14.14.32"],
 								],
+								linkType: "HARD",
+							},
+						],
+					],
+				],
+				[
+					"@types/shortid",
+					[
+						[
+							"npm:0.0.29",
+							{
+								packageLocation:
+									"./.yarn/cache/@types-shortid-npm-0.0.29-e4223b4e78-4c96e2e820.zip/node_modules/@types/shortid/",
+								packageDependencies: [["@types/shortid", "npm:0.0.29"]],
 								linkType: "HARD",
 							},
 						],
