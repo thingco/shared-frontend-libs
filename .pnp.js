@@ -105,6 +105,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 										"eslint-plugin-react-hooks",
 										"virtual:3e93b9fab597b39555cebd964678671eff2df3026f28e25069090d327c329fa6e59179c94265beedb1b1469f6b665fe52ab5f6604108146b68635aa07ecc70e9#npm:4.2.0",
 									],
+									["eslint-plugin-tsdoc", "npm:0.2.11"],
 									["husky", "npm:4.3.8"],
 									["lint-staged", "npm:10.5.4"],
 									["prettier", "npm:2.2.1"],
@@ -2867,6 +2868,43 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 									["react", "npm:17.0.1"],
 								],
 								packagePeers: ["@types/react", "react"],
+								linkType: "HARD",
+							},
+						],
+					],
+				],
+				[
+					"@microsoft/tsdoc",
+					[
+						[
+							"npm:0.13.0",
+							{
+								packageLocation:
+									"./.yarn/cache/@microsoft-tsdoc-npm-0.13.0-483fe871f8-6729e5d953.zip/node_modules/@microsoft/tsdoc/",
+								packageDependencies: [["@microsoft/tsdoc", "npm:0.13.0"]],
+								linkType: "HARD",
+							},
+						],
+					],
+				],
+				[
+					"@microsoft/tsdoc-config",
+					[
+						[
+							"npm:0.14.0",
+							{
+								packageLocation:
+									"./.yarn/cache/@microsoft-tsdoc-config-npm-0.14.0-5e9ec4cc0f-428dfda8bd.zip/node_modules/@microsoft/tsdoc-config/",
+								packageDependencies: [
+									["@microsoft/tsdoc-config", "npm:0.14.0"],
+									["@microsoft/tsdoc", "npm:0.13.0"],
+									["ajv", "npm:6.12.6"],
+									["jju", "npm:1.4.0"],
+									[
+										"resolve",
+										"patch:resolve@npm%3A1.19.0#builtin<compat/resolve>::version=1.19.0&hash=3388aa",
+									],
+								],
 								linkType: "HARD",
 							},
 						],
@@ -9757,6 +9795,24 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 					],
 				],
 				[
+					"eslint-plugin-tsdoc",
+					[
+						[
+							"npm:0.2.11",
+							{
+								packageLocation:
+									"./.yarn/cache/eslint-plugin-tsdoc-npm-0.2.11-7d614b2720-fac32d2350.zip/node_modules/eslint-plugin-tsdoc/",
+								packageDependencies: [
+									["eslint-plugin-tsdoc", "npm:0.2.11"],
+									["@microsoft/tsdoc", "npm:0.13.0"],
+									["@microsoft/tsdoc-config", "npm:0.14.0"],
+								],
+								linkType: "HARD",
+							},
+						],
+					],
+				],
+				[
 					"eslint-scope",
 					[
 						[
@@ -13662,6 +13718,20 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 					],
 				],
 				[
+					"jju",
+					[
+						[
+							"npm:1.4.0",
+							{
+								packageLocation:
+									"./.yarn/cache/jju-npm-1.4.0-670678eaa3-a58023d40e.zip/node_modules/jju/",
+								packageDependencies: [["jju", "npm:1.4.0"]],
+								linkType: "HARD",
+							},
+						],
+					],
+				],
+				[
 					"js-cookie",
 					[
 						[
@@ -17333,6 +17403,22 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 					"resolve",
 					[
 						[
+							"patch:resolve@npm%3A1.19.0#builtin<compat/resolve>::version=1.19.0&hash=3388aa",
+							{
+								packageLocation:
+									"./.yarn/cache/resolve-patch-46f4fba2f6-188d5167e8.zip/node_modules/resolve/",
+								packageDependencies: [
+									[
+										"resolve",
+										"patch:resolve@npm%3A1.19.0#builtin<compat/resolve>::version=1.19.0&hash=3388aa",
+									],
+									["is-core-module", "npm:2.2.0"],
+									["path-parse", "npm:1.0.6"],
+								],
+								linkType: "HARD",
+							},
+						],
+						[
 							"patch:resolve@npm%3A1.20.0#builtin<compat/resolve>::version=1.20.0&hash=3388aa",
 							{
 								packageLocation:
@@ -18058,6 +18144,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 										"eslint-plugin-react-hooks",
 										"virtual:3e93b9fab597b39555cebd964678671eff2df3026f28e25069090d327c329fa6e59179c94265beedb1b1469f6b665fe52ab5f6604108146b68635aa07ecc70e9#npm:4.2.0",
 									],
+									["eslint-plugin-tsdoc", "npm:0.2.11"],
 									["husky", "npm:4.3.8"],
 									["lint-staged", "npm:10.5.4"],
 									["prettier", "npm:2.2.1"],
