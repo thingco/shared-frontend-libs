@@ -4,6 +4,10 @@
 		"outDir": "./lib",
 		"rootDir": "./src"
 	},
+	"typedocOptions": {
+		"entryPoints": ["src/index.tsx"],
+		"out": "docs"
+	},
 	"include": ["src/**/*"],
 	"exclude": ["src/**/*.test.{ts,tsx}"]
 }

@@ -3641,6 +3641,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 										"virtual:be93e41f18dd445d699e46c78ad75650527c4f5e5d5120d685234cbaa071b339a3116e6a967a8d04eb21d3e4167ea6e540c7b45dba9acd1881e6719a67664e80#npm:26.5.3",
 									],
 									[
+										"typedoc",
+										"virtual:be93e41f18dd445d699e46c78ad75650527c4f5e5d5120d685234cbaa071b339a3116e6a967a8d04eb21d3e4167ea6e540c7b45dba9acd1881e6719a67664e80#npm:0.20.34",
+									],
+									[
 										"typescript",
 										"patch:typescript@npm%3A4.2.3#builtin<compat/typescript>::version=4.2.3&hash=a45b0e",
 									],
@@ -3693,6 +3697,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 										"virtual:be93e41f18dd445d699e46c78ad75650527c4f5e5d5120d685234cbaa071b339a3116e6a967a8d04eb21d3e4167ea6e540c7b45dba9acd1881e6719a67664e80#npm:26.5.3",
 									],
 									[
+										"typedoc",
+										"virtual:be93e41f18dd445d699e46c78ad75650527c4f5e5d5120d685234cbaa071b339a3116e6a967a8d04eb21d3e4167ea6e540c7b45dba9acd1881e6719a67664e80#npm:0.20.34",
+									],
+									[
 										"typescript",
 										"patch:typescript@npm%3A4.2.3#builtin<compat/typescript>::version=4.2.3&hash=a45b0e",
 									],
@@ -3720,6 +3728,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 									[
 										"ts-jest",
 										"virtual:f6086b21c17868b77424a3895eecc30d0232d9f99fd340121daebaefe9ee674524dda7da9a395f1d840ab44009e2b4a0307b92e1a2cbc70ec3cdddf78b859584#npm:26.5.3",
+									],
+									[
+										"typedoc",
+										"virtual:be93e41f18dd445d699e46c78ad75650527c4f5e5d5120d685234cbaa071b339a3116e6a967a8d04eb21d3e4167ea6e540c7b45dba9acd1881e6719a67664e80#npm:0.20.34",
 									],
 									[
 										"typescript",
@@ -3769,6 +3781,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 									[
 										"ts-jest",
 										"virtual:be93e41f18dd445d699e46c78ad75650527c4f5e5d5120d685234cbaa071b339a3116e6a967a8d04eb21d3e4167ea6e540c7b45dba9acd1881e6719a67664e80#npm:26.5.3",
+									],
+									[
+										"typedoc",
+										"virtual:be93e41f18dd445d699e46c78ad75650527c4f5e5d5120d685234cbaa071b339a3116e6a967a8d04eb21d3e4167ea6e540c7b45dba9acd1881e6719a67664e80#npm:0.20.34",
 									],
 									[
 										"typescript",
@@ -3878,6 +3894,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 									[
 										"ts-jest",
 										"virtual:be93e41f18dd445d699e46c78ad75650527c4f5e5d5120d685234cbaa071b339a3116e6a967a8d04eb21d3e4167ea6e540c7b45dba9acd1881e6719a67664e80#npm:26.5.3",
+									],
+									[
+										"typedoc",
+										"virtual:be93e41f18dd445d699e46c78ad75650527c4f5e5d5120d685234cbaa071b339a3116e6a967a8d04eb21d3e4167ea6e540c7b45dba9acd1881e6719a67664e80#npm:0.20.34",
 									],
 									[
 										"typescript",
@@ -6342,6 +6362,20 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 					],
 				],
 				[
+					"at-least-node",
+					[
+						[
+							"npm:1.0.0",
+							{
+								packageLocation:
+									"./.yarn/cache/at-least-node-npm-1.0.0-2b36e661fa-8f33efc162.zip/node_modules/at-least-node/",
+								packageDependencies: [["at-least-node", "npm:1.0.0"]],
+								linkType: "HARD",
+							},
+						],
+					],
+				],
+				[
 					"atob",
 					[
 						[
@@ -7775,6 +7809,20 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 								packageLocation:
 									"./.yarn/cache/colorette-npm-1.2.2-da75bd0b32-e240f0c94b.zip/node_modules/colorette/",
 								packageDependencies: [["colorette", "npm:1.2.2"]],
+								linkType: "HARD",
+							},
+						],
+					],
+				],
+				[
+					"colors",
+					[
+						[
+							"npm:1.4.0",
+							{
+								packageLocation:
+									"./.yarn/cache/colors-npm-1.4.0-7e2cf12234-a0f266ac04.zip/node_modules/colors/",
+								packageDependencies: [["colors", "npm:1.4.0"]],
 								linkType: "HARD",
 							},
 						],
@@ -10826,6 +10874,26 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 					],
 				],
 				[
+					"fs-extra",
+					[
+						[
+							"npm:9.1.0",
+							{
+								packageLocation:
+									"./.yarn/cache/fs-extra-npm-9.1.0-983c2ddb4c-e667d8df54.zip/node_modules/fs-extra/",
+								packageDependencies: [
+									["fs-extra", "npm:9.1.0"],
+									["at-least-node", "npm:1.0.0"],
+									["graceful-fs", "npm:4.2.6"],
+									["jsonfile", "npm:6.1.0"],
+									["universalify", "npm:2.0.0"],
+								],
+								linkType: "HARD",
+							},
+						],
+					],
+				],
+				[
 					"fs-minipass",
 					[
 						[
@@ -11255,6 +11323,27 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 								packageLocation:
 									"./.yarn/cache/handle-thing-npm-2.0.1-084baca59e-7509fca9eb.zip/node_modules/handle-thing/",
 								packageDependencies: [["handle-thing", "npm:2.0.1"]],
+								linkType: "HARD",
+							},
+						],
+					],
+				],
+				[
+					"handlebars",
+					[
+						[
+							"npm:4.7.7",
+							{
+								packageLocation:
+									"./.yarn/cache/handlebars-npm-4.7.7-a9ccfabf80-2df9a6b422.zip/node_modules/handlebars/",
+								packageDependencies: [
+									["handlebars", "npm:4.7.7"],
+									["minimist", "npm:1.2.5"],
+									["neo-async", "npm:2.6.2"],
+									["source-map", "npm:0.6.1"],
+									["uglify-js", "npm:3.13.3"],
+									["wordwrap", "npm:1.0.0"],
+								],
 								linkType: "HARD",
 							},
 						],
@@ -12101,6 +12190,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 				[
 					"interpret",
 					[
+						[
+							"npm:1.4.0",
+							{
+								packageLocation:
+									"./.yarn/cache/interpret-npm-1.4.0-17b4b5b0a4-f15725d762.zip/node_modules/interpret/",
+								packageDependencies: [["interpret", "npm:1.4.0"]],
+								linkType: "HARD",
+							},
+						],
 						[
 							"npm:2.2.0",
 							{
@@ -14007,6 +14105,24 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 					],
 				],
 				[
+					"jsonfile",
+					[
+						[
+							"npm:6.1.0",
+							{
+								packageLocation:
+									"./.yarn/cache/jsonfile-npm-6.1.0-20a4796cee-9419c886ab.zip/node_modules/jsonfile/",
+								packageDependencies: [
+									["jsonfile", "npm:6.1.0"],
+									["graceful-fs", "npm:4.2.6"],
+									["universalify", "npm:2.0.0"],
+								],
+								linkType: "HARD",
+							},
+						],
+					],
+				],
+				[
 					"jsprim",
 					[
 						[
@@ -14447,6 +14563,18 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 					"lru-cache",
 					[
 						[
+							"npm:5.1.1",
+							{
+								packageLocation:
+									"./.yarn/cache/lru-cache-npm-5.1.1-f475882a51-ffd9a280fa.zip/node_modules/lru-cache/",
+								packageDependencies: [
+									["lru-cache", "npm:5.1.1"],
+									["yallist", "npm:3.1.1"],
+								],
+								linkType: "HARD",
+							},
+						],
+						[
 							"npm:6.0.0",
 							{
 								packageLocation:
@@ -14455,6 +14583,20 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 									["lru-cache", "npm:6.0.0"],
 									["yallist", "npm:4.0.0"],
 								],
+								linkType: "HARD",
+							},
+						],
+					],
+				],
+				[
+					"lunr",
+					[
+						[
+							"npm:2.3.9",
+							{
+								packageLocation:
+									"./.yarn/cache/lunr-npm-2.3.9-fa3aa9c2d6-a2b66320c2.zip/node_modules/lunr/",
+								packageDependencies: [["lunr", "npm:2.3.9"]],
 								linkType: "HARD",
 							},
 						],
@@ -14548,6 +14690,20 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 									["map-visit", "npm:1.0.0"],
 									["object-visit", "npm:1.0.1"],
 								],
+								linkType: "HARD",
+							},
+						],
+					],
+				],
+				[
+					"marked",
+					[
+						[
+							"npm:2.0.1",
+							{
+								packageLocation:
+									"./.yarn/cache/marked-npm-2.0.1-8b69a5dc60-dd6f468a96.zip/node_modules/marked/",
+								packageDependencies: [["marked", "npm:2.0.1"]],
 								linkType: "HARD",
 							},
 						],
@@ -15715,6 +15871,23 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 								packageDependencies: [
 									["onetime", "npm:5.1.2"],
 									["mimic-fn", "npm:2.1.0"],
+								],
+								linkType: "HARD",
+							},
+						],
+					],
+				],
+				[
+					"onigasm",
+					[
+						[
+							"npm:2.2.5",
+							{
+								packageLocation:
+									"./.yarn/unplugged/onigasm-npm-2.2.5-55c6d729c4/node_modules/onigasm/",
+								packageDependencies: [
+									["onigasm", "npm:2.2.5"],
+									["lru-cache", "npm:5.1.1"],
 								],
 								linkType: "HARD",
 							},
@@ -17049,6 +17222,21 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 					"rechoir",
 					[
 						[
+							"npm:0.6.2",
+							{
+								packageLocation:
+									"./.yarn/cache/rechoir-npm-0.6.2-0df5f171ec-6646a6bce7.zip/node_modules/rechoir/",
+								packageDependencies: [
+									["rechoir", "npm:0.6.2"],
+									[
+										"resolve",
+										"patch:resolve@npm%3A1.20.0#builtin<compat/resolve>::version=1.20.0&hash=3388aa",
+									],
+								],
+								linkType: "HARD",
+							},
+						],
+						[
 							"npm:0.7.0",
 							{
 								packageLocation:
@@ -18211,6 +18399,25 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 					],
 				],
 				[
+					"shelljs",
+					[
+						[
+							"npm:0.8.4",
+							{
+								packageLocation:
+									"./.yarn/cache/shelljs-npm-0.8.4-e2890f4ce2-bdf68e3c2a.zip/node_modules/shelljs/",
+								packageDependencies: [
+									["shelljs", "npm:0.8.4"],
+									["glob", "npm:7.1.6"],
+									["interpret", "npm:1.4.0"],
+									["rechoir", "npm:0.6.2"],
+								],
+								linkType: "HARD",
+							},
+						],
+					],
+				],
+				[
 					"shellwords",
 					[
 						[
@@ -18219,6 +18426,24 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 								packageLocation:
 									"./.yarn/cache/shellwords-npm-0.1.1-a091a78197-3559ff5509.zip/node_modules/shellwords/",
 								packageDependencies: [["shellwords", "npm:0.1.1"]],
+								linkType: "HARD",
+							},
+						],
+					],
+				],
+				[
+					"shiki",
+					[
+						[
+							"npm:0.9.3",
+							{
+								packageLocation:
+									"./.yarn/cache/shiki-npm-0.9.3-adb8f7dc26-fce8084727.zip/node_modules/shiki/",
+								packageDependencies: [
+									["shiki", "npm:0.9.3"],
+									["onigasm", "npm:2.2.5"],
+									["vscode-textmate", "npm:5.4.0"],
+								],
 								linkType: "HARD",
 							},
 						],
@@ -20025,6 +20250,65 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 					],
 				],
 				[
+					"typedoc",
+					[
+						[
+							"npm:0.20.34",
+							{
+								packageLocation:
+									"./.yarn/cache/typedoc-npm-0.20.34-ef5c233d11-79d239fe8d.zip/node_modules/typedoc/",
+								packageDependencies: [["typedoc", "npm:0.20.34"]],
+								linkType: "SOFT",
+							},
+						],
+						[
+							"virtual:be93e41f18dd445d699e46c78ad75650527c4f5e5d5120d685234cbaa071b339a3116e6a967a8d04eb21d3e4167ea6e540c7b45dba9acd1881e6719a67664e80#npm:0.20.34",
+							{
+								packageLocation:
+									"./.yarn/$$virtual/typedoc-virtual-07b8a1ae7c/0/cache/typedoc-npm-0.20.34-ef5c233d11-79d239fe8d.zip/node_modules/typedoc/",
+								packageDependencies: [
+									[
+										"typedoc",
+										"virtual:be93e41f18dd445d699e46c78ad75650527c4f5e5d5120d685234cbaa071b339a3116e6a967a8d04eb21d3e4167ea6e540c7b45dba9acd1881e6719a67664e80#npm:0.20.34",
+									],
+									["@types/typescript", null],
+									["colors", "npm:1.4.0"],
+									["fs-extra", "npm:9.1.0"],
+									["handlebars", "npm:4.7.7"],
+									["lodash", "npm:4.17.21"],
+									["lunr", "npm:2.3.9"],
+									["marked", "npm:2.0.1"],
+									["minimatch", "npm:3.0.4"],
+									["progress", "npm:2.0.3"],
+									["shelljs", "npm:0.8.4"],
+									["shiki", "npm:0.9.3"],
+									["typedoc-default-themes", "npm:0.12.10"],
+									[
+										"typescript",
+										"patch:typescript@npm%3A4.2.3#builtin<compat/typescript>::version=4.2.3&hash=a45b0e",
+									],
+								],
+								packagePeers: ["@types/typescript", "typescript"],
+								linkType: "HARD",
+							},
+						],
+					],
+				],
+				[
+					"typedoc-default-themes",
+					[
+						[
+							"npm:0.12.10",
+							{
+								packageLocation:
+									"./.yarn/cache/typedoc-default-themes-npm-0.12.10-9e0c526e14-3a420c405b.zip/node_modules/typedoc-default-themes/",
+								packageDependencies: [["typedoc-default-themes", "npm:0.12.10"]],
+								linkType: "HARD",
+							},
+						],
+					],
+				],
+				[
 					"typescript",
 					[
 						[
@@ -20038,6 +20322,20 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 										"patch:typescript@npm%3A4.2.3#builtin<compat/typescript>::version=4.2.3&hash=a45b0e",
 									],
 								],
+								linkType: "HARD",
+							},
+						],
+					],
+				],
+				[
+					"uglify-js",
+					[
+						[
+							"npm:3.13.3",
+							{
+								packageLocation:
+									"./.yarn/cache/uglify-js-npm-3.13.3-7fe31ae2ab-ff326348c2.zip/node_modules/uglify-js/",
+								packageDependencies: [["uglify-js", "npm:3.13.3"]],
 								linkType: "HARD",
 							},
 						],
@@ -20124,6 +20422,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 								packageLocation:
 									"./.yarn/cache/universalify-npm-0.1.2-9b22d31d2d-420fc65473.zip/node_modules/universalify/",
 								packageDependencies: [["universalify", "npm:0.1.2"]],
+								linkType: "HARD",
+							},
+						],
+						[
+							"npm:2.0.0",
+							{
+								packageLocation:
+									"./.yarn/cache/universalify-npm-2.0.0-03b8b418a8-36bfbdc97b.zip/node_modules/universalify/",
+								packageDependencies: [["universalify", "npm:2.0.0"]],
 								linkType: "HARD",
 							},
 						],
@@ -20463,6 +20770,20 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 									["core-util-is", "npm:1.0.2"],
 									["extsprintf", "npm:1.4.0"],
 								],
+								linkType: "HARD",
+							},
+						],
+					],
+				],
+				[
+					"vscode-textmate",
+					[
+						[
+							"npm:5.4.0",
+							{
+								packageLocation:
+									"./.yarn/cache/vscode-textmate-npm-5.4.0-f9862d0c39-7f1e6f534d.zip/node_modules/vscode-textmate/",
+								packageDependencies: [["vscode-textmate", "npm:5.4.0"]],
 								linkType: "HARD",
 							},
 						],
@@ -21089,6 +21410,20 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 					],
 				],
 				[
+					"wordwrap",
+					[
+						[
+							"npm:1.0.0",
+							{
+								packageLocation:
+									"./.yarn/cache/wordwrap-npm-1.0.0-ae57a645e8-b4f3f8104a.zip/node_modules/wordwrap/",
+								packageDependencies: [["wordwrap", "npm:1.0.0"]],
+								linkType: "HARD",
+							},
+						],
+					],
+				],
+				[
 					"wrap-ansi",
 					[
 						[
@@ -21300,6 +21635,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 				[
 					"yallist",
 					[
+						[
+							"npm:3.1.1",
+							{
+								packageLocation:
+									"./.yarn/cache/yallist-npm-3.1.1-a568a556b4-f352c93b92.zip/node_modules/yallist/",
+								packageDependencies: [["yallist", "npm:3.1.1"]],
+								linkType: "HARD",
+							},
+						],
 						[
 							"npm:4.0.0",
 							{
