@@ -1,20 +1,27 @@
 ---
-name: Bug report
-about: Create a report to help us improve
-title: ''
-labels: ''
+name: Bugfix
+about: There is an issue with @thingco/{package}
+title: "[FIX] - {title}"
+labels: bug
 assignees: ''
 
 ---
 
-**Which package is this related to?**
-Specify the package, or if it is a new package suggest a name.
+**Which package does this affect [pick one]?**
+
+If this covers multiple packages, open an issue for both and PR separately: this will keep the PR's scope as small as possible (plus each package needs separate version bumps & republishing after the fix has been applied).
+
+- [ ] `@thingco/auth-flows`
+- [ ] `@thingco/graphviz`
+- [ ] `@thingco/react-component-library`
+- [ ] `@thingco/unit-formatter`
 
 **Describe the bug**
 A clear and concise description of what the bug is.
 
 **To Reproduce**
 Steps to reproduce the behavior:
+
 1. Go to '...'
 2. Click on '....'
 3. Scroll down to '....'
