@@ -8,6 +8,11 @@ build
 **/build
 lib
 **/lib
+dist
+**/dist
+docs
+**/docs
+
 
 # Misc
 .DS_Store

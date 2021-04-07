@@ -8,14 +8,13 @@ module.exports = {
 			jsx: true, // Allows for the parsing of JSX
 		},
 	},
-	plugins: ["jsdoc"],
+	plugins: ["@typescript-eslint/eslint-plugin", "eslint-plugin-tsdoc"],
 	settings: {
 		react: {
 			version: "detect", // Tells eslint-plugin-react to automatically detect the version of React to use
 		},
 	},
 	extends: [
-		"plugin:jsdoc/recommended",
 		"plugin:react/recommended", // Uses the recommended rules from @eslint-plugin-react
 		"plugin:@typescript-eslint/recommended", // Uses the recommended rules from the @typescript-eslint/eslint-plugin
 		"prettier", // Uses eslint-config-prettier to disable ESLint rules that would conflict with prettier
@@ -39,8 +38,6 @@ module.exports = {
 		// "spaced-comment": "off",
 		// Import:
 		// "import/prefer-default-export": "off",
-		// Prettier:
-		// "prettier/prettier": 2,
 		// React:
 		"react/display-name": "off",
 		// "react/jsx-filename-extension": ["error", { "extensions": [".tsx"] }],
@@ -55,5 +52,7 @@ module.exports = {
 		"@typescript-eslint/no-unused-vars": "warn",
 		"@typescript-eslint/no-use-before-define": "off",
 		"@typescript-eslint/no-var-requires": "off",
+		// TSDoc
+		"tsdoc/syntax": "warn",
 	},
 };

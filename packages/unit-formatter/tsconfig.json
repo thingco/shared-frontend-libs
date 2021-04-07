@@ -1,0 +1,13 @@
+{
+	"extends": "../../tsconfig.json",
+	"compilerOptions": {
+		"outDir": "./lib",
+		"rootDir": "./src"
+	},
+	"typedocOptions": {
+		"entryPoints": ["src/index.tsx"],
+		"out": "docs"
+	},
+	"include": ["src/**/*"],
+	"exclude": ["src/__test__/**/*"]
+}
