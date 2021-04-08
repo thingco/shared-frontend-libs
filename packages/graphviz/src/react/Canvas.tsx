@@ -25,7 +25,7 @@ export const Canvas = ({
 		graph.xAxisSize + (typeof padding === "number" ? padding * 2 : padding.right + padding.left);
 	const viewBoxHeight =
 		graph.yAxisSize + (typeof padding === "number" ? padding * 2 : padding.top + padding.bottom);
-	console.log("padding: ", JSON.stringify(padding), "vbHeight: ", viewBoxHeight);
+
 	return (
 		<svg
 			style={style}

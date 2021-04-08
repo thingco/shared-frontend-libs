@@ -56,10 +56,28 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 						"workspace:packages/auth-flows",
 					],
 				],
-				["@thingco/graphviz", ["workspace:packages/graphviz"]],
-				["@thingco/react-component-library", ["workspace:packages/react-component-library"]],
+				[
+					"@thingco/graphviz",
+					[
+						"virtual:eef7a203d4527cb0ea6497d57e431a822e04429c2e4b7eff294965c3401931c7d562fef206e673fdd2523a66137b25773e7b50fbffcfa26f8d7f582c02068c62#workspace:packages/graphviz",
+						"workspace:packages/graphviz",
+					],
+				],
+				[
+					"@thingco/react-component-library",
+					[
+						"virtual:eef7a203d4527cb0ea6497d57e431a822e04429c2e4b7eff294965c3401931c7d562fef206e673fdd2523a66137b25773e7b50fbffcfa26f8d7f582c02068c62#workspace:packages/react-component-library",
+						"workspace:packages/react-component-library",
+					],
+				],
 				["@thingco/shared-frontend-libs-playground", ["workspace:playground"]],
-				["@thingco/unit-formatter", ["workspace:packages/unit-formatter"]],
+				[
+					"@thingco/unit-formatter",
+					[
+						"virtual:eef7a203d4527cb0ea6497d57e431a822e04429c2e4b7eff294965c3401931c7d562fef206e673fdd2523a66137b25773e7b50fbffcfa26f8d7f582c02068c62#workspace:packages/unit-formatter",
+						"workspace:packages/unit-formatter",
+					],
+				],
 				["shared-frontend-libs", ["workspace:."]],
 			],
 			fallbackPool: [],
@@ -3715,6 +3733,44 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 					"@thingco/graphviz",
 					[
 						[
+							"virtual:eef7a203d4527cb0ea6497d57e431a822e04429c2e4b7eff294965c3401931c7d562fef206e673fdd2523a66137b25773e7b50fbffcfa26f8d7f582c02068c62#workspace:packages/graphviz",
+							{
+								packageLocation:
+									"./.yarn/$$virtual/@thingco-graphviz-virtual-e573de937f/1/packages/graphviz/",
+								packageDependencies: [
+									[
+										"@thingco/graphviz",
+										"virtual:eef7a203d4527cb0ea6497d57e431a822e04429c2e4b7eff294965c3401931c7d562fef206e673fdd2523a66137b25773e7b50fbffcfa26f8d7f582c02068c62#workspace:packages/graphviz",
+									],
+									["@types/react", "npm:17.0.3"],
+									["@types/rimraf", "npm:3.0.0"],
+									["@types/thingco__graphviz", null],
+									["jest", "npm:26.6.3"],
+									["react", "npm:17.0.1"],
+									["rimraf", "npm:3.0.2"],
+									[
+										"ts-jest",
+										"virtual:f6086b21c17868b77424a3895eecc30d0232d9f99fd340121daebaefe9ee674524dda7da9a395f1d840ab44009e2b4a0307b92e1a2cbc70ec3cdddf78b859584#npm:26.5.3",
+									],
+									[
+										"typedoc",
+										"virtual:be93e41f18dd445d699e46c78ad75650527c4f5e5d5120d685234cbaa071b339a3116e6a967a8d04eb21d3e4167ea6e540c7b45dba9acd1881e6719a67664e80#npm:0.20.34",
+									],
+									[
+										"typescript",
+										"patch:typescript@npm%3A4.2.3#builtin<compat/typescript>::version=4.2.3&hash=a45b0e",
+									],
+								],
+								packagePeers: [
+									"@thingco/graphviz",
+									"@types/react",
+									"@types/thingco__graphviz",
+									"react",
+								],
+								linkType: "SOFT",
+							},
+						],
+						[
 							"workspace:packages/graphviz",
 							{
 								packageLocation: "./packages/graphviz/",
@@ -3746,6 +3802,57 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 				[
 					"@thingco/react-component-library",
 					[
+						[
+							"virtual:eef7a203d4527cb0ea6497d57e431a822e04429c2e4b7eff294965c3401931c7d562fef206e673fdd2523a66137b25773e7b50fbffcfa26f8d7f582c02068c62#workspace:packages/react-component-library",
+							{
+								packageLocation:
+									"./.yarn/$$virtual/@thingco-react-component-library-virtual-ae6677270f/1/packages/react-component-library/",
+								packageDependencies: [
+									[
+										"@thingco/react-component-library",
+										"virtual:eef7a203d4527cb0ea6497d57e431a822e04429c2e4b7eff294965c3401931c7d562fef206e673fdd2523a66137b25773e7b50fbffcfa26f8d7f582c02068c62#workspace:packages/react-component-library",
+									],
+									["@testing-library/jest-dom", "npm:5.11.10"],
+									[
+										"@testing-library/react",
+										"virtual:be93e41f18dd445d699e46c78ad75650527c4f5e5d5120d685234cbaa071b339a3116e6a967a8d04eb21d3e4167ea6e540c7b45dba9acd1881e6719a67664e80#npm:11.2.5",
+									],
+									["@types/jest", "npm:26.0.21"],
+									["@types/react", "npm:17.0.3"],
+									["@types/react-dom", "npm:17.0.2"],
+									["@types/rimraf", "npm:3.0.0"],
+									["@types/shortid", "npm:0.0.29"],
+									["@types/testing-library__jest-dom", "npm:5.9.5"],
+									["@types/theme-ui", null],
+									["jest", "npm:26.6.3"],
+									["react", "npm:17.0.1"],
+									[
+										"react-dom",
+										"virtual:be93e41f18dd445d699e46c78ad75650527c4f5e5d5120d685234cbaa071b339a3116e6a967a8d04eb21d3e4167ea6e540c7b45dba9acd1881e6719a67664e80#npm:17.0.1",
+									],
+									["rimraf", "npm:3.0.2"],
+									["shortid", "npm:2.2.16"],
+									[
+										"theme-ui",
+										"virtual:9306574900c85b866d4571ebb4d0e739c95494a1f7ec0efe0a82ebd44a225bc2dcfe3787162347320010a1a3833a443184c8bbcfb7e46a9f595a7779488c759f#npm:0.6.1",
+									],
+									[
+										"ts-jest",
+										"virtual:be93e41f18dd445d699e46c78ad75650527c4f5e5d5120d685234cbaa071b339a3116e6a967a8d04eb21d3e4167ea6e540c7b45dba9acd1881e6719a67664e80#npm:26.5.3",
+									],
+									[
+										"typedoc",
+										"virtual:be93e41f18dd445d699e46c78ad75650527c4f5e5d5120d685234cbaa071b339a3116e6a967a8d04eb21d3e4167ea6e540c7b45dba9acd1881e6719a67664e80#npm:0.20.34",
+									],
+									[
+										"typescript",
+										"patch:typescript@npm%3A4.2.3#builtin<compat/typescript>::version=4.2.3&hash=a45b0e",
+									],
+								],
+								packagePeers: ["@types/react", "@types/theme-ui", "react"],
+								linkType: "SOFT",
+							},
+						],
 						[
 							"workspace:packages/react-component-library",
 							{
@@ -3811,6 +3918,18 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 										"@thingco/auth-flows",
 										"virtual:eef7a203d4527cb0ea6497d57e431a822e04429c2e4b7eff294965c3401931c7d562fef206e673fdd2523a66137b25773e7b50fbffcfa26f8d7f582c02068c62#workspace:packages/auth-flows",
 									],
+									[
+										"@thingco/graphviz",
+										"virtual:eef7a203d4527cb0ea6497d57e431a822e04429c2e4b7eff294965c3401931c7d562fef206e673fdd2523a66137b25773e7b50fbffcfa26f8d7f582c02068c62#workspace:packages/graphviz",
+									],
+									[
+										"@thingco/react-component-library",
+										"virtual:eef7a203d4527cb0ea6497d57e431a822e04429c2e4b7eff294965c3401931c7d562fef206e673fdd2523a66137b25773e7b50fbffcfa26f8d7f582c02068c62#workspace:packages/react-component-library",
+									],
+									[
+										"@thingco/unit-formatter",
+										"virtual:eef7a203d4527cb0ea6497d57e431a822e04429c2e4b7eff294965c3401931c7d562fef206e673fdd2523a66137b25773e7b50fbffcfa26f8d7f582c02068c62#workspace:packages/unit-formatter",
+									],
 									["@types/events", "npm:3.0.0"],
 									["@types/react", "npm:17.0.3"],
 									["@types/react-dom", "npm:17.0.2"],
@@ -3868,6 +3987,50 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 				[
 					"@thingco/unit-formatter",
 					[
+						[
+							"virtual:eef7a203d4527cb0ea6497d57e431a822e04429c2e4b7eff294965c3401931c7d562fef206e673fdd2523a66137b25773e7b50fbffcfa26f8d7f582c02068c62#workspace:packages/unit-formatter",
+							{
+								packageLocation:
+									"./.yarn/$$virtual/@thingco-unit-formatter-virtual-f07cc8435f/1/packages/unit-formatter/",
+								packageDependencies: [
+									[
+										"@thingco/unit-formatter",
+										"virtual:eef7a203d4527cb0ea6497d57e431a822e04429c2e4b7eff294965c3401931c7d562fef206e673fdd2523a66137b25773e7b50fbffcfa26f8d7f582c02068c62#workspace:packages/unit-formatter",
+									],
+									["@testing-library/jest-dom", "npm:5.11.10"],
+									[
+										"@testing-library/react",
+										"virtual:be93e41f18dd445d699e46c78ad75650527c4f5e5d5120d685234cbaa071b339a3116e6a967a8d04eb21d3e4167ea6e540c7b45dba9acd1881e6719a67664e80#npm:11.2.5",
+									],
+									["@types/jest", "npm:26.0.21"],
+									["@types/react", "npm:17.0.3"],
+									["@types/react-dom", "npm:17.0.2"],
+									["@types/rimraf", "npm:3.0.0"],
+									["@types/testing-library__jest-dom", "npm:5.9.5"],
+									["jest", "npm:26.6.3"],
+									["react", "npm:17.0.1"],
+									[
+										"react-dom",
+										"virtual:be93e41f18dd445d699e46c78ad75650527c4f5e5d5120d685234cbaa071b339a3116e6a967a8d04eb21d3e4167ea6e540c7b45dba9acd1881e6719a67664e80#npm:17.0.1",
+									],
+									["rimraf", "npm:3.0.2"],
+									[
+										"ts-jest",
+										"virtual:be93e41f18dd445d699e46c78ad75650527c4f5e5d5120d685234cbaa071b339a3116e6a967a8d04eb21d3e4167ea6e540c7b45dba9acd1881e6719a67664e80#npm:26.5.3",
+									],
+									[
+										"typedoc",
+										"virtual:be93e41f18dd445d699e46c78ad75650527c4f5e5d5120d685234cbaa071b339a3116e6a967a8d04eb21d3e4167ea6e540c7b45dba9acd1881e6719a67664e80#npm:0.20.34",
+									],
+									[
+										"typescript",
+										"patch:typescript@npm%3A4.2.3#builtin<compat/typescript>::version=4.2.3&hash=a45b0e",
+									],
+								],
+								packagePeers: ["@types/react", "react"],
+								linkType: "SOFT",
+							},
+						],
 						[
 							"workspace:packages/unit-formatter",
 							{

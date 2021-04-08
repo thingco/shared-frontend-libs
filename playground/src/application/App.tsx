@@ -1,6 +1,9 @@
 import { Auth as AWSAuth } from "@aws-amplify/auth";
 import { CognitoOTPAuthProvider, useCognitoOTPAuth } from "@thingco/auth-flows";
+import { ThemeProvider } from "@thingco/react-component-library";
 import React from "react";
+
+import { CoordinateIndexProvider, Speedgraph } from "./GraphStuff";
 
 /**
  * Amplify uses a singleton pattern to configure it -- you import the `Auth` module then run
@@ -57,40 +60,70 @@ Auth.configure({
 });
 
 const AuthTest = () => {
-	const { state, send, isLoading } = useCognitoOTPAuth();
+	const { state, send, isLoading, isAuthorised } = useCognitoOTPAuth();
 	const [email, setEmail] = React.useState("");
 	const [otp, setOtp] = React.useState("");
 
-	return (
-		<div>
-			<p>Current state: {state.value}</p>
-			<p>Current context: {JSON.stringify(state.context, null, 2)}</p>
-			<section>
-				<input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-				<button onClick={() => send({ type: "SUBMIT_USER_IDENTIFIER", payload: email })}>
-					Submit email
-				</button>
-			</section>
-			<section>
-				<input type="otp" value={otp} onChange={(e) => setOtp(e.target.value)} />
-				<button onClick={() => send({ type: "SUBMIT_OTP", payload: otp })}>Submit otp</button>
-			</section>
-			<section>
-				<button onClick={() => send({ type: "REQUEST_LOG_OUT", payload: null })}>Log out</button>
-			</section>
-		</div>
-	);
+	if (!isAuthorised) {
+		return (
+			<div>
+				<h1>Login Stuff</h1>
+				<details>
+					<summary>State machine state:</summary>
+					<p>Current state: {state.value}</p>
+					<p>Current context: {JSON.stringify(state.context, null, 2)}</p>
+				</details>
+				<section>
+					<input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+					<button onClick={() => send({ type: "SUBMIT_USER_IDENTIFIER", payload: email })}>
+						Submit email
+					</button>
+				</section>
+				<section>
+					<input type="otp" value={otp} onChange={(e) => setOtp(e.target.value)} />
+					<button onClick={() => send({ type: "SUBMIT_OTP", payload: otp })}>Submit otp</button>
+				</section>
+			</div>
+		);
+	} else {
+		return (
+			<div
+				style={{
+					backgroundColor: "#bdc3c7",
+					minHeight: "100vh",
+					display: "grid",
+					gridTemplateColumns: "100%",
+					gridTemplateRows: "min-content auto",
+					padding: "1rem",
+					gap: "1rem",
+				}}
+			>
+				<header style={{ backgroundColor: "white", padding: "1rem" }}>
+					<h1>Logged in stuff!</h1>
+					<button onClick={() => send({ type: "REQUEST_LOG_OUT", payload: null })}>Log out</button>
+				</header>
+
+				<section style={{ backgroundColor: "white", padding: "1rem" }}>
+					<CoordinateIndexProvider>
+						<Speedgraph />
+					</CoordinateIndexProvider>
+				</section>
+			</div>
+		);
+	}
 };
 
-export const App = () => (
-	<CognitoOTPAuthProvider
-		authServiceFunctions={{
-			checkSession: Auth.checkSession,
-			validateUserIdentifier: Auth.validateUserIdentifier,
-			validateOtp: Auth.validateOtp,
-			signOut: Auth.signOut,
-		}}
-	>
-		<AuthTest />
-	</CognitoOTPAuthProvider>
+export const App = (): JSX.Element => (
+	<ThemeProvider theme={{}}>
+		<CognitoOTPAuthProvider
+			authServiceFunctions={{
+				checkSession: Auth.checkSession,
+				validateUserIdentifier: Auth.validateUserIdentifier,
+				validateOtp: Auth.validateOtp,
+				signOut: Auth.signOut,
+			}}
+		>
+			<AuthTest />
+		</CognitoOTPAuthProvider>
+	</ThemeProvider>
 );

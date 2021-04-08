@@ -4,6 +4,7 @@ import { createGraph, GraphConstructor } from "../core";
 import { XAxisAnnotations, YAxisAnnotations } from "./Annotations";
 import { XAxis, YAxis } from "./Axes";
 import { Canvas } from "./Canvas";
+import { CanvasWithScrubber } from "./CanvasWithScrubber";
 import { GraphContext } from "./Context";
 import {
 	AreaFillXAxis,
@@ -54,6 +55,7 @@ export const Graph = ({
 };
 
 Graph.Canvas = Canvas;
+Graph.CanvasWithScrubber = CanvasWithScrubber;
 Graph.XAxisAnnotations = XAxisAnnotations;
 Graph.YAxisAnnotations = YAxisAnnotations;
 Graph.DataLine = DataLine;

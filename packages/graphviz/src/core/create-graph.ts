@@ -142,7 +142,6 @@ export function createGraph({
 		yAxisStep,
 		yAxisValues: yAxisValues as number[],
 	};
-	console.log(graphData);
 	return graphData;
 }
 
