@@ -21,25 +21,33 @@ export const CanvasWithScrubber = ({
 	height = "100%",
 }: CanvasWithScrubberProps): JSX.Element => {
 	const { xAxisSize, xAxisScale, yAxisSize } = useGraph();
-	const scrubViewportRef = React.useRef<HTMLDivElement>(null);
-
-	const [slideAmount, setSlideAmount] = React.useState(0);
 	const [tPad, rPad, bPad, lPad] =
 		typeof padding === "number"
 			? [padding, padding, padding, padding]
 			: [padding.top, padding.right, padding.bottom, padding.left];
 
+	const scrubViewportRef = React.useRef<HTMLDivElement>(null);
+	const [graphWidth, setGraphWidth] = React.useState(xAxisSize + lPad + rPad);
+	const [slideAmount, setSlideAmount] = React.useState(0);
+
 	React.useLayoutEffect(() => {
 		const scrubViewportWidth = (scrubViewportRef.current as HTMLDivElement).clientWidth;
-		const centrePoint = Math.floor(scrubViewportWidth / 2);
-		const scrubPos = currentDataPointIndex * xAxisScale;
+		setGraphWidth(xAxisSize + lPad + rPad);
 
-		if (scrubPos + lPad < centrePoint) {
-			setSlideAmount(0);
-		} else if (scrubPos > xAxisSize - centrePoint) {
-			// do nothing
+		// Only run scrubbing behaviour if the graph is wider than the viewport:
+		if (graphWidth > scrubViewportWidth) {
+			const centrePoint = Math.floor(scrubViewportWidth / 2);
+			const scrubPos = currentDataPointIndex * xAxisScale;
+
+			if (scrubPos + lPad < centrePoint) {
+				setSlideAmount(0);
+			} else if (scrubPos > xAxisSize - centrePoint) {
+				// do nothing
+			} else {
+				setSlideAmount(centrePoint - (scrubPos + rPad));
+			}
 		} else {
-			setSlideAmount(centrePoint - (scrubPos + rPad));
+			setGraphWidth(scrubViewportWidth);
 		}
 	}, [scrubViewportRef.current, xAxisSize, xAxisScale, currentDataPointIndex]);
 
@@ -58,7 +66,7 @@ export const CanvasWithScrubber = ({
 				style={{
 					transform: `translateX(${slideAmount}px)`,
 					height,
-					width: xAxisSize + lPad + rPad,
+					width: graphWidth,
 				}}
 				viewBox={`${viewBoxMinX} ${viewBoxMinY} ${viewBoxWidth} ${viewBoxHeight}`}
 				preserveAspectRatio="none"
