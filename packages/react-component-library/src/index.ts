@@ -43,4 +43,5 @@ export * from "./Title";
 export * from "./Text";
 export * from "./ThemeProvider";
 export * from "./ToggleButton";
+export * from "./ScrubberWindow";
 export * from "./Splitter";

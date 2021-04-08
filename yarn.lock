@@ -1857,7 +1857,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@thingco/graphviz@workspace:packages/graphviz":
+"@thingco/graphviz@workspace:*, @thingco/graphviz@workspace:packages/graphviz":
   version: 0.0.0-use.local
   resolution: "@thingco/graphviz@workspace:packages/graphviz"
   dependencies:
@@ -1875,7 +1875,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@thingco/react-component-library@workspace:packages/react-component-library":
+"@thingco/react-component-library@workspace:*, @thingco/react-component-library@workspace:packages/react-component-library":
   version: 0.0.0-use.local
   resolution: "@thingco/react-component-library@workspace:packages/react-component-library"
   dependencies:
@@ -1910,6 +1910,9 @@ __metadata:
     "@aws-amplify/auth": ^3.4.27
     "@aws-amplify/core": ^3.8.19
     "@thingco/auth-flows": "workspace:*"
+    "@thingco/graphviz": "workspace:*"
+    "@thingco/react-component-library": "workspace:*"
+    "@thingco/unit-formatter": "workspace:*"
     "@types/events": ^3
     "@types/react": ^17.0.3
     "@types/react-dom": ^17
@@ -1934,7 +1937,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@thingco/unit-formatter@workspace:packages/unit-formatter":
+"@thingco/unit-formatter@workspace:*, @thingco/unit-formatter@workspace:packages/unit-formatter":
   version: 0.0.0-use.local
   resolution: "@thingco/unit-formatter@workspace:packages/unit-formatter"
   dependencies:
