@@ -19,9 +19,8 @@ export const CanvasWithScrubber = ({
 	currentDataPointIndex,
 	padding = 10,
 	height = "100%",
-	style = {},
 }: CanvasWithScrubberProps): JSX.Element => {
-	const { xAxisSize, xAxisScale, xAxisValues, yAxisSize } = useGraph();
+	const { xAxisSize, xAxisScale, yAxisSize } = useGraph();
 	const scrubViewportRef = React.useRef<HTMLDivElement>(null);
 
 	const [slideAmount, setSlideAmount] = React.useState(0);

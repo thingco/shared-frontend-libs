@@ -1,5 +1,4 @@
 import { Graph, useGraph, verticalLineBarPoints } from "@thingco/graphviz";
-import { ScrubberWindow } from "@thingco/react-component-library";
 import React from "react";
 
 // prettier-ignore
@@ -68,48 +67,7 @@ const SpeedGraphLineBars = ({
 	return <g style={style}>{lines}</g>;
 };
 
-const SpeedgraphUI = (): JSX.Element => {
-	const { xAxisScale, xAxisValues } = useGraph();
-	const { index, setIndex } = useCoordinateIndex();
-
-	return (
-		<ScrubberWindow
-			height={200}
-			fixedWidth={xAxisScale * xAxisValues.length}
-			maxIndex={xAxisValues.length - 1}
-			currentIndex={index}
-			setCurrentIndex={setIndex}
-		>
-			<Graph.Canvas style={{ height: 200 }}>
-				<Graph.XAxis showSteps={false} />
-				<Graph.YAxis />
-				<Graph.YAxisGridLines style={{ opacity: 0.25 }} />
-				<SpeedGraphLineBars
-					pointSpeeds={dummyCoordinates.pointSpeeds}
-					roadSpeeds={dummyCoordinates.roadSpeeds}
-				/>
-			</Graph.Canvas>
-		</ScrubberWindow>
-	);
-};
-
-export const Speedgraph = (): JSX.Element => (
-	<Graph
-		yAxisValues={dummyCoordinates.pointSpeeds}
-		yAxisMin={0}
-		yAxisMax={Math.max(
-			Math.max(...dummyCoordinates.pointSpeeds),
-			Math.max(...dummyCoordinates.roadSpeeds)
-		)}
-		yAxisSize={400}
-		yAxisStep={20}
-		xAxisScale={4}
-	>
-		<SpeedgraphUI />
-	</Graph>
-);
-
-export const Speedgraph2 = (): JSX.Element => {
+export const Speedgraph = (): JSX.Element => {
 	const { index, setIndex } = useCoordinateIndex();
 
 	return (

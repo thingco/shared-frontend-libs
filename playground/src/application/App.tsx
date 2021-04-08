@@ -3,7 +3,7 @@ import { CognitoOTPAuthProvider, useCognitoOTPAuth } from "@thingco/auth-flows";
 import { ThemeProvider } from "@thingco/react-component-library";
 import React from "react";
 
-import { CoordinateIndexProvider, Speedgraph, Speedgraph2 } from "./GraphStuff";
+import { CoordinateIndexProvider, Speedgraph } from "./GraphStuff";
 
 /**
  * Amplify uses a singleton pattern to configure it -- you import the `Auth` module then run
@@ -102,15 +102,10 @@ const AuthTest = () => {
 					<h1>Logged in stuff!</h1>
 					<button onClick={() => send({ type: "REQUEST_LOG_OUT", payload: null })}>Log out</button>
 				</header>
-				<section style={{ backgroundColor: "white", padding: "1rem" }}>
-					<CoordinateIndexProvider>
-						<Speedgraph />
-					</CoordinateIndexProvider>
-				</section>
 
 				<section style={{ backgroundColor: "white", padding: "1rem" }}>
 					<CoordinateIndexProvider>
-						<Speedgraph2 />
+						<Speedgraph />
 					</CoordinateIndexProvider>
 				</section>
 			</div>
@@ -118,7 +113,7 @@ const AuthTest = () => {
 	}
 };
 
-export const App = () => (
+export const App = (): JSX.Element => (
 	<ThemeProvider theme={{}}>
 		<CognitoOTPAuthProvider
 			authServiceFunctions={{
