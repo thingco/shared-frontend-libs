@@ -1,9 +1,8 @@
 {
 	"name": "@thingco/unit-formatter",
 	"description": "React-based unit formatters",
-	"version": "0.2.0",
+	"version": "0.3.0",
 	"main": "lib/index.js",
-	"module": "lib/index.js",
 	"types": "lib/index.d.ts",
 	"files": [
 		"lib/**"

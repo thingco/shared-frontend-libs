@@ -15,6 +15,8 @@ Libraries are in the `packages/` directory. Each library is aliased in the root 
 
 Libraries are published as GitHub packages, available to all members of the ThingCo organisation.
 
+> NOTE that they are published as CommonJS rather than ESModules; this is specifically to allow Jest (or any other Node-based test runner) to work as expected in the project consuming the package/s.
+
 | Alias                                  | Library                            | Description                                                                |
 | -------------------------------------- | ---------------------------------- | -------------------------------------------------------------------------- |
 | `yarn package:auth-flows`              | `@thingco/auth-flows`              | Drop-in React-based authorization flows, each with a configurable Provider |
