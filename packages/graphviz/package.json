@@ -1,7 +1,7 @@
 {
 	"name": "@thingco/graphviz",
 	"description": "React-based graph/chart visualisations",
-	"version": "0.2.0",
+	"version": "0.3.0",
 	"main": "lib/index.js",
 	"types": "lib/index.d.ts",
 	"files": [
