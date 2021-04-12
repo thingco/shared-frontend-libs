@@ -21,7 +21,7 @@ export type CognitoOTPAuthenticatorContext = {
 	 * request to the auth service, when a user has entered their identifier. It can then be
 	 * passed into the method used to validate the OTP they have been sent.
 	 */
-	userToken: null | any;
+	userIdentifierResponse: null | any;
 	/**
 	 * Either an email address or a mobile phone number. Used to both identify a user,
 	 * and as the location to which the OTP is sent.

@@ -27,10 +27,6 @@ export interface OTPAuthProviderProps<SessionType, UserType> {
 	authServiceFunctions: CognitoOTPAuthFunctions<SessionType, UserType>;
 }
 
-/**
- * @param {OTPAuthProviderProps<SessionType, UserType>} props
- * @returns {JSX.Element}
- */
 export function CognitoOTPAuthProvider<SessionType, UserType>({
 	children,
 	authServiceFunctions,
@@ -40,7 +36,7 @@ export function CognitoOTPAuthProvider<SessionType, UserType>({
 			checkSession: () => authServiceFunctions.checkSession(),
 			validateUserIdentifier: (ctx) =>
 				authServiceFunctions.validateUserIdentifier(ctx.userIdentifier),
-			validateOtp: (ctx) => authServiceFunctions.validateOtp(ctx.userToken, ctx.otp),
+			validateOtp: (ctx) => authServiceFunctions.validateOtp(ctx.userIdentifierResponse, ctx.otp),
 			signOut: () => authServiceFunctions.signOut(),
 		},
 	});

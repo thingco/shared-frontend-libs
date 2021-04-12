@@ -1,4 +1,4 @@
-import { assign, DoneInvokeEvent, Machine, MachineConfig, MachineOptions } from "xstate";
+import { assign, Machine, MachineConfig, MachineOptions } from "xstate";
 
 import type {
 	CognitoOTPAuthenticatorContext,
@@ -10,7 +10,7 @@ export const defaultOTPContext: CognitoOTPAuthenticatorContext = {
 	otp: "",
 	errorMsg: "",
 	otpEntryRetries: 3,
-	userToken: null,
+	userIdentifierResponse: null,
 	userIdentifier: "",
 	sessionToken: null,
 };
@@ -51,17 +51,11 @@ export const cognitoOTPAuthenticatorConfig: MachineConfig<
 				src: "validateUserIdentifier",
 				onDone: {
 					target: "awaitingOtp",
-					actions: assign<CognitoOTPAuthenticatorContext, DoneInvokeEvent<any>>({
-						userToken: (_ctx: CognitoOTPAuthenticatorContext, e: any) => e.data,
-						errorMsg: "",
-					}),
+					actions: ["assignUserToken", "clearErrors"],
 				},
 				onError: {
 					target: "awaitingUserIdentifier",
-					actions: assign<CognitoOTPAuthenticatorContext>({
-						userIdentifier: "",
-						errorMsg: `User not found on system`,
-					}),
+					actions: "userIdentifierSubmissionError",
 				},
 			},
 		},
@@ -79,32 +73,18 @@ export const cognitoOTPAuthenticatorConfig: MachineConfig<
 				src: "validateOtp",
 				onDone: {
 					target: "validatingSession",
-					actions: assign<CognitoOTPAuthenticatorContext, DoneInvokeEvent<any>>({
-						userToken: (_ctx: CognitoOTPAuthenticatorContext, e: any) => e.data,
-						errorMsg: "",
-					}),
+					actions: "clearErrors",
 				},
 				onError: [
 					{
 						target: "awaitingOtp",
 						cond: "hasAvailableOtpRetries",
-						actions: assign<CognitoOTPAuthenticatorContext, DoneInvokeEvent<any>>({
-							otp: "",
-							errorMsg: (ctx) =>
-								`Incorrect password: ${(ctx.otpEntryRetries as number) - 1} tries remaining`,
-							otpEntryRetries: (ctx) => (ctx.otpEntryRetries as number) - 1,
-						}),
+						actions: "otpSubmissionErrorWithRetries",
 					},
 					{
 						target: "awaitingUserIdentifier",
 						cond: "otpRetriesExceeded",
-						actions: assign<CognitoOTPAuthenticatorContext>({
-							otp: "",
-							errorMsg: `Retries exceeded, please enter user identifier`,
-							otpEntryRetries: 3,
-							userToken: null,
-							userIdentifier: "",
-						}),
+						actions: "otpSubmissionError",
 					},
 				],
 			},
@@ -114,7 +94,7 @@ export const cognitoOTPAuthenticatorConfig: MachineConfig<
 				id: "sessionValidation",
 				src: "checkSession",
 				onDone: {
-					actions: ["assignSessionToken"],
+					actions: ["assignSessionToken", "clearErrors"],
 					target: "authorised",
 				},
 				onError: {
@@ -158,8 +138,31 @@ export const cognitoOTPAuthenticatorOptions: MachineOptions<
 		mergeUserIdentifier: assign<CognitoOTPAuthenticatorContext, CognitoOTPAuthenticatorEvent>({
 			userIdentifier: (_ctx, { payload }) => payload ?? "",
 		}),
+		assignUserToken: assign<CognitoOTPAuthenticatorContext, any>({
+			userIdentifierResponse: (_ctx: CognitoOTPAuthenticatorContext, e: any) => e.data,
+		}),
 		assignSessionToken: assign<CognitoOTPAuthenticatorContext, any>({
 			sessionToken: (_ctx: CognitoOTPAuthenticatorContext, e: any) => e.data,
+		}),
+		userIdentifierSubmissionError: assign<CognitoOTPAuthenticatorContext, any>({
+			userIdentifier: "",
+			errorMsg: `User not found on system`,
+		}),
+		otpSubmissionErrorWithRetries: assign<CognitoOTPAuthenticatorContext, any>({
+			otp: "",
+			errorMsg: (ctx) =>
+				`Incorrect password: ${(ctx.otpEntryRetries as number) - 1} tries remaining`,
+			otpEntryRetries: (ctx) => (ctx.otpEntryRetries as number) - 1,
+		}),
+		otpSubmissionError: assign<CognitoOTPAuthenticatorContext, any>({
+			otp: "",
+			errorMsg: `Retries exceeded, please enter user identifier`,
+			otpEntryRetries: 3,
+			userIdentifierResponse: null,
+			userIdentifier: "",
+		}),
+		clearErrors: assign<CognitoOTPAuthenticatorContext, any>({
+			errorMsg: "",
 		}),
 		resetContext: assign<CognitoOTPAuthenticatorContext, any>({
 			...defaultOTPContext,

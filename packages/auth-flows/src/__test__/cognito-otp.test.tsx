@@ -52,20 +52,30 @@ const uiEvents = {
 
 const testMachineConfig = {
 	id: "authenticator-test",
-	initial: "validatingSession",
+	initial: "init",
 	context: {
 		otpRetries: 3,
 	},
 	states: {
+		init: {
+			on: {
+				SESSION_CHECK_SUCCESS: "authorised",
+				SESSION_CHECK_FAILURE: "awaitingUserIdentifier",
+			},
+			meta: {
+				test: async ({ getByText }: RenderResult) =>
+					waitFor(() => expect(getByText("Loading...")).not.toBeNull()),
+			},
+		},
 		validatingSession: {
 			on: {
 				SESSION_CHECK_SUCCESS: "authorised",
 				SESSION_CHECK_FAILURE: "awaitingUserIdentifier",
 			},
-			// meta: {
-			// 	test: async ({ getByTestId }: RenderResult) =>
-			// 		waitFor(() => expect(getByTestId("loader")).not.toBeNull()),
-			// },
+			meta: {
+				test: async ({ getByText }: RenderResult) =>
+					waitFor(() => expect(getByText("Loading...")).not.toBeNull()),
+			},
 		},
 		awaitingUserIdentifier: {
 			on: {
@@ -81,10 +91,10 @@ const testMachineConfig = {
 				USER_IDENTIFIER_CHECK_SUCCESS: "awaitingOtp",
 				USER_IDENTIFIER_CHECK_FAILURE: "awaitingUserIdentifier",
 			},
-			// meta: {
-			// 	test: async ({ getByTestId }: RenderResult) =>
-			// 		waitFor(() => expect(getByTestId("loader")).not.toBeNull()),
-			// },
+			meta: {
+				test: async ({ getByText }: RenderResult) =>
+					waitFor(() => expect(getByText("Loading...")).not.toBeNull()),
+			},
 		},
 		awaitingOtp: {
 			on: {
@@ -111,10 +121,10 @@ const testMachineConfig = {
 					},
 				],
 			},
-			// meta: {
-			// 	test: async ({ getByTestId }: RenderResult) =>
-			// 		waitFor(() => expect(getByTestId("loader")).not.toBeNull()),
-			// },
+			meta: {
+				test: async ({ getByText }: RenderResult) =>
+					waitFor(() => expect(getByText("Loading...")).not.toBeNull()),
+			},
 		},
 		authorised: {
 			on: {

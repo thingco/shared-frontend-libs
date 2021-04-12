@@ -4,7 +4,7 @@ module.exports = {
 			tsconfig: "tsconfig.jest.json",
 		},
 	},
-	roots: ["<rootDir>/src/components"],
+	roots: ["<rootDir>/src"],
 	testEnvironment: "jsdom",
 	testMatch: ["**/__tests__/**/*.+(ts|tsx|js)", "**/?(*.)+(spec|test).+(ts|tsx|js)"],
 	transform: {
