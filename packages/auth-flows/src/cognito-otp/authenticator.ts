@@ -133,10 +133,10 @@ export const cognitoOTPAuthenticatorOptions: MachineOptions<
 > = {
 	actions: {
 		mergeOtp: assign<CognitoOTPAuthenticatorContext, CognitoOTPAuthenticatorEvent>({
-			otp: (_ctx, { payload }) => payload ?? "",
+			otp: (_ctx, { payload }) => (payload ? payload : ""),
 		}),
 		mergeUserIdentifier: assign<CognitoOTPAuthenticatorContext, CognitoOTPAuthenticatorEvent>({
-			userIdentifier: (_ctx, { payload }) => payload ?? "",
+			userIdentifier: (_ctx, { payload }) => (payload ? payload : ""),
 		}),
 		assignUserToken: assign<CognitoOTPAuthenticatorContext, any>({
 			userIdentifierResponse: (_ctx: CognitoOTPAuthenticatorContext, e: any) => e.data,
