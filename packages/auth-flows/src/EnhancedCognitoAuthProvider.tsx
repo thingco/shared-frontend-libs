@@ -2,18 +2,18 @@ import { useMachine } from "@xstate/react";
 import React from "react";
 
 import {
+	AuthContext,
 	AuthenticatorConfig,
-	AuthenticatorContext,
-	AuthenticatorEvents,
-	AuthenticatorSchema,
+	AuthEvent,
+	AuthSchema,
 	createAuthenticator,
 } from "./enhanced-cognito-otp";
 
 import type { State } from "xstate";
 
 export interface AuthenticatorContextValue<UserType> {
-	state: State<AuthenticatorContext<UserType>, AuthenticatorEvents<UserType>, AuthenticatorSchema>;
-	send: (e: AuthenticatorEvents<UserType>) => void;
+	state: State<AuthContext<UserType>, AuthEvent<UserType>, AuthSchema>;
+	send: (e: AuthEvent<UserType>) => void;
 }
 
 const ReactAuthenticatorContext = React.createContext<AuthenticatorContextValue<any> | null>(null);
@@ -27,9 +27,7 @@ export function AuthProvider<UserType, SessionType>({
 		useOtpAuth: props.useOtpAuth,
 		allowedOtpAttempts: props.allowedOtpAttempts,
 	});
-	const [state, send] = useMachine<AuthenticatorContext<UserType>, AuthenticatorEvents<UserType>>(
-		authenticator
-	);
+	const [state, send] = useMachine<AuthContext<UserType>, AuthEvent<UserType>>(authenticator);
 
 	return (
 		<ReactAuthenticatorContext.Provider value={{ state, send }}>

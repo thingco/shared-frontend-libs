@@ -1,38 +1,78 @@
-import { StateNode } from "xstate";
+import { DoneInvokeEvent, StateNode } from "xstate";
 
-export interface AuthenticatorContext<UserType> {
+import { AuthEventType, AuthServices, AuthState } from "./enums";
+
+export interface AuthContext<UserType> {
 	isLoading: boolean;
+	otpRetriesAllowed: number;
+	otpRetriesRemaining: number;
 	useOtpAuth: boolean;
 	user: UserType | null;
+	username: string;
+	password: string;
 }
 
-export interface AuthenticatorSchema {
+export interface AuthSchema {
 	states: {
-		checkingSession: StateNode;
-		userIdentifierInput: StateNode;
-		otpInput: StateNode;
-		usernamePasswordInput: StateNode;
-		authorised: StateNode;
-		loggingOut: StateNode;
+		[AuthState.CheckingSession]: StateNode;
+		[AuthState.UsernameInput]: UsernameInputSchema;
+		[AuthState.OTPInput]: OTPInputSchema;
+		[AuthState.UsernamePasswordInput]: UsernamePasswordInputSchema;
+		[AuthState.Authorised]: StateNode;
+		[AuthState.LoggingOut]: StateNode;
 	};
 }
 
-export type LogOutEvent = { type: "LOG_OUT" };
-export type NetworkReqEvent = { type: "NETWORK_REQUEST_IN_PROGRESS" };
-export type NetworkReqCompleteEvent = { type: "NETWORK_REQUEST_COMPLETE" };
-export type OTPRetriesExceededEvent = { type: "OTP_RETRIES_EXCEEDED" };
-export type UserDetailsReceivedEvent<UserType> = { type: "USER_DETAILS_RECEIVED"; data: UserType };
+export interface UsernameInputSchema {
+	states: {
+		[AuthState.AwaitingUsernameInput]: StateNode;
+		[AuthState.ValidatingUsernameInput]: StateNode;
+		[AuthState.InvalidUsername]: StateNode;
+		[AuthState.PasswordRetriesExceeded]: StateNode;
+		[AuthState.ValidUsername]: StateNode;
+	};
+}
 
-export type AuthenticatorEvents<UserType> =
+export interface OTPInputSchema {
+	states: {
+		[AuthState.AwaitingOtpInput]: StateNode;
+		[AuthState.ValidatingOtpInput]: StateNode;
+		[AuthState.InvalidOtp]: StateNode;
+		[AuthState.ValidOtp]: StateNode;
+	};
+}
+
+export interface UsernamePasswordInputSchema {
+	states: {
+		[AuthState.AwaitingUsernamePasswordInput]: StateNode;
+		[AuthState.ValidatingUsernamePasswordInput]: StateNode;
+		[AuthState.InvalidUsernamePasswordInput]: StateNode;
+		[AuthState.ValidUsernamePasswordInput]: StateNode;
+	};
+}
+
+export type LogOutEvent = { type: AuthEventType.LOG_OUT };
+export type SubmitUsernameEvent = { type: AuthEventType.SUBMIT_USERNAME; data: string };
+export type SubmitOTPEvent = { type: AuthEventType.SUBMIT_OTP; data: string };
+export type SubmitUsernameAndPasswordEvent = {
+	type: AuthEventType.SUBMIT_USERNAME_AND_PASSWORD;
+	data: { username: string; password: string };
+};
+
+export type AuthEvent<UserType> =
 	| LogOutEvent
-	| NetworkReqEvent
-	| NetworkReqCompleteEvent
-	| OTPRetriesExceededEvent
-	| UserDetailsReceivedEvent<UserType>;
+	| SubmitUsernameEvent
+	| SubmitOTPEvent
+	| SubmitUsernameAndPasswordEvent
+	| DoneInvokeEvent<{ data: UserType }>;
 
-export type AuthenticatorServiceFunctions<UserType, SessionType> = {
-	checkSession: () => Promise<SessionType>;
-	validateUsername: (username: string) => Promise<UserType>;
-	validateOtp: (user: UserType, otp: string) => Promise<UserType>;
-	logOut: () => Promise<null>;
+export type AuthServiceFunctions<UserType, SessionType> = {
+	[AuthServices.currentSession]: () => Promise<SessionType>;
+	[AuthServices.validateUsernameAndPassword]: (
+		username: string,
+		password: string
+	) => Promise<UserType>;
+	[AuthServices.validateUsername]: (username: string) => Promise<UserType>;
+	[AuthServices.validateOtp]: (user: UserType, password: string) => Promise<UserType>;
+	[AuthServices.signOut]: () => Promise<null>;
 };
