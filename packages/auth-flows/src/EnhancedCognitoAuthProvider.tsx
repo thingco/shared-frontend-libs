@@ -5,11 +5,12 @@ import {
 	AuthContext,
 	AuthenticatorConfig,
 	AuthEvent,
+	AuthEventType,
 	AuthSchema,
 	createAuthenticator,
 } from "./enhanced-cognito-otp";
 
-import type { State } from "xstate";
+import type { State, StateValue } from "xstate";
 
 export interface AuthenticatorContextValue<UserType> {
 	state: State<AuthContext<UserType>, AuthEvent<UserType>, AuthSchema>;
@@ -36,7 +37,18 @@ export function AuthProvider<UserType, SessionType>({
 	);
 }
 
-export function useAuth() {
+export interface AuthProviderState {
+	currentState: StateValue;
+	currentStateIs: (state: string | StateValue) => boolean;
+	isLoading: boolean;
+	currentUser: any;
+	submitUsername: (username: string) => void;
+	submitOtp: (password: string) => void;
+	submitUsernameAndPassword: (username: string, password: string) => void;
+	signOut: () => void;
+}
+
+export function useAuth(): AuthProviderState {
 	const ctx = React.useContext(ReactAuthenticatorContext);
 
 	if (ctx === null) {
@@ -57,14 +69,14 @@ export function useAuth() {
 	const currentUser = ctx.state.context.user;
 	// `send` function aliases:
 	const submitUsername = (username: string) =>
-		ctx.state.children.usernameInput.send({ type: "SUBMIT_USERNAME", data: username });
-	const submitOtp = (otp: string) =>
-		ctx.state.children.otpInput.send({ type: "SUBMIT_OTP", data: otp });
+		ctx.send({ type: AuthEventType.SUBMIT_USERNAME, data: username });
+	const submitOtp = (otp: string) => ctx.send({ type: AuthEventType.SUBMIT_OTP, data: otp });
 	const submitUsernameAndPassword = (username: string, password: string) =>
-		ctx.state.children.usernamePasswordInput.send({
-			type: "SUBMIT_USERNAME_AND_PASSWORD",
+		ctx.send({
+			type: AuthEventType.SUBMIT_USERNAME_AND_PASSWORD,
 			data: { username, password },
 		});
+	const signOut = () => ctx.send({ type: AuthEventType.LOG_OUT });
 
 	return {
 		currentState,
@@ -74,5 +86,6 @@ export function useAuth() {
 		submitUsername,
 		submitOtp,
 		submitUsernameAndPassword,
+		signOut,
 	};
 }
