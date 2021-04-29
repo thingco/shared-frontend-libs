@@ -42,6 +42,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 					reference: "workspace:packages/unit-formatter",
 				},
 				{
+					name: "@thingco/user-preferences",
+					reference: "workspace:packages/user-preferences",
+				},
+				{
 					name: "@thingco/shared-frontend-libs-playground",
 					reference: "workspace:playground",
 				},
@@ -78,6 +82,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 						"workspace:packages/unit-formatter",
 					],
 				],
+				["@thingco/user-preferences", ["workspace:packages/user-preferences"]],
 				["shared-frontend-libs", ["workspace:."]],
 			],
 			fallbackPool: [],
@@ -4037,6 +4042,50 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 								packageLocation: "./packages/unit-formatter/",
 								packageDependencies: [
 									["@thingco/unit-formatter", "workspace:packages/unit-formatter"],
+									["@testing-library/jest-dom", "npm:5.11.10"],
+									[
+										"@testing-library/react",
+										"virtual:be93e41f18dd445d699e46c78ad75650527c4f5e5d5120d685234cbaa071b339a3116e6a967a8d04eb21d3e4167ea6e540c7b45dba9acd1881e6719a67664e80#npm:11.2.5",
+									],
+									["@types/jest", "npm:26.0.21"],
+									["@types/react", "npm:17.0.3"],
+									["@types/react-dom", "npm:17.0.2"],
+									["@types/rimraf", "npm:3.0.0"],
+									["@types/testing-library__jest-dom", "npm:5.9.5"],
+									["jest", "npm:26.6.3"],
+									["react", "npm:17.0.1"],
+									[
+										"react-dom",
+										"virtual:be93e41f18dd445d699e46c78ad75650527c4f5e5d5120d685234cbaa071b339a3116e6a967a8d04eb21d3e4167ea6e540c7b45dba9acd1881e6719a67664e80#npm:17.0.1",
+									],
+									["rimraf", "npm:3.0.2"],
+									[
+										"ts-jest",
+										"virtual:be93e41f18dd445d699e46c78ad75650527c4f5e5d5120d685234cbaa071b339a3116e6a967a8d04eb21d3e4167ea6e540c7b45dba9acd1881e6719a67664e80#npm:26.5.3",
+									],
+									[
+										"typedoc",
+										"virtual:be93e41f18dd445d699e46c78ad75650527c4f5e5d5120d685234cbaa071b339a3116e6a967a8d04eb21d3e4167ea6e540c7b45dba9acd1881e6719a67664e80#npm:0.20.34",
+									],
+									[
+										"typescript",
+										"patch:typescript@npm%3A4.2.3#builtin<compat/typescript>::version=4.2.3&hash=a45b0e",
+									],
+								],
+								linkType: "SOFT",
+							},
+						],
+					],
+				],
+				[
+					"@thingco/user-preferences",
+					[
+						[
+							"workspace:packages/user-preferences",
+							{
+								packageLocation: "./packages/user-preferences/",
+								packageDependencies: [
+									["@thingco/user-preferences", "workspace:packages/user-preferences"],
 									["@testing-library/jest-dom", "npm:5.11.10"],
 									[
 										"@testing-library/react",
