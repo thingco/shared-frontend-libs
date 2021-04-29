@@ -8,22 +8,29 @@ export const enum AuthState {
 	ValidatingUsernameInput = "ValidatingUsernameInput",
 	InvalidUsername = "InvalidUsername",
 	PasswordRetriesExceeded = "PasswordRetriesExceeded",
-	ValidUsername = "ValidUsername",
 	// OTP input top-level state:
 	OTPInput = "OTPInput",
 	// OTP input substates:
 	AwaitingOtpInput = "AwaitingOtpInput",
 	ValidatingOtpInput = "ValidatingOtpInput",
 	InvalidOtp = "InvalidOtp",
-	ValidOtp = "ValidOtp",
-
 	// Username/Password top-level state:
 	UsernamePasswordInput = "UsernamePasswordInput",
 	// Username/Password substates:
 	AwaitingUsernamePasswordInput = "AwaitingUsernamePasswordInput",
 	ValidatingUsernamePasswordInput = "ValidatingUsernamePasswordInput",
 	InvalidUsernamePasswordInput = "InvalidUsernamePasswordInput",
-	ValidUsernamePasswordInput = "ValidUsernamePasswordInput",
+	// PIN input top-level state:
+	PINInput = "PINInput",
+	// PIN input substates:
+	PINRevocationInit = "PINRevocationInit",
+	PINInputInit = "PINInputInit",
+	AwaitingPINInput = "AwaitingPINInput",
+	AwaitingNewPINInput = "AwaitingNewPINInput",
+	AwaitingNewPINConfirmationInput = "AwaitingNewPINConfirmationInput",
+	SettingNewPIN = "SettingNewPIN",
+	ValidatingPINInput = "ValidatingPINInput",
+	InvalidPIN = "InvalidPIN",
 	// Authorised top-level state:
 	Authorised = "Authorised",
 	// Logging out top-level state:
@@ -40,6 +47,13 @@ export const enum AuthState {
  */
 export const enum AuthStateId {
 	Authenticator = "Authenticator",
+	CheckingSession = "CheckingSession",
+	UsernameInput = "UsernameInput",
+	UsernamePasswordInput = "UsernamePasswordInput",
+	OTPInput = "OTPInput",
+	PINInput = "PINInput",
+	PINRevocation = "PINRevocation",
+	Authorised = "Authorised",
 	PasswordRetriesExceeded = "PasswordRetriesExceeded",
 }
 
@@ -48,26 +62,38 @@ export const enum AuthEventType {
 	SUBMIT_USERNAME = "SUBMIT_USERNAME",
 	SUBMIT_OTP = "SUBMIT_OTP",
 	SUBMIT_USERNAME_AND_PASSWORD = "SUBMIT_USERNAME_AND_PASSWORD",
+	SKIP_PIN = "SKIP_PIN",
+	SUBMIT_PIN = "SUBMIT_PIN",
+	SUBMIT_PIN_CONFIRMATION = "SUBMIT_PIN_CONFIRMATION",
+	REVOKE_PIN = "REVOKE_PIN",
+	GO_BACK = "GO_BACK",
 }
 
 export const enum AuthAction {
 	NetworkReqStarted = "NetworkReqStarted",
 	NetworkReqComplete = "NetworkReqComplete",
 	UserDetailsReceived = "UserDetailsReceived",
-	ClearPassword = "ClearPassword",
-	ClearUsername = "ClearUsername",
-	ClearUsernamePassword = "ClearUsernamePassword",
 	SetPassword = "SetPassword",
+	ClearPassword = "ClearPassword",
 	SetUser = "SetUser",
+	ClearUser = "ClearUser",
 	SetUsername = "SetUsername",
+	ClearUsername = "ClearUsername",
 	SetUsernamePassword = "SetUsernamePassword",
+	ClearUsernamePassword = "ClearUsernamePassword",
+	SetPIN = "SetPIN",
+	ClearPIN = "ClearPIN",
+	ActivatePINSecurity = "SetPINSecurityActive",
+	DeactivatePINSecurity = "DeactivatePINSecurity",
 	DecrementRetries = "DecrementRetries",
 	ResetRetries = "ResetRetries",
 }
 
 export const enum AuthCond {
 	IsUsingOTPAuth = "IsUsingOTPAuth",
+	IsUsingPINSecurity = "IsUsingPINSecurity",
 	HasRetriesRemaining = "HasRetriesRemaining",
+	NewPINMatches = "NewPinMatches",
 }
 
 export const enum AuthServices {
@@ -76,4 +102,8 @@ export const enum AuthServices {
 	validateUsername = "validateUsername",
 	validateOtp = "validateOtp",
 	signOut = "signOut",
+	checkHasPINSet = "checkHasPINSet",
+	validatePIN = "validatePIN",
+	setNewPIN = "setNewPIN",
+	revokePIN = "revokePIN",
 }
