@@ -21,6 +21,7 @@
 	"devDependencies": {
 		"@testing-library/jest-dom": "^5.11.10",
 		"@testing-library/react": "^11.2.5",
+		"@thingco/shared-types": "workspace:*",
 		"@types/jest": "^26.0.21",
 		"@types/react": "^17.0.3",
 		"@types/react-dom": "^17",
