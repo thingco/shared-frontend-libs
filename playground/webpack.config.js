@@ -13,6 +13,7 @@ module.exports = {
 		hot: true,
 		port: 8090,
 	},
+	devtool: "eval-cheap-source-map",
 	entry: {
 		main: path.resolve(__dirname, "./src/index.tsx"),
 	},

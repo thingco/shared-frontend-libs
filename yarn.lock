@@ -2889,6 +2889,8 @@ __metadata:
     "@thingco/graphviz": "workspace:*"
     "@thingco/react-component-library": "workspace:*"
     "@thingco/unit-formatter": "workspace:*"
+    "@thingco/user-preferences": "workspace:*"
+    "@thingco/user-preferences-store-web": "workspace:*"
     "@types/events": ^3
     "@types/react": ^17.0.3
     "@types/react-dom": ^17
@@ -2965,7 +2967,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@thingco/user-preferences-store-web@workspace:packages/user-preferences-store-web":
+"@thingco/user-preferences-store-web@workspace:*, @thingco/user-preferences-store-web@workspace:packages/user-preferences-store-web":
   version: 0.0.0-use.local
   resolution: "@thingco/user-preferences-store-web@workspace:packages/user-preferences-store-web"
   dependencies:
@@ -2982,7 +2984,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@thingco/user-preferences@workspace:packages/user-preferences":
+"@thingco/user-preferences@workspace:*, @thingco/user-preferences@workspace:packages/user-preferences":
   version: 0.0.0-use.local
   resolution: "@thingco/user-preferences@workspace:packages/user-preferences"
   dependencies:

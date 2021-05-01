@@ -93,7 +93,8 @@ export const UserPrefsProvider = ({ children, store }: UserPrefsProviderProps): 
 	);
 };
 
-export function usePrefs(): UserPreferences & {
+export function usePrefs(): {
+	prefs: UserPreferences;
 	setPref: <K extends keyof UserPreferences>(key: K, value: UserPreferences[K]) => void;
 } {
 	const prefs = React.useContext(UserPrefsRead);
@@ -106,7 +107,7 @@ export function usePrefs(): UserPreferences & {
 	}
 
 	return {
-		...prefs,
+		prefs,
 		setPref: updater.updateUserPreference,
 	};
 }

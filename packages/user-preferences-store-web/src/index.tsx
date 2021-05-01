@@ -40,7 +40,7 @@ export function createPrefStore(defaultPreferences: UserPreferences): Storage {
 			} else {
 				const prefs = JSON.parse(storedPrefs);
 				prefs[key] = value;
-				window.localStorage.setItem(KEY, JSON.stringify(prefs));
+				await window.localStorage.setItem(KEY, JSON.stringify(prefs));
 			}
 			return await void 0;
 		},
