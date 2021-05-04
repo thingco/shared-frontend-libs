@@ -1,5 +1,9 @@
 undecided:
+  - "@thingco/auth-flows"
   - "@thingco/graphviz"
   - "@thingco/react-component-library"
-  - "@thingco/unit-formatter"
+  - "@thingco/shared-types"
+  - "@thingco/user-preferences"
+  - "@thingco/user-preferences-store-native"
+  - "@thingco/user-preferences-store-web"
   - "@thingco/shared-frontend-libs-playground"
