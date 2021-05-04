@@ -19,7 +19,11 @@
 		"package:auth-flows": "yarn workspace @thingco/auth-flows",
 		"package:graphviz": "yarn workspace @thingco/graphviz",
 		"package:react-component-library": "yarn workspace @thingco/react-component-library",
+		"package:shared-types": "yarn workspace @thingco/shared-types",
 		"package:unit-formatter": "yarn workspace @thingco/unit-formatter",
+		"package:user-preferences": "yarn workspace @thingco/user-preferences",
+		"package:user-preferences-store-web": "yarn workspace @thingco/user-preferences-store-web",
+		"package:user-preferences-store-native": "yarn workspace @thingco/user-preferences-store-native",
 		"playground": "yarn workspace @thingco/shared-frontend-libs-playground",
 		"global:update-yarn": "yarn set version latest && yarn plugin import version && yarn plugin import typescript && yarn plugin import workspace-tools && yarn plugin import interactive-tools && yarn dlx @yarnpkg/pnpify --sdk"
 	},

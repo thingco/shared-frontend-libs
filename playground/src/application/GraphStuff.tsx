@@ -103,3 +103,11 @@ export const Speedgraph = (): JSX.Element => {
 		</Graph>
 	);
 };
+
+export const GraphStuff = () => (
+	<section style={{ backgroundColor: "white", padding: "1rem" }}>
+		<CoordinateIndexProvider>
+			<Speedgraph />
+		</CoordinateIndexProvider>
+	</section>
+);
