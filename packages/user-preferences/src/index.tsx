@@ -1,12 +1,6 @@
 import React from "react";
 
-import type {
-	DistanceUnitPreference,
-	PreferenceStorageKey,
-	Storage,
-	TimeDisplayPreference,
-	UserPreferences,
-} from "@thingco/shared-types";
+import type { Storage, UserPreferences } from "@thingco/shared-types";
 
 const UserPrefsRead = React.createContext<UserPreferences | null>(null);
 const UserPrefsWrite = React.createContext<{
@@ -120,10 +114,4 @@ export function usePrefs(): {
  *
  * REVIEW publish the shared types?
  */
-export type {
-	DistanceUnitPreference,
-	PreferenceStorageKey,
-	Storage,
-	TimeDisplayPreference,
-	UserPreferences,
-};
+export * from "@thingco/shared-types";

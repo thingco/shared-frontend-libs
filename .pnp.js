@@ -98,7 +98,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 				[
 					"@thingco/user-preferences",
 					[
-						"virtual:eef7a203d4527cb0ea6497d57e431a822e04429c2e4b7eff294965c3401931c7d562fef206e673fdd2523a66137b25773e7b50fbffcfa26f8d7f582c02068c62#workspace:packages/user-preferences",
+						"virtual:972168a65e9561368747984d8e36bef86c446e4db2df404e240d50b8f2fe2d56080fbeef2450af8e0b021ffee438b231b45143c182f97489f16df42d05ebf7f4#workspace:packages/user-preferences",
 						"workspace:packages/user-preferences",
 					],
 				],
@@ -6120,7 +6120,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 									],
 									[
 										"@thingco/user-preferences",
-										"virtual:eef7a203d4527cb0ea6497d57e431a822e04429c2e4b7eff294965c3401931c7d562fef206e673fdd2523a66137b25773e7b50fbffcfa26f8d7f582c02068c62#workspace:packages/user-preferences",
+										"virtual:972168a65e9561368747984d8e36bef86c446e4db2df404e240d50b8f2fe2d56080fbeef2450af8e0b021ffee438b231b45143c182f97489f16df42d05ebf7f4#workspace:packages/user-preferences",
 									],
 									[
 										"@thingco/user-preferences-store-web",
@@ -6211,11 +6211,16 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 										"@testing-library/react",
 										"virtual:be93e41f18dd445d699e46c78ad75650527c4f5e5d5120d685234cbaa071b339a3116e6a967a8d04eb21d3e4167ea6e540c7b45dba9acd1881e6719a67664e80#npm:11.2.6",
 									],
+									[
+										"@thingco/user-preferences",
+										"virtual:972168a65e9561368747984d8e36bef86c446e4db2df404e240d50b8f2fe2d56080fbeef2450af8e0b021ffee438b231b45143c182f97489f16df42d05ebf7f4#workspace:packages/user-preferences",
+									],
 									["@types/jest", "npm:26.0.23"],
 									["@types/react", "npm:17.0.4"],
 									["@types/react-dom", "npm:17.0.3"],
 									["@types/rimraf", "npm:3.0.0"],
 									["@types/testing-library__jest-dom", "npm:5.9.5"],
+									["@types/thingco__user-preferences", null],
 									["jest", "npm:26.6.3"],
 									["react", "npm:17.0.2"],
 									[
@@ -6236,7 +6241,12 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 										"patch:typescript@npm%3A4.2.4#builtin<compat/typescript>::version=4.2.4&hash=a45b0e",
 									],
 								],
-								packagePeers: ["@types/react", "react"],
+								packagePeers: [
+									"@thingco/user-preferences",
+									"@types/react",
+									"@types/thingco__user-preferences",
+									"react",
+								],
 								linkType: "SOFT",
 							},
 						],
@@ -6250,6 +6260,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 									[
 										"@testing-library/react",
 										"virtual:be93e41f18dd445d699e46c78ad75650527c4f5e5d5120d685234cbaa071b339a3116e6a967a8d04eb21d3e4167ea6e540c7b45dba9acd1881e6719a67664e80#npm:11.2.6",
+									],
+									[
+										"@thingco/user-preferences",
+										"virtual:972168a65e9561368747984d8e36bef86c446e4db2df404e240d50b8f2fe2d56080fbeef2450af8e0b021ffee438b231b45143c182f97489f16df42d05ebf7f4#workspace:packages/user-preferences",
 									],
 									["@types/jest", "npm:26.0.23"],
 									["@types/react", "npm:17.0.4"],
@@ -6285,14 +6299,14 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 					"@thingco/user-preferences",
 					[
 						[
-							"virtual:eef7a203d4527cb0ea6497d57e431a822e04429c2e4b7eff294965c3401931c7d562fef206e673fdd2523a66137b25773e7b50fbffcfa26f8d7f582c02068c62#workspace:packages/user-preferences",
+							"virtual:972168a65e9561368747984d8e36bef86c446e4db2df404e240d50b8f2fe2d56080fbeef2450af8e0b021ffee438b231b45143c182f97489f16df42d05ebf7f4#workspace:packages/user-preferences",
 							{
 								packageLocation:
-									"./.yarn/$$virtual/@thingco-user-preferences-virtual-5bf6c2882c/1/packages/user-preferences/",
+									"./.yarn/$$virtual/@thingco-user-preferences-virtual-628b15702a/1/packages/user-preferences/",
 								packageDependencies: [
 									[
 										"@thingco/user-preferences",
-										"virtual:eef7a203d4527cb0ea6497d57e431a822e04429c2e4b7eff294965c3401931c7d562fef206e673fdd2523a66137b25773e7b50fbffcfa26f8d7f582c02068c62#workspace:packages/user-preferences",
+										"virtual:972168a65e9561368747984d8e36bef86c446e4db2df404e240d50b8f2fe2d56080fbeef2450af8e0b021ffee438b231b45143c182f97489f16df42d05ebf7f4#workspace:packages/user-preferences",
 									],
 									["@testing-library/jest-dom", "npm:5.12.0"],
 									[
