@@ -8,7 +8,7 @@ module.exports = {
 			jsx: true, // Allows for the parsing of JSX
 		},
 	},
-	plugins: ["@typescript-eslint/eslint-plugin", "eslint-plugin-tsdoc"],
+	plugins: ["@typescript-eslint/eslint-plugin", "eslint-plugin-react", "eslint-plugin-tsdoc"],
 	settings: {
 		react: {
 			version: "detect", // Tells eslint-plugin-react to automatically detect the version of React to use

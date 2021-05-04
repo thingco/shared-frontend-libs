@@ -1,24 +1,23 @@
+import {
+	DistancePrecisionPreference,
+	DistanceUnitPreference,
+	LocalePreference,
+	TimeDisplayPreference,
+} from "@thingco/user-preferences";
+
 import { kmphToMph, metersToKilometers, metersToMiles, secondsToDurationObj } from "./converters";
 
-export type DistanceUnit = "km" | "mi";
-
 export interface DistanceOpts {
-	unitPreference?: DistanceUnit;
-	precision?: number;
-	locale?: string | undefined;
+	unitPreference?: DistanceUnitPreference;
+	precision?: DistancePrecisionPreference;
+	locale?: LocalePreference | undefined;
 }
 
-/**
- * @param root0
- * @param root0.unitPreference
- * @param root0.precision
- * @param root0.locale
- */
 export function distance({
 	unitPreference = "km",
 	precision = 0,
 	locale = undefined,
-}: DistanceOpts = {}): (distanceInMeters: number) => string {
+}: DistanceOpts = {}): (distanceInMeters: number | string) => string {
 	const formatter = Intl.NumberFormat(locale, {
 		style: "decimal",
 		useGrouping: true,
@@ -26,57 +25,47 @@ export function distance({
 		maximumFractionDigits: precision,
 	});
 
-	return function (distanceInMeters: number) {
+	return function (distanceInMeters: number | string) {
 		switch (unitPreference) {
 			case "km":
-				return `${formatter.format(metersToKilometers(distanceInMeters))} km`;
+				return `${formatter.format(metersToKilometers(Number(distanceInMeters)))} km`;
 			case "mi":
-				return `${formatter.format(metersToMiles(distanceInMeters))} mi`;
+				return `${formatter.format(metersToMiles(Number(distanceInMeters)))} mi`;
 		}
 	};
 }
 
 export interface SpeedOpts {
-	unitPreference?: DistanceUnit;
-	precision?: number;
-	locale?: string | undefined;
+	unitPreference?: DistanceUnitPreference;
+	precision?: DistancePrecisionPreference;
+	locale?: LocalePreference | undefined;
 }
 
-/**
- * @param root0
- * @param root0.unitPreference
- * @param root0.precision
- * @param root0.locale
- */
 export function speed({
 	unitPreference = "km",
 	precision = 0,
 	locale = undefined,
-}: SpeedOpts = {}): (speedInKmph: number) => string {
+}: SpeedOpts = {}): (speedInKmph: number | string) => string {
 	const formatter = new Intl.NumberFormat(locale, {
 		style: "decimal",
 		useGrouping: true,
 		minimumFractionDigits: precision,
 		maximumFractionDigits: precision,
 	});
-	return function (speedInKmph: number) {
+	return function (speedInKmph: number | string) {
 		switch (unitPreference) {
 			case "km":
-				return `${formatter.format(speedInKmph)} km/h`;
+				return `${formatter.format(Number(speedInKmph))} km/h`;
 			case "mi":
-				return `${formatter.format(kmphToMph(speedInKmph))} mph`;
+				return `${formatter.format(kmphToMph(Number(speedInKmph)))} mph`;
 		}
 	};
 }
 
 export interface DateOpts {
-	locale?: string;
+	locale?: LocalePreference;
 }
 
-/**
- * @param root0
- * @param root0.locale
- */
 export function date({ locale = undefined }: DateOpts = {}): (
 	timestamp: string | number
 ) => string {
@@ -92,22 +81,17 @@ export function date({ locale = undefined }: DateOpts = {}): (
 }
 
 export interface TimeOpts {
-	locale?: string;
-	hour12?: boolean;
+	locale?: LocalePreference | undefined;
+	timeDisplay?: TimeDisplayPreference;
 }
 
-/**
- * @param root0
- * @param root0.locale
- * @param root0.hour12
- */
-export function time({ locale = undefined, hour12 = false }: TimeOpts = {}): (
+export function time({ locale = undefined, timeDisplay = "24" }: TimeOpts = {}): (
 	timestamp: string | number
 ) => string {
 	const formatter = new Intl.DateTimeFormat(locale, {
-		hour: hour12 ? "numeric" : "2-digit",
+		hour: timeDisplay === "12" ? "numeric" : "2-digit",
 		minute: "2-digit",
-		hour12,
+		hour12: timeDisplay === "12",
 	});
 
 	return function (timestamp: string | number) {
@@ -116,25 +100,20 @@ export function time({ locale = undefined, hour12 = false }: TimeOpts = {}): (
 }
 
 export interface DateTimeOpts {
-	locale?: string;
-	hour12?: boolean;
+	locale?: LocalePreference | undefined;
+	timeDisplay?: TimeDisplayPreference;
 }
 
-/**
- * @param root0
- * @param root0.locale
- * @param root0.hour12
- */
-export function dateTime({ locale = undefined, hour12 = false }: DateTimeOpts = {}): (
+export function dateTime({ locale = undefined, timeDisplay = "24" }: DateTimeOpts = {}): (
 	timestamp: string | number
 ) => string {
 	const formatter = new Intl.DateTimeFormat(locale, {
 		year: "numeric",
 		month: "numeric",
 		day: "numeric",
-		hour: hour12 ? "numeric" : "2-digit",
+		hour: timeDisplay === "12" ? "numeric" : "2-digit",
 		minute: "2-digit",
-		hour12,
+		hour12: timeDisplay === "12",
 	});
 
 	return function (timestamp: string | number) {
@@ -143,17 +122,12 @@ export function dateTime({ locale = undefined, hour12 = false }: DateTimeOpts = 
 }
 
 export interface DurationOpts {
-	locale?: string | undefined;
+	locale?: LocalePreference | undefined;
 	displayStyle?: "compact" | "expanded";
 }
 
-/**
- * @param root0
- * @param root0.locale
- * @param root0.displayStyle
- */
 export function duration({ locale = undefined, displayStyle = "compact" }: DurationOpts = {}): (
-	durationInSeconds: number
+	durationInSeconds: number | string
 ) => string {
 	const hourFormatter = new Intl.NumberFormat(locale, {
 		style: "decimal",
@@ -167,8 +141,8 @@ export function duration({ locale = undefined, displayStyle = "compact" }: Durat
 		maximumFractionDigits: 0,
 	});
 
-	return function (durationInSeconds: number): string {
-		const { hours, minutes } = secondsToDurationObj(durationInSeconds);
+	return function (durationInSeconds: number | string): string {
+		const { hours, minutes } = secondsToDurationObj(Number(durationInSeconds));
 		const hoursString = hourFormatter.format(hours);
 		const minutesString = minuteFormatter.format(minutes);
 		const hrString = Number(hoursString) === 1 ? "hr" : "hrs";

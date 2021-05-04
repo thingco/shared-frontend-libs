@@ -1,7 +1,7 @@
 {
 	"name": "@thingco/unit-formatter",
 	"description": "React-based unit formatters",
-	"version": "0.3.0",
+	"version": "1.0.0",
 	"main": "lib/index.js",
 	"types": "lib/index.d.ts",
 	"files": [
@@ -19,22 +19,24 @@
 		"docs": "yarn rimraf docs && yarn typedoc"
 	},
 	"devDependencies": {
-		"@testing-library/jest-dom": "^5.11.10",
-		"@testing-library/react": "^11.2.5",
-		"@types/jest": "^26.0.21",
-		"@types/react": "^17.0.3",
-		"@types/react-dom": "^17",
+		"@testing-library/jest-dom": "^5.12.0",
+		"@testing-library/react": "^11.2.6",
+		"@thingco/user-preferences": "0.3.0",
+		"@types/jest": "^26.0.23",
+		"@types/react": "^17.0.4",
+		"@types/react-dom": "^17.0.3",
 		"@types/rimraf": "^3.0.0",
-		"@types/testing-library__jest-dom": "^5",
+		"@types/testing-library__jest-dom": "^5.9.5",
 		"jest": "^26.6.3",
-		"react": "^17.0.1",
-		"react-dom": "^17.0.1",
+		"react": "^17.0.2",
+		"react-dom": "^17.0.2",
 		"rimraf": "^3.0.2",
-		"ts-jest": "^26.5.3",
-		"typedoc": "^0.20.34",
+		"ts-jest": "^26.5.5",
+		"typedoc": "^0.20.36",
 		"typescript": "^4.2.3"
 	},
 	"peerDependencies": {
+		"@thingco/user-preferences": "*",
 		"react": "*"
 	}
 }
