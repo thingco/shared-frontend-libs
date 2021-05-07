@@ -1,6 +1,6 @@
 import { ActorRef, StateMachine, StateNode } from "xstate";
 
-import { AuthServiceId, PinServiceId } from "./enums";
+import { AuthenticatorServiceId, PinServiceId } from "./enums";
 
 export type User = Record<string, unknown>;
 
@@ -14,7 +14,7 @@ export type User = Record<string, unknown>;
  *   services always have events forwarded to them, an communicate only via
  *   message passing.
  */
-export interface AuthContext {
+export interface AuthenticatorContext {
 	/**
 	 * Services will send a message to the authenticator machine every time a
 	 * network request starts or stops: these switch the isLoading flag on or off.
@@ -55,15 +55,15 @@ export interface AuthContext {
 	/**
 	 * Refs for spawned services
 	 */
-	sessionCheckRef: ActorRef<AuthEvent> | null;
-	otpUsernameInputRef: ActorRef<AuthEvent> | null;
-	otpInputRef: ActorRef<AuthEvent> | null;
-	usernamePasswordInputRef: ActorRef<AuthEvent> | null;
-	signOutServiceRef: ActorRef<AuthEvent> | null;
-	pinServiceRef: ActorRef<AuthEvent> | null;
+	sessionCheckRef: ActorRef<AuthenticatorEvent> | null;
+	otpUsernameInputRef: ActorRef<AuthenticatorEvent> | null;
+	otpInputRef: ActorRef<AuthenticatorEvent> | null;
+	usernamePasswordInputRef: ActorRef<AuthenticatorEvent> | null;
+	signOutServiceRef: ActorRef<AuthenticatorEvent> | null;
+	pinServiceRef: ActorRef<AuthenticatorEvent> | null;
 }
 
-export interface AuthSchema {
+export interface AuthenticatorSchema {
 	states: {
 		sessionCheck: StateNode;
 		otpUsernameInput: StateNode;
@@ -96,9 +96,15 @@ export interface OTPUsernameInputSchema {
 		validOtpUsername: StateNode;
 	};
 }
+export interface OTPInputContext {
+	otp: string;
+	remainingOtpRetries: number;
+	userData: User | null;
+}
 
 export interface OTPInputSchema {
 	states: {
+		init: StateNode;
 		awaitingOtp: StateNode;
 		validatingOtp: StateNode;
 		invalidOtp: StateNode;
@@ -121,12 +127,6 @@ export interface UsernamePasswordInputSchema {
 	};
 }
 
-export interface OTPInputContext {
-	otp: string;
-	remainingOtpRetries: number;
-	userData: User | null;
-}
-
 export interface SignOutSchema {
 	states: {
 		idle: StateNode;
@@ -137,7 +137,6 @@ export interface SignOutSchema {
 
 export interface PinServiceContext {
 	pin: string;
-	newPin: string;
 }
 
 export interface PinServiceSchema {
@@ -147,14 +146,15 @@ export interface PinServiceSchema {
 		idle: StateNode;
 		awaitingPin: StateNode;
 		validatingPin: StateNode;
-		awaitingCurrentPin: StateNode;
-		validatingCurrentPin: StateNode;
+		awaitingCurrentPinForReset: StateNode;
+		validatingCurrentPinForReset: StateNode;
+		clearingCurrentPinForReset: StateNode;
 		awaitingNewPin: StateNode;
 		settingNewPin: StateNode;
 	};
 }
 
-export type AuthEvent =
+export type AuthenticatorEvent =
 	| { type: "GLOBAL_AUTH.ACTIVE_SESSION_PRESENT" }
 	| { type: "GLOBAL_AUTH.NO_ACTIVE_SESSION_PRESENT" }
 	| { type: "GLOBAL_AUTH.NEW_USER_DATA"; userData: User }
@@ -164,6 +164,8 @@ export type AuthEvent =
 	| { type: "OTP_FLOW.SUBMIT_USERNAME"; username: string }
 	| { type: "OTP_FLOW.USERNAME_VALIDATED" }
 	| { type: "OTP_FLOW.SUBMIT_OTP"; password: string }
+	| { type: "OTP_FLOW.REQUEST_OTP_STAGE_INIT_DATA" }
+	| { type: "OTP_FLOW.SEND_OTP_STAGE_INIT_DATA"; otpRetriesAllowed: number; userData: User }
 	| { type: "OTP_FLOW.OTP_VALIDATED" }
 	| { type: "OTP_FLOW.OTP_RETRIES_EXCEEDED" }
 	| { type: "USERNAME_PASSWORD_FLOW.INPUT"; username: string; password: string }
@@ -175,35 +177,42 @@ export type AuthEvent =
 	| { type: "PIN_FLOW.USER_HAS_PIN_SET"; userHasPinSet: boolean }
 	| { type: "PIN_FLOW.CHANGE_CURRENT_PIN" }
 	| { type: "PIN_FLOW.SET_UP_PIN" }
-	| { type: "PIN_FLOW.VALIDATE_PIN" }
+	| { type: "PIN_FLOW.VALIDATE_CURRENT_PIN" }
 	| { type: "PIN_FLOW.SKIP_SETTING_PIN" }
 	| { type: "PIN_FLOW.SUBMIT_PIN"; pin: string }
-	| { type: "PIN_FLOW.SUBMIT_NEW_PIN"; newPin: string }
 	| { type: "PIN_FLOW.PIN_VALIDATED" }
 	| { type: "PIN_FLOW.NEW_PIN_SET" };
 
-export interface AuthServices {
-	[AuthServiceId.sessionCheckService]: StateMachine<never, SessionCheckSchema, AuthEvent>;
-	[AuthServiceId.otpUsernameInputService]: StateMachine<
+export interface AuthenticatorServices {
+	[AuthenticatorServiceId.sessionCheckService]: StateMachine<
+		never,
+		SessionCheckSchema,
+		AuthenticatorEvent
+	>;
+	[AuthenticatorServiceId.otpUsernameInputService]: StateMachine<
 		OTPUsernameInputContext,
 		OTPUsernameInputSchema,
-		AuthEvent
+		AuthenticatorEvent
 	>;
-	[AuthServiceId.otpInputService]: StateMachine<OTPInputContext, OTPInputSchema, AuthEvent>;
-	[AuthServiceId.usernamePasswordInputService]: StateMachine<
+	[AuthenticatorServiceId.otpInputService]: StateMachine<
+		OTPInputContext,
+		OTPInputSchema,
+		AuthenticatorEvent
+	>;
+	[AuthenticatorServiceId.usernamePasswordInputService]: StateMachine<
 		UsernamePasswordInputContext,
 		UsernamePasswordInputSchema,
-		AuthEvent
+		AuthenticatorEvent
 	>;
-	[AuthServiceId.signOutService]: StateMachine<never, SignOutSchema, AuthEvent>;
-	[AuthServiceId.pinInputService]: StateMachine<
+	[AuthenticatorServiceId.signOutService]: StateMachine<never, SignOutSchema, AuthenticatorEvent>;
+	[AuthenticatorServiceId.pinInputService]: StateMachine<
 		PinServiceContext,
 		PinServiceSchema,
-		AuthEvent
+		AuthenticatorEvent
 	> | null;
 }
 
-export interface AuthServiceFunctions {
+export interface AuthenticatorServiceFunctions {
 	checkSession: () => Promise<unknown>;
 	validateOtpUsername: (username: string) => Promise<User>;
 	validateOtp: (user: User, password: string) => Promise<User>;
@@ -214,14 +223,14 @@ export interface AuthServiceFunctions {
 export interface PinServiceFunctions {
 	[PinServiceId.hasPinSet]: () => Promise<boolean>;
 	[PinServiceId.validatePin]: (pin: string) => Promise<null>;
-	[PinServiceId.setPin]: (pin: string) => Promise<null>;
+	[PinServiceId.setNewPin]: (pin: string) => Promise<null>;
 	[PinServiceId.clearPin]: () => Promise<null>;
 }
 
-export interface AuthenticatorConstructorConfig {
+export interface AuthenticatorFactoryConfig {
 	useOtpAuth: boolean;
 	usePinSecurity: boolean;
 	allowedOtpRetries: number;
-	authServiceFunctions: AuthServiceFunctions;
+	authServiceFunctions: AuthenticatorServiceFunctions;
 	pinServiceFunctions?: PinServiceFunctions;
 }

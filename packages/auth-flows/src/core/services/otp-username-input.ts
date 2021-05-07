@@ -8,12 +8,17 @@ import {
 	StateMachine,
 } from "xstate";
 
-import type { AuthEvent, User, OTPUsernameInputContext, OTPUsernameInputSchema } from "../types";
+import type {
+	AuthenticatorEvent,
+	User,
+	OTPUsernameInputContext,
+	OTPUsernameInputSchema,
+} from "../types";
 
 const otpUsernameInputConfig: MachineConfig<
 	OTPUsernameInputContext,
 	OTPUsernameInputSchema,
-	AuthEvent
+	AuthenticatorEvent
 > = {
 	initial: "awaitingOtpUsername",
 	context: {
@@ -32,7 +37,7 @@ const otpUsernameInputConfig: MachineConfig<
 			},
 		},
 		validatingOtpUsername: {
-			entry: sendParent<OTPUsernameInputContext, AuthEvent>({
+			entry: sendParent<OTPUsernameInputContext, AuthenticatorEvent>({
 				type: "NETWORK_REQUEST.INITIALISED",
 			}),
 			invoke: {
@@ -53,7 +58,7 @@ const otpUsernameInputConfig: MachineConfig<
 			},
 		},
 		invalidOtpUsername: {
-			entry: sendParent({ type: "NETWORK_REQUEST.COMPLETE" } as AuthEvent),
+			entry: sendParent({ type: "NETWORK_REQUEST.COMPLETE" } as AuthenticatorEvent),
 			on: {
 				"OTP_FLOW.SUBMIT_USERNAME": {
 					actions: assign({ username: (_, e) => e.username }),
@@ -63,16 +68,16 @@ const otpUsernameInputConfig: MachineConfig<
 		},
 		validOtpUsername: {
 			entry: [
-				sendParent({ type: "NETWORK_REQUEST.COMPLETE" } as AuthEvent),
-				sendParent({ type: "OTP_FLOW.USERNAME_VALIDATED" } as AuthEvent),
 				sendParent((ctx) => ({ type: "GLOBAL_AUTH.NEW_USER_DATA", userData: ctx.userData })),
+				sendParent({ type: "NETWORK_REQUEST.COMPLETE" } as AuthenticatorEvent),
+				sendParent({ type: "OTP_FLOW.USERNAME_VALIDATED" } as AuthenticatorEvent),
 			],
 			type: "final",
 		},
 	},
 };
 
-const otpUsernameInputOptions: MachineOptions<OTPUsernameInputContext, AuthEvent> = {
+const otpUsernameInputOptions: MachineOptions<OTPUsernameInputContext, AuthenticatorEvent> = {
 	actions: {},
 	activities: {},
 	delays: {},
@@ -86,12 +91,12 @@ const otpUsernameInputOptions: MachineOptions<OTPUsernameInputContext, AuthEvent
 
 export function createOtpUsernameInputService(
 	validateUsernameFn: (username: string) => Promise<User>
-): StateMachine<OTPUsernameInputContext, OTPUsernameInputSchema, AuthEvent> {
+): StateMachine<OTPUsernameInputContext, OTPUsernameInputSchema, AuthenticatorEvent> {
 	const machine = createMachine(otpUsernameInputConfig, otpUsernameInputOptions);
 	return (machine as StateMachine<
 		OTPUsernameInputContext,
 		OTPUsernameInputSchema,
-		AuthEvent
+		AuthenticatorEvent
 	>).withConfig({
 		services: {
 			validateUsername: (ctx) => validateUsernameFn(ctx.username),

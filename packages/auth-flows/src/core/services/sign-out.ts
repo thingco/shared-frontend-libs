@@ -1,8 +1,8 @@
 import { createMachine, MachineConfig, MachineOptions, sendParent, StateMachine } from "xstate";
 
-import { AuthEvent, SignOutSchema } from "../types";
+import { AuthenticatorEvent, SignOutSchema } from "../types";
 
-const signOutServiceConfig: MachineConfig<never, SignOutSchema, AuthEvent> = {
+const signOutServiceConfig: MachineConfig<never, SignOutSchema, AuthenticatorEvent> = {
 	initial: "idle",
 	states: {
 		idle: {
@@ -11,7 +11,7 @@ const signOutServiceConfig: MachineConfig<never, SignOutSchema, AuthEvent> = {
 			},
 		},
 		signingOut: {
-			entry: sendParent({ type: "NETWORK_REQUEST.INITIALISED" } as AuthEvent),
+			entry: sendParent({ type: "NETWORK_REQUEST.INITIALISED" } as AuthenticatorEvent),
 			invoke: {
 				src: "signOut",
 				onDone: {
@@ -21,8 +21,8 @@ const signOutServiceConfig: MachineConfig<never, SignOutSchema, AuthEvent> = {
 		},
 		signedOut: {
 			entry: [
-				sendParent({ type: "NETWORK_REQUEST.COMPLETE" } as AuthEvent),
-				sendParent({ type: "SIGN_OUT.COMPLETE" } as AuthEvent),
+				sendParent({ type: "NETWORK_REQUEST.COMPLETE" } as AuthenticatorEvent),
+				sendParent({ type: "SIGN_OUT.COMPLETE" } as AuthenticatorEvent),
 			],
 			onDone: {
 				target: "idle",
@@ -31,7 +31,7 @@ const signOutServiceConfig: MachineConfig<never, SignOutSchema, AuthEvent> = {
 	},
 };
 
-const signOutServiceOptions: MachineOptions<never, AuthEvent> = {
+const signOutServiceOptions: MachineOptions<never, AuthenticatorEvent> = {
 	actions: {},
 	activities: {},
 	delays: {},
@@ -45,9 +45,9 @@ const signOutServiceOptions: MachineOptions<never, AuthEvent> = {
 
 export function createSignOutService(
 	signOutFunction: () => Promise<unknown>
-): StateMachine<never, SignOutSchema, AuthEvent> {
+): StateMachine<never, SignOutSchema, AuthenticatorEvent> {
 	const machine = createMachine(signOutServiceConfig, signOutServiceOptions);
-	return (machine as StateMachine<never, SignOutSchema, AuthEvent>).withConfig({
+	return (machine as StateMachine<never, SignOutSchema, AuthenticatorEvent>).withConfig({
 		services: {
 			signOut: () => signOutFunction(),
 		},

@@ -10,14 +10,18 @@ import {
 import { log } from "xstate/lib/actions";
 
 import { PinServiceId } from "../enums";
-import { AuthEvent, PinServiceContext, PinServiceFunctions, PinServiceSchema } from "../types";
+import {
+	AuthenticatorEvent,
+	PinServiceContext,
+	PinServiceFunctions,
+	PinServiceSchema,
+} from "../types";
 import { assertEventType } from "../utils";
 
-const pinServiceConfig: MachineConfig<PinServiceContext, PinServiceSchema, AuthEvent> = {
+const pinServiceConfig: MachineConfig<PinServiceContext, PinServiceSchema, AuthenticatorEvent> = {
 	initial: "checkingForExistingPin",
 	context: {
 		pin: "",
-		newPin: "",
 	},
 	states: {
 		checkingForExistingPin: {
@@ -51,27 +55,18 @@ const pinServiceConfig: MachineConfig<PinServiceContext, PinServiceSchema, AuthE
 					})),
 					target: "idle",
 				},
-				onError: {
-					actions: log(
-						(_, e) =>
-							`There has been an error when attempting to clear the existing PIN; returned message is ${JSON.stringify(
-								e.data
-							)}`
-					),
-					target: "idle",
-				},
 			},
 		},
 		idle: {
 			entry: PinServiceActionId.clearLocalPin,
 			on: {
 				"PIN_FLOW.CHANGE_CURRENT_PIN": {
-					target: "awaitingCurrentPin",
+					target: "awaitingCurrentPinForReset",
+				},
+				"PIN_FLOW.VALIDATE_CURRENT_PIN": {
+					target: "awaitingPin",
 				},
 				"PIN_FLOW.SET_UP_PIN": {
-					target: "awaitingNewPin",
-				},
-				"PIN_FLOW.VALIDATE_PIN": {
 					target: "awaitingNewPin",
 				},
 				"PIN_FLOW.TURN_OFF_PIN_SECURITY": {
@@ -88,13 +83,13 @@ const pinServiceConfig: MachineConfig<PinServiceContext, PinServiceSchema, AuthE
 			},
 		},
 		validatingPin: {
-			entry: sendParent({ type: "NETWORK_REQUEST.INITIALISED" } as AuthEvent),
+			entry: sendParent({ type: "NETWORK_REQUEST.INITIALISED" } as AuthenticatorEvent),
 			invoke: {
 				src: PinServiceId.validatePin,
 				onDone: {
 					actions: [
-						sendParent({ type: "NETWORK_REQUEST.COMPLETE" } as AuthEvent),
-						sendParent({ type: "PIN_FLOW.PIN_VALIDATED" } as AuthEvent),
+						sendParent({ type: "NETWORK_REQUEST.COMPLETE" } as AuthenticatorEvent),
+						sendParent({ type: "PIN_FLOW.PIN_VALIDATED" } as AuthenticatorEvent),
 					],
 					target: "idle",
 				},
@@ -103,24 +98,39 @@ const pinServiceConfig: MachineConfig<PinServiceContext, PinServiceSchema, AuthE
 				},
 			},
 		},
-		awaitingCurrentPin: {
+		awaitingCurrentPinForReset: {
 			on: {
 				"PIN_FLOW.SUBMIT_PIN": {
 					actions: PinServiceActionId.setLocalPin,
-					target: "validatingCurrentPin",
+					target: "validatingCurrentPinForReset",
 				},
 			},
 		},
-		validatingCurrentPin: {
-			entry: sendParent({ type: "NETWORK_REQUEST.INITIALISED" } as AuthEvent),
+		validatingCurrentPinForReset: {
+			entry: sendParent({ type: "NETWORK_REQUEST.INITIALISED" } as AuthenticatorEvent),
 			invoke: {
 				src: PinServiceId.validatePin,
 				onDone: {
-					actions: sendParent({ type: "NETWORK_REQUEST.COMPLETE" } as AuthEvent),
-					target: "awaitingNewPin",
+					actions: [sendParent({ type: "NETWORK_REQUEST.COMPLETE" } as AuthenticatorEvent)],
+					target: "clearingCurrentPinForReset",
 				},
 				onError: {
-					target: "awaitingCurrentPin",
+					target: "awaitingPin",
+				},
+			},
+		},
+		clearingCurrentPinForReset: {
+			invoke: {
+				src: PinServiceId.clearPin,
+				onDone: {
+					actions: [
+						sendParent<PinServiceContext, DoneInvokeEvent<boolean>>(() => ({
+							type: "PIN_FLOW.USER_HAS_PIN_SET",
+							userHasPinSet: false,
+						})),
+						sendParent({ type: "PIN_FLOW.PIN_VALIDATED" } as AuthenticatorEvent),
+					],
+					target: "idle",
 				},
 			},
 		},
@@ -133,12 +143,13 @@ const pinServiceConfig: MachineConfig<PinServiceContext, PinServiceSchema, AuthE
 			},
 		},
 		settingNewPin: {
+			entry: sendParent({ type: "NETWORK_REQUEST.INITIALISED" } as AuthenticatorEvent),
 			invoke: {
-				src: PinServiceId.setPin,
+				src: PinServiceId.setNewPin,
 				onDone: {
 					actions: [
-						sendParent({ type: "NETWORK_REQUEST.COMPLETE" } as AuthEvent),
-						sendParent({ type: "PIN_FLOW.NEW_PIN_SET" } as AuthEvent),
+						sendParent({ type: "NETWORK_REQUEST.COMPLETE" } as AuthenticatorEvent),
+						sendParent({ type: "PIN_FLOW.NEW_PIN_SET" } as AuthenticatorEvent),
 					],
 					target: "idle",
 				},
@@ -152,15 +163,17 @@ const enum PinServiceActionId {
 	clearLocalPin = "clearLocalPin",
 }
 
-const pinServiceOptions: MachineOptions<PinServiceContext, AuthEvent> = {
+const pinServiceOptions: MachineOptions<PinServiceContext, AuthenticatorEvent> = {
 	actions: {
-		[PinServiceActionId.setLocalPin]: assign<PinServiceContext, AuthEvent>({
-			pin: (ctx, e) => {
+		[PinServiceActionId.setLocalPin]: assign<PinServiceContext, AuthenticatorEvent>({
+			pin: (_, e) => {
 				assertEventType(e, "PIN_FLOW.SUBMIT_PIN");
 				return e.pin;
 			},
 		}),
-		[PinServiceActionId.clearLocalPin]: assign<PinServiceContext, AuthEvent>({ pin: () => "" }),
+		[PinServiceActionId.clearLocalPin]: assign<PinServiceContext, AuthenticatorEvent>({
+			pin: () => "",
+		}),
 	},
 	activities: {},
 	delays: {},
@@ -172,7 +185,7 @@ const pinServiceOptions: MachineOptions<PinServiceContext, AuthEvent> = {
 		[PinServiceId.validatePin]: () => {
 			throw new Error("No service set");
 		},
-		[PinServiceId.setPin]: () => {
+		[PinServiceId.setNewPin]: () => {
 			throw new Error("No service set");
 		},
 		[PinServiceId.clearPin]: () => {
@@ -183,9 +196,13 @@ const pinServiceOptions: MachineOptions<PinServiceContext, AuthEvent> = {
 
 export function createPinService(
 	pinServiceFunctions: PinServiceFunctions
-): StateMachine<PinServiceContext, PinServiceSchema, AuthEvent> {
+): StateMachine<PinServiceContext, PinServiceSchema, AuthenticatorEvent> {
 	const pinMachine = createMachine(pinServiceConfig, pinServiceOptions);
-	return (pinMachine as StateMachine<PinServiceContext, PinServiceSchema, AuthEvent>).withConfig({
+	return (pinMachine as StateMachine<
+		PinServiceContext,
+		PinServiceSchema,
+		AuthenticatorEvent
+	>).withConfig({
 		services: {
 			[PinServiceId.hasPinSet]: () => {
 				return pinServiceFunctions.hasPinSet();
@@ -193,8 +210,8 @@ export function createPinService(
 			[PinServiceId.validatePin]: (ctx) => {
 				return pinServiceFunctions.validatePin(ctx.pin);
 			},
-			[PinServiceId.setPin]: (ctx) => {
-				return pinServiceFunctions.setPin(ctx.pin);
+			[PinServiceId.setNewPin]: (ctx) => {
+				return pinServiceFunctions.setNewPin(ctx.pin);
 			},
 			[PinServiceId.clearPin]: () => {
 				return pinServiceFunctions.clearPin();

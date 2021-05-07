@@ -2,7 +2,12 @@ import { usePrefs, UserPrefsProvider } from "@thingco/user-preferences";
 import { createPrefStore } from "@thingco/user-preferences-store-web";
 import React from "react";
 
-const store = createPrefStore({ distanceUnitPref: "km", timeDisplayPref: "24" });
+const store = createPrefStore({
+	distanceUnitPref: "km",
+	timeDisplayPref: "24",
+	distanceUnitPrecisionPref: 0,
+	localePref: "en-GB",
+});
 
 const UserPrefs = () => {
 	const { prefs, setPref } = usePrefs();

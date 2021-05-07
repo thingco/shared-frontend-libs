@@ -8,16 +8,28 @@ import {
 	StateMachine,
 } from "xstate";
 
-import type { AuthEvent, User, OTPInputContext, OTPInputSchema } from "../types";
+import type { AuthenticatorEvent, User, OTPInputContext, OTPInputSchema } from "../types";
 
-const otpInputConfig: MachineConfig<OTPInputContext, OTPInputSchema, AuthEvent> = {
-	initial: "awaitingOtp",
+const otpInputConfig: MachineConfig<OTPInputContext, OTPInputSchema, AuthenticatorEvent> = {
+	initial: "init",
 	context: {
 		otp: "",
 		remainingOtpRetries: 0,
 		userData: null,
 	},
 	states: {
+		init: {
+			entry: sendParent({ type: "OTP_FLOW.REQUEST_OTP_STAGE_INIT_DATA" } as AuthenticatorEvent),
+			on: {
+				"OTP_FLOW.SEND_OTP_STAGE_INIT_DATA": {
+					actions: assign({
+						remainingOtpRetries: (_, e) => e.otpRetriesAllowed,
+						userData: (_, e) => e.userData,
+					}),
+					target: "awaitingOtp",
+				},
+			},
+		},
 		awaitingOtp: {
 			on: {
 				"OTP_FLOW.SUBMIT_OTP": {
@@ -29,7 +41,7 @@ const otpInputConfig: MachineConfig<OTPInputContext, OTPInputSchema, AuthEvent> 
 			},
 		},
 		validatingOtp: {
-			entry: sendParent({ type: "NETWORK_REQUEST.INITIALISED" } as AuthEvent),
+			entry: sendParent({ type: "NETWORK_REQUEST.INITIALISED" } as AuthenticatorEvent),
 			invoke: {
 				src: "validateOtp",
 				onDone: {
@@ -58,7 +70,7 @@ const otpInputConfig: MachineConfig<OTPInputContext, OTPInputSchema, AuthEvent> 
 			},
 		},
 		invalidOtp: {
-			entry: sendParent({ type: "NETWORK_REQUEST.COMPLETE" } as AuthEvent),
+			entry: sendParent({ type: "NETWORK_REQUEST.COMPLETE" } as AuthenticatorEvent),
 			on: {
 				"OTP_FLOW.SUBMIT_OTP": {
 					actions: assign({ otp: (_, e) => e.password }),
@@ -68,18 +80,19 @@ const otpInputConfig: MachineConfig<OTPInputContext, OTPInputSchema, AuthEvent> 
 		},
 		validOtp: {
 			entry: [
-				sendParent({ type: "NETWORK_REQUEST.COMPLETE" } as AuthEvent),
 				sendParent(
-					(ctx) => ({ type: "GLOBAL_AUTH.NEW_USER_DATA", userData: ctx.userData } as AuthEvent)
+					(ctx) =>
+						({ type: "GLOBAL_AUTH.NEW_USER_DATA", userData: ctx.userData } as AuthenticatorEvent)
 				),
-				sendParent({ type: "OTP_FLOW.OTP_VALIDATED" } as AuthEvent),
+				sendParent({ type: "NETWORK_REQUEST.COMPLETE" } as AuthenticatorEvent),
+				sendParent({ type: "OTP_FLOW.OTP_VALIDATED" } as AuthenticatorEvent),
 			],
 			type: "final",
 		},
 	},
 };
 
-const otpInputOptions: MachineOptions<OTPInputContext, AuthEvent> = {
+const otpInputOptions: MachineOptions<OTPInputContext, AuthenticatorEvent> = {
 	actions: {},
 	activities: {},
 	delays: {},
@@ -93,9 +106,9 @@ const otpInputOptions: MachineOptions<OTPInputContext, AuthEvent> = {
 
 export function createOtpInputService(
 	validateOtpFn: (user: User, username: string) => Promise<User>
-): StateMachine<OTPInputContext, OTPInputSchema, AuthEvent> {
+): StateMachine<OTPInputContext, OTPInputSchema, AuthenticatorEvent> {
 	const machine = createMachine(otpInputConfig, otpInputOptions);
-	return (machine as StateMachine<OTPInputContext, OTPInputSchema, AuthEvent>).withConfig({
+	return (machine as StateMachine<OTPInputContext, OTPInputSchema, AuthenticatorEvent>).withConfig({
 		services: {
 			validateOtp: (ctx) => {
 				if (ctx.userData === null) {

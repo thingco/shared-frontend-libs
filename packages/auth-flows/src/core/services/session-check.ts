@@ -7,23 +7,23 @@ import {
 	StateMachine,
 } from "xstate";
 
-import type { AuthEvent, SessionCheckSchema } from "../types";
+import type { AuthenticatorEvent, SessionCheckSchema } from "../types";
 
-const sessionCheckConfig: MachineConfig<never, SessionCheckSchema, AuthEvent> = {
+const sessionCheckConfig: MachineConfig<never, SessionCheckSchema, AuthenticatorEvent> = {
 	initial: "checkingSession",
 	states: {
 		checkingSession: {
-			entry: sendParent<never, AuthEvent>({ type: "NETWORK_REQUEST.INITIALISED" }),
+			entry: sendParent<never, AuthenticatorEvent>({ type: "NETWORK_REQUEST.INITIALISED" }),
 			invoke: {
 				src: "currentSession",
 				onDone: {
-					actions: sendParent<never, DoneInvokeEvent<unknown>, AuthEvent>({
+					actions: sendParent<never, DoneInvokeEvent<unknown>, AuthenticatorEvent>({
 						type: "GLOBAL_AUTH.ACTIVE_SESSION_PRESENT",
 					}),
 					target: "sessionCheckComplete",
 				},
 				onError: {
-					actions: sendParent<never, DoneInvokeEvent<unknown>, AuthEvent>({
+					actions: sendParent<never, DoneInvokeEvent<unknown>, AuthenticatorEvent>({
 						type: "GLOBAL_AUTH.NO_ACTIVE_SESSION_PRESENT",
 					}),
 					target: "sessionCheckComplete",
@@ -31,13 +31,13 @@ const sessionCheckConfig: MachineConfig<never, SessionCheckSchema, AuthEvent> = 
 			},
 		},
 		sessionCheckComplete: {
-			entry: sendParent<never, AuthEvent>({ type: "NETWORK_REQUEST.COMPLETE" }),
+			entry: sendParent<never, AuthenticatorEvent>({ type: "NETWORK_REQUEST.COMPLETE" }),
 			type: "final",
 		},
 	},
 };
 
-const sessionCheckOptions: MachineOptions<never, AuthEvent> = {
+const sessionCheckOptions: MachineOptions<never, AuthenticatorEvent> = {
 	actions: {},
 	activities: {},
 	delays: {},
@@ -51,9 +51,9 @@ const sessionCheckOptions: MachineOptions<never, AuthEvent> = {
 
 export function createSessionCheckService(
 	currentSessionFn: () => Promise<unknown>
-): StateMachine<never, SessionCheckSchema, AuthEvent> {
+): StateMachine<never, SessionCheckSchema, AuthenticatorEvent> {
 	const machine = createMachine(sessionCheckConfig, sessionCheckOptions);
-	return (machine as StateMachine<never, SessionCheckSchema, AuthEvent>).withConfig({
+	return (machine as StateMachine<never, SessionCheckSchema, AuthenticatorEvent>).withConfig({
 		services: {
 			currentSession: () => currentSessionFn(),
 		},

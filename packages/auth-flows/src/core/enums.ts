@@ -1,4 +1,4 @@
-export const enum AuthServiceId {
+export const enum AuthenticatorServiceId {
 	sessionCheckService = "sessionCheckService",
 	otpUsernameInputService = "otpUsernameInputService",
 	otpInputService = "otpInputService",
@@ -10,6 +10,6 @@ export const enum AuthServiceId {
 export const enum PinServiceId {
 	hasPinSet = "hasPinSet",
 	validatePin = "validatePin",
-	setPin = "setPin",
+	setNewPin = "setNewPin",
 	clearPin = "clearPin",
 }

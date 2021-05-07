@@ -9,7 +9,7 @@ import {
 } from "xstate";
 
 import type {
-	AuthEvent,
+	AuthenticatorEvent,
 	User,
 	UsernamePasswordInputContext,
 	UsernamePasswordInputSchema,
@@ -18,7 +18,7 @@ import type {
 const usernamePasswordInputConfig: MachineConfig<
 	UsernamePasswordInputContext,
 	UsernamePasswordInputSchema,
-	AuthEvent
+	AuthenticatorEvent
 > = {
 	id: "usernameInput",
 	initial: "awaitingUsernamePassword",
@@ -40,7 +40,7 @@ const usernamePasswordInputConfig: MachineConfig<
 			},
 		},
 		validatingUsernamePassword: {
-			entry: sendParent({ type: "NETWORK_REQUEST.INITIALISED" } as AuthEvent),
+			entry: sendParent({ type: "NETWORK_REQUEST.INITIALISED" } as AuthenticatorEvent),
 			invoke: {
 				src: "validateUsernamePassword",
 				onDone: {
@@ -61,7 +61,7 @@ const usernamePasswordInputConfig: MachineConfig<
 			},
 		},
 		invalidUsernamePassword: {
-			entry: sendParent<UsernamePasswordInputContext, AuthEvent>({
+			entry: sendParent<UsernamePasswordInputContext, AuthenticatorEvent>({
 				type: "NETWORK_REQUEST.COMPLETE",
 			}),
 			on: {
@@ -73,18 +73,22 @@ const usernamePasswordInputConfig: MachineConfig<
 		},
 		validUsernamePassword: {
 			entry: [
-				sendParent({ type: "NETWORK_REQUEST.COMPLETE" } as AuthEvent),
+				sendParent({ type: "NETWORK_REQUEST.COMPLETE" } as AuthenticatorEvent),
 				sendParent(
-					(ctx) => ({ type: "GLOBAL_AUTH.NEW_USER_DATA", userData: ctx.userData } as AuthEvent)
+					(ctx) =>
+						({ type: "GLOBAL_AUTH.NEW_USER_DATA", userData: ctx.userData } as AuthenticatorEvent)
 				),
-				sendParent({ type: "USERNAME_PASSWORD_FLOW.VALIDATED" } as AuthEvent),
+				sendParent({ type: "USERNAME_PASSWORD_FLOW.VALIDATED" } as AuthenticatorEvent),
 			],
 			type: "final",
 		},
 	},
 };
 
-const usernamePasswordInputOptions: MachineOptions<UsernamePasswordInputContext, AuthEvent> = {
+const usernamePasswordInputOptions: MachineOptions<
+	UsernamePasswordInputContext,
+	AuthenticatorEvent
+> = {
 	actions: {},
 	activities: {},
 	delays: {},
@@ -98,12 +102,12 @@ const usernamePasswordInputOptions: MachineOptions<UsernamePasswordInputContext,
 
 export function createUsernamePasswordInputService(
 	validateUsernamePasswordFn: (username: string, password: string) => Promise<User>
-): StateMachine<UsernamePasswordInputContext, UsernamePasswordInputSchema, AuthEvent> {
+): StateMachine<UsernamePasswordInputContext, UsernamePasswordInputSchema, AuthenticatorEvent> {
 	const machine = createMachine(usernamePasswordInputConfig, usernamePasswordInputOptions);
 	return (machine as StateMachine<
 		UsernamePasswordInputContext,
 		UsernamePasswordInputSchema,
-		AuthEvent
+		AuthenticatorEvent
 	>).withConfig({
 		services: {
 			validateUsernamePassword: (ctx) => validateUsernamePasswordFn(ctx.username, ctx.password),
