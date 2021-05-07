@@ -1,5 +1,5 @@
 import { Auth as AWSAuth } from "@aws-amplify/auth";
-import { CognitoOTPAuthProvider, useCognitoOTPAuth } from "@thingco/auth-flows";
+import { AuthProvider, useAuth } from "@thingco/auth-flows";
 import React from "react";
 
 /**
@@ -28,7 +28,7 @@ import React from "react";
  * tl/dr global variables are bad, singletons are not great, Amplify is a bit of a hack job.
  */
 const Auth = {
-	configure(awsConfig?: Record<string, any>) {
+	configure(awsConfig?: Record<string, unknown>) {
 		return AWSAuth.configure(awsConfig);
 	},
 
@@ -40,7 +40,11 @@ const Auth = {
 		return await AWSAuth.signIn(username);
 	},
 
-	async validateOtp(user: any, code: string) {
+	async validateUsernamePassword(username: string, password: string) {
+		return await AWSAuth.signIn(username, password);
+	},
+
+	async validateOtp(user: unknown, code: string) {
 		return await AWSAuth.sendCustomChallengeAnswer(user, code);
 	},
 
@@ -56,10 +60,57 @@ Auth.configure({
 	authenticationFlowType: "CUSTOM_AUTH",
 });
 
+const PINKEY = "@pintest";
+
+const PinInterface = {
+	async hasPinSet() {
+		console.log("@thingco/auth-flows: checking if user has a PIN set");
+		const storedPin = localStorage.getItem(PINKEY);
+		return await !!storedPin;
+	},
+	async validatePin(pin: string) {
+		console.log("@thingco/auth-flows: validating an existing PIN");
+		const storedPin = localStorage.getItem(PINKEY);
+		if (pin === storedPin) {
+			return await null;
+		} else {
+			throw new Error("entered pin does not match stored pin");
+		}
+	},
+	async setNewPin(pin: string) {
+		console.log("@thingco/auth-flows: setting a new PIN");
+		localStorage.setItem(PINKEY, pin);
+		return await null;
+	},
+	async clearPin() {
+		console.log("@thingco/auth-flows: clearing existing PIN");
+		localStorage.removeItem(PINKEY);
+		return await null;
+	},
+};
+
 const AuthTest = () => {
-	const { state, send, isLoading, isAuthorised } = useCognitoOTPAuth();
-	const [email, setEmail] = React.useState("");
-	const [otp, setOtp] = React.useState("");
+	const {
+		_machineState,
+		isAuthorised,
+		isLoading,
+		isUsingPinSecurity,
+		currentState,
+		userHasPinSet,
+		changeCurrentPin,
+		goBack,
+		skipSettingPin,
+		submitOtpUsername,
+		submitOtp,
+		submitPin,
+		signOut,
+		turnOffPinSecurity,
+		turnOnPinSecurity,
+	} = useAuth();
+	const [localEmail, setLocalEmail] = React.useState("");
+	const [localOtp, setLocalOtp] = React.useState("");
+	const [localPin, setLocalPin] = React.useState("");
+	const [localPinConfirmation, setLocalPinConfirmation] = React.useState("");
 
 	if (!isAuthorised) {
 		return (
@@ -67,18 +118,78 @@ const AuthTest = () => {
 				<h1>Login Stuff</h1>
 				<details>
 					<summary>State machine state:</summary>
-					<p>Current state: {state.value}</p>
-					<p>Current context: {JSON.stringify(state.context, null, 2)}</p>
+					<p>Current state: {currentState}</p>
+					<p>Machine state: {JSON.stringify(_machineState, null, 2)}</p>
 				</details>
-				<section>
-					<input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-					<button onClick={() => send({ type: "SUBMIT_USER_IDENTIFIER", payload: email })}>
+				<section style={{ opacity: _machineState.matches("otpUsernameInput") ? 1 : 0.25 }}>
+					<input
+						type="email"
+						value={localEmail}
+						onChange={(e) => setLocalEmail(e.target.value)}
+						disabled={!_machineState.matches("otpUsernameInput")}
+					/>
+					<button onClick={() => submitOtpUsername(localEmail)} disabled={isLoading}>
 						Submit email
 					</button>
 				</section>
-				<section>
-					<input type="otp" value={otp} onChange={(e) => setOtp(e.target.value)} />
-					<button onClick={() => send({ type: "SUBMIT_OTP", payload: otp })}>Submit otp</button>
+				<section style={{ opacity: _machineState.matches("otpInput") ? 1 : 0.25 }}>
+					<input
+						type="text"
+						value={localOtp}
+						onChange={(e) => setLocalOtp(e.target.value)}
+						disabled={!_machineState.matches("otpInput")}
+					/>
+					<button onClick={() => submitOtp(localOtp)} disabled={isLoading}>
+						Submit otp
+					</button>
+					<button onClick={goBack}>Go back</button>
+				</section>
+				<section style={{ opacity: _machineState.matches("pinInput") ? 1 : 0.25 }}>
+					<input
+						type="text"
+						value={localPin}
+						onChange={(e) => setLocalPin(e.target.value)}
+						disabled={!_machineState.matches("pinInput")}
+					/>
+					<button onClick={() => submitPin(localPin)} disabled={isLoading}>
+						Submit PIN
+					</button>
+					<button onClick={goBack}>Go back</button>
+				</section>
+				<section style={{ opacity: _machineState.matches("newPinInput") ? 1 : 0.25 }}>
+					<input
+						type="text"
+						value={localPin}
+						onChange={(e) => setLocalPin(e.target.value)}
+						disabled={!_machineState.matches("newPinInput")}
+					/>
+					<input
+						type="pin"
+						value={localPinConfirmation}
+						onChange={(e) => setLocalPinConfirmation(e.target.value)}
+						disabled={!_machineState.matches("newPinInput")}
+					/>
+					{localPin !== localPinConfirmation && <p>PIN confirmation doesn&#39;t match!</p>}
+					<button
+						onClick={() => submitPin(localPin)}
+						disabled={localPin !== localPinConfirmation || isLoading}
+					>
+						Set New PIN
+					</button>
+					<button onClick={skipSettingPin}>Skip setting PIN</button>
+					<button onClick={goBack}>Go back</button>
+				</section>
+				<section style={{ opacity: _machineState.matches("resetPinInput") ? 1 : 0.25 }}>
+					<input
+						type="text"
+						value={localPin}
+						onChange={(e) => setLocalPin(e.target.value)}
+						disabled={!_machineState.matches("resetPinInput")}
+					/>
+					<button onClick={() => submitPin(localPin)} disabled={isLoading}>
+						Submit Current PIN before setting new PIN
+					</button>
+					<button onClick={goBack}>Go back</button>
 				</section>
 			</section>
 		);
@@ -86,21 +197,45 @@ const AuthTest = () => {
 		return (
 			<section style={{ backgroundColor: "white", padding: "1rem" }}>
 				<h1>Logged in stuff!</h1>
-				<button onClick={() => send({ type: "REQUEST_LOG_OUT", payload: null })}>Log out</button>
+				<details>
+					<summary>State machine state:</summary>
+					<p>Current state: {currentState}</p>
+					<p>Machine state: {JSON.stringify(_machineState, null, 2)}</p>
+				</details>
+				<button onClick={signOut}>Log out</button>
+				<button onClick={isUsingPinSecurity ? turnOffPinSecurity : turnOnPinSecurity}>
+					Turn {isUsingPinSecurity ? "off" : "on"} PIN security
+				</button>
+				{isUsingPinSecurity && userHasPinSet && (
+					<button onClick={changeCurrentPin}>Change current PIN</button>
+				)}
+				{isUsingPinSecurity && !userHasPinSet && (
+					<button onClick={turnOnPinSecurity}>Set a PIN</button>
+				)}
 			</section>
 		);
 	}
 };
 
 export const AuthStuff = (): JSX.Element => (
-	<CognitoOTPAuthProvider
+	<AuthProvider
 		authServiceFunctions={{
 			checkSession: Auth.checkSession,
-			validateUserIdentifier: Auth.validateUserIdentifier,
+			validateOtpUsername: Auth.validateUserIdentifier,
 			validateOtp: Auth.validateOtp,
+			validateUsernamePassword: Auth.validateUsernamePassword,
 			signOut: Auth.signOut,
 		}}
+		pinServiceFunctions={{
+			hasPinSet: PinInterface.hasPinSet,
+			validatePin: PinInterface.validatePin,
+			setNewPin: PinInterface.setNewPin,
+			clearPin: PinInterface.clearPin,
+		}}
+		useOtpAuth={true}
+		usePinSecurity={true}
+		allowedOtpRetries={3}
 	>
 		<AuthTest />
-	</CognitoOTPAuthProvider>
+	</AuthProvider>
 );
