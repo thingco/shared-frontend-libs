@@ -34,6 +34,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 					reference: "workspace:packages/graphviz",
 				},
 				{
+					name: "@thingco/graphviz-web",
+					reference: "workspace:packages/graphviz-web",
+				},
+				{
 					name: "@thingco/react-component-library",
 					reference: "workspace:packages/react-component-library",
 				},
@@ -76,9 +80,11 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 					"@thingco/graphviz",
 					[
 						"virtual:eef7a203d4527cb0ea6497d57e431a822e04429c2e4b7eff294965c3401931c7d562fef206e673fdd2523a66137b25773e7b50fbffcfa26f8d7f582c02068c62#workspace:packages/graphviz",
+						"virtual:f1100bcf27222c0c626be0f50e4808cd4125c505cf100ea8e9bd04bb9af272b687750f0b172c7236b6952d1f01fe49c0e7709a989c302d0fc7ac78d26fdd9ccd#workspace:packages/graphviz",
 						"workspace:packages/graphviz",
 					],
 				],
+				["@thingco/graphviz-web", ["workspace:packages/graphviz-web"]],
 				[
 					"@thingco/react-component-library",
 					[
@@ -5930,11 +5936,9 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 										"@thingco/graphviz",
 										"virtual:eef7a203d4527cb0ea6497d57e431a822e04429c2e4b7eff294965c3401931c7d562fef206e673fdd2523a66137b25773e7b50fbffcfa26f8d7f582c02068c62#workspace:packages/graphviz",
 									],
-									["@types/react", "npm:17.0.4"],
 									["@types/rimraf", "npm:3.0.0"],
 									["@types/thingco__graphviz", null],
 									["jest", "npm:26.6.3"],
-									["react", "npm:17.0.2"],
 									["rimraf", "npm:3.0.2"],
 									[
 										"ts-jest",
@@ -5949,12 +5953,38 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 										"patch:typescript@npm%3A4.2.4#builtin<compat/typescript>::version=4.2.4&hash=a45b0e",
 									],
 								],
-								packagePeers: [
-									"@thingco/graphviz",
-									"@types/react",
-									"@types/thingco__graphviz",
-									"react",
+								packagePeers: ["@thingco/graphviz", "@types/thingco__graphviz"],
+								linkType: "SOFT",
+							},
+						],
+						[
+							"virtual:f1100bcf27222c0c626be0f50e4808cd4125c505cf100ea8e9bd04bb9af272b687750f0b172c7236b6952d1f01fe49c0e7709a989c302d0fc7ac78d26fdd9ccd#workspace:packages/graphviz",
+							{
+								packageLocation:
+									"./.yarn/$$virtual/@thingco-graphviz-virtual-1f645ae7bd/1/packages/graphviz/",
+								packageDependencies: [
+									[
+										"@thingco/graphviz",
+										"virtual:f1100bcf27222c0c626be0f50e4808cd4125c505cf100ea8e9bd04bb9af272b687750f0b172c7236b6952d1f01fe49c0e7709a989c302d0fc7ac78d26fdd9ccd#workspace:packages/graphviz",
+									],
+									["@types/rimraf", "npm:3.0.0"],
+									["@types/thingco__graphviz", null],
+									["jest", "npm:26.6.3"],
+									["rimraf", "npm:3.0.2"],
+									[
+										"ts-jest",
+										"virtual:f6086b21c17868b77424a3895eecc30d0232d9f99fd340121daebaefe9ee674524dda7da9a395f1d840ab44009e2b4a0307b92e1a2cbc70ec3cdddf78b859584#npm:26.5.5",
+									],
+									[
+										"typedoc",
+										"virtual:be93e41f18dd445d699e46c78ad75650527c4f5e5d5120d685234cbaa071b339a3116e6a967a8d04eb21d3e4167ea6e540c7b45dba9acd1881e6719a67664e80#npm:0.20.36",
+									],
+									[
+										"typescript",
+										"patch:typescript@npm%3A4.2.4#builtin<compat/typescript>::version=4.2.4&hash=a45b0e",
+									],
 								],
+								packagePeers: ["@thingco/graphviz", "@types/thingco__graphviz"],
 								linkType: "SOFT",
 							},
 						],
@@ -5964,6 +5994,40 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 								packageLocation: "./packages/graphviz/",
 								packageDependencies: [
 									["@thingco/graphviz", "workspace:packages/graphviz"],
+									["@types/rimraf", "npm:3.0.0"],
+									["jest", "npm:26.6.3"],
+									["rimraf", "npm:3.0.2"],
+									[
+										"ts-jest",
+										"virtual:f6086b21c17868b77424a3895eecc30d0232d9f99fd340121daebaefe9ee674524dda7da9a395f1d840ab44009e2b4a0307b92e1a2cbc70ec3cdddf78b859584#npm:26.5.5",
+									],
+									[
+										"typedoc",
+										"virtual:be93e41f18dd445d699e46c78ad75650527c4f5e5d5120d685234cbaa071b339a3116e6a967a8d04eb21d3e4167ea6e540c7b45dba9acd1881e6719a67664e80#npm:0.20.36",
+									],
+									[
+										"typescript",
+										"patch:typescript@npm%3A4.2.4#builtin<compat/typescript>::version=4.2.4&hash=a45b0e",
+									],
+								],
+								linkType: "SOFT",
+							},
+						],
+					],
+				],
+				[
+					"@thingco/graphviz-web",
+					[
+						[
+							"workspace:packages/graphviz-web",
+							{
+								packageLocation: "./packages/graphviz-web/",
+								packageDependencies: [
+									["@thingco/graphviz-web", "workspace:packages/graphviz-web"],
+									[
+										"@thingco/graphviz",
+										"virtual:f1100bcf27222c0c626be0f50e4808cd4125c505cf100ea8e9bd04bb9af272b687750f0b172c7236b6952d1f01fe49c0e7709a989c302d0fc7ac78d26fdd9ccd#workspace:packages/graphviz",
+									],
 									["@types/react", "npm:17.0.4"],
 									["@types/rimraf", "npm:3.0.0"],
 									["jest", "npm:26.6.3"],

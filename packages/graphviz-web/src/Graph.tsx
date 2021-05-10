@@ -1,6 +1,6 @@
+import { createGraph, GraphConstructor } from "@thingco/graphviz";
 import React from "react";
 
-import { createGraph, GraphConstructor } from "../core";
 import { XAxisAnnotations, YAxisAnnotations } from "./Annotations";
 import { XAxis, YAxis } from "./Axes";
 import { Canvas } from "./Canvas";

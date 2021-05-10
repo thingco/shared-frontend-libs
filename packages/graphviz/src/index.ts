@@ -1,2 +1,2 @@
-export * from "./core";
-export * from "./react/Graph";
+export * from "./create-graph";
+export * from "./projections/svg";

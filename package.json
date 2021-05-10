@@ -18,6 +18,7 @@
 		"packages:test-all": "yarn workspaces foreach --exclude @thingco/shared-frontend-libs-playground run test",
 		"package:auth-flows": "yarn workspace @thingco/auth-flows",
 		"package:graphviz": "yarn workspace @thingco/graphviz",
+		"package:graphviz-web": "yarn workspace @thingco/graphviz-web",
 		"package:react-component-library": "yarn workspace @thingco/react-component-library",
 		"package:shared-types": "yarn workspace @thingco/shared-types",
 		"package:unit-formatter": "yarn workspace @thingco/unit-formatter",

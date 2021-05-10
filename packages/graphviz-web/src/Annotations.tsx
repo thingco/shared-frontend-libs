@@ -1,12 +1,12 @@
-import React from "react";
-
 import {
 	steppedXAxisValues,
 	steppedYAxisValues,
 	VerticalAlignment,
 	xAxisAnnotations,
 	yAxisAnnotations,
-} from "../core";
+} from "@thingco/graphviz";
+import React from "react";
+
 import { useGraph } from "./Context";
 
 export interface AxisAnnotationsProps {
