@@ -19,6 +19,7 @@
 		"docs": "yarn rimraf docs && yarn typedoc"
 	},
 	"devDependencies": {
+		"@react-native-community/slider": "^3.0.3",
 		"@thingco/graphviz": "workspace:*",
 		"@types/react": "^17.0.4",
 		"@types/react-native": "^0.64.4",
@@ -33,6 +34,7 @@
 		"typescript": "^4.2.3"
 	},
 	"peerDependencies": {
+		"@react-native-community/slider": "*",
 		"@thingco/graphviz": "*",
 		"react": "*",
 		"react-native": "*",

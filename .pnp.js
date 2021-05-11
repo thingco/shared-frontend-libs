@@ -5093,6 +5093,42 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 					],
 				],
 				[
+					"@react-native-community/slider",
+					[
+						[
+							"npm:3.0.3",
+							{
+								packageLocation:
+									"./.yarn/unplugged/@react-native-community-slider-virtual-9d5f22e15c/node_modules/@react-native-community/slider/",
+								packageDependencies: [["@react-native-community/slider", "npm:3.0.3"]],
+								linkType: "SOFT",
+							},
+						],
+						[
+							"virtual:812bcfa04989cbda9c2e9feb410a48e57e20bd3f570d743eb71e06c1dcbcb22741a153f15a089a7c7ced37343d562566bc3bbc0922e25b04b439dcb573676a88#npm:3.0.3",
+							{
+								packageLocation:
+									"./.yarn/unplugged/@react-native-community-slider-virtual-9d5f22e15c/node_modules/@react-native-community/slider/",
+								packageDependencies: [
+									[
+										"@react-native-community/slider",
+										"virtual:812bcfa04989cbda9c2e9feb410a48e57e20bd3f570d743eb71e06c1dcbcb22741a153f15a089a7c7ced37343d562566bc3bbc0922e25b04b439dcb573676a88#npm:3.0.3",
+									],
+									["@types/react", "npm:17.0.4"],
+									["@types/react-native", "npm:0.64.4"],
+									["react", "npm:17.0.2"],
+									[
+										"react-native",
+										"virtual:812bcfa04989cbda9c2e9feb410a48e57e20bd3f570d743eb71e06c1dcbcb22741a153f15a089a7c7ced37343d562566bc3bbc0922e25b04b439dcb573676a88#npm:0.64.0",
+									],
+								],
+								packagePeers: ["@types/react-native", "@types/react", "react-native", "react"],
+								linkType: "HARD",
+							},
+						],
+					],
+				],
+				[
 					"@react-native/assets",
 					[
 						[
@@ -6061,6 +6097,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 								packageLocation: "./packages/graphviz-native/",
 								packageDependencies: [
 									["@thingco/graphviz-native", "workspace:packages/graphviz-native"],
+									[
+										"@react-native-community/slider",
+										"virtual:812bcfa04989cbda9c2e9feb410a48e57e20bd3f570d743eb71e06c1dcbcb22741a153f15a089a7c7ced37343d562566bc3bbc0922e25b04b439dcb573676a88#npm:3.0.3",
+									],
 									[
 										"@thingco/graphviz",
 										"virtual:812bcfa04989cbda9c2e9feb410a48e57e20bd3f570d743eb71e06c1dcbcb22741a153f15a089a7c7ced37343d562566bc3bbc0922e25b04b439dcb573676a88#workspace:packages/graphviz",

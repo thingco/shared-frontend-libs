@@ -2314,6 +2314,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@react-native-community/slider@npm:^3.0.3":
+  version: 3.0.3
+  resolution: "@react-native-community/slider@npm:3.0.3"
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+  checksum: 89a1c72c18febe26ae3ff2daa848d676fd1c889f68ca9bfa189031fae2de0f5171a772794578e8f6c9be9a9dc3644e7906ae10f82f41ac0ab7df117ad7078a8e
+  languageName: node
+  linkType: hard
+
 "@react-native/assets@npm:1.0.0":
   version: 1.0.0
   resolution: "@react-native/assets@npm:1.0.0"
@@ -2676,6 +2686,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@thingco/graphviz-native@workspace:packages/graphviz-native"
   dependencies:
+    "@react-native-community/slider": ^3.0.3
     "@thingco/graphviz": "workspace:*"
     "@types/react": ^17.0.4
     "@types/react-native": ^0.64.4
@@ -2689,6 +2700,7 @@ __metadata:
     typedoc: ^0.20.36
     typescript: ^4.2.3
   peerDependencies:
+    "@react-native-community/slider": "*"
     "@thingco/graphviz": "*"
     react: "*"
     react-native: "*"

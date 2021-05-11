@@ -7,15 +7,23 @@ import {
 	verticalLineBarPoints,
 } from "@thingco/graphviz";
 import React from "react";
+import { Circle, G, Line, Linecap, Polygon, Polyline } from "react-native-svg";
 
 import { useGraph } from "./Context";
 
 export interface DataProps {
-	style?: React.CSSProperties;
+	style?: DataLineStyle;
 	coordinateOverride?: number[];
 }
 
-const defaultDataLineStyle: React.CSSProperties = {
+interface DataLineStyle {
+	fill?: string;
+	stroke?: string;
+	strokeLinecap?: Linecap;
+	strokeWidth?: number;
+}
+
+const defaultDataLineStyle: DataLineStyle = {
 	fill: "none",
 	stroke: "black",
 	strokeLinecap: "round",
@@ -26,30 +34,36 @@ export const DataLine = ({ style = {} }: DataProps): JSX.Element => {
 	style = { ...defaultDataLineStyle, ...style };
 	const graph = useGraph();
 
-	return <polyline style={style} points={linePoints(graph)} />;
+	return <Polyline points={linePoints(graph)} {...style} />;
 };
 
 export const VerticalLineBars = ({ style = {} }: DataProps): JSX.Element => {
 	style = { ...defaultDataLineStyle, ...style };
 	const graph = useGraph();
 	const lines = verticalLineBarPoints(graph).map(({ x1, x2, y1, y2 }, i) => (
-		<line key={`${x1}${x2}${y1}${y2}${i}`} x1={x1} x2={x2} y1={y1} y2={y2} />
+		<Line key={`${x1}${x2}${y1}${y2}${i}`} x1={x1} x2={x2} y1={y1} y2={y2} />
 	));
 
-	return <g style={style}>{lines}</g>;
+	return <G {...style}>{lines}</G>;
 };
 
 export const HorizontalLineBars = ({ style = {} }: DataProps): JSX.Element => {
 	style = { ...defaultDataLineStyle, ...style };
 	const graph = useGraph();
 	const lines = horizontalLineBarPoints(graph).map(({ x1, x2, y1, y2 }, i) => (
-		<line key={`${x1}${x2}${y1}${y2}${i}`} x1={x1} x2={x2} y1={y1} y2={y2} />
+		<Line key={`${x1}${x2}${y1}${y2}${i}`} x1={x1} x2={x2} y1={y1} y2={y2} />
 	));
 
-	return <g style={style}>{lines}</g>;
+	return <G {...style}>{lines}</G>;
 };
 
-const defaultDataDotsStyle: React.CSSProperties = {
+interface DataDotsStyle {
+	fill?: string;
+	stroke?: string;
+	strokeWidth?: number;
+}
+
+const defaultDataDotsStyle: DataDotsStyle = {
 	fill: "black",
 	stroke: "white",
 	strokeWidth: 1,
@@ -59,12 +73,18 @@ export const DataDots = ({ style = {}, r = 2 }: DataProps & { r?: number }): JSX
 	style = { ...defaultDataDotsStyle, ...style };
 	const graph = useGraph();
 	const dots = dotPoints(graph).map(({ x, y }, i) => (
-		<circle key={`${x}${y}${i}`} cx={x} cy={y} r={r} />
+		<Circle key={`${x}${y}${i}`} cx={x} cy={y} r={r} />
 	));
-	return <g style={style}>{dots}</g>;
+	return <G {...style}>{dots}</G>;
 };
 
-const defaultAreaStyle: React.CSSProperties = {
+interface DataAreaStyle {
+	stroke?: string;
+	fill?: string;
+	opacity?: number;
+}
+
+const defaultAreaStyle: DataAreaStyle = {
 	stroke: "none",
 	fill: "grey",
 	opacity: 0.2,
@@ -83,7 +103,7 @@ export const AreaFillXAxis = ({ style = {}, coordinateOverride }: DataProps): JS
 		graph.xAxisMax
 	)},${py(graph, 0)}`;
 
-	return <polygon style={style} points={points} />;
+	return <Polygon points={points} {...style} />;
 };
 
 export const AreaFillYAxis = ({ style = {}, coordinateOverride }: DataProps): JSX.Element => {
@@ -99,5 +119,5 @@ export const AreaFillYAxis = ({ style = {}, coordinateOverride }: DataProps): JS
 		graph.yAxisMax
 	)}`;
 
-	return <polygon style={style} points={points} />;
+	return <Polygon points={points} {...style} />;
 };

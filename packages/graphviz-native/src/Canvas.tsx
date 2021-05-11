@@ -1,4 +1,5 @@
 import React from "react";
+import { Svg } from "react-native-svg";
 
 import { useGraph } from "./Context";
 
@@ -8,14 +9,12 @@ export interface CanvasProps {
 	children: React.ReactNode;
 	padding?: GraphPadding;
 	preserveAspectRatio?: string;
-	style?: React.CSSProperties;
 }
 
 export const Canvas = ({
 	children,
 	padding = 10,
 	preserveAspectRatio = "xMidYMid",
-	style = {},
 }: CanvasProps): JSX.Element => {
 	const graph = useGraph();
 
@@ -27,12 +26,11 @@ export const Canvas = ({
 		graph.yAxisSize + (typeof padding === "number" ? padding * 2 : padding.top + padding.bottom);
 
 	return (
-		<svg
-			style={style}
+		<Svg
 			viewBox={`${viewBoxMinX} ${viewBoxMinY} ${viewBoxWidth} ${viewBoxHeight}`}
 			preserveAspectRatio={preserveAspectRatio}
 		>
 			{children}
-		</svg>
+		</Svg>
 	);
 };

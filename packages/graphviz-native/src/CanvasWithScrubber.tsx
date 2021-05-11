@@ -1,4 +1,6 @@
 import React from "react";
+import { LayoutChangeEvent, View } from "react-native";
+import { Svg } from "react-native-svg";
 
 import { useGraph } from "./Context";
 
@@ -11,7 +13,6 @@ export interface CanvasWithScrubberProps {
 	height: number | string;
 	padding?: GraphPadding;
 	preserveAspectRatio?: string;
-	style?: React.CSSProperties;
 }
 
 export const CanvasWithScrubber = ({
@@ -26,30 +27,37 @@ export const CanvasWithScrubber = ({
 			? [padding, padding, padding, padding]
 			: [padding.top, padding.right, padding.bottom, padding.left];
 
-	const scrubViewportRef = React.useRef<HTMLDivElement>(null);
+	const [canvasWidth, setCanvasWidth] = React.useState<number | undefined>();
 	const [graphWidth, setGraphWidth] = React.useState(xAxisSize + lPad + rPad);
 	const [slideAmount, setSlideAmount] = React.useState(0);
 
+	const onLayoutHandler = (e: LayoutChangeEvent) => {
+		if (canvasWidth) return;
+		setCanvasWidth(e.nativeEvent.layout.width);
+	};
+
 	React.useLayoutEffect(() => {
-		const scrubViewportWidth = (scrubViewportRef.current as HTMLDivElement).clientWidth;
 		setGraphWidth(xAxisSize + lPad + rPad);
 
-		// Only run scrubbing behaviour if the graph is wider than the viewport:
-		if (graphWidth > scrubViewportWidth) {
-			const centrePoint = Math.floor(scrubViewportWidth / 2);
-			const scrubPos = currentDataPointIndex * xAxisScale;
+		// Only run calculations if we have a width available
+		if (canvasWidth) {
+			// Only run sliding behaviour if the graph is wider than the viewport:
+			if (graphWidth > canvasWidth) {
+				const centrePoint = Math.floor(canvasWidth / 2);
+				const scrubPos = currentDataPointIndex * xAxisScale;
 
-			if (scrubPos + lPad < centrePoint) {
-				setSlideAmount(0);
-			} else if (scrubPos > xAxisSize - centrePoint) {
-				// do nothing
+				if (scrubPos + lPad < centrePoint) {
+					setSlideAmount(0);
+				} else if (scrubPos > xAxisSize - centrePoint) {
+					// do nothing
+				} else {
+					setSlideAmount(centrePoint - (scrubPos + rPad));
+				}
 			} else {
-				setSlideAmount(centrePoint - (scrubPos + rPad));
+				setGraphWidth(canvasWidth);
 			}
-		} else {
-			setGraphWidth(scrubViewportWidth);
 		}
-	}, [scrubViewportRef.current, xAxisSize, xAxisScale, currentDataPointIndex]);
+	}, [canvasWidth, xAxisSize, xAxisScale, currentDataPointIndex]);
 
 	const viewBoxMinX = 0 - lPad;
 	const viewBoxMinY = 0 - tPad;
@@ -57,23 +65,19 @@ export const CanvasWithScrubber = ({
 	const viewBoxHeight = yAxisSize + tPad + bPad;
 
 	return (
-		<figure
-			ref={scrubViewportRef}
-			style={{ overflowX: "hidden" }}
-			data-componentid="scrubber-viewport"
-		>
-			<svg
-				style={{
-					transform: `translateX(${slideAmount}px)`,
-					height,
-					width: graphWidth,
-				}}
-				viewBox={`${viewBoxMinX} ${viewBoxMinY} ${viewBoxWidth} ${viewBoxHeight}`}
-				preserveAspectRatio="none"
-				data-componentid="svg-canvas-scrubbable"
-			>
-				{children}
-			</svg>
-		</figure>
+		<View onLayout={onLayoutHandler} data-componentid="scrubber-viewport">
+			{canvasWidth && (
+				<Svg
+					transform={`translateX(${slideAmount}px)`}
+					height={height}
+					width={graphWidth}
+					viewBox={`${viewBoxMinX} ${viewBoxMinY} ${viewBoxWidth} ${viewBoxHeight}`}
+					preserveAspectRatio="none"
+					data-componentid="svg-canvas-scrubbable"
+				>
+					{children}
+				</Svg>
+			)}
+		</View>
 	);
 };

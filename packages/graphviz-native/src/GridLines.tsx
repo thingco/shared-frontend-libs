@@ -1,56 +1,63 @@
 import { horizontalGridLines, verticalGridlines } from "@thingco/graphviz";
 import React from "react";
+import { G, Line } from "react-native-svg";
 
 import { useGraph } from "./Context";
 
 export interface GridLinesProps {
-	style?: React.CSSProperties;
+	stroke?: string;
+	vectorEffect?: "none" | "non-scaling-stroke" | "nonScalingStroke" | "default" | "inherit" | "uri";
+	opacity?: number | string;
 }
 
-const defaultGridLinesStyle: React.CSSProperties = {
-	stroke: "grey",
-	vectorEffect: "non-scaling-stroke",
-	opacity: "0.5",
-};
-
-export const XAxisGridLines = ({ style = {} }: GridLinesProps): JSX.Element => {
-	style = { ...defaultGridLinesStyle, ...style };
+export const XAxisGridLines = ({
+	stroke = "grey",
+	vectorEffect = "non-scaling-stroke",
+	opacity = 0.5,
+}: GridLinesProps): JSX.Element => {
 	const graph = useGraph();
 
 	return (
-		<g data-componentid="x-axis-gridlines">
+		<G data-componentid="x-axis-gridlines">
 			{verticalGridlines(graph).map(({ x1, x2, y1, y2 }, i) => (
-				<line
+				<Line
 					key={`${x1}${x2}${y1}${y2}${i}`}
 					x1={x1}
 					x2={x2}
 					y1={y1}
 					y2={y2}
-					style={style}
 					data-componentid={`x-axis-gridline-${x1}${x2}${y1}${y2}${i}`}
+					stroke={stroke}
+					vectorEffect={vectorEffect}
+					opacity={opacity}
 				/>
 			))}
-		</g>
+		</G>
 	);
 };
 
-export const YAxisGridLines = ({ style = {} }: GridLinesProps): JSX.Element => {
-	style = { ...defaultGridLinesStyle, ...style };
+export const YAxisGridLines = ({
+	stroke = "grey",
+	vectorEffect = "non-scaling-stroke",
+	opacity = 0.5,
+}: GridLinesProps): JSX.Element => {
 	const graph = useGraph();
 
 	return (
-		<g data-componentid="y-axis-gridlines">
+		<G data-componentid="y-axis-gridlines">
 			{horizontalGridLines(graph).map(({ x1, x2, y1, y2 }, i) => (
-				<line
+				<Line
 					key={`${x1}${x2}${y1}${y2}${i}`}
 					x1={x1}
 					x2={x2}
 					y1={y1}
 					y2={y2}
-					style={style}
 					data-componentid={`y-axis-gridline-${x1}${x2}${y1}${y2}${i}`}
+					stroke={stroke}
+					vectorEffect={vectorEffect}
+					opacity={opacity}
 				/>
 			))}
-		</g>
+		</G>
 	);
 };

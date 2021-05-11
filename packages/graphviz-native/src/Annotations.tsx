@@ -6,6 +6,7 @@ import {
 	yAxisAnnotations,
 } from "@thingco/graphviz";
 import React from "react";
+import { G, Text } from "react-native-svg";
 
 import { useGraph } from "./Context";
 
@@ -13,10 +14,18 @@ export interface AxisAnnotationsProps {
 	style?: React.CSSProperties;
 	offsetY?: number;
 	offsetX?: number;
-	annotations?: (string | number)[];
+	annotations: (string | number)[];
+	annotationStyle?: AxisAnnotationTextStyle;
 }
 
-const defaultAnnotationStyle: React.CSSProperties = {
+export interface AxisAnnotationTextStyle {
+	fontSize?: number;
+	fontFamily?: string;
+	fontWeight?: string;
+	textAnchor?: string;
+}
+
+const defaultAnnotationStyle: AxisAnnotationTextStyle = {
 	fontSize: 3,
 	fontFamily: "sans-serif",
 	fontWeight: "bold",
@@ -24,57 +33,57 @@ const defaultAnnotationStyle: React.CSSProperties = {
 };
 
 export const XAxisAnnotations = ({
-	style = {},
+	annotationStyle = {},
 	annotations,
 	offsetY = 4,
 	position = "bottom",
 }: AxisAnnotationsProps & { position?: VerticalAlignment }): JSX.Element => {
-	style = { ...defaultAnnotationStyle, ...style };
+	annotationStyle = { ...defaultAnnotationStyle, ...annotationStyle };
 	const graph = useGraph();
 
 	annotations = annotations ?? steppedXAxisValues(graph);
 
 	return (
-		<g style={style} data-componentid="x-axis-annotations">
+		<G data-componentid="x-axis-annotations" {...annotationStyle}>
 			{xAxisAnnotations(graph, position).map(({ x, y }, i) => (
-				<text
+				<Text
 					key={`${x}${y}${i}`}
 					x={x}
 					y={y - offsetY}
 					data-componentid={`x-axis-annotation-${x}${y}${i}`}
 				>
 					{annotations && annotations[i]}
-				</text>
+				</Text>
 			))}
-		</g>
+		</G>
 	);
 };
 
 export const YAxisAnnotations = ({
-	style = {},
 	offsetX = 2,
 	offsetY = 0,
 	annotations,
+	annotationStyle = {},
 }: AxisAnnotationsProps): JSX.Element => {
-	style = { ...defaultAnnotationStyle, ...style };
+	annotationStyle = { ...defaultAnnotationStyle, ...annotationStyle };
 	const graph = useGraph();
 
 	annotations = annotations ?? steppedYAxisValues(graph);
 
 	return (
-		<g data-componentid="y-axis-annotations">
+		<G data-componentid="y-axis-annotations" {...annotationStyle}>
 			{yAxisAnnotations(graph).map(({ x, y }, i) => (
-				<text
+				<Text
 					key={`${x}${y}${i}`}
 					x={x + offsetX}
 					y={y}
 					dy={offsetY}
-					style={{ ...style, textAnchor: "end" }}
+					textAnchor="end"
 					data-componentid={`y-axis-annotation-${x}${y}${i}`}
 				>
 					{annotations && annotations[i]}
-				</text>
+				</Text>
 			))}
-		</g>
+		</G>
 	);
 };
