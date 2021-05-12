@@ -18,9 +18,9 @@ export const App = (): JSX.Element => (
 				gap: "1rem",
 			}}
 		>
-			<GraphStuff />
-			<UserPrefStuff />
 			<AuthStuff />
+			<UserPrefStuff />
+			<GraphStuff />
 		</div>
 	</ThemeProvider>
 );

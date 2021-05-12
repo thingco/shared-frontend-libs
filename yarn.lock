@@ -2708,7 +2708,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@thingco/graphviz-web@workspace:packages/graphviz-web":
+"@thingco/graphviz-web@workspace:*, @thingco/graphviz-web@workspace:packages/graphviz-web":
   version: 0.0.0-use.local
   resolution: "@thingco/graphviz-web@workspace:packages/graphviz-web"
   dependencies:
@@ -2778,6 +2778,7 @@ __metadata:
     "@aws-amplify/core": ^3.8.22
     "@thingco/auth-flows": "workspace:*"
     "@thingco/graphviz": "workspace:*"
+    "@thingco/graphviz-web": "workspace:*"
     "@thingco/react-component-library": "workspace:*"
     "@thingco/unit-formatter": "workspace:*"
     "@thingco/user-preferences": "workspace:*"

@@ -1,4 +1,5 @@
-import { Graph, useGraph, verticalLineBarPoints } from "@thingco/graphviz";
+import { dotPoints, verticalLineBarPoints } from "@thingco/graphviz";
+import { Graph, useGraph } from "@thingco/graphviz-web";
 import React from "react";
 
 // prettier-ignore
@@ -104,10 +105,62 @@ export const Speedgraph = (): JSX.Element => {
 	);
 };
 
-export const GraphStuff = () => (
+const ScoreProgressDots = ({
+	r,
+	style = {},
+}: {
+	r: number;
+	style?: React.CSSProperties;
+}): JSX.Element => {
+	const graph = useGraph();
+	const [selectedIdx, setSelectedIdx] = React.useState<number | null>(null);
+
+	const dots = dotPoints(graph).map(({ x, y }, i) => (
+		<circle
+			key={i}
+			cx={x}
+			cy={y}
+			r={r}
+			style={{
+				pointerEvents: "all",
+				strokeWidth: Math.floor(r / 2),
+				stroke: selectedIdx === i ? "black" : "none",
+				fill: selectedIdx === i ? "white" : "black",
+			}}
+			onClick={() => {
+				setSelectedIdx(selectedIdx === i ? null : i);
+			}}
+		/>
+	));
+	return <g style={style}>{dots}</g>;
+};
+
+const ScoreProgress = (): JSX.Element => (
+	<Graph
+		yAxisValues={[72, 97, 97, 77, 86]}
+		yAxisMax={100}
+		yAxisSize={300}
+		yAxisStep={10}
+		xAxisSize={200}
+	>
+		<Graph.Canvas style={{ pointerEvents: "none" }}>
+			<Graph.YAxisGridLines style={{ opacity: 0.75 }} />
+			<Graph.YAxisAnnotations />
+			<Graph.XAxisAnnotations />
+			<Graph.DataLine style={{ strokeWidth: 2 }} />
+			<ScoreProgressDots r={6} />
+		</Graph.Canvas>
+	</Graph>
+);
+
+export const GraphStuff = (): JSX.Element => (
 	<section style={{ backgroundColor: "white", padding: "1rem" }}>
+		<h1>Graph stuff!</h1>
 		<CoordinateIndexProvider>
 			<Speedgraph />
 		</CoordinateIndexProvider>
+		<figure style={{ width: 200, height: 400 }}>
+			<ScoreProgress />
+		</figure>
 	</section>
 );
