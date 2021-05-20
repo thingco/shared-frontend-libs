@@ -162,10 +162,9 @@ export function createGraph({
  * 10
  * ```
  *
- * @param {number} axisSize - the required size in pixels
- * @param {number} axisMin - the value the axis starts from
- * @param {number} axisMax - the value the axis ends on
- * @returns {number}
+ * @param axisSize - the required size in pixels
+ * @param axisMin - the value the axis starts from
+ * @param axisMax - the value the axis ends on
  */
 export function calculateScale(axisSize: number, axisMin: number, axisMax: number): number {
 	return axisSize / (axisMax - axisMin);
@@ -188,10 +187,9 @@ export function calculateScale(axisSize: number, axisMin: number, axisMax: numbe
  * 100
  * ```
  *
- * @param {number} axisScale - the scaling factor for the axis
- * @param {number} axisMin - the value the axis starts from
- * @param {number} axisMax - the value the axis ends on
- * @returns {number}
+ * @param axisScale - the scaling factor for the axis
+ * @param axisMin - the value the axis starts from
+ * @param axisMax - the value the axis ends on
  */
 export function calculateSize(axisScale: number, axisMin: number, axisMax: number): number {
 	return (axisMax - axisMin) * axisScale;
@@ -200,11 +198,10 @@ export function calculateSize(axisScale: number, axisMin: number, axisMax: numbe
 /**
  * Generate an array of x axis coordinates for stepped points along that axis. Used to place annotations.
  *
- * @param {GraphData} graphData
- * @param {number} graphData.xAxisMin
- * @param {number} graphData.xAxisMax
- * @param {number} graphData.xAxisStep
- * @returns {number[]}
+ * @param graphData
+ * @param graphData.xAxisMin
+ * @param graphData.xAxisMax
+ * @param graphData.xAxisStep
  */
 export function steppedXAxisValues({ xAxisMin, xAxisMax, xAxisStep }: GraphData): number[] {
 	const vals = [];
@@ -226,10 +223,9 @@ export function steppedXAxisValues({ xAxisMin, xAxisMax, xAxisStep }: GraphData)
  * Generate an array of y axis coordinates for stepped points along that axis. Used to place annotations.
  *
  * @param {GraphData} graphData
- * @param {number} graphData.yAxisMin
- * @param {number} graphData.yAxisMax
- * @param {number} graphData.yAxisStep
- * @returns {number[]}
+ * @param graphData.yAxisMin
+ * @param graphData.yAxisMax
+ * @param graphData.yAxisStep
  */
 export function steppedYAxisValues({ yAxisMin, yAxisMax, yAxisStep }: GraphData): number[] {
 	const vals = [];

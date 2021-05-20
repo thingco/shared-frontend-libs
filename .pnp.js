@@ -34,6 +34,14 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 					reference: "workspace:packages/graphviz",
 				},
 				{
+					name: "@thingco/graphviz-native",
+					reference: "workspace:packages/graphviz-native",
+				},
+				{
+					name: "@thingco/graphviz-web",
+					reference: "workspace:packages/graphviz-web",
+				},
+				{
 					name: "@thingco/react-component-library",
 					reference: "workspace:packages/react-component-library",
 				},
@@ -75,10 +83,14 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 				[
 					"@thingco/graphviz",
 					[
+						"virtual:812bcfa04989cbda9c2e9feb410a48e57e20bd3f570d743eb71e06c1dcbcb22741a153f15a089a7c7ced37343d562566bc3bbc0922e25b04b439dcb573676a88#workspace:packages/graphviz",
 						"virtual:eef7a203d4527cb0ea6497d57e431a822e04429c2e4b7eff294965c3401931c7d562fef206e673fdd2523a66137b25773e7b50fbffcfa26f8d7f582c02068c62#workspace:packages/graphviz",
+						"virtual:f1100bcf27222c0c626be0f50e4808cd4125c505cf100ea8e9bd04bb9af272b687750f0b172c7236b6952d1f01fe49c0e7709a989c302d0fc7ac78d26fdd9ccd#workspace:packages/graphviz",
 						"workspace:packages/graphviz",
 					],
 				],
+				["@thingco/graphviz-native", ["workspace:packages/graphviz-native"]],
+				["@thingco/graphviz-web", ["workspace:packages/graphviz-web"]],
 				[
 					"@thingco/react-component-library",
 					[
@@ -4843,7 +4855,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 									["deep-assign", "npm:3.0.0"],
 									[
 										"react-native",
-										"virtual:2c15e1fe26bfa08f83646d3eb18c724e37070bdb5b830de09a8748bf30a3ae61a36bec766bc38c9b54e105273d9b76bf9e571243fd8d7aa563f7f19e87073b5a#npm:0.64.0",
+										"virtual:812bcfa04989cbda9c2e9feb410a48e57e20bd3f570d743eb71e06c1dcbcb22741a153f15a089a7c7ced37343d562566bc3bbc0922e25b04b439dcb573676a88#npm:0.64.0",
 									],
 								],
 								packagePeers: ["@types/react-native", "react-native"],
@@ -4865,14 +4877,14 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 							},
 						],
 						[
-							"virtual:2319b1e22232229c093ac065e39054d518c915e641ba2d155fe95de7920253ba64afdfd882042ae9327ab2cb481c7b91bcc7aeb98fcdefb885eda574b669473d#npm:5.0.1-alpha.2",
+							"virtual:8eebee5473b2fcf53ac442b8f0721d9617030d48802c06be4bb43f60bc196d608f390e3c798d756f466872b5dff6bdc611a2d84e3dbe16752c1ce6e7587fad4d#npm:5.0.1-alpha.2",
 							{
 								packageLocation:
-									"./.yarn/$$virtual/@react-native-community-cli-virtual-7f6f327dd2/0/cache/@react-native-community-cli-npm-5.0.1-alpha.2-d114ff1cca-28fedc1b9c.zip/node_modules/@react-native-community/cli/",
+									"./.yarn/$$virtual/@react-native-community-cli-virtual-5561124138/0/cache/@react-native-community-cli-npm-5.0.1-alpha.2-d114ff1cca-28fedc1b9c.zip/node_modules/@react-native-community/cli/",
 								packageDependencies: [
 									[
 										"@react-native-community/cli",
-										"virtual:2319b1e22232229c093ac065e39054d518c915e641ba2d155fe95de7920253ba64afdfd882042ae9327ab2cb481c7b91bcc7aeb98fcdefb885eda574b669473d#npm:5.0.1-alpha.2",
+										"virtual:8eebee5473b2fcf53ac442b8f0721d9617030d48802c06be4bb43f60bc196d608f390e3c798d756f466872b5dff6bdc611a2d84e3dbe16752c1ce6e7587fad4d#npm:5.0.1-alpha.2",
 									],
 									["@react-native-community/cli-debugger-ui", "npm:5.0.1-alpha.1"],
 									["@react-native-community/cli-hermes", "npm:5.0.1-alpha.1"],
@@ -4900,7 +4912,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 									["metro-core", "npm:0.64.0"],
 									[
 										"metro-react-native-babel-transformer",
-										"virtual:2319b1e22232229c093ac065e39054d518c915e641ba2d155fe95de7920253ba64afdfd882042ae9327ab2cb481c7b91bcc7aeb98fcdefb885eda574b669473d#npm:0.64.0",
+										"virtual:8eebee5473b2fcf53ac442b8f0721d9617030d48802c06be4bb43f60bc196d608f390e3c798d756f466872b5dff6bdc611a2d84e3dbe16752c1ce6e7587fad4d#npm:0.64.0",
 									],
 									["metro-resolver", "npm:0.64.0"],
 									["metro-runtime", "npm:0.64.0"],
@@ -4912,7 +4924,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 									["prompts", "npm:2.4.1"],
 									[
 										"react-native",
-										"virtual:2c15e1fe26bfa08f83646d3eb18c724e37070bdb5b830de09a8748bf30a3ae61a36bec766bc38c9b54e105273d9b76bf9e571243fd8d7aa563f7f19e87073b5a#npm:0.64.0",
+										"virtual:812bcfa04989cbda9c2e9feb410a48e57e20bd3f570d743eb71e06c1dcbcb22741a153f15a089a7c7ced37343d562566bc3bbc0922e25b04b439dcb573676a88#npm:0.64.0",
 									],
 									["semver", "npm:6.3.0"],
 									["serve-static", "npm:1.14.1"],
@@ -5075,6 +5087,42 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 									["@react-native-community/cli-types", "npm:5.0.1-alpha.1"],
 									["ora", "npm:3.4.0"],
 								],
+								linkType: "HARD",
+							},
+						],
+					],
+				],
+				[
+					"@react-native-community/slider",
+					[
+						[
+							"npm:3.0.3",
+							{
+								packageLocation:
+									"./.yarn/unplugged/@react-native-community-slider-virtual-9d5f22e15c/node_modules/@react-native-community/slider/",
+								packageDependencies: [["@react-native-community/slider", "npm:3.0.3"]],
+								linkType: "SOFT",
+							},
+						],
+						[
+							"virtual:812bcfa04989cbda9c2e9feb410a48e57e20bd3f570d743eb71e06c1dcbcb22741a153f15a089a7c7ced37343d562566bc3bbc0922e25b04b439dcb573676a88#npm:3.0.3",
+							{
+								packageLocation:
+									"./.yarn/unplugged/@react-native-community-slider-virtual-9d5f22e15c/node_modules/@react-native-community/slider/",
+								packageDependencies: [
+									[
+										"@react-native-community/slider",
+										"virtual:812bcfa04989cbda9c2e9feb410a48e57e20bd3f570d743eb71e06c1dcbcb22741a153f15a089a7c7ced37343d562566bc3bbc0922e25b04b439dcb573676a88#npm:3.0.3",
+									],
+									["@types/react", "npm:17.0.4"],
+									["@types/react-native", "npm:0.64.4"],
+									["react", "npm:17.0.2"],
+									[
+										"react-native",
+										"virtual:812bcfa04989cbda9c2e9feb410a48e57e20bd3f570d743eb71e06c1dcbcb22741a153f15a089a7c7ced37343d562566bc3bbc0922e25b04b439dcb573676a88#npm:0.64.0",
+									],
+								],
+								packagePeers: ["@types/react-native", "@types/react", "react-native", "react"],
 								linkType: "HARD",
 							},
 						],
@@ -5921,20 +5969,18 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 					"@thingco/graphviz",
 					[
 						[
-							"virtual:eef7a203d4527cb0ea6497d57e431a822e04429c2e4b7eff294965c3401931c7d562fef206e673fdd2523a66137b25773e7b50fbffcfa26f8d7f582c02068c62#workspace:packages/graphviz",
+							"virtual:812bcfa04989cbda9c2e9feb410a48e57e20bd3f570d743eb71e06c1dcbcb22741a153f15a089a7c7ced37343d562566bc3bbc0922e25b04b439dcb573676a88#workspace:packages/graphviz",
 							{
 								packageLocation:
-									"./.yarn/$$virtual/@thingco-graphviz-virtual-e573de937f/1/packages/graphviz/",
+									"./.yarn/$$virtual/@thingco-graphviz-virtual-33a44a0b07/1/packages/graphviz/",
 								packageDependencies: [
 									[
 										"@thingco/graphviz",
-										"virtual:eef7a203d4527cb0ea6497d57e431a822e04429c2e4b7eff294965c3401931c7d562fef206e673fdd2523a66137b25773e7b50fbffcfa26f8d7f582c02068c62#workspace:packages/graphviz",
+										"virtual:812bcfa04989cbda9c2e9feb410a48e57e20bd3f570d743eb71e06c1dcbcb22741a153f15a089a7c7ced37343d562566bc3bbc0922e25b04b439dcb573676a88#workspace:packages/graphviz",
 									],
-									["@types/react", "npm:17.0.4"],
 									["@types/rimraf", "npm:3.0.0"],
 									["@types/thingco__graphviz", null],
 									["jest", "npm:26.6.3"],
-									["react", "npm:17.0.2"],
 									["rimraf", "npm:3.0.2"],
 									[
 										"ts-jest",
@@ -5949,12 +5995,69 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 										"patch:typescript@npm%3A4.2.4#builtin<compat/typescript>::version=4.2.4&hash=a45b0e",
 									],
 								],
-								packagePeers: [
-									"@thingco/graphviz",
-									"@types/react",
-									"@types/thingco__graphviz",
-									"react",
+								packagePeers: ["@thingco/graphviz", "@types/thingco__graphviz"],
+								linkType: "SOFT",
+							},
+						],
+						[
+							"virtual:eef7a203d4527cb0ea6497d57e431a822e04429c2e4b7eff294965c3401931c7d562fef206e673fdd2523a66137b25773e7b50fbffcfa26f8d7f582c02068c62#workspace:packages/graphviz",
+							{
+								packageLocation:
+									"./.yarn/$$virtual/@thingco-graphviz-virtual-e573de937f/1/packages/graphviz/",
+								packageDependencies: [
+									[
+										"@thingco/graphviz",
+										"virtual:eef7a203d4527cb0ea6497d57e431a822e04429c2e4b7eff294965c3401931c7d562fef206e673fdd2523a66137b25773e7b50fbffcfa26f8d7f582c02068c62#workspace:packages/graphviz",
+									],
+									["@types/rimraf", "npm:3.0.0"],
+									["@types/thingco__graphviz", null],
+									["jest", "npm:26.6.3"],
+									["rimraf", "npm:3.0.2"],
+									[
+										"ts-jest",
+										"virtual:f6086b21c17868b77424a3895eecc30d0232d9f99fd340121daebaefe9ee674524dda7da9a395f1d840ab44009e2b4a0307b92e1a2cbc70ec3cdddf78b859584#npm:26.5.5",
+									],
+									[
+										"typedoc",
+										"virtual:be93e41f18dd445d699e46c78ad75650527c4f5e5d5120d685234cbaa071b339a3116e6a967a8d04eb21d3e4167ea6e540c7b45dba9acd1881e6719a67664e80#npm:0.20.36",
+									],
+									[
+										"typescript",
+										"patch:typescript@npm%3A4.2.4#builtin<compat/typescript>::version=4.2.4&hash=a45b0e",
+									],
 								],
+								packagePeers: ["@thingco/graphviz", "@types/thingco__graphviz"],
+								linkType: "SOFT",
+							},
+						],
+						[
+							"virtual:f1100bcf27222c0c626be0f50e4808cd4125c505cf100ea8e9bd04bb9af272b687750f0b172c7236b6952d1f01fe49c0e7709a989c302d0fc7ac78d26fdd9ccd#workspace:packages/graphviz",
+							{
+								packageLocation:
+									"./.yarn/$$virtual/@thingco-graphviz-virtual-1f645ae7bd/1/packages/graphviz/",
+								packageDependencies: [
+									[
+										"@thingco/graphviz",
+										"virtual:f1100bcf27222c0c626be0f50e4808cd4125c505cf100ea8e9bd04bb9af272b687750f0b172c7236b6952d1f01fe49c0e7709a989c302d0fc7ac78d26fdd9ccd#workspace:packages/graphviz",
+									],
+									["@types/rimraf", "npm:3.0.0"],
+									["@types/thingco__graphviz", null],
+									["jest", "npm:26.6.3"],
+									["rimraf", "npm:3.0.2"],
+									[
+										"ts-jest",
+										"virtual:f6086b21c17868b77424a3895eecc30d0232d9f99fd340121daebaefe9ee674524dda7da9a395f1d840ab44009e2b4a0307b92e1a2cbc70ec3cdddf78b859584#npm:26.5.5",
+									],
+									[
+										"typedoc",
+										"virtual:be93e41f18dd445d699e46c78ad75650527c4f5e5d5120d685234cbaa071b339a3116e6a967a8d04eb21d3e4167ea6e540c7b45dba9acd1881e6719a67664e80#npm:0.20.36",
+									],
+									[
+										"typescript",
+										"patch:typescript@npm%3A4.2.4#builtin<compat/typescript>::version=4.2.4&hash=a45b0e",
+									],
+								],
+								packagePeers: ["@thingco/graphviz", "@types/thingco__graphviz"],
 								linkType: "SOFT",
 							},
 						],
@@ -5964,6 +6067,89 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 								packageLocation: "./packages/graphviz/",
 								packageDependencies: [
 									["@thingco/graphviz", "workspace:packages/graphviz"],
+									["@types/rimraf", "npm:3.0.0"],
+									["jest", "npm:26.6.3"],
+									["rimraf", "npm:3.0.2"],
+									[
+										"ts-jest",
+										"virtual:f6086b21c17868b77424a3895eecc30d0232d9f99fd340121daebaefe9ee674524dda7da9a395f1d840ab44009e2b4a0307b92e1a2cbc70ec3cdddf78b859584#npm:26.5.5",
+									],
+									[
+										"typedoc",
+										"virtual:be93e41f18dd445d699e46c78ad75650527c4f5e5d5120d685234cbaa071b339a3116e6a967a8d04eb21d3e4167ea6e540c7b45dba9acd1881e6719a67664e80#npm:0.20.36",
+									],
+									[
+										"typescript",
+										"patch:typescript@npm%3A4.2.4#builtin<compat/typescript>::version=4.2.4&hash=a45b0e",
+									],
+								],
+								linkType: "SOFT",
+							},
+						],
+					],
+				],
+				[
+					"@thingco/graphviz-native",
+					[
+						[
+							"workspace:packages/graphviz-native",
+							{
+								packageLocation: "./packages/graphviz-native/",
+								packageDependencies: [
+									["@thingco/graphviz-native", "workspace:packages/graphviz-native"],
+									[
+										"@react-native-community/slider",
+										"virtual:812bcfa04989cbda9c2e9feb410a48e57e20bd3f570d743eb71e06c1dcbcb22741a153f15a089a7c7ced37343d562566bc3bbc0922e25b04b439dcb573676a88#npm:3.0.3",
+									],
+									[
+										"@thingco/graphviz",
+										"virtual:812bcfa04989cbda9c2e9feb410a48e57e20bd3f570d743eb71e06c1dcbcb22741a153f15a089a7c7ced37343d562566bc3bbc0922e25b04b439dcb573676a88#workspace:packages/graphviz",
+									],
+									["@types/react", "npm:17.0.4"],
+									["@types/react-native", "npm:0.64.4"],
+									["@types/rimraf", "npm:3.0.0"],
+									["jest", "npm:26.6.3"],
+									["react", "npm:17.0.2"],
+									[
+										"react-native",
+										"virtual:812bcfa04989cbda9c2e9feb410a48e57e20bd3f570d743eb71e06c1dcbcb22741a153f15a089a7c7ced37343d562566bc3bbc0922e25b04b439dcb573676a88#npm:0.64.0",
+									],
+									[
+										"react-native-svg",
+										"virtual:812bcfa04989cbda9c2e9feb410a48e57e20bd3f570d743eb71e06c1dcbcb22741a153f15a089a7c7ced37343d562566bc3bbc0922e25b04b439dcb573676a88#npm:12.1.1",
+									],
+									["rimraf", "npm:3.0.2"],
+									[
+										"ts-jest",
+										"virtual:f6086b21c17868b77424a3895eecc30d0232d9f99fd340121daebaefe9ee674524dda7da9a395f1d840ab44009e2b4a0307b92e1a2cbc70ec3cdddf78b859584#npm:26.5.5",
+									],
+									[
+										"typedoc",
+										"virtual:be93e41f18dd445d699e46c78ad75650527c4f5e5d5120d685234cbaa071b339a3116e6a967a8d04eb21d3e4167ea6e540c7b45dba9acd1881e6719a67664e80#npm:0.20.36",
+									],
+									[
+										"typescript",
+										"patch:typescript@npm%3A4.2.4#builtin<compat/typescript>::version=4.2.4&hash=a45b0e",
+									],
+								],
+								linkType: "SOFT",
+							},
+						],
+					],
+				],
+				[
+					"@thingco/graphviz-web",
+					[
+						[
+							"workspace:packages/graphviz-web",
+							{
+								packageLocation: "./packages/graphviz-web/",
+								packageDependencies: [
+									["@thingco/graphviz-web", "workspace:packages/graphviz-web"],
+									[
+										"@thingco/graphviz",
+										"virtual:f1100bcf27222c0c626be0f50e4808cd4125c505cf100ea8e9bd04bb9af272b687750f0b172c7236b6952d1f01fe49c0e7709a989c302d0fc7ac78d26fdd9ccd#workspace:packages/graphviz",
+									],
 									["@types/react", "npm:17.0.4"],
 									["@types/rimraf", "npm:3.0.0"],
 									["jest", "npm:26.6.3"],
@@ -6410,7 +6596,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 									["react", "npm:17.0.2"],
 									[
 										"react-native",
-										"virtual:2c15e1fe26bfa08f83646d3eb18c724e37070bdb5b830de09a8748bf30a3ae61a36bec766bc38c9b54e105273d9b76bf9e571243fd8d7aa563f7f19e87073b5a#npm:0.64.0",
+										"virtual:812bcfa04989cbda9c2e9feb410a48e57e20bd3f570d743eb71e06c1dcbcb22741a153f15a089a7c7ced37343d562566bc3bbc0922e25b04b439dcb573676a88#npm:0.64.0",
 									],
 									["rimraf", "npm:3.0.2"],
 									[
@@ -11668,6 +11854,24 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 									["css-what", "npm:3.4.2"],
 									["domutils", "npm:1.7.0"],
 									["nth-check", "npm:1.0.2"],
+								],
+								linkType: "HARD",
+							},
+						],
+					],
+				],
+				[
+					"css-tree",
+					[
+						[
+							"npm:1.1.3",
+							{
+								packageLocation:
+									"./.yarn/cache/css-tree-npm-1.1.3-9c46f35513-5b1bf44c45.zip/node_modules/css-tree/",
+								packageDependencies: [
+									["css-tree", "npm:1.1.3"],
+									["mdn-data", "npm:2.0.14"],
+									["source-map", "npm:0.6.1"],
 								],
 								linkType: "HARD",
 							},
@@ -18779,6 +18983,20 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 					],
 				],
 				[
+					"mdn-data",
+					[
+						[
+							"npm:2.0.14",
+							{
+								packageLocation:
+									"./.yarn/cache/mdn-data-npm-2.0.14-0acd669f0d-57a27f585a.zip/node_modules/mdn-data/",
+								packageDependencies: [["mdn-data", "npm:2.0.14"]],
+								linkType: "HARD",
+							},
+						],
+					],
+				],
+				[
 					"media-typer",
 					[
 						[
@@ -19337,14 +19555,14 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 							},
 						],
 						[
-							"virtual:2319b1e22232229c093ac065e39054d518c915e641ba2d155fe95de7920253ba64afdfd882042ae9327ab2cb481c7b91bcc7aeb98fcdefb885eda574b669473d#npm:0.64.0",
+							"virtual:8eebee5473b2fcf53ac442b8f0721d9617030d48802c06be4bb43f60bc196d608f390e3c798d756f466872b5dff6bdc611a2d84e3dbe16752c1ce6e7587fad4d#npm:0.64.0",
 							{
 								packageLocation:
-									"./.yarn/$$virtual/metro-react-native-babel-transformer-virtual-a913ce094c/0/cache/metro-react-native-babel-transformer-npm-0.64.0-ce0c1cb9c2-87d5e0adcd.zip/node_modules/metro-react-native-babel-transformer/",
+									"./.yarn/$$virtual/metro-react-native-babel-transformer-virtual-aa5c6d08fe/0/cache/metro-react-native-babel-transformer-npm-0.64.0-ce0c1cb9c2-87d5e0adcd.zip/node_modules/metro-react-native-babel-transformer/",
 								packageDependencies: [
 									[
 										"metro-react-native-babel-transformer",
-										"virtual:2319b1e22232229c093ac065e39054d518c915e641ba2d155fe95de7920253ba64afdfd882042ae9327ab2cb481c7b91bcc7aeb98fcdefb885eda574b669473d#npm:0.64.0",
+										"virtual:8eebee5473b2fcf53ac442b8f0721d9617030d48802c06be4bb43f60bc196d608f390e3c798d756f466872b5dff6bdc611a2d84e3dbe16752c1ce6e7587fad4d#npm:0.64.0",
 									],
 									["@babel/core", "npm:7.14.0"],
 									["@types/babel__core", null],
@@ -22132,25 +22350,25 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 							"npm:0.64.0",
 							{
 								packageLocation:
-									"./.yarn/unplugged/react-native-virtual-2319b1e222/node_modules/react-native/",
+									"./.yarn/unplugged/react-native-virtual-8eebee5473/node_modules/react-native/",
 								packageDependencies: [["react-native", "npm:0.64.0"]],
 								linkType: "SOFT",
 							},
 						],
 						[
-							"virtual:2c15e1fe26bfa08f83646d3eb18c724e37070bdb5b830de09a8748bf30a3ae61a36bec766bc38c9b54e105273d9b76bf9e571243fd8d7aa563f7f19e87073b5a#npm:0.64.0",
+							"virtual:812bcfa04989cbda9c2e9feb410a48e57e20bd3f570d743eb71e06c1dcbcb22741a153f15a089a7c7ced37343d562566bc3bbc0922e25b04b439dcb573676a88#npm:0.64.0",
 							{
 								packageLocation:
-									"./.yarn/unplugged/react-native-virtual-2319b1e222/node_modules/react-native/",
+									"./.yarn/unplugged/react-native-virtual-8eebee5473/node_modules/react-native/",
 								packageDependencies: [
 									[
 										"react-native",
-										"virtual:2c15e1fe26bfa08f83646d3eb18c724e37070bdb5b830de09a8748bf30a3ae61a36bec766bc38c9b54e105273d9b76bf9e571243fd8d7aa563f7f19e87073b5a#npm:0.64.0",
+										"virtual:812bcfa04989cbda9c2e9feb410a48e57e20bd3f570d743eb71e06c1dcbcb22741a153f15a089a7c7ced37343d562566bc3bbc0922e25b04b439dcb573676a88#npm:0.64.0",
 									],
 									["@jest/create-cache-key-function", "npm:26.6.2"],
 									[
 										"@react-native-community/cli",
-										"virtual:2319b1e22232229c093ac065e39054d518c915e641ba2d155fe95de7920253ba64afdfd882042ae9327ab2cb481c7b91bcc7aeb98fcdefb885eda574b669473d#npm:5.0.1-alpha.2",
+										"virtual:8eebee5473b2fcf53ac442b8f0721d9617030d48802c06be4bb43f60bc196d608f390e3c798d756f466872b5dff6bdc611a2d84e3dbe16752c1ce6e7587fad4d#npm:5.0.1-alpha.2",
 									],
 									["@react-native-community/cli-platform-android", "npm:5.0.1-alpha.1"],
 									["@react-native-community/cli-platform-ios", "npm:5.0.1-alpha.2"],
@@ -22168,7 +22386,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 									["metro-babel-register", "npm:0.64.0"],
 									[
 										"metro-react-native-babel-transformer",
-										"virtual:2319b1e22232229c093ac065e39054d518c915e641ba2d155fe95de7920253ba64afdfd882042ae9327ab2cb481c7b91bcc7aeb98fcdefb885eda574b669473d#npm:0.64.0",
+										"virtual:8eebee5473b2fcf53ac442b8f0721d9617030d48802c06be4bb43f60bc196d608f390e3c798d756f466872b5dff6bdc611a2d84e3dbe16752c1ce6e7587fad4d#npm:0.64.0",
 									],
 									["metro-runtime", "npm:0.64.0"],
 									["metro-source-map", "npm:0.64.0"],
@@ -22191,7 +22409,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 									["whatwg-fetch", "npm:3.6.2"],
 									[
 										"ws",
-										"virtual:2319b1e22232229c093ac065e39054d518c915e641ba2d155fe95de7920253ba64afdfd882042ae9327ab2cb481c7b91bcc7aeb98fcdefb885eda574b669473d#npm:6.2.1",
+										"virtual:8eebee5473b2fcf53ac442b8f0721d9617030d48802c06be4bb43f60bc196d608f390e3c798d756f466872b5dff6bdc611a2d84e3dbe16752c1ce6e7587fad4d#npm:6.2.1",
 									],
 								],
 								packagePeers: ["@types/react", "react"],
@@ -22249,6 +22467,44 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 									["react-native", null],
 								],
 								packagePeers: ["@types/react-native", "react-native"],
+								linkType: "HARD",
+							},
+						],
+					],
+				],
+				[
+					"react-native-svg",
+					[
+						[
+							"npm:12.1.1",
+							{
+								packageLocation:
+									"./.yarn/unplugged/react-native-svg-virtual-f456289e8d/node_modules/react-native-svg/",
+								packageDependencies: [["react-native-svg", "npm:12.1.1"]],
+								linkType: "SOFT",
+							},
+						],
+						[
+							"virtual:812bcfa04989cbda9c2e9feb410a48e57e20bd3f570d743eb71e06c1dcbcb22741a153f15a089a7c7ced37343d562566bc3bbc0922e25b04b439dcb573676a88#npm:12.1.1",
+							{
+								packageLocation:
+									"./.yarn/unplugged/react-native-svg-virtual-f456289e8d/node_modules/react-native-svg/",
+								packageDependencies: [
+									[
+										"react-native-svg",
+										"virtual:812bcfa04989cbda9c2e9feb410a48e57e20bd3f570d743eb71e06c1dcbcb22741a153f15a089a7c7ced37343d562566bc3bbc0922e25b04b439dcb573676a88#npm:12.1.1",
+									],
+									["@types/react", "npm:17.0.4"],
+									["@types/react-native", "npm:0.64.4"],
+									["css-select", "npm:2.1.0"],
+									["css-tree", "npm:1.1.3"],
+									["react", "npm:17.0.2"],
+									[
+										"react-native",
+										"virtual:812bcfa04989cbda9c2e9feb410a48e57e20bd3f570d743eb71e06c1dcbcb22741a153f15a089a7c7ced37343d562566bc3bbc0922e25b04b439dcb573676a88#npm:0.64.0",
+									],
+								],
+								packagePeers: ["@types/react-native", "@types/react", "react-native", "react"],
 								linkType: "HARD",
 							},
 						],
@@ -26890,7 +27146,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 									["webpack-log", "npm:2.0.0"],
 									[
 										"ws",
-										"virtual:2319b1e22232229c093ac065e39054d518c915e641ba2d155fe95de7920253ba64afdfd882042ae9327ab2cb481c7b91bcc7aeb98fcdefb885eda574b669473d#npm:6.2.1",
+										"virtual:8eebee5473b2fcf53ac442b8f0721d9617030d48802c06be4bb43f60bc196d608f390e3c798d756f466872b5dff6bdc611a2d84e3dbe16752c1ce6e7587fad4d#npm:6.2.1",
 									],
 									["yargs", "npm:13.3.2"],
 								],
@@ -27314,14 +27570,14 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 							},
 						],
 						[
-							"virtual:2319b1e22232229c093ac065e39054d518c915e641ba2d155fe95de7920253ba64afdfd882042ae9327ab2cb481c7b91bcc7aeb98fcdefb885eda574b669473d#npm:6.2.1",
+							"virtual:8eebee5473b2fcf53ac442b8f0721d9617030d48802c06be4bb43f60bc196d608f390e3c798d756f466872b5dff6bdc611a2d84e3dbe16752c1ce6e7587fad4d#npm:6.2.1",
 							{
 								packageLocation:
-									"./.yarn/$$virtual/ws-virtual-562cb6d823/0/cache/ws-npm-6.2.1-bbe0ef9859-35d32b09e2.zip/node_modules/ws/",
+									"./.yarn/$$virtual/ws-virtual-9d16b60466/0/cache/ws-npm-6.2.1-bbe0ef9859-35d32b09e2.zip/node_modules/ws/",
 								packageDependencies: [
 									[
 										"ws",
-										"virtual:2319b1e22232229c093ac065e39054d518c915e641ba2d155fe95de7920253ba64afdfd882042ae9327ab2cb481c7b91bcc7aeb98fcdefb885eda574b669473d#npm:6.2.1",
+										"virtual:8eebee5473b2fcf53ac442b8f0721d9617030d48802c06be4bb43f60bc196d608f390e3c798d756f466872b5dff6bdc611a2d84e3dbe16752c1ce6e7587fad4d#npm:6.2.1",
 									],
 									["@types/bufferutil", null],
 									["@types/utf-8-validate", null],

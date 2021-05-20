@@ -1,5 +1,3 @@
-import React from "react";
-
 import {
 	dotPoints,
 	horizontalLineBarPoints,
@@ -7,7 +5,9 @@ import {
 	px,
 	py,
 	verticalLineBarPoints,
-} from "../core";
+} from "@thingco/graphviz";
+import React from "react";
+
 import { useGraph } from "./Context";
 
 export interface DataProps {

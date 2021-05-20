@@ -1,8 +1,8 @@
-# `@thingco/graphviz`
+# `@thingco/graphviz-web`
 
 ## Overview
 
-- JS Logic for generating graphs/charts -- given data, pass into a constructor that will convert to [currently only] SVG coordinates.
+- React components for rendering graphs/charts.
 
 ## Installation
 
@@ -11,7 +11,7 @@ This is published as a GitHub package. To install, you need to configure the pro
 Then:
 
 ```
-yarn add @thingco/graphviz
+yarn add @thingco/graphviz@{version} @thingco/graphviz-web@{version}
 ```
 
 ## Usage

@@ -1,6 +1,6 @@
+import { createGraph, GraphConstructor } from "@thingco/graphviz";
 import React from "react";
 
-import { createGraph, GraphConstructor } from "../core";
 import { XAxisAnnotations, YAxisAnnotations } from "./Annotations";
 import { XAxis, YAxis } from "./Axes";
 import { Canvas } from "./Canvas";
@@ -15,7 +15,7 @@ import {
 	VerticalLineBars,
 } from "./Data";
 import { XAxisGridLines, YAxisGridLines } from "./GridLines";
-import { ScrubberHorizontal, ScrubberVertical } from "./Scrubber";
+import { ScrubberHorizontal } from "./Scrubber";
 
 export type GraphProps = GraphConstructor & {
 	children: React.ReactNode;
@@ -69,6 +69,5 @@ Graph.XAxisGridLines = XAxisGridLines;
 Graph.YAxis = YAxis;
 Graph.YAxisGridLines = YAxisGridLines;
 Graph.ScrubberHorizontal = ScrubberHorizontal;
-Graph.ScrubberVertical = ScrubberVertical;
 
 export { useGraph } from "./Context";

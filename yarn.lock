@@ -2314,6 +2314,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@react-native-community/slider@npm:^3.0.3":
+  version: 3.0.3
+  resolution: "@react-native-community/slider@npm:3.0.3"
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+  checksum: 89a1c72c18febe26ae3ff2daa848d676fd1c889f68ca9bfa189031fae2de0f5171a772794578e8f6c9be9a9dc3644e7906ae10f82f41ac0ab7df117ad7078a8e
+  languageName: node
+  linkType: hard
+
 "@react-native/assets@npm:1.0.0":
   version: 1.0.0
   resolution: "@react-native/assets@npm:1.0.0"
@@ -2672,10 +2682,37 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@thingco/graphviz@workspace:*, @thingco/graphviz@workspace:packages/graphviz":
+"@thingco/graphviz-native@workspace:packages/graphviz-native":
   version: 0.0.0-use.local
-  resolution: "@thingco/graphviz@workspace:packages/graphviz"
+  resolution: "@thingco/graphviz-native@workspace:packages/graphviz-native"
   dependencies:
+    "@react-native-community/slider": ^3.0.3
+    "@thingco/graphviz": "workspace:*"
+    "@types/react": ^17.0.4
+    "@types/react-native": ^0.64.4
+    "@types/rimraf": ^3.0.0
+    jest: ^26.6.3
+    react: ^17.0.2
+    react-native: ^0.64.0
+    react-native-svg: ^12.1.1
+    rimraf: ^3.0.2
+    ts-jest: ^26.5.5
+    typedoc: ^0.20.36
+    typescript: ^4.2.3
+  peerDependencies:
+    "@react-native-community/slider": "*"
+    "@thingco/graphviz": "*"
+    react: "*"
+    react-native: "*"
+    react-native-svg: "*"
+  languageName: unknown
+  linkType: soft
+
+"@thingco/graphviz-web@workspace:packages/graphviz-web":
+  version: 0.0.0-use.local
+  resolution: "@thingco/graphviz-web@workspace:packages/graphviz-web"
+  dependencies:
+    "@thingco/graphviz": "workspace:*"
     "@types/react": ^17.0.4
     "@types/rimraf": ^3.0.0
     jest: ^26.6.3
@@ -2687,6 +2724,21 @@ __metadata:
   peerDependencies:
     "@thingco/graphviz": "*"
     react: "*"
+  languageName: unknown
+  linkType: soft
+
+"@thingco/graphviz@workspace:*, @thingco/graphviz@workspace:packages/graphviz":
+  version: 0.0.0-use.local
+  resolution: "@thingco/graphviz@workspace:packages/graphviz"
+  dependencies:
+    "@types/rimraf": ^3.0.0
+    jest: ^26.6.3
+    rimraf: ^3.0.2
+    ts-jest: ^26.5.5
+    typedoc: ^0.20.36
+    typescript: ^4.2.3
+  peerDependencies:
+    "@thingco/graphviz": "*"
   languageName: unknown
   linkType: soft
 
@@ -5517,7 +5569,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"css-select@npm:^2.0.2":
+"css-select@npm:^2.0.2, css-select@npm:^2.1.0":
   version: 2.1.0
   resolution: "css-select@npm:2.1.0"
   dependencies:
@@ -5526,6 +5578,16 @@ __metadata:
     domutils: ^1.7.0
     nth-check: ^1.0.2
   checksum: b534aad04abbd433849d55b93e234b81c1ade4422c638a916fd7163db5a3b07186e92ce43c292d954417c8ce020eb31b8990ed2fb30c9c145c7f2549621e8095
+  languageName: node
+  linkType: hard
+
+"css-tree@npm:^1.0.0-alpha.39":
+  version: 1.1.3
+  resolution: "css-tree@npm:1.1.3"
+  dependencies:
+    mdn-data: 2.0.14
+    source-map: ^0.6.1
+  checksum: 5b1bf44c457f4682feef5d1fccf0758aabaec3b77f264418a022826a0e4c2dc9f2283205223ddba147eba8ee4cb88caa91298b54c4b7e9af345bb820e9a32868
   languageName: node
   linkType: hard
 
@@ -9649,6 +9711,13 @@ fsevents@^2.1.2:
   languageName: node
   linkType: hard
 
+"mdn-data@npm:2.0.14":
+  version: 2.0.14
+  resolution: "mdn-data@npm:2.0.14"
+  checksum: 57a27f585adb0ab978b0229aa2347dfbdb897e340a3cd3547a7de3162680af641bf2cdf185771b3bca29fabf8c46b486a45a4809dd5d9321465c80e6adad98f4
+  languageName: node
+  linkType: hard
+
 "media-typer@npm:0.3.0":
   version: 0.3.0
   resolution: "media-typer@npm:0.3.0"
@@ -11507,6 +11576,19 @@ fsevents@^2.1.2:
   peerDependencies:
     react-native: ">=0.56"
   checksum: aef72df1b150bbd2071a9613f6539255e84c1d571f25b20cd96b351704e1406e6f765af460cb904323f29c072a78af04cadc8a7f331c506dec749c51626e2813
+  languageName: node
+  linkType: hard
+
+"react-native-svg@npm:^12.1.1":
+  version: 12.1.1
+  resolution: "react-native-svg@npm:12.1.1"
+  dependencies:
+    css-select: ^2.1.0
+    css-tree: ^1.0.0-alpha.39
+  peerDependencies:
+    react: "*"
+    react-native: ">=0.50.0"
+  checksum: 9c2e353d5d28960c0fe79017d2ac3c592bdeb822b854714e0d8f9975d588ca4eceb68100abfff04f4ad2d672158a9b704b3bd8e3c5806d79724c8839dfdb4b08
   languageName: node
   linkType: hard
 

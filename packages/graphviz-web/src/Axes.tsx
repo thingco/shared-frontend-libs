@@ -1,6 +1,6 @@
+import { VerticalAlignment, xAxis, xAxisSteps, yAxis, yAxisSteps } from "@thingco/graphviz";
 import React from "react";
 
-import { VerticalAlignment, xAxis, xAxisSteps, yAxis, yAxisSteps } from "../core";
 import { useGraph } from "./Context";
 
 export interface AxisProps {

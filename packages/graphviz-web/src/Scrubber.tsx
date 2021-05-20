@@ -1,5 +1,3 @@
-import React from "react";
-
 import {
 	HorizontalAlignment,
 	horizontalLineFullWidth,
@@ -7,7 +5,9 @@ import {
 	py,
 	VerticalAlignment,
 	verticalLineFullHeight,
-} from "../core";
+} from "@thingco/graphviz";
+import React from "react";
+
 import { useGraph } from "./Context";
 
 export interface ScrubberControlProps {
