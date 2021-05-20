@@ -174,6 +174,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 										"typescript",
 										"patch:typescript@npm%3A4.2.4#builtin<compat/typescript>::version=4.2.4&hash=a45b0e",
 									],
+									["zx", "npm:1.8.0"],
 								],
 								linkType: "SOFT",
 							},
@@ -23983,6 +23984,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 										"typescript",
 										"patch:typescript@npm%3A4.2.4#builtin<compat/typescript>::version=4.2.4&hash=a45b0e",
 									],
+									["zx", "npm:1.8.0"],
 								],
 								linkType: "SOFT",
 							},
@@ -24133,6 +24135,20 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 									["shortid", "npm:2.2.16"],
 									["nanoid", "npm:2.1.11"],
 								],
+								linkType: "HARD",
+							},
+						],
+					],
+				],
+				[
+					"shq",
+					[
+						[
+							"npm:1.0.2",
+							{
+								packageLocation:
+									"./.yarn/cache/shq-npm-1.0.2-ef122b313a-77c92fa785.zip/node_modules/shq/",
+								packageDependencies: [["shq", "npm:1.0.2"]],
 								linkType: "HARD",
 							},
 						],
@@ -27996,6 +28012,26 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
 									["zen-observable-ts", "npm:0.8.19"],
 									["tslib", "npm:1.14.1"],
 									["zen-observable", "npm:0.8.15"],
+								],
+								linkType: "HARD",
+							},
+						],
+					],
+				],
+				[
+					"zx",
+					[
+						[
+							"npm:1.8.0",
+							{
+								packageLocation:
+									"./.yarn/cache/zx-npm-1.8.0-8fac1a5f82-fe9c5c2ca8.zip/node_modules/zx/",
+								packageDependencies: [
+									["zx", "npm:1.8.0"],
+									["chalk", "npm:4.1.1"],
+									["node-fetch", "npm:2.6.1"],
+									["shq", "npm:1.0.2"],
+									["which", "npm:2.0.2"],
 								],
 								linkType: "HARD",
 							},

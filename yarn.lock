@@ -12492,6 +12492,7 @@ resolve@~1.19.0:
     lint-staged: ^10.5.4
     prettier: ^2.2.1
     typescript: ^4.2.3
+    zx: ^1.8.0
   languageName: unknown
   linkType: soft
 
@@ -12582,6 +12583,13 @@ resolve@~1.19.0:
   dependencies:
     nanoid: ^2.1.0
   checksum: 4944a69c6d5528311b45db12eb0f1eff64a326f91ff4c730704b00a2d096d1c6e319ff859ae6832afaa77df65ef86d4175c3b447713cc7d6253ffef7863f0f8f
+  languageName: node
+  linkType: hard
+
+"shq@npm:^1.0.2":
+  version: 1.0.2
+  resolution: "shq@npm:1.0.2"
+  checksum: 77c92fa78522c6e90c54ef238b7c883caf7ed84767b1adaab0eadb1e3e417cf672a38f24b5b86c00c2b03368f3413c6728da7d164062f5c2a6f2d7ff5be2c13a
   languageName: node
   linkType: hard
 
@@ -14701,5 +14709,19 @@ typescript@^4.2.3:
   version: 0.8.15
   resolution: "zen-observable@npm:0.8.15"
   checksum: 7d155f8a75b9314f9f31e70a31edcd897b0e8a1313737502ab84a573e49d2c333b738e415c156334a6e910c363ce546b59fa7921eff61440285caa99c843df74
+  languageName: node
+  linkType: hard
+
+"zx@npm:^1.8.0":
+  version: 1.8.0
+  resolution: "zx@npm:1.8.0"
+  dependencies:
+    chalk: ^4.1.1
+    node-fetch: ^2.6.1
+    shq: ^1.0.2
+    which: ^2.0.2
+  bin:
+    zx: zx.mjs
+  checksum: fe9c5c2ca8f95f075fac711a8c8e5a4dad729dd91e777a37a4d2b01aa6371997c70941f77b813a72a9d4e37efb4da51a312d847b91e38eb36e3e387f3f9d6926
   languageName: node
   linkType: hard
