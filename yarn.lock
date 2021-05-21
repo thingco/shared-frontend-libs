@@ -2388,6 +2388,24 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@stitches/core@npm:^0.1.9":
+  version: 0.1.9
+  resolution: "@stitches/core@npm:0.1.9"
+  checksum: 23c06d2602c2fabee1491b1de7795fabc35dafc7b61789f814ffc88066b3f8471e67e628ef15afb8311498a0a437e453c5b83d52b10795ec16243520aea3ebf4
+  languageName: node
+  linkType: hard
+
+"@stitches/react@npm:^0.1.9":
+  version: 0.1.9
+  resolution: "@stitches/react@npm:0.1.9"
+  dependencies:
+    "@stitches/core": ^0.1.9
+  peerDependencies:
+    react: ">=17.0.0 <19.0.0"
+  checksum: 1aa64bf1b6bd2a08cfb7bda52e327e987b91e06965fb9d360452e5a18133e4f41214c41f1623e2a9224afdc2df1ceefcfc8ba2d973db83eff92a3f51b2661a19
+  languageName: node
+  linkType: hard
+
 "@styled-system/background@npm:^5.1.2":
   version: 5.1.2
   resolution: "@styled-system/background@npm:5.1.2"
@@ -2684,10 +2702,11 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@thingco/component-lib-v2@workspace:packages/component-lib-v2":
+"@thingco/component-lib-v2@workspace:*, @thingco/component-lib-v2@workspace:packages/component-lib-v2":
   version: 0.0.0-use.local
   resolution: "@thingco/component-lib-v2@workspace:packages/component-lib-v2"
   dependencies:
+    "@stitches/react": ^0.1.9
     "@testing-library/jest-dom": ^5.12.0
     "@testing-library/react": ^11.2.7
     "@types/react": ^17.0.6
@@ -2802,6 +2821,7 @@ __metadata:
     "@aws-amplify/auth": ^4.0.0
     "@aws-amplify/core": ^4.0.2
     "@thingco/auth-flows": "workspace:*"
+    "@thingco/component-lib-v2": "workspace:*"
     "@thingco/graphviz": "workspace:*"
     "@thingco/graphviz-web": "workspace:*"
     "@thingco/react-component-library": "workspace:*"
