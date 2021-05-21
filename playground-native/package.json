@@ -1,0 +1,46 @@
+{
+	"name": "@thingco/shared-frontend-libs-playground-native",
+	"description": "A place to test the React Native packages in a browser environment",
+	"version": "0.0.0",
+	"main": "public/scripts/app.js",
+	"public": false,
+	"scripts": {
+		"start": "yarn webpack serve",
+		"build": "yarn webpack"
+	},
+	"devDependencies": {
+		"@types/events": "^3.0.0",
+		"@types/react": "^17.0.6",
+		"@types/react-dom": "^17.0.5",
+		"@types/webpack-dev-server": "^3.11.4",
+		"clean-webpack-plugin": "^4.0.0-alpha.0",
+		"html-webpack-plugin": "^5.3.1",
+		"ts-loader": "^9.2.1",
+		"typescript": "^4.2.4",
+		"webpack": "^5.37.1",
+		"webpack-cli": "^4.7.0",
+		"webpack-dev-server": "^3.11.2"
+	},
+	"dependencies": {
+		"@aws-amplify/auth": "^4.0.0",
+		"@aws-amplify/core": "^4.0.2",
+		"@thingco/auth-flows": "workspace:*",
+		"@thingco/graphviz": "workspace:*",
+		"@thingco/graphviz-web": "workspace:*",
+		"@thingco/react-component-library": "workspace:*",
+		"@thingco/unit-formatter": "workspace:*",
+		"@thingco/user-preferences": "workspace:*",
+		"@thingco/user-preferences-store-web": "workspace:*",
+		"@xstate/react": "^1.3.3",
+		"buffer": "^6.0.3",
+		"crypto-browserify": "^3.12.0",
+		"events": "^3.3.0",
+		"react": "^17.0.2",
+		"react-dom": "^17.0.2",
+		"react-native-web": "^0.16.3",
+		"stream": "^0.0.2",
+		"string_decoder": "^1.3.0",
+		"url": "^0.11.0",
+		"xstate": "^4.19.1"
+	}
+}

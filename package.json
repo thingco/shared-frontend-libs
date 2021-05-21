@@ -11,7 +11,8 @@
 	"private": true,
 	"workspaces": [
 		"packages/*",
-		"playground"
+		"playground",
+		"playground-native"
 	],
 	"scripts": {
 		"packages:build-all": "yarn workspaces foreach --exclude @thingco/shared-frontend-libs-playground run build",
@@ -28,25 +29,26 @@
 		"package:user-preferences-store-web": "yarn workspace @thingco/user-preferences-store-web",
 		"package:user-preferences-store-native": "yarn workspace @thingco/user-preferences-store-native",
 		"playground": "yarn workspace @thingco/shared-frontend-libs-playground",
+		"playground-native": "yarn workspace @thingco/shared-frontend-libs-playground-native",
 		"global:update-yarn": "yarn set version latest && yarn plugin import version && yarn plugin import typescript && yarn plugin import workspace-tools && yarn plugin import interactive-tools && yarn dlx @yarnpkg/pnpify --sdk",
 		"runscript": "zx"
 	},
 	"devDependencies": {
-		"@types/eslint": "^7.2.10",
+		"@types/eslint": "^7.2.11",
 		"@types/eslint-plugin-prettier": "^3.1.0",
 		"@types/prettier": "^2.2.3",
-		"@typescript-eslint/eslint-plugin": "^4.22.0",
-		"@typescript-eslint/parser": "^4.22.0",
-		"eslint": "^7.25.0",
+		"@typescript-eslint/eslint-plugin": "^4.24.0",
+		"@typescript-eslint/parser": "^4.24.0",
+		"eslint": "^7.26.0",
 		"eslint-config-prettier": "^8.3.0",
 		"eslint-plugin-prettier": "^3.4.0",
 		"eslint-plugin-react": "^7.23.2",
 		"eslint-plugin-react-hooks": "^4.2.0",
 		"eslint-plugin-tsdoc": "^0.2.14",
 		"husky": "^4.3.8",
-		"lint-staged": "^10.5.4",
-		"prettier": "^2.2.1",
-		"typescript": "^4.2.3",
+		"lint-staged": "^11.0.0",
+		"prettier": "^2.3.0",
+		"typescript": "^4.2.4",
 		"zx": "^1.8.0"
 	},
 	"resolutions": {
