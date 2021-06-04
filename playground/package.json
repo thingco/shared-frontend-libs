@@ -25,6 +25,7 @@
 		"@aws-amplify/auth": "^4.0.0",
 		"@aws-amplify/core": "^4.0.2",
 		"@thingco/auth-flows": "workspace:*",
+		"@thingco/component-lib-v2": "workspace:*",
 		"@thingco/graphviz": "workspace:*",
 		"@thingco/graphviz-web": "workspace:*",
 		"@thingco/react-component-library": "workspace:*",

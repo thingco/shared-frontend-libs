@@ -15,18 +15,18 @@ export const {
 	// css,
 	/**
 	 * A function for handling things like global resets, yallows global CSS styles.
-	 * Currently unused.
 	 */
-	// global,
+	global,
 	/**
 	 * Due to the vagaries of css-in-js, have to shove keyframes into a global
 	 * context. Here's the function for doing that:
 	 */
 	keyframes,
 	/**
-	 *
+	 * For server-side rendering.
+	 * Currently unused.
 	 */
-	getCssString,
+	// getCssString,
 	/**
 	 *
 	 */

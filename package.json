@@ -36,6 +36,7 @@
 		"@types/eslint": "^7.2.11",
 		"@types/eslint-plugin-prettier": "^3.1.0",
 		"@types/prettier": "^2.2.3",
+		"@types/svgo": "^2",
 		"@typescript-eslint/eslint-plugin": "^4.24.0",
 		"@typescript-eslint/parser": "^4.24.0",
 		"eslint": "^7.26.0",
@@ -47,7 +48,9 @@
 		"husky": "^4.3.8",
 		"lint-staged": "^11.0.0",
 		"prettier": "^2.3.0",
+		"svgo": "^2.3.0",
 		"typescript": "^4.2.4",
+		"xml-js": "^1.6.11",
 		"zx": "^1.8.0"
 	},
 	"resolutions": {
