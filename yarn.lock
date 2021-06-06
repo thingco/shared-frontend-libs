@@ -2388,6 +2388,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@stitches/css@npm:^9.0.0-alpha.8":
+  version: 9.0.0-alpha.8
+  resolution: "@stitches/css@npm:9.0.0-alpha.8"
+  dependencies:
+    "@types/node": ^13.11.1
+    tslib: ^1.11.1
+  checksum: 3cd63bd39905193163c80f6e1676a43fc6193aa7c541eda6f1dcf2326e5d9c4a6e2cfc7a785139ae162bf8d9bfb044e05dfa7e62be35e2843bd35d6f1ceef314
+  languageName: node
+  linkType: hard
+
 "@stitches/react@npm:0.2.0-canary.0":
   version: 0.2.0-canary.0
   resolution: "@stitches/react@npm:0.2.0-canary.0"
@@ -3198,6 +3208,13 @@ __metadata:
   version: 15.6.0
   resolution: "@types/node@npm:15.6.0"
   checksum: 54515155db4f5d18e36725dafa477e0cee664b5a807560a026692c2c2251034675d9ef55a15bc44b7694a4a2e4866b9ca063872915b34a0564ab955b0da101eb
+  languageName: node
+  linkType: hard
+
+"@types/node@npm:^13.11.1":
+  version: 13.13.52
+  resolution: "@types/node@npm:13.13.52"
+  checksum: 702db7930d333cc56e38d1ffb0ac394c2ccaae3be41ad6d92d84e5225f2ccf7a69fc19bd9eceafd0c00189876add6464460c5fd47ce4bdc14f6f9b0a7212aee0
   languageName: node
   linkType: hard
 
@@ -12530,6 +12547,7 @@ resolve@~1.19.0:
   version: 0.0.0-use.local
   resolution: "shared-frontend-libs@workspace:."
   dependencies:
+    "@stitches/css": ^9.0.0-alpha.8
     "@types/eslint": ^7.2.11
     "@types/eslint-plugin-prettier": ^3.1.0
     "@types/prettier": ^2.2.3

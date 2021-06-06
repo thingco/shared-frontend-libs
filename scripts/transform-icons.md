@@ -14,16 +14,35 @@ other component.
 NOTE that this is hacked together from disparate modules and makes several
 passes. It's not quick and it's not pretty.
 
+### Roadmap/todos
+
+- [ ] this is for web only, tied to `stitches`. So
+  - [ ] extract common functionality (probably up until elements AST generation)
+  - [ ] make second script for native (and can add others as testbeds)
+  - [ ] export as CSS classes as well
+- [ ] relative filepath between the output dir & the config file (and further to that, changing way import is specified, so that the import is constructed and inserted)
+- [ ] remove useless `<g>` componentss
+- [ ] fix the issues noted in the comments in the file template
+- [ ] add tests; this is _still_ an experimental thing
+  - [ ] ...TODO fill in here, need to work backwards from output to start, I have a fair understanding of the problem space now.
+  - [ ] test with multiple different icons: this shouldn't just work with line icons
+- [ ] improve the debugging method -- build final pipeline to better allow the stepping through of each stage
+- [ ] allow defaults to be changed (therefore opening up having filled/coloured icons etc). So a set of rules needs to be passed in.
+- [ ] autocomplete file paths.
+- [ ] improve templating.
+
 ## Running the script
 
 From repo root, run
 
 `yarn runscript ./scripts/create-icons.md`
 
-The `srcdir` and `outdir` args can be passed in at this point, though if they
+The `src` and `outdir` args can be passed in at this point, though if they
 are not defined then the script will ask for them to be entered.
 
-`yarn runscript ./scripts/create-icons.md --srcdir=./path/to/in/dir --outdir=./path/to/out/dir`
+`src` can be a path to a single file or a path to a directory of files.
+
+`yarn runscript ./scripts/create-icons.md --src=./path/to/in/dir --outdir=./path/to/out/dir`
 
 The `dryrun` flag can also be passed at this point, which will cause the script
 to just log the result rather than actually writing anything to disk.
@@ -86,7 +105,7 @@ anyway, for a project where white labelling is important.
 
 We need three things to start off with:
 
-1. The input directory constaining the SVGs -- call this `srcdir` in args.
+1. The input directory constaining the SVGs -- call this `src` in args.
 2. The output directory -- call this `outdir` in args.
 3. Whether this is a dry run -- call this `dryrun` in args.
 
@@ -218,17 +237,6 @@ function svgToElementCollection(optimizedSvg) {
 
 The walk is the most important step.
 
-I'm looking for an end structure like:
-
-    //	<LineIcon whitelistedAttributes css{height/width}>
-    //		<LineIcon.Title><Title/>
-    //		<LineIcon.G css{defaults}>
-    //			<LineIcon.Element whitelistedAttributes />
-    //			<LineIcon.Element whitelistedAttributes />
-    //			<LineIcon.Element whitelistedAttributes css{someAttributeThatOverridesDefault} />
-    //		</LineIcon.G>
-    //	</LineIcon>
-
 It needs to achieve several tasks:
 
 Firstly, if any attributes match the _key_ of one of the default attributes, but
@@ -267,24 +275,24 @@ to 2, can we get that in)_
 
 So you end up with something like:
 
-`<Circle cx="32" cy="17" r="2" weight="thin"/>`
+`<Circle cx="32" cy="17" r="2"/>`
 `<Line x1="16" y1="10" x2="16" y2="54" weight="2"/>`
 
 Secondly, remove any attributes that are not on a whitelist. Critical core
 attributes (as rule all those describing actual coordinates) cannot be maniputaled
 via styles. So anything on the attribute whitelist is passthrough, and must be
-kept. **This is where things are most likely to mess up.**
+kept. **NOTE If something important is missing, this is probably what's causing it.**
 
 ```js
 const ATTRIBUTE_WHITELIST = /^(viewBox|x|y|x1|y1|x2|y2|points|cx|cy|rx|ry|r|d)$/;
 ```
 
-The core function, the transformer. This takes an array of element nodes,
-converts their name to the format I'll be using and maps/filters the attributes
+The transformer This takes an element, converts their name to the format I'll be
+using and maps/filters the attributes
 
 ```js
 function transformElement(element) {
-	let name = `LineIcon.${element.name[0].toUpperCase() + element.name.slice(1)}`;
+	let name = `LineIconEl${element.name[0].toUpperCase() + element.name.slice(1)}`;
 
 	if (!element.attributes || !Object.keys(element.attributes).length) {
 		return {
@@ -321,12 +329,13 @@ The walker applies the transformer function to all nodes recursively.
 
 ```js
 function walkElements(elements) {
-	let rebuiltElements = [];
+	const rebuiltElements = [];
 
-	for (let el of elements) {
-		let rebuiltEl = transformElement(el);
-		let hasChildren = rebuiltEl.elements?.length > 0;
-		rebuiltElements.push(hasChildren ? walkElements(rebuiltEl.elements) : rebuiltEl);
+	for (const el of elements) {
+		if (el.elements?.length > 0) {
+			el.elements = walkElements(el.elements);
+		}
+		rebuiltElements.push(transformElement(el));
 	}
 
 	return rebuiltElements;
@@ -337,10 +346,10 @@ Finally, the function that will actually be ran produces the AST structure of th
 icon.
 
 ```js
-function buildAst(elements) {
+function buildAst(transformedElements) {
 	return {
 		type: "element",
-		name: "LineIcon.Svg",
+		name: "LineIconElSvg",
 		attributes: {
 			viewBox: "0 0 64 64",
 			role: "img",
@@ -348,7 +357,7 @@ function buildAst(elements) {
 		elements: [
 			{
 				type: "element",
-				name: "LineIcon.Title",
+				name: "LineIconElTitle",
 				elements: [
 					{
 						type: "text",
@@ -358,8 +367,8 @@ function buildAst(elements) {
 			},
 			{
 				type: "element",
-				name: "LineIcon.BaseWrapper",
-				elements: walkElements(elements),
+				name: "LineIconElBaseWrapper",
+				elements: transformedElements,
 			},
 		],
 	};
@@ -372,97 +381,108 @@ The code generation stage builds the icon file. Start with imports:
 
 ```js
 let imports = `
-import { StitchesComponentWithAutoCompleteForJSXElements } from "@stitches/react";
+import type {
+	StrokeLinecapProperty,
+	StrokeLinejoinProperty,
+} from "@stitches/react/types/css-types";
 `;
 ```
 
-For web, I can wrap all the primitives in `styled` to allow all the presentational
-attributes to be passed in that way and variants to be defined:
-
-```js
-let styledBuildingBlocks = `
-const Circle = styled("circle", {});
-const Ellipse = styled("ellipse", {});
-const G = styled("g", {});
-const Line = styled("line", {});
-const Path = styled("path", {});
-const Polygon = styled("polygon", {});
-const Polyline = styled("polyline", {});
-const Rect = styled("rect", {});
-const Svg = styled("svg", {});
-`;
-```
-
-Then I compose those primitives to make them line-icon-specific. Note that I'm
+Then I compose svg primitives to make them line-icon-specific. Note that I'm
 moving the default stroke properties to variants. This isn't immediately useful,
 but going forward, is a starting point to allowing me to adjust the stroke
 properties at a theme level.
 
 ```js
 let lineIconBase = `
-interface LineIconProps {
-	title: string;
-	// strokeScaling?: "constrained";
-}
-
 const strokeVariants = {
-	variants: {
-		weight: {
-			"2": { strokeWidth: "2" },
-			"4": { strokeWidth: "4" },
-		},
-		linecap: {
-			butt: { strokeLinecap: "butt" },
-			round: { strokeLinecap: "round" },
-			square: { strokeLinecap: "square" },
-		},
-		linejoin: {
-			arcs: { strokeLineJoin: "arcs"},
-			bevel: { strokeLineJoin: "bevel"},
-			miter: { strokeLineJoin: "miter"},
-			"miter-clip": { strokeLineJoin: "miter-clip"},
-			round: { strokeLineJoin: "round"},
-		}
+	weight: {
+		"2": { strokeWidth: "2" },
+		"4": { strokeWidth: "4" },
 	},
-	defaultVariants: {
-		weight: "4",
-		linecap: "round",
-		linejoin: "round",
-	}
-}
+	linecap: {
+		butt: { strokeLinecap: "butt" as StrokeLinecapProperty },
+		round: { strokeLinecap: "round" as StrokeLinecapProperty },
+		square: { strokeLinecap: "square" as StrokeLinecapProperty },
+	},
+	linejoin: {
+		arcs: { strokeLinejoin: "arcs" as StrokeLinejoinProperty },
+		bevel: { strokeLinejoin: "bevel" as StrokeLinejoinProperty },
+		miter: { strokeLinejoin: "miter" as StrokeLinejoinProperty },
+		"miter-clip": { strokeLinejoin: "miter-clip" as StrokeLinejoinProperty },
+		round: { strokeLinejoin: "round" as StrokeLinejoinProperty },
+	},
+};
 
-const LineIcon: Record<
-	string,
-	StitchesComponentWithAutoCompleteForJSXElements<unknown, typeof strokeVariants>
-> = {};
+const strokeDefaults: {
+	weight: "2" | "4";
+	linecap: "butt" | "round" | "square";
+	linejoin: "arcs" | "bevel" | "miter" | "miter-clip" | "round";
+} = {
+	weight: "4",
+	linecap: "round",
+	linejoin: "round",
+};
 
-LineIcon.Svg = styled(Svg, {
+const LineIconElSvg = styled("svg", {
 	display: "block",
-    pointerEvents: "none",
+	pointerEvents: "none",
 });
 
-LineIcon.BaseWrapper = styled(G, {
+const LineIconElTitle = styled("title", {});
+
+const LineIconElBaseWrapper = styled("g", {
 	fill: "none",
 	stroke: "currentColor",
-    vectorEffect: "none",
+	vectorEffect: "none",
 	variants: {
 		strokeScaling: {
 			constrained: {
 				vectorEffect: "non-scaling-stroke",
 			},
 		},
-	}
+	},
 });
 
-LineIcon.G = styled(G, {});
+const LineIconElG = styled("g", {
+	variants: { ...strokeVariants },
+	defaultVariants: { ...strokeDefaults },
+});
 
-LineIcon.Circle = styled(Circle, { ...strokeVariants });
-LineIcon.Ellipse = styled(Ellipse, { ...strokeVariants });
-LineIcon.Line = styled(Line, { ...strokeVariants });
-LineIcon.Path = styled(Path, { ...strokeVariants });
-LineIcon.Polygon = styled(Polygon, { ...strokeVariants });
-LineIcon.Polyline = styled(Polyline, { ...strokeVariants });
-LineIcon.Rect = styled(Rect, { ...strokeVariants });
+const LineIconElCircle = styled("circle", {
+	variants: { ...strokeVariants },
+	defaultVariants: { ...strokeDefaults },
+});
+
+const LineIconElEllipse = styled("ellipse", {
+	variants: { ...strokeVariants },
+	defaultVariants: { ...strokeDefaults },
+});
+const LineIconElLine = styled("line", {
+	variants: { ...strokeVariants },
+	defaultVariants: { ...strokeDefaults },
+});
+const LineIconElPath = styled("path", {
+	variants: { ...strokeVariants },
+	defaultVariants: { ...strokeDefaults },
+});
+const LineIconElPolygon = styled("polygon", {
+	variants: { ...strokeVariants },
+	defaultVariants: { ...strokeDefaults },
+});
+const LineIconElPolyline = styled("polyline", {
+	variants: { ...strokeVariants },
+	defaultVariants: { ...strokeDefaults },
+});
+const LineIconElRect = styled("rect", {
+	variants: { ...strokeVariants },
+	defaultVariants: { ...strokeDefaults },
+});
+
+export interface LineIconProps {
+	title: string;
+	// strokeScaling?: "constrained";
+}
 `;
 ```
 
@@ -481,45 +501,96 @@ export const LineIcon${name} = (props: LineIconProps): JSX.Element => (
 Once an AST has been generated, can generate the code. `xml-js` provides the
 base for this via the `js2xml` function that can be applied to the AST.
 
-## Parse
+## Running the transform
 
-We might be missing `srcdir`, `outdir` and/or the `dryrun` flag. If we are, we
+We might be missing `src`, `outdir` and/or the `dryrun` flag. If we are, we
 need to remedy that. For the directories, ask the user. For the `--dryrun` flag,
 if it was passed to the script it's a dry run, if it wasn't then it isn't.
 
 ```js
-argv.srcdir = argv.srcdir ?? (await question("Please specify a path to the source directory: "));
+argv.src = argv.src ?? (await question("Please specify a path to the source directory/file: "));
 argv.outdir = argv.outdir ?? (await question("Please specify a path to the output directory: "));
-argv.dryrun = argv.dryrun ?? false;
+argv.dryrun = !!argv.dryrun;
+```
+
+Also, because a user can pass in a directory _or_ a file, need to handle either
+case and produce a consistent output (an array of resolved pathnames).
+
+```js
+async function srcFilePaths(src) {
+	switch (path.extname(src)) {
+		case ".svg":
+			// It is a file
+			return [src];
+		default:
+			const files = await fs.readdir(argv.src);
+			return (files ?? [])
+				.filter((entry) => path.extname(entry) === ".svg")
+				.map((file) => path.join(src, file));
+	}
+}
+```
+
+For dry runs, can step through the stages to help with debugging. For actual runs,
+just want to spit out the end result.
+
+```js
+async function logStage(stage, name, output) {
+	if (!argv.dryrun) return void 0; // noop
+
+	console.log(`
+${chalk.blue.bold(stage + ".")} ${chalk.blue(name + ":")}
+
+${chalk.green(output)}
+`);
+	return await question("Hit enter to go to next stage");
+}
 ```
 
 ```js
-let files = await fs.readdir(argv.srcdir);
-let outputFileData = [styledBuildingBlocks, lineIconBase];
+let files = await srcFilePaths(argv.src);
+let outfile = path.join(argv.outdir, "LineIcons.tsx");
+let outputFileData = [lineIconBase];
 
 for (let file of files) {
-	if (path.extname(file) === ".svg") {
-		let componentName = kebab2pascal(path.basename(file, ".svg"));
-
-		let raw = await fs.readFile(path.join(argv.srcdir, file), { encoding: "utf8" });
-		console.log("\n\n-----> 1. Raw: \n\n", raw);
-		let optimized = optimizeSvg(raw);
-		console.log("\n\n-----> 2. Optimized: \n\n", optimized);
-		let elements = svgToElementCollection(optimized);
-		console.log("\n\n-----> 3. Elements: \n\n", JSON.stringify(elements, null, 2));
-		let ast = buildAst(elements);
-		console.log("\n\n-----> 4. AST: \n\n", JSON.stringify(ast, null, 2));
-		let xml = js2xml({ elements: [ast] }, { spaces: "\t" });
-		console.log("\n\n-----> 5. XML: \n\n", xml);
-		let component = generateIcon(componentName, xml);
-		console.log("\n\n-----> 6. Component: \n\n", component);
-		outputFileData.push(component);
-	}
+	let stage = 0;
+	const componentName = kebab2pascal(path.basename(file, ".svg"));
+	// Go!
+	const raw = await fs.readFile(file, { encoding: "utf8" });
+	await logStage(stage++, "Raw SVG file input", raw);
+	const optimized = optimizeSvg(raw);
+	await logStage(stage++, "Optimized SVG file input", optimized);
+	const elements = svgToElementCollection(optimized);
+	await logStage(
+		stage++,
+		"The actual SVG elements as a cleaned AST",
+		JSON.stringify(elements, null, 2)
+	);
+	const transformedElements = walkElements(elements);
+	await logStage(
+		stage++,
+		"The actual SVG elements AST after transforming them",
+		JSON.stringify(elements, null, 2)
+	);
+	const ast = buildAst(transformedElements);
+	await logStage(
+		stage++,
+		"The actual SVG elements as a full cleaned AST",
+		JSON.stringify(transformedElements, null, 2)
+	);
+	await logStage(
+		stage++,
+		"Insert the SVG elements [AST] into their root container",
+		JSON.stringify(ast, null, 2)
+	);
+	const xml = js2xml({ elements: [ast] }, { spaces: "\t" });
+	await logStage(stage++, "Convert AST to XML string", xml);
+	const component = generateIcon(componentName, xml);
+	await logStage(stage++, "Convert XML representation to JSX explanation", raw);
+	outputFileData.push(component);
 }
 
 if (argv.dryrun === false) {
-	let outfile = path.join(argv.outdir, "LineIcons.tsx");
-
 	// FIXME HARDCODED PATH TO CONFIG FILE
 	outputFileData.unshift(
 		imports,
@@ -528,6 +599,10 @@ if (argv.dryrun === false) {
 	);
 	await fs.writeFile(outfile, outputFileData.join("\n"));
 } else {
-	console.log(outputFileData.join("\n"));
+	await logStage(
+		"final",
+		`Built output, would be written to ${outfile}`,
+		outputFileData.join("\n")
+	);
 }
 ```

@@ -33,6 +33,7 @@
 		"runscript": "zx"
 	},
 	"devDependencies": {
+		"@stitches/css": "^9.0.0-alpha.8",
 		"@types/eslint": "^7.2.11",
 		"@types/eslint-plugin-prettier": "^3.1.0",
 		"@types/prettier": "^2.2.3",
