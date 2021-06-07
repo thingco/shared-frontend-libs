@@ -1,9 +1,11 @@
+import { memo } from "react";
+
 import { styled } from "../config";
 
-import type {
-	StrokeLinecapProperty,
-	StrokeLinejoinProperty,
-} from "@stitches/react/types/css-types";
+// NOTE need to coerce the variants, and the following are required to match
+// the types from the "csstypes" package used by stitches:
+type StrokeLinecapProperty = "butt" | "round" | "square";
+type StrokeLinejoinProperty = "bevel" | "miter" | "round";
 
 const strokeVariants = {
 	weight: {
@@ -16,18 +18,16 @@ const strokeVariants = {
 		square: { strokeLinecap: "square" as StrokeLinecapProperty },
 	},
 	linejoin: {
-		arcs: { strokeLinejoin: "arcs" as StrokeLinejoinProperty },
 		bevel: { strokeLinejoin: "bevel" as StrokeLinejoinProperty },
 		miter: { strokeLinejoin: "miter" as StrokeLinejoinProperty },
-		"miter-clip": { strokeLinejoin: "miter-clip" as StrokeLinejoinProperty },
 		round: { strokeLinejoin: "round" as StrokeLinejoinProperty },
 	},
 };
 
 const strokeDefaults: {
 	weight: "2" | "4";
-	linecap: "butt" | "round" | "square";
-	linejoin: "arcs" | "bevel" | "miter" | "miter-clip" | "round";
+	linecap: StrokeLinecapProperty;
+	linejoin: StrokeLinejoinProperty;
 } = {
 	weight: "4",
 	linecap: "round",
@@ -37,6 +37,8 @@ const strokeDefaults: {
 const LineIconElSvg = styled("svg", {
 	display: "block",
 	pointerEvents: "none",
+	height: "100%",
+	width: "100%",
 });
 
 const LineIconElTitle = styled("title", {});
@@ -543,4 +545,123 @@ export const LineIconUpload = (props: LineIconProps): JSX.Element => (
 			<LineIconElPath d="M32 14 32 38" />
 		</LineIconElBaseWrapper>
 	</LineIconElSvg>
+);
+
+type LineIconType =
+	| "ArrowDown"
+	| "ArrowLeft"
+	| "ArrowRight"
+	| "ArrowUp"
+	| "Clock"
+	| "ContractVertical"
+	| "Dial"
+	| "DirectionDown"
+	| "DirectionLeft"
+	| "DirectionRight"
+	| "DirectionUp"
+	| "Download"
+	| "EditCancel"
+	| "Edit"
+	| "Exclamation"
+	| "ExpandVertical"
+	| "GraphBar"
+	| "GraphLine"
+	| "GraphPie"
+	| "GridDot"
+	| "GridHeavy"
+	| "GridHorizontalHeavy"
+	| "GridHorizontalLight"
+	| "GridLight"
+	| "GridVerticalHeavy"
+	| "GridVerticalLight"
+	| "Information"
+	| "MagnifyingGlass"
+	| "Minus"
+	| "Pin"
+	| "Plus"
+	| "Question"
+	| "Settings"
+	| "Star"
+	| "Tick"
+	| "Upload";
+
+export const LineIcon = memo(
+	({ icontype, ...props }: { icontype: LineIconType } & LineIconProps): JSX.Element => {
+		switch (icontype) {
+			case "ArrowDown":
+				return <LineIconArrowDown {...props} />;
+			case "ArrowLeft":
+				return <LineIconArrowLeft {...props} />;
+			case "ArrowRight":
+				return <LineIconArrowRight {...props} />;
+			case "ArrowUp":
+				return <LineIconArrowUp {...props} />;
+			case "Clock":
+				return <LineIconClock {...props} />;
+			case "ContractVertical":
+				return <LineIconContractVertical {...props} />;
+			case "Dial":
+				return <LineIconDial {...props} />;
+			case "DirectionDown":
+				return <LineIconDirectionDown {...props} />;
+			case "DirectionLeft":
+				return <LineIconDirectionLeft {...props} />;
+			case "DirectionRight":
+				return <LineIconDirectionRight {...props} />;
+			case "DirectionUp":
+				return <LineIconDirectionUp {...props} />;
+			case "Download":
+				return <LineIconDownload {...props} />;
+			case "EditCancel":
+				return <LineIconEditCancel {...props} />;
+			case "Edit":
+				return <LineIconEdit {...props} />;
+			case "Exclamation":
+				return <LineIconExclamation {...props} />;
+			case "ExpandVertical":
+				return <LineIconExpandVertical {...props} />;
+			case "GraphBar":
+				return <LineIconGraphBar {...props} />;
+			case "GraphLine":
+				return <LineIconGraphLine {...props} />;
+			case "GraphPie":
+				return <LineIconGraphPie {...props} />;
+			case "GridDot":
+				return <LineIconGridDot {...props} />;
+			case "GridHeavy":
+				return <LineIconGridHeavy {...props} />;
+			case "GridHorizontalHeavy":
+				return <LineIconGridHorizontalHeavy {...props} />;
+			case "GridHorizontalLight":
+				return <LineIconGridHorizontalLight {...props} />;
+			case "GridLight":
+				return <LineIconGridLight {...props} />;
+			case "GridVerticalHeavy":
+				return <LineIconGridVerticalHeavy {...props} />;
+			case "GridVerticalLight":
+				return <LineIconGridVerticalLight {...props} />;
+			case "Information":
+				return <LineIconInformation {...props} />;
+			case "MagnifyingGlass":
+				return <LineIconMagnifyingGlass {...props} />;
+			case "Minus":
+				return <LineIconMinus {...props} />;
+			case "Pin":
+				return <LineIconPin {...props} />;
+			case "Plus":
+				return <LineIconPlus {...props} />;
+			case "Question":
+				return <LineIconQuestion {...props} />;
+			case "Settings":
+				return <LineIconSettings {...props} />;
+			case "Star":
+				return <LineIconStar {...props} />;
+			case "Tick":
+				return <LineIconTick {...props} />;
+			case "Upload":
+				return <LineIconUpload {...props} />;
+			default:
+				return <p>INVALID ICON TYPE: {icontype}</p>;
+		}
+	}
 );

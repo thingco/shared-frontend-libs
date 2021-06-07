@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 
+import { LineIcon } from "../components";
 import { styled } from "../config";
 
 /**
@@ -51,34 +52,56 @@ const ToolsPanelContainer = styled("aside", {
 	position: "absolute",
 	bottom: "$space$full",
 	right: "$space$full",
-	padding: "$half",
+	padding: "$quarter",
 	backgroundColor: "$__gridDark",
 	color: "$dark",
 	zIndex: 2,
 });
 
 const ToolsPanelControl = styled("div", {
-	padding: "$half",
 	display: "flex",
 	flexDirection: "column",
+});
+
+const ToolsPanelButton = styled("label", {
+	color: "$dark",
+	display: "flex",
+	padding: "$quarter",
+	height: "calc($space$full + $space$half)",
+	width: "calc($space$full + $space$half)",
 });
 
 const DESIGN_TOOLS_KEY = "@thingco_designtools";
 
 interface GridConfig {
-	dotGrid: boolean;
-	hGrid: boolean;
-	hGridSmall: boolean;
-	vGrid: boolean;
-	vGridSmall: boolean;
+	gridDot: boolean;
+	gridHorizontalHeavy: boolean;
+	gridHorizontalLight: boolean;
+	gridVerticalHeavy: boolean;
+	gridVerticalLight: boolean;
 }
 
 const gridConfig: GridConfig = {
-	dotGrid: false,
-	hGrid: false,
-	hGridSmall: false,
-	vGrid: false,
-	vGridSmall: false,
+	gridDot: false,
+	gridHorizontalHeavy: false,
+	gridHorizontalLight: false,
+	gridVerticalHeavy: false,
+	gridVerticalLight: false,
+};
+
+const gridIcon = (gridType: keyof GridConfig): JSX.Element => {
+	switch (gridType) {
+		case "gridDot":
+			return <LineIcon icontype="GridDot" title="Toggle dot grid" />;
+		case "gridHorizontalHeavy":
+			return <LineIcon icontype="GridHorizontalHeavy" title="Toggle heavy horizontal grid" />;
+		case "gridHorizontalLight":
+			return <LineIcon icontype="GridHorizontalLight" title="Toggle light horizontal grid" />;
+		case "gridVerticalHeavy":
+			return <LineIcon icontype="GridVerticalHeavy" title="Toggle heavy vertical grid" />;
+		case "gridVerticalLight":
+			return <LineIcon icontype="GridVerticalLight" title="Toggle light vertical grid" />;
+	}
 };
 
 function storeGridConfig(config: GridConfig): void {
@@ -105,7 +128,7 @@ const GridConfigControl = ({
 }) => (
 	<ToolsPanelControl>
 		<input id={gridType} type="checkbox" checked={isActive} onChange={toggleIsActive} />
-		<label htmlFor={gridType}>{gridType}</label>
+		<ToolsPanelButton htmlFor={gridType}>{gridIcon(gridType)}</ToolsPanelButton>
 	</ToolsPanelControl>
 );
 
@@ -118,11 +141,11 @@ export const DesignTool = (): JSX.Element => {
 
 	return (
 		<>
-			{gridConfig.dotGrid && <GridOverlay overlayType="dotGrid" />}
-			{gridConfig.hGrid && <GridOverlay overlayType="horizontal" />}
-			{gridConfig.hGridSmall && <GridOverlay overlayType="horizontalSm" />}
-			{gridConfig.vGrid && <GridOverlay overlayType="vertical" />}
-			{gridConfig.vGridSmall && <GridOverlay overlayType="verticalSm" />}
+			{gridConfig.gridDot && <GridOverlay overlayType="dotGrid" />}
+			{gridConfig.gridHorizontalHeavy && <GridOverlay overlayType="horizontal" />}
+			{gridConfig.gridHorizontalLight && <GridOverlay overlayType="horizontalSm" />}
+			{gridConfig.gridVerticalHeavy && <GridOverlay overlayType="vertical" />}
+			{gridConfig.gridVerticalLight && <GridOverlay overlayType="verticalSm" />}
 			<ToolsPanelContainer>
 				{Object.entries(gridConfig).map(([gridType, isActive]) => (
 					<GridConfigControl

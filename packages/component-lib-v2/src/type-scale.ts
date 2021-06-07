@@ -78,6 +78,6 @@ export function buildWebThemeSizes(
 		sizes.space![name] = `${roundTo(remSize, 3)}rem`;
 	}
 
-	console.table(sizes);
+	// console.table(sizes);
 	return sizes;
 }

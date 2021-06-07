@@ -377,14 +377,15 @@ function buildAst(transformedElements) {
 
 ### Code generation
 
-The code generation stage builds the icon file. Start with imports:
+Imports first.
+
+> FIXME this needs to be a function: the `stitches` config file needs the relative
+> path from the output file -> it specified, so this has to be done at gentime.
 
 ```js
 let imports = `
-import type {
-	StrokeLinecapProperty,
-	StrokeLinejoinProperty,
-} from "@stitches/react/types/css-types";
+import { styled } from "../config";
+import { memo } from "react";
 `;
 ```
 
@@ -395,6 +396,11 @@ properties at a theme level.
 
 ```js
 let lineIconBase = `
+// NOTE need to coerce the variants, and the following are required to match
+// the types from the "csstypes" package used by stitches:
+type StrokeLinecapProperty = "butt" | "round" | "square";
+type StrokeLinejoinProperty = "bevel" | "miter" | "round";
+
 const strokeVariants = {
 	weight: {
 		"2": { strokeWidth: "2" },
@@ -406,18 +412,16 @@ const strokeVariants = {
 		square: { strokeLinecap: "square" as StrokeLinecapProperty },
 	},
 	linejoin: {
-		arcs: { strokeLinejoin: "arcs" as StrokeLinejoinProperty },
 		bevel: { strokeLinejoin: "bevel" as StrokeLinejoinProperty },
 		miter: { strokeLinejoin: "miter" as StrokeLinejoinProperty },
-		"miter-clip": { strokeLinejoin: "miter-clip" as StrokeLinejoinProperty },
 		round: { strokeLinejoin: "round" as StrokeLinejoinProperty },
 	},
 };
 
 const strokeDefaults: {
 	weight: "2" | "4";
-	linecap: "butt" | "round" | "square";
-	linejoin: "arcs" | "bevel" | "miter" | "miter-clip" | "round";
+	linecap: StrokeLinecapProperty;
+	linejoin: StrokeLinejoinProperty;
 } = {
 	weight: "4",
 	linecap: "round",
@@ -427,6 +431,8 @@ const strokeDefaults: {
 const LineIconElSvg = styled("svg", {
 	display: "block",
 	pointerEvents: "none",
+	height: "100%",
+	width: "100%"
 });
 
 const LineIconElTitle = styled("title", {});
@@ -486,7 +492,7 @@ export interface LineIconProps {
 `;
 ```
 
-Finally, I define a template to insert the output of the ast->XML transformation:
+I define a template to insert the output of the ast->XML transformation:
 
 ```js
 function generateIcon(name, xmlString) {
@@ -494,6 +500,31 @@ function generateIcon(name, xmlString) {
 export const LineIcon${name} = (props: LineIconProps): JSX.Element => (
 	${xmlString}
 );
+`;
+}
+```
+
+I also set up a template for generating a set of typed names of icons...
+
+```js
+function generateIconPickerTypeNames(typeNames) {
+	return `
+type LineIconType = ${typeNames.map((name) => `"${name}"`).join(" | ")};
+`;
+}
+```
+
+Then, finally, set up the exported component for the icons:
+
+```js
+function generateLineIconComponent(typeNames) {
+	return `
+export const LineIcon = memo(({ icontype, ...props }: { icontype: LineIconType } & LineIconProps): JSX.Element => {
+	switch (icontype) {
+		${typeNames.map((name) => `case "${name}": return <LineIcon${name} {...props} />;`).join("\n")}
+		default: return <p>INVALID ICON TYPE: {icontype}</p>;
+	}
+});
 `;
 }
 ```
@@ -550,11 +581,13 @@ ${chalk.green(output)}
 ```js
 let files = await srcFilePaths(argv.src);
 let outfile = path.join(argv.outdir, "LineIcons.tsx");
-let outputFileData = [lineIconBase];
+let outputFileData = [imports, lineIconBase];
+let iconPickerTypeNames = [];
 
 for (let file of files) {
 	let stage = 0;
-	const componentName = kebab2pascal(path.basename(file, ".svg"));
+	const fileName = path.basename(file, ".svg");
+	const componentName = kebab2pascal(fileName);
 	// Go!
 	const raw = await fs.readFile(file, { encoding: "utf8" });
 	await logStage(stage++, "Raw SVG file input", raw);
@@ -588,15 +621,15 @@ for (let file of files) {
 	const component = generateIcon(componentName, xml);
 	await logStage(stage++, "Convert XML representation to JSX explanation", raw);
 	outputFileData.push(component);
+	iconPickerTypeNames.push(componentName);
 }
 
+outputFileData.push(
+	generateIconPickerTypeNames(iconPickerTypeNames),
+	generateLineIconComponent(iconPickerTypeNames)
+);
+
 if (argv.dryrun === false) {
-	// FIXME HARDCODED PATH TO CONFIG FILE
-	outputFileData.unshift(
-		imports,
-		`import { styled } from "../config";
-`
-	);
 	await fs.writeFile(outfile, outputFileData.join("\n"));
 } else {
 	await logStage(
