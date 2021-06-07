@@ -1,6 +1,5 @@
-import { memo } from "react";
-
 import { styled } from "../config";
+import { memo } from "react";
 
 // NOTE need to coerce the variants, and the following are required to match
 // the types from the "csstypes" package used by stitches:
@@ -136,6 +135,36 @@ export const LineIconArrowUp = (props: LineIconProps): JSX.Element => (
 	</LineIconElSvg>
 );
 
+export const LineIconCarFront = (props: LineIconProps): JSX.Element => (
+	<LineIconElSvg viewBox="0 0 64 64" role="img">
+		<LineIconElTitle>{props.title}</LineIconElTitle>
+		<LineIconElBaseWrapper>
+			<LineIconElRect x="10" y="46" rx="2" />
+			<LineIconElRect x="46" y="46" rx="2" />
+			<LineIconElPath d="M8 44V32c0-2.21 2-4 4-5l2-1 4-8a3.7 3.7 0 0 1 3-2h22a3.7 3.7 0 0 1 3 2l4 8 2 1c2 1 4 2.79 4 5v12a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2z" />
+			<LineIconElPath weight="2" d="M52 27 12 27" />
+			<LineIconElPath
+				weight="2"
+				d="M12 27H8a1 1 0 0 1-1-1v-1a1 1 0 0 1 1-1h7l-1 2zM52 27h4a1 1 0 0 0 1-1v-1a1 1 0 0 0-1-1h-7l1 2zM21.74 40.41l-2.49-5.6A2 2 0 0 1 21.08 32h21.84a2 2 0 0 1 1.83 2.81l-2.49 5.6a1 1 0 0 1-.91.59h-18.7a1 1 0 0 1-.91-.59zM56 32l-6.33.9a1 1 0 0 0-.83.75l-.49 1.93a1 1 0 0 0 1.1 1.24L56 36zM8 32l6.33.9a1 1 0 0 1 .83.75l.49 1.93a1 1 0 0 1-1.1 1.24L8 36z"
+			/>
+		</LineIconElBaseWrapper>
+	</LineIconElSvg>
+);
+
+export const LineIconCarSide = (props: LineIconProps): JSX.Element => (
+	<LineIconElSvg viewBox="0 0 64 64" role="img">
+		<LineIconElTitle>{props.title}</LineIconElTitle>
+		<LineIconElBaseWrapper>
+			<LineIconElCircle cx="15" cy="39" r="4" />
+			<LineIconElCircle cx="48" cy="39" r="4" />
+			<LineIconElPath d="M18.87 40 44.13 40" />
+			<LineIconElPath weight="2" d="M18 26 16 29 36 30" />
+			<LineIconElPath weight="2" d="M28 26 28 29.6" />
+			<LineIconElPath d="M51.87 40H54a4 4 0 0 0 4-4v-3.34a2 2 0 0 0-1.63-2L42 28l-8.1-4.86A8 8 0 0 0 29.78 22H14.67a2 2 0 0 0-1.2.4L7.6 26.8A4 4 0 0 0 6 30v6a4 4 0 0 0 4 4h1.13" />
+		</LineIconElBaseWrapper>
+	</LineIconElSvg>
+);
+
 export const LineIconClock = (props: LineIconProps): JSX.Element => (
 	<LineIconElSvg viewBox="0 0 64 64" role="img">
 		<LineIconElTitle>{props.title}</LineIconElTitle>
@@ -171,24 +200,55 @@ export const LineIconContractVertical = (props: LineIconProps): JSX.Element => (
 	</LineIconElSvg>
 );
 
+export const LineIconCross = (props: LineIconProps): JSX.Element => (
+	<LineIconElSvg viewBox="0 0 64 64" role="img">
+		<LineIconElTitle>{props.title}</LineIconElTitle>
+		<LineIconElBaseWrapper>
+			<LineIconElPath d="M18 46 46 18" />
+			<LineIconElPath d="M18 18 46 46" />
+		</LineIconElBaseWrapper>
+	</LineIconElSvg>
+);
+
+export const LineIconDialAlt = (props: LineIconProps): JSX.Element => (
+	<LineIconElSvg viewBox="0 0 64 64" role="img">
+		<LineIconElTitle>{props.title}</LineIconElTitle>
+		<LineIconElBaseWrapper>
+			<LineIconElG weight="2">
+				<LineIconElCircle cx="32" cy="31.75" r=".58" />
+				<LineIconElPath d="M38.16 28.19 32 31.75" />
+				<LineIconElPath d="M32 20.21 32 16.75" />
+				<LineIconElPath d="M43.54 31.75 47 31.75" />
+				<LineIconElPath d="M17 31.75 20.46 31.75" />
+				<LineIconElPath d="M37.77 21.76 39.5 18.76" />
+				<LineIconElPath d="M19.01 24.25 22.01 25.98" />
+				<LineIconElPath d="M41.99 25.98 44.99 24.25" />
+				<LineIconElPath d="M24.5 18.76 26.23 21.76" />
+				<LineIconElPath d="m42 37.52 3 1.73a15 15 0 1 0-26 0l3-1.73" />
+			</LineIconElG>
+			<LineIconElCircle cx="32" cy="32" r="22" />
+		</LineIconElBaseWrapper>
+	</LineIconElSvg>
+);
+
 export const LineIconDial = (props: LineIconProps): JSX.Element => (
 	<LineIconElSvg viewBox="0 0 64 64" role="img">
 		<LineIconElTitle>{props.title}</LineIconElTitle>
 		<LineIconElBaseWrapper>
 			<LineIconElG weight="2">
-				<LineIconElCircle cx="32" cy="37.5" r=".85" />
-				<LineIconElPath d="M43.72 30.73 32 37.5" />
-				<LineIconElPath d="M32 20.58 32 15.5" />
+				<LineIconElCircle cx="32" cy="35" r=".85" />
+				<LineIconElPath d="M43.72 28.23 32 35" />
+				<LineIconElPath d="M32 18.08 32 13" />
 				<LineIconElG>
-					<LineIconElPath d="M48.92 37.5 54 37.5" />
-					<LineIconElPath d="M10 37.5 15.08 37.5" />
+					<LineIconElPath d="M48.92 35 54 35" />
+					<LineIconElPath d="M10 35 15.08 35" />
 				</LineIconElG>
-				<LineIconElPath d="M40.46 22.84 43 18.45" />
-				<LineIconElPath d="M12.95 26.5 17.34 29.04" />
-				<LineIconElPath d="M46.66 29.04 51.05 26.5" />
-				<LineIconElPath d="M21 18.45 23.54 22.84" />
+				<LineIconElPath d="M40.46 20.34 43 15.95" />
+				<LineIconElPath d="M12.95 24 17.34 26.54" />
+				<LineIconElPath d="M46.66 26.54 51.05 24" />
+				<LineIconElPath d="M21 15.95 23.54 20.34" />
 			</LineIconElG>
-			<LineIconElPath d="m46.66 46 4.39 2.54a22 22 0 1 0-41-11A21.83 21.83 0 0 0 13 48.5l4.34-2.5" />
+			<LineIconElPath d="M46.66 43.46 51.05 46A22 22 0 1 0 10 35a21.83 21.83 0 0 0 3 11l4.39-2.54" />
 		</LineIconElBaseWrapper>
 	</LineIconElSvg>
 );
@@ -441,12 +501,39 @@ export const LineIconGridVerticalLight = (props: LineIconProps): JSX.Element => 
 	</LineIconElSvg>
 );
 
+export const LineIconInformationCircle = (props: LineIconProps): JSX.Element => (
+	<LineIconElSvg viewBox="0 0 64 64" role="img">
+		<LineIconElTitle>{props.title}</LineIconElTitle>
+		<LineIconElBaseWrapper>
+			<LineIconElCircle cx="32" cy="32" r="21" />
+			<LineIconElCircle cx="32" cy="21.22" r="1.47" />
+			<LineIconElPath d="M32 43.75 32 30.04" />
+		</LineIconElBaseWrapper>
+	</LineIconElSvg>
+);
+
 export const LineIconInformation = (props: LineIconProps): JSX.Element => (
 	<LineIconElSvg viewBox="0 0 64 64" role="img">
 		<LineIconElTitle>{props.title}</LineIconElTitle>
 		<LineIconElBaseWrapper>
 			<LineIconElCircle cx="32" cy="17" r="2" />
 			<LineIconElPath d="M32 51 32 29" />
+		</LineIconElBaseWrapper>
+	</LineIconElSvg>
+);
+
+export const LineIconList = (props: LineIconProps): JSX.Element => (
+	<LineIconElSvg viewBox="0 0 64 64" role="img">
+		<LineIconElTitle>{props.title}</LineIconElTitle>
+		<LineIconElBaseWrapper>
+			<LineIconElG>
+				<LineIconElPath d="M22 47.99 54 47.99" />
+				<LineIconElPath d="M22 31.99 54 31.99" />
+				<LineIconElPath d="M22 15.99 54 15.99" />
+			</LineIconElG>
+			<LineIconElCircle cx="12" cy="16" r="2" />
+			<LineIconElCircle cx="12" cy="32" r="2" />
+			<LineIconElCircle cx="12" cy="48" r="2" />
 		</LineIconElBaseWrapper>
 	</LineIconElSvg>
 );
@@ -470,12 +557,22 @@ export const LineIconMinus = (props: LineIconProps): JSX.Element => (
 	</LineIconElSvg>
 );
 
+export const LineIconPinAlt = (props: LineIconProps): JSX.Element => (
+	<LineIconElSvg viewBox="0 0 64 64" role="img">
+		<LineIconElTitle>{props.title}</LineIconElTitle>
+		<LineIconElBaseWrapper>
+			<LineIconElPath d="M53.18 27.18a21.18 21.18 0 1 0-34.66 16.34L32 57l13.47-13.47a21.15 21.15 0 0 0 7.71-16.35z" />
+			<LineIconElCircle cx="32" cy="27.18" r="14.44" weight="2" />
+		</LineIconElBaseWrapper>
+	</LineIconElSvg>
+);
+
 export const LineIconPin = (props: LineIconProps): JSX.Element => (
 	<LineIconElSvg viewBox="0 0 64 64" role="img">
 		<LineIconElTitle>{props.title}</LineIconElTitle>
 		<LineIconElBaseWrapper>
-			<LineIconElPath d="M54 27.51a22 22 0 1 0-36 17l14 14 14-14a22 22 0 0 0 8-17z" />
-			<LineIconElCircle cx="32" cy="27.51" r="15" weight="2" />
+			<LineIconElPath d="M18 20v24l14 14 14-14V20a14 14 0 0 0-28 0z" />
+			<LineIconElCircle cx="32" cy="20" r="7" weight="2" />
 		</LineIconElBaseWrapper>
 	</LineIconElSvg>
 );
@@ -486,6 +583,18 @@ export const LineIconPlus = (props: LineIconProps): JSX.Element => (
 		<LineIconElBaseWrapper>
 			<LineIconElPath d="M16 32 48 32" />
 			<LineIconElPath d="M32 16 32 48" />
+		</LineIconElBaseWrapper>
+	</LineIconElSvg>
+);
+
+export const LineIconQuestionCircle = (props: LineIconProps): JSX.Element => (
+	<LineIconElSvg viewBox="0 0 64 64" role="img">
+		<LineIconElTitle>{props.title}</LineIconElTitle>
+		<LineIconElBaseWrapper>
+			<LineIconElCircle cx="32" cy="32" r="22" />
+			<LineIconElPath d="M32 34.22c0-3.59 6-3.59 6-8.39a6 6 0 1 0-12 0" />
+			<LineIconElCircle cx="32" cy="43.62" r="2.25" />
+			<LineIconElCircle cx="32" cy="42.22" r="1.2" />
 		</LineIconElBaseWrapper>
 	</LineIconElSvg>
 );
@@ -522,7 +631,7 @@ export const LineIconStar = (props: LineIconProps): JSX.Element => (
 	<LineIconElSvg viewBox="0 0 64 64" role="img">
 		<LineIconElTitle>{props.title}</LineIconElTitle>
 		<LineIconElBaseWrapper>
-			<LineIconElPath d="M34.39 9.81a2.48 2.48 0 0 0-4.78 0L25.1 24.33H10.51a2.53 2.53 0 0 0-2.39 1.81A2.72 2.72 0 0 0 9 29.08l11.8 9-4.47 14.48a2.71 2.71 0 0 0 .91 2.94 2.42 2.42 0 0 0 3 0l11.81-9 11.81 9a2.42 2.42 0 0 0 2.95 0 2.71 2.71 0 0 0 .91-2.94l-4.56-14.51 11.8-9a2.72 2.72 0 0 0 .92-2.94 2.53 2.53 0 0 0-2.39-1.81H38.9z" />
+			<LineIconElPath d="M34.39 7.81a2.48 2.48 0 0 0-4.78 0L25.1 22.33H10.51a2.53 2.53 0 0 0-2.39 1.81A2.72 2.72 0 0 0 9 27.08l11.8 9-4.47 14.48a2.71 2.71 0 0 0 .91 2.94 2.42 2.42 0 0 0 3 0l11.81-9 11.81 9a2.42 2.42 0 0 0 2.95 0 2.71 2.71 0 0 0 .91-2.94l-4.56-14.51 11.8-9a2.72 2.72 0 0 0 .92-2.94 2.53 2.53 0 0 0-2.39-1.81H38.9z" />
 		</LineIconElBaseWrapper>
 	</LineIconElSvg>
 );
@@ -547,13 +656,28 @@ export const LineIconUpload = (props: LineIconProps): JSX.Element => (
 	</LineIconElSvg>
 );
 
+export const LineIconWarningTriangle = (props: LineIconProps): JSX.Element => (
+	<LineIconElSvg viewBox="0 0 64 64" role="img">
+		<LineIconElTitle>{props.title}</LineIconElTitle>
+		<LineIconElBaseWrapper>
+			<LineIconElPath d="M10 50 54 50 32 10.17 10 50z" />
+			<LineIconElPath d="M32 34 32 26" />
+			<LineIconElCircle cx="32" cy="41.5" r="1" />
+		</LineIconElBaseWrapper>
+	</LineIconElSvg>
+);
+
 type LineIconType =
 	| "ArrowDown"
 	| "ArrowLeft"
 	| "ArrowRight"
 	| "ArrowUp"
+	| "CarFront"
+	| "CarSide"
 	| "Clock"
 	| "ContractVertical"
+	| "Cross"
+	| "DialAlt"
 	| "Dial"
 	| "DirectionDown"
 	| "DirectionLeft"
@@ -574,16 +698,21 @@ type LineIconType =
 	| "GridLight"
 	| "GridVerticalHeavy"
 	| "GridVerticalLight"
+	| "InformationCircle"
 	| "Information"
+	| "List"
 	| "MagnifyingGlass"
 	| "Minus"
+	| "PinAlt"
 	| "Pin"
 	| "Plus"
+	| "QuestionCircle"
 	| "Question"
 	| "Settings"
 	| "Star"
 	| "Tick"
-	| "Upload";
+	| "Upload"
+	| "WarningTriangle";
 
 export const LineIcon = memo(
 	({ icontype, ...props }: { icontype: LineIconType } & LineIconProps): JSX.Element => {
@@ -596,10 +725,18 @@ export const LineIcon = memo(
 				return <LineIconArrowRight {...props} />;
 			case "ArrowUp":
 				return <LineIconArrowUp {...props} />;
+			case "CarFront":
+				return <LineIconCarFront {...props} />;
+			case "CarSide":
+				return <LineIconCarSide {...props} />;
 			case "Clock":
 				return <LineIconClock {...props} />;
 			case "ContractVertical":
 				return <LineIconContractVertical {...props} />;
+			case "Cross":
+				return <LineIconCross {...props} />;
+			case "DialAlt":
+				return <LineIconDialAlt {...props} />;
 			case "Dial":
 				return <LineIconDial {...props} />;
 			case "DirectionDown":
@@ -640,16 +777,24 @@ export const LineIcon = memo(
 				return <LineIconGridVerticalHeavy {...props} />;
 			case "GridVerticalLight":
 				return <LineIconGridVerticalLight {...props} />;
+			case "InformationCircle":
+				return <LineIconInformationCircle {...props} />;
 			case "Information":
 				return <LineIconInformation {...props} />;
+			case "List":
+				return <LineIconList {...props} />;
 			case "MagnifyingGlass":
 				return <LineIconMagnifyingGlass {...props} />;
 			case "Minus":
 				return <LineIconMinus {...props} />;
+			case "PinAlt":
+				return <LineIconPinAlt {...props} />;
 			case "Pin":
 				return <LineIconPin {...props} />;
 			case "Plus":
 				return <LineIconPlus {...props} />;
+			case "QuestionCircle":
+				return <LineIconQuestionCircle {...props} />;
 			case "Question":
 				return <LineIconQuestion {...props} />;
 			case "Settings":
@@ -660,6 +805,8 @@ export const LineIcon = memo(
 				return <LineIconTick {...props} />;
 			case "Upload":
 				return <LineIconUpload {...props} />;
+			case "WarningTriangle":
+				return <LineIconWarningTriangle {...props} />;
 			default:
 				return <p>INVALID ICON TYPE: {icontype}</p>;
 		}
