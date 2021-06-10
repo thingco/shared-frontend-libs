@@ -50,7 +50,7 @@ const GridOverlay = styled("figure", {
 const ToolsPanelContainer = styled("aside", {
 	display: "flex",
 	position: "absolute",
-	bottom: "$space$full",
+	top: "$space$full",
 	right: "$space$full",
 	padding: "$quarter",
 	backgroundColor: "$__gridDark",

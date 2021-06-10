@@ -1,11 +1,11 @@
 import { buildWebThemeSizes } from "./type-scale";
 
-const { fontSizes, fontWeights, letterSpacings, lineHeights, space } = buildWebThemeSizes();
+const { fontSizes, fontWeights, letterSpacings, lineHeights, radii, space } = buildWebThemeSizes();
 
 export const baseTheme = {
 	colors: {
 		dark: "#2f2f2f",
-		mid: "#93959",
+		mid: "#969696",
 		light: "#fdfdfd",
 		// Internal, used for design tooling
 		__gridLight: "#ffcccc",
@@ -20,20 +20,13 @@ export const baseTheme = {
 	fontWeights,
 	lineHeights,
 	letterSpacings,
-	sizes: {
-		iconResponsive: "100%",
-		iconText: "1em",
-		iconXs: "$space$half",
-		iconS: "$space$threequarter",
-		iconM: "$space$full",
-		iconL: "calc($space$full + $space$half)",
-	},
+	sizes: {},
 	borderWidths: {
 		thin: "1px",
 		base: "2px",
 	},
 	borderStyles: {},
-	radii: {},
+	radii,
 	shadows: {},
 	zIndices: {},
 	transitions: {},

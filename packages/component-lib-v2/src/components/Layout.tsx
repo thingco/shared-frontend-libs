@@ -7,7 +7,7 @@ import { styled } from "../config";
  * TODO however we may need to allow it some cases, so add a variant.
  */
 export const AppScreen = styled("div", {
-	backgroundColor: "$light",
+	backgroundColor: "$mid",
 	color: "$dark",
 	display: "flex",
 	flexDirection: "column",
@@ -30,8 +30,22 @@ export const AppControlBar = styled("header", {
 
 export const AppDashboard = styled("main", {
 	backgroundColor: "$light",
+	flex: 1,
 	display: "grid",
 	gridTemplateColumns: "repeat(6, 1fr)",
 	gap: "$half",
 	padding: "$half",
+});
+
+export const Stack = styled("div", {
+	display: "grid",
+	gridTemplateColumns: "100%",
+	gridAutoRows: "min-content",
+	rowGap: "$half",
+});
+
+export const Box = styled("div", {});
+
+export const FlexBox = styled("div", {
+	display: "flex",
 });

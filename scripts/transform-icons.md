@@ -342,39 +342,6 @@ function walkElements(elements) {
 }
 ```
 
-Finally, the function that will actually be ran produces the AST structure of the
-icon.
-
-```js
-function buildAst(transformedElements) {
-	return {
-		type: "element",
-		name: "LineIconElSvg",
-		attributes: {
-			viewBox: "0 0 64 64",
-			role: "img",
-		},
-		elements: [
-			{
-				type: "element",
-				name: "LineIconElTitle",
-				elements: [
-					{
-						type: "text",
-						text: "{ props.title }",
-					},
-				],
-			},
-			{
-				type: "element",
-				name: "LineIconElBaseWrapper",
-				elements: transformedElements,
-			},
-		],
-	};
-}
-```
-
 ### Code generation
 
 Imports first.
@@ -396,6 +363,32 @@ properties at a theme level.
 
 ```js
 let lineIconBase = `
+type SvgSizeVariant = "responsive" | "inline";
+
+const LineIconElSvg = styled("svg", {
+	display: "block",
+	pointerEvents: "none",
+	variants: {
+		sizing: {
+			responsive: {
+				height: "100%",
+				width: "100%",
+			},
+			inline: {
+				display: "inline-block",
+				height: "1em",
+				width: "1em",
+				transform: "scale(1.1) translateY(0.15em)",
+			},
+		},
+	},
+	defaultVariants: {
+		sizing: "responsive" as SvgSizeVariant,
+	}, 
+});
+
+const LineIconElTitle = styled("title", {});
+
 // NOTE need to coerce the variants, and the following are required to match
 // the types from the "csstypes" package used by stitches:
 type StrokeLinecapProperty = "butt" | "round" | "square";
@@ -428,26 +421,10 @@ const strokeDefaults: {
 	linejoin: "round",
 };
 
-const LineIconElSvg = styled("svg", {
-	display: "block",
-	pointerEvents: "none",
-	height: "100%",
-	width: "100%"
-});
-
-const LineIconElTitle = styled("title", {});
-
 const LineIconElBaseWrapper = styled("g", {
 	fill: "none",
 	stroke: "currentColor",
 	vectorEffect: "none",
-	variants: {
-		strokeScaling: {
-			constrained: {
-				vectorEffect: "non-scaling-stroke",
-			},
-		},
-	},
 });
 
 const LineIconElG = styled("g", {
@@ -487,7 +464,7 @@ const LineIconElRect = styled("rect", {
 
 export interface LineIconProps {
 	title: string;
-	// strokeScaling?: "constrained";
+	sizing?: SvgSizeVariant;
 }
 `;
 ```
@@ -498,7 +475,12 @@ I define a template to insert the output of the ast->XML transformation:
 function generateIcon(name, xmlString) {
 	return `
 export const LineIcon${name} = (props: LineIconProps): JSX.Element => (
-	${xmlString}
+	<LineIconElSvg sizing={props.sizing} viewBox="0 0 64 64" role="img">
+		<LineIconElTitle>{props.title}</LineIconElTitle>
+		<LineIconElBaseWrapper>
+			${xmlString}
+		</LineIconElBaseWrapper>
+	</LineIconElSvg>
 );
 `;
 }
@@ -602,21 +584,10 @@ for (let file of files) {
 	const transformedElements = walkElements(elements);
 	await logStage(
 		stage++,
-		"The actual SVG elements AST after transforming them",
-		JSON.stringify(elements, null, 2)
-	);
-	const ast = buildAst(transformedElements);
-	await logStage(
-		stage++,
 		"The actual SVG elements as a full cleaned AST",
 		JSON.stringify(transformedElements, null, 2)
 	);
-	await logStage(
-		stage++,
-		"Insert the SVG elements [AST] into their root container",
-		JSON.stringify(ast, null, 2)
-	);
-	const xml = js2xml({ elements: [ast] }, { spaces: "\t" });
+	const xml = js2xml({ elements: transformedElements }, { spaces: "\t" });
 	await logStage(stage++, "Convert AST to XML string", xml);
 	const component = generateIcon(componentName, xml);
 	await logStage(stage++, "Convert XML representation to JSX explanation", raw);

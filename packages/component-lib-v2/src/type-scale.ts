@@ -20,7 +20,7 @@ export type TypeScale = [TypeScaleName, TypeScaleFontSize, TypeScaleLineHeight, 
 
 // prettier-ignore
 export const typeScale: TypeScale = [
-	["captionsmall",	10,		12,		1.5,	400],
+	["captionsmall",	10,		12,		1.5,	700],
 	["caption",			12,		16,		0.4,	400],
 	["button",			14,		24,		1.25,	700],
 	["bodysmall",		14,		24,		0.25,	400],
@@ -30,7 +30,14 @@ export const typeScale: TypeScale = [
 	["title",			24,		36,		0.0,	400],
 ];
 
-export type SpaceScaleName = "twelfth" | "sixth" | "quarter" | "half" | "threequarter" | "full";
+export type SpaceScaleName =
+	| "twelfth"
+	| "sixth"
+	| "quarter"
+	| "third"
+	| "half"
+	| "threequarter"
+	| "full";
 
 export type SpaceScale = [SpaceScaleName, number][];
 
@@ -38,11 +45,15 @@ export type SpaceScale = [SpaceScaleName, number][];
 export const spaceScale: SpaceScale = [
 	["twelfth",			2],
 	["sixth",			4],
-	["quarter",			8],
+	["quarter",			6],
+	["third", 			8],
 	["half", 			12],
 	["threequarter",	16],
 	["full",			24],
 ];
+
+export const NEW_spaceScale = [2, 4, 6, 8, 12, 16, 24];
+export const radiiScale = [2, 4, 8, 12];
 
 export function roundTo(num: number, precision: number): number {
 	const f = 10 ** precision;
@@ -59,6 +70,7 @@ export function buildWebThemeSizes(
 		letterSpacings: {},
 		lineHeights: {},
 		space: {},
+		radii: {},
 	};
 
 	for (const [name, size, lineheight, spacing, weight] of tScale) {
@@ -76,6 +88,11 @@ export function buildWebThemeSizes(
 		const remSize = size / 16;
 
 		sizes.space![name] = `${roundTo(remSize, 3)}rem`;
+	}
+
+	for (const val of radiiScale) {
+		const remSize = val / 16;
+		sizes.radii![val] = `${roundTo(remSize, 3)}rem`;
 	}
 
 	// console.table(sizes);
