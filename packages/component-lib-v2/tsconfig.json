@@ -1,0 +1,15 @@
+{
+	"extends": "../../tsconfig.json",
+	"compilerOptions": {
+		"outDir": "./lib",
+		"rootDir": "./src",
+		"skipLibCheck": true,
+		"types": ["react", "jest"]
+	},
+	"typedocOptions": {
+		"entryPoints": ["src/index.tsx"],
+		"out": "docs"
+	},
+	"include": ["src/**/*"],
+	"exclude": ["src/**/.test.{ts,tsx}"]
+}

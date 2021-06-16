@@ -11,12 +11,14 @@
 	"private": true,
 	"workspaces": [
 		"packages/*",
-		"playground"
+		"playground",
+		"playground-native"
 	],
 	"scripts": {
 		"packages:build-all": "yarn workspaces foreach --exclude @thingco/shared-frontend-libs-playground run build",
 		"packages:test-all": "yarn workspaces foreach --exclude @thingco/shared-frontend-libs-playground run test",
 		"package:auth-flows": "yarn workspace @thingco/auth-flows",
+		"package:component-lib-v2": "yarn workspace @thingco/component-lib-v2",
 		"package:graphviz": "yarn workspace @thingco/graphviz",
 		"package:graphviz-web": "yarn workspace @thingco/graphviz-web",
 		"package:graphviz-native": "yarn workspace @thingco/graphviz-native",
@@ -27,24 +29,30 @@
 		"package:user-preferences-store-web": "yarn workspace @thingco/user-preferences-store-web",
 		"package:user-preferences-store-native": "yarn workspace @thingco/user-preferences-store-native",
 		"playground": "yarn workspace @thingco/shared-frontend-libs-playground",
-		"global:update-yarn": "yarn set version latest && yarn plugin import version && yarn plugin import typescript && yarn plugin import workspace-tools && yarn plugin import interactive-tools && yarn dlx @yarnpkg/pnpify --sdk"
+		"global:update-yarn": "yarn set version latest && yarn plugin import version && yarn plugin import typescript && yarn plugin import workspace-tools && yarn plugin import interactive-tools && yarn dlx @yarnpkg/pnpify --sdk",
+		"runscript": "zx"
 	},
 	"devDependencies": {
-		"@types/eslint": "^7.2.10",
+		"@stitches/css": "^9.0.0-alpha.8",
+		"@types/eslint": "^7.2.13",
 		"@types/eslint-plugin-prettier": "^3.1.0",
 		"@types/prettier": "^2.2.3",
-		"@typescript-eslint/eslint-plugin": "^4.22.0",
-		"@typescript-eslint/parser": "^4.22.0",
-		"eslint": "^7.25.0",
+		"@types/svgo": "^2.3.0",
+		"@typescript-eslint/eslint-plugin": "^4.26.0",
+		"@typescript-eslint/parser": "^4.26.0",
+		"eslint": "^7.28.0",
 		"eslint-config-prettier": "^8.3.0",
 		"eslint-plugin-prettier": "^3.4.0",
-		"eslint-plugin-react": "^7.23.2",
+		"eslint-plugin-react": "^7.24.0",
 		"eslint-plugin-react-hooks": "^4.2.0",
 		"eslint-plugin-tsdoc": "^0.2.14",
 		"husky": "^4.3.8",
-		"lint-staged": "^10.5.4",
-		"prettier": "^2.2.1",
-		"typescript": "^4.2.3"
+		"lint-staged": "^11.0.0",
+		"prettier": "^2.3.1",
+		"svgo": "^2.3.0",
+		"typescript": "^4.3.2",
+		"xml-js": "^1.6.11",
+		"zx": "^1.14.1"
 	},
 	"resolutions": {
 		"typicode/husky": "4.3.8"

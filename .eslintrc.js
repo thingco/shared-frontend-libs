@@ -41,9 +41,11 @@ module.exports = {
 		// React:
 		"react/display-name": "off",
 		// "react/jsx-filename-extension": ["error", { "extensions": [".tsx"] }],
+		"react/jsx-uses-react": "off",
+		"react/react-in-jsx-scope": "off",
 		// "react/jsx-uses-react": "error",
 		// "react/jsx-uses-vars": "warn",
-		// "react/prop-types": "off",
+		"react/prop-types": "off",
 		// React hooks:
 		// "react-hooks/exhaustive-deps": "warn",
 		// "react-hooks/rules-of-hooks": "error",

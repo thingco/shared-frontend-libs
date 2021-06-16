@@ -1,7 +1,13 @@
-# Caches. Note that we are using Yarn PnP, so dependencies are not installed in node_modules.
-# However, some tooling saves build caches to node_modules.
 node_modules
 **/node_modules
+
+.yarn/*
+!.yarn/patches
+!.yarn/releases
+!.yarn/plugins
+!.yarn/sdks
+!.yarn/versions
+.pnp.*
 
 # Production
 build
