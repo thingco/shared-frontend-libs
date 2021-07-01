@@ -3,7 +3,7 @@
 	"description": "XState-powered auth flows for React",
 	"version": "1.0.1",
 	"main": "lib/index.js",
-	"types": "lib/index.d.ts",
+	"types": "lib/types/index.d.ts",
 	"files": [
 		"lib/**"
 	],
@@ -13,8 +13,7 @@
 	},
 	"repository": "https://github.com/thingco/shared-frontend-libs",
 	"scripts": {
-		"start": "yarn rimraf lib && yarn tsc --watch",
-		"build": "yarn rimraf lib && yarn tsc",
+		"build": "yarn rimraf lib && yarn tsc && yarn node ./build.mjs",
 		"test": "yarn jest",
 		"docs": "yarn rimraf docs && yarn typedoc"
 	},
@@ -26,6 +25,7 @@
 		"@types/rimraf": "^3.0.0",
 		"@xstate/react": "^1.3.4",
 		"@xstate/test": "^0.4.2",
+		"esbuild": "^0.12.13",
 		"jest": "^27.0.4",
 		"react": "^17.0.2",
 		"react-dom": "^17.0.2",
