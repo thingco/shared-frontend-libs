@@ -3,7 +3,8 @@
 	"compilerOptions": {
 		"outDir": "./lib",
 		"rootDir": "./src",
-		"lib": ["DOM"]
+		"types": ["react", "jest"],
+		"lib": ["DOM", "ESNext"]
 	},
 	"typedocOptions": {
 		"entryPoints": ["src/index.tsx"],

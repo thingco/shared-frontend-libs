@@ -3,7 +3,8 @@
 	"compilerOptions": {
 		"outDir": "./lib",
 		"rootDir": "./src",
-		"skipLibCheck": true
+		"types": ["react-native", "jest"],
+		"lib": ["ESNext"]
 	},
 	"typedocOptions": {
 		"entryPoints": ["src/index.tsx"],
