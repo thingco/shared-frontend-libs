@@ -1,8 +1,10 @@
 {
 	"extends": "../../tsconfig.json",
 	"compilerOptions": {
-		"outDir": "./lib",
+		"emitDeclarationOnly": true,
+		"declarationDir": "./lib/types",
 		"rootDir": "./src",
+		"jsx": "react-native",
 		"types": ["react", "jest"],
 		"lib": ["ESNext"]
 	},

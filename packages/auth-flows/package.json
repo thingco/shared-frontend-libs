@@ -13,7 +13,7 @@
 	},
 	"repository": "https://github.com/thingco/shared-frontend-libs",
 	"scripts": {
-		"build": "yarn rimraf lib && yarn tsc && yarn node ./build.mjs",
+		"build": "yarn global:build",
 		"test": "yarn jest",
 		"docs": "yarn rimraf docs && yarn typedoc"
 	},

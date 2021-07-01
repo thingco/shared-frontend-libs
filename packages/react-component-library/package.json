@@ -3,7 +3,7 @@
 	"description": "React component lobrary",
 	"version": "0.5.0",
 	"main": "lib/index.js",
-	"types": "lib/index.d.ts",
+	"types": "lib/types/index.d.ts",
 	"files": [
 		"lib/**"
 	],
@@ -13,8 +13,7 @@
 	},
 	"repository": "https://github.com/thingco/shared-frontend-libs",
 	"scripts": {
-		"start": "yarn rimraf lib && yarn tsc --watch",
-		"build": "yarn rimraf lib && yarn tsc",
+		"build": "yarn global:build",
 		"test": "yarn jest",
 		"docs": "yarn rimraf docs && yarn typedoc"
 	},
