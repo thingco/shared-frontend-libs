@@ -1,11 +1,13 @@
 {
 	"extends": "../../tsconfig.json",
 	"compilerOptions": {
-		"outDir": "./lib",
-		"rootDir": "./src"
+		"emitDeclarationOnly": true,
+		"declarationDir": "./lib/types",
+		"rootDir": "./src",
+		"types": ["jest"]
 	},
 	"typedocOptions": {
-		"entryPoints": ["src/index.tsx"],
+		"entryPoints": ["src/index.ts"],
 		"out": "docs"
 	},
 	"include": ["src/**/*"],

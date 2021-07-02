@@ -1,9 +1,11 @@
 {
 	"extends": "../../tsconfig.json",
 	"compilerOptions": {
-		"outDir": "./lib",
+		"emitDeclarationOnly": true,
+		"declarationDir": "./lib/types",
 		"rootDir": "./src",
-		"lib": ["DOM"]
+		"types": ["react", "jest"],
+		"lib": ["DOM", "ESNext"]
 	},
 	"typedocOptions": {
 		"entryPoints": ["src/index.tsx"],
