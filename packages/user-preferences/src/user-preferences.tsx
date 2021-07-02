@@ -105,13 +105,3 @@ export function usePrefs(): {
 		setPref: updater.updateUserPreference,
 	};
 }
-
-/**
- * Re-export the shared types.
- *
- * BE VERY CAREFUL WITH THIS. Because the types are shared, if re-exported from another package as well,
- * there is the distinct possiblity of conflicts (even though the types are actually exactly the same).
- *
- * REVIEW publish the shared types?
- */
-export * from "@thingco/shared-types";

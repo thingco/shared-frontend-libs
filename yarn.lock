@@ -2849,7 +2849,8 @@ __metadata:
   dependencies:
     "@testing-library/jest-dom": ^5.14.1
     "@testing-library/react": ^11.2.7
-    "@thingco/user-preferences": 0.5.0
+    "@thingco/shared-types": "workspace:*"
+    "@thingco/user-preferences": 0.6.0
     "@types/jest": ^26.0.23
     "@types/react": ^17.0.11
     "@types/react-dom": ^17.0.8
@@ -2863,6 +2864,7 @@ __metadata:
     typedoc: ^0.21.0
     typescript: ^4.3.4
   peerDependencies:
+    "@thingco/shared-types": "*"
     "@thingco/user-preferences": "*"
     react: "*"
   languageName: unknown
@@ -2887,6 +2889,7 @@ __metadata:
     typescript: ^4.3.4
   peerDependencies:
     "@react-native-async-storage/async-storage": "*"
+    "@thingco/shared-types": "*"
     react: "*"
     react-native: "*"
   languageName: unknown
@@ -2906,10 +2909,12 @@ __metadata:
     ts-jest: ^27.0.3
     typedoc: ^0.21.0
     typescript: ^4.3.4
+  peerDependencies:
+    "@thingco/shared-types": "*"
   languageName: unknown
   linkType: soft
 
-"@thingco/user-preferences@0.5.0, @thingco/user-preferences@workspace:*, @thingco/user-preferences@workspace:packages/user-preferences":
+"@thingco/user-preferences@0.6.0, @thingco/user-preferences@workspace:*, @thingco/user-preferences@workspace:packages/user-preferences":
   version: 0.0.0-use.local
   resolution: "@thingco/user-preferences@workspace:packages/user-preferences"
   dependencies:
@@ -2929,6 +2934,7 @@ __metadata:
     typedoc: ^0.21.0
     typescript: ^4.3.4
   peerDependencies:
+    "@thingco/shared-types": "*"
     react: "*"
   languageName: unknown
   linkType: soft

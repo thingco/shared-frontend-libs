@@ -1,11 +1,11 @@
-import {
+import { kmphToMph, metersToKilometers, metersToMiles, secondsToDurationObj } from "./converters";
+
+import type {
 	DistancePrecisionPreference,
 	DistanceUnitPreference,
 	LocalePreference,
 	TimeDisplayPreference,
-} from "@thingco/user-preferences";
-
-import { kmphToMph, metersToKilometers, metersToMiles, secondsToDurationObj } from "./converters";
+} from "@thingco/shared-types";
 
 export interface DistanceOpts {
 	unitPreference?: DistanceUnitPreference;
