@@ -1,7 +1,7 @@
 {
 	"name": "@thingco/user-preferences",
 	"description": "User preference storage/access for ThingCo React apps",
-	"version": "0.3.0",
+	"version": "0.4.0",
 	"main": "lib/index.js",
 	"types": "lib/types/index.d.ts",
 	"files": [
