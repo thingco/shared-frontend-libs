@@ -1,7 +1,7 @@
 {
 	"name": "@thingco/user-preferences",
 	"description": "User preference storage/access for ThingCo React apps",
-	"version": "0.5.0",
+	"version": "0.6.0",
 	"main": "lib/index.js",
 	"types": "lib/types/index.d.ts",
 	"files": [
@@ -20,6 +20,7 @@
 	"devDependencies": {
 		"@testing-library/jest-dom": "^5.14.1",
 		"@testing-library/react": "^11.2.7",
+		"@thingco/shared-types": "workspace:*",
 		"@types/jest": "^26.0.23",
 		"@types/react": "^17.0.11",
 		"@types/react-dom": "^17.0.8",
@@ -33,10 +34,8 @@
 		"typedoc": "^0.21.0",
 		"typescript": "^4.3.4"
 	},
-	"dependencies": {
-		"@thingco/shared-types": "workspace:*"
-	},
 	"peerDependencies": {
+		"@thingco/shared-types": "*",
 		"react": "*"
 	}
 }

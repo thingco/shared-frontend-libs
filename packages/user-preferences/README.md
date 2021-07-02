@@ -9,20 +9,27 @@ An React/React Native interface for storing user preferences ThingCo apps. Provi
 Ensure your project is set up to allow pulling `@thingco/` namespaced packages from GitHub rather than NPM.
 
 ```
-yarn add @thingco/user-preferences@0.1.0
+yarn add @thingco/user-preferences@0.6.0
 ```
 
 It is necessary to provide a store implementation. You can build one yourself -- see the respective `user-preferences-store-` implementations as an example, they're very simple. But more likely
 you will want to just use the web storage API or the React Native API. For web, you'll need React installed, then:
 
 ```
-yarn add @thingco/user-preferences-store-web@0.1.0
+yarn add @thingco/user-preferences-store-web@0.4.0
 ```
 
 For React native, you'll need React, React Native and AsyncStorage (`@react-native-async-storage/async-storage`) installed. Then:
 
 ```
-yarn add @thingco/user-preferences-store-native@0.1.0
+yarn add @thingco/user-preferences-store-native@0.4.0
+```
+
+And finally, you'll need the shared types as a dev dependency (or a normal dependency, it will make
+no difference, as they are just Typescript types):
+
+```
+yarn add -D @thingco/shared-types@0.2.0
 ```
 
 ## Setup
