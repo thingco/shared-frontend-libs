@@ -20,15 +20,29 @@ try {
 	await rimraf(workspaceBuildDirectoryPath, {}, () => void 0);
 	console.log(`Compiling Typescript declaration files to ${workspaceBuildDirectoryPath}/types/`);
 	await $`yarn tsc`;
-	console.log(`Compiling and bundling source code to ${workspaceBuildDirectoryPath}`);
-	await build({
+	const commonConfig = {
 		bundle: true,
 		entryPoints: [join(workspaceSourceDirectoryPath, "index.ts")],
 		external: peerDependenciesArray,
-		outfile: join(workspaceBuildDirectoryPath, "index.js"),
 		sourcemap: true,
 		tsconfig: join(workspacePath, "tsconfig.json"),
+	};
+
+	console.log(
+		`Compiling and bundling source code in ESModule format to ${workspaceBuildDirectoryPath}`
+	);
+	await build({
+		...commonConfig,
+		outfile: join(workspaceBuildDirectoryPath, "index.module.js"),
+		format: "esm",
 	});
+	console.log(`Compiling and bundling source code in CJS format to ${workspaceBuildDirectoryPath}`);
+	await build({
+		...commonConfig,
+		outfile: join(workspaceBuildDirectoryPath, "index.js"),
+		format: "cjs",
+	});
+
 	const end = await Date.now();
 	console.log(`Finished building ${name} in ${end - start}ms`);
 } catch (err) {

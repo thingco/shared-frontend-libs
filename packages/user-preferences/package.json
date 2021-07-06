@@ -3,6 +3,7 @@
 	"description": "User preference storage/access for ThingCo React apps",
 	"version": "0.6.0",
 	"main": "lib/index.js",
+	"module": "lib/index.module.js",
 	"types": "lib/types/index.d.ts",
 	"files": [
 		"lib/**"
