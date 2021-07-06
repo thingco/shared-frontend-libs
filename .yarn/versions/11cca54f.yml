@@ -5,7 +5,7 @@ undecided:
   - "@thingco/graphviz-web"
   - "@thingco/react-component-library"
   - "@thingco/shared-types"
+  - "@thingco/unit-formatter"
   - "@thingco/user-preferences"
   - "@thingco/user-preferences-store-native"
-  - "@thingco/user-preferences-store-web"
   - "@thingco/shared-frontend-libs-playground"
