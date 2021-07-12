@@ -11,5 +11,5 @@
 		"out": "docs"
 	},
 	"include": ["src/**/*"],
-	"exclude": ["src/**/.test.{ts,tsx}", "src/setupTests.ts"]
+	"exclude": ["src/__tests__/*.{ts,tsx}"]
 }

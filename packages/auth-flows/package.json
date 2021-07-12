@@ -41,5 +41,8 @@
 		"react": "*",
 		"react-dom": "*",
 		"xstate": "*"
+	},
+	"dependencies": {
+		"@xstate/inspect": "^0.4.1"
 	}
 }
