@@ -1,4 +1,5 @@
 undecided:
+  - "@thingco/auth-flows"
   - "@thingco/graphviz"
   - "@thingco/graphviz-native"
   - "@thingco/graphviz-web"
@@ -7,5 +8,4 @@ undecided:
   - "@thingco/unit-formatter"
   - "@thingco/user-preferences"
   - "@thingco/user-preferences-store-native"
-  - "@thingco/user-preferences-store-web"
   - "@thingco/shared-frontend-libs-playground"
