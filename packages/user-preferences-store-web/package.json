@@ -1,0 +1,35 @@
+{
+	"name": "@thingco/user-preferences-store-web",
+	"description": "Web persistance for ThingCo React apps' user preferences",
+	"version": "0.5.0",
+	"main": "lib/index.js",
+	"types": "lib/types/index.d.ts",
+	"files": [
+		"lib/**"
+	],
+	"public": true,
+	"publishConfig": {
+		"registry": "https://npm.pkg.github.com/"
+	},
+	"repository": "https://github.com/thingco/shared-frontend-libs",
+	"scripts": {
+		"build": "yarn global:build",
+		"test": "yarn jest",
+		"docs": "yarn rimraf docs && yarn typedoc"
+	},
+	"devDependencies": {
+		"@testing-library/jest-dom": "^5.14.1",
+		"@thingco/shared-types": "workspace:*",
+		"@types/jest": "^26.0.23",
+		"@types/rimraf": "^3.0.0",
+		"@types/testing-library__jest-dom": "^5.14.0",
+		"jest": "^27.0.4",
+		"rimraf": "^3.0.2",
+		"ts-jest": "^27.0.3",
+		"typedoc": "^0.21.0",
+		"typescript": "^4.3.4"
+	},
+	"peerDependencies": {
+		"@thingco/shared-types": "*"
+	}
+}

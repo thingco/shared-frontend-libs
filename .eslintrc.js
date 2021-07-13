@@ -8,20 +8,24 @@ module.exports = {
 			jsx: true, // Allows for the parsing of JSX
 		},
 	},
-	plugins: ["jsdoc"],
+	plugins: ["@typescript-eslint/eslint-plugin", "eslint-plugin-react", "eslint-plugin-tsdoc"],
 	settings: {
 		react: {
 			version: "detect", // Tells eslint-plugin-react to automatically detect the version of React to use
 		},
 	},
 	extends: [
-		"plugin:jsdoc/recommended",
 		"plugin:react/recommended", // Uses the recommended rules from @eslint-plugin-react
 		"plugin:@typescript-eslint/recommended", // Uses the recommended rules from the @typescript-eslint/eslint-plugin
 		"prettier", // Uses eslint-config-prettier to disable ESLint rules that would conflict with prettier
-		"prettier/@typescript-eslint", // Uses eslint-config-prettier to disable ESLint rules from @typescript-eslint/eslint-plugin that would conflict with prettier
-		"prettier/react", // Uses eslint-config-prettier to disable ESLint rules relating to React that would conflict with prettier
-		// "plugin:prettier/recommended", // Enables eslint-plugin-prettier and eslint-config-prettier. This will display prettier errors as ESLint errors. Make sure this is always the last configuration in the extends array.
+	],
+	overrides: [
+		{
+			files: ["**/*.test.{ts,tsx}"],
+			env: {
+				jest: true,
+			},
+		},
 	],
 
 	rules: {
@@ -34,8 +38,6 @@ module.exports = {
 		// "spaced-comment": "off",
 		// Import:
 		// "import/prefer-default-export": "off",
-		// Prettier:
-		// "prettier/prettier": 2,
 		// React:
 		"react/display-name": "off",
 		// "react/jsx-filename-extension": ["error", { "extensions": [".tsx"] }],
@@ -50,5 +52,7 @@ module.exports = {
 		"@typescript-eslint/no-unused-vars": "warn",
 		"@typescript-eslint/no-use-before-define": "off",
 		"@typescript-eslint/no-var-requires": "off",
+		// TSDoc
+		"tsdoc/syntax": "warn",
 	},
 };

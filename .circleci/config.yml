@@ -1,0 +1,13 @@
+version: 2.1
+
+jobs:
+  build_packages:
+    docker:
+      image: cimg/node:15.11.0
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - run: node --version
+      - run: yarn
+      - run: yarn workspaces foreach --exclude website run test
+      - run: yarn workspaces foreach --exclude website run bundle

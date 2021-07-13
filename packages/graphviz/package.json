@@ -1,20 +1,31 @@
 {
 	"name": "@thingco/graphviz",
-	"description": "A small data visualisation library for ThingCo front ends. NOT a renderer, this just takes data and processes it to a form usable by a renderer",
-	"version": "0.1.0",
+	"description": "React-based graph/chart visualisations",
+	"version": "1.2.0",
 	"main": "lib/index.js",
-	"module": "lib/index.module.js",
-	"types": "lib/index.d.ts",
+	"types": "lib/types/index.d.ts",
+	"files": [
+		"lib/**"
+	],
 	"public": true,
+	"publishConfig": {
+		"registry": "https://npm.pkg.github.com/"
+	},
+	"repository": "https://github.com/thingco/shared-frontend-libs",
 	"scripts": {
-		"clean": "yarn global:clean lib node_modules",
-		"bundle": "yarn microbundle",
-		"develop": "yarn clean && yarn microbundle watch",
-		"build": "yarn clean && yarn bundle",
-		"lint": "yarn global:lint"
+		"build": "yarn global:build",
+		"test": "yarn jest",
+		"docs": "yarn rimraf docs && yarn typedoc"
 	},
 	"devDependencies": {
-		"microbundle": "^0.13.0",
-		"typescript": "^4.1.3"
+		"@types/rimraf": "^3.0.0",
+		"jest": "^27.0.4",
+		"rimraf": "^3.0.2",
+		"ts-jest": "^27.0.3",
+		"typedoc": "^0.21.0",
+		"typescript": "^4.3.4"
+	},
+	"peerDependencies": {
+		"@thingco/graphviz": "*"
 	}
 }

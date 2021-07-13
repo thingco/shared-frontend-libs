@@ -1,0 +1,11 @@
+{
+	"extends": "../../tsconfig.json",
+	"compilerOptions": {
+		"noEmit": true
+	},
+	"typedocOptions": {
+		"entryPoints": ["index.d.ts"],
+		"out": "docs"
+	},
+	"files": ["index.d.ts"]
+}

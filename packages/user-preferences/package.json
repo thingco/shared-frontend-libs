@@ -1,0 +1,41 @@
+{
+	"name": "@thingco/user-preferences",
+	"description": "User preference storage/access for ThingCo React apps",
+	"version": "0.8.0",
+	"main": "lib/index.js",
+	"types": "lib/types/index.d.ts",
+	"files": [
+		"lib/**"
+	],
+	"public": true,
+	"publishConfig": {
+		"registry": "https://npm.pkg.github.com/"
+	},
+	"repository": "https://github.com/thingco/shared-frontend-libs",
+	"scripts": {
+		"build": "yarn global:build",
+		"test": "yarn jest",
+		"docs": "yarn rimraf docs && yarn typedoc"
+	},
+	"devDependencies": {
+		"@testing-library/jest-dom": "^5.14.1",
+		"@testing-library/react": "^11.2.7",
+		"@thingco/shared-types": "workspace:*",
+		"@types/jest": "^26.0.23",
+		"@types/react": "^17.0.11",
+		"@types/react-dom": "^17.0.8",
+		"@types/rimraf": "^3.0.0",
+		"@types/testing-library__jest-dom": "^5.14.0",
+		"jest": "^27.0.4",
+		"react": "^17.0.2",
+		"react-dom": "^17.0.2",
+		"rimraf": "^3.0.2",
+		"ts-jest": "^27.0.3",
+		"typedoc": "^0.21.0",
+		"typescript": "^4.3.4"
+	},
+	"peerDependencies": {
+		"@thingco/shared-types": "*",
+		"react": "*"
+	}
+}

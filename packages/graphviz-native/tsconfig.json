@@ -1,0 +1,17 @@
+{
+	"extends": "../../tsconfig.json",
+	"compilerOptions": {
+		"emitDeclarationOnly": true,
+		"declarationDir": "./lib/types",
+		"rootDir": "./src",
+		"jsx": "react-native",
+		"types": ["react", "jest"],
+		"lib": ["ESNext"]
+	},
+	"typedocOptions": {
+		"entryPoints": ["src/index.tsx"],
+		"out": "docs"
+	},
+	"include": ["src/**/*"],
+	"exclude": ["src/**/*.test.{ts,tsx}"]
+}

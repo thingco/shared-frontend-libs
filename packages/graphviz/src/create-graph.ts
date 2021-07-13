@@ -82,9 +82,7 @@ export function createGraph({
 	 * If neither the x and y axis values are provided, cannot create the graph:
 	 */
 	if (!xAxisValues && !yAxisValues) {
-		throw new Error(
-			"ONE OR BOTH x- or y-axis value arrays MUST be provided to create the graph."
-		);
+		throw new Error("ONE OR BOTH x- or y-axis value arrays MUST be provided to create the graph.");
 	}
 
 	/**
@@ -92,15 +90,9 @@ export function createGraph({
 	 * to be the length of the other (_ie_ the values are plotted on a range/in series):
 	 */
 	if (yAxisValues && !xAxisValues) {
-		xAxisValues = Array.from(
-			{ length: yAxisValues.length },
-			(_, i) => i + xAxisMin
-		);
+		xAxisValues = Array.from({ length: yAxisValues.length }, (_, i) => i + xAxisMin);
 	} else if (xAxisValues && !yAxisValues) {
-		yAxisValues = Array.from(
-			{ length: xAxisValues.length },
-			(_, i) => i + yAxisMin
-		);
+		yAxisValues = Array.from({ length: xAxisValues.length }, (_, i) => i + yAxisMin);
 	}
 	// Once both of the arrays of values are populated, can infer the max values if not present:
 	xAxisMax = xAxisMax ?? Math.max(...(xAxisValues as number[]));
@@ -150,7 +142,6 @@ export function createGraph({
 		yAxisStep,
 		yAxisValues: yAxisValues as number[],
 	};
-	console.log(graphData);
 	return graphData;
 }
 
@@ -171,16 +162,11 @@ export function createGraph({
  * 10
  * ```
  *
- * @param {number} axisSize - the required size in pixels
- * @param {number} axisMin - the value the axis starts from
- * @param {number} axisMax - the value the axis ends on
- * @returns {number}
+ * @param axisSize - the required size in pixels
+ * @param axisMin - the value the axis starts from
+ * @param axisMax - the value the axis ends on
  */
-export function calculateScale(
-	axisSize: number,
-	axisMin: number,
-	axisMax: number
-): number {
+export function calculateScale(axisSize: number, axisMin: number, axisMax: number): number {
 	return axisSize / (axisMax - axisMin);
 }
 
@@ -201,33 +187,23 @@ export function calculateScale(
  * 100
  * ```
  *
- * @param {number} axisScale - the scaling factor for the axis
- * @param {number} axisMin - the value the axis starts from
- * @param {number} axisMax - the value the axis ends on
- * @returns {number}
+ * @param axisScale - the scaling factor for the axis
+ * @param axisMin - the value the axis starts from
+ * @param axisMax - the value the axis ends on
  */
-export function calculateSize(
-	axisScale: number,
-	axisMin: number,
-	axisMax: number
-): number {
+export function calculateSize(axisScale: number, axisMin: number, axisMax: number): number {
 	return (axisMax - axisMin) * axisScale;
 }
 
 /**
  * Generate an array of x axis coordinates for stepped points along that axis. Used to place annotations.
  *
- * @param {GraphData} graphData
- * @param {number} graphData.xAxisMin
- * @param {number} graphData.xAxisMax
- * @param {number} graphData.xAxisStep
- * @returns {number[]}
+ * @param graphData
+ * @param graphData.xAxisMin
+ * @param graphData.xAxisMax
+ * @param graphData.xAxisStep
  */
-export function steppedXAxisValues({
-	xAxisMin,
-	xAxisMax,
-	xAxisStep,
-}: GraphData): number[] {
+export function steppedXAxisValues({ xAxisMin, xAxisMax, xAxisStep }: GraphData): number[] {
 	const vals = [];
 
 	// TODO currently ignoring graphs that only have data with negative values that should be plotted
@@ -247,16 +223,11 @@ export function steppedXAxisValues({
  * Generate an array of y axis coordinates for stepped points along that axis. Used to place annotations.
  *
  * @param {GraphData} graphData
- * @param {number} graphData.yAxisMin
- * @param {number} graphData.yAxisMax
- * @param {number} graphData.yAxisStep
- * @returns {number[]}
+ * @param graphData.yAxisMin
+ * @param graphData.yAxisMax
+ * @param graphData.yAxisStep
  */
-export function steppedYAxisValues({
-	yAxisMin,
-	yAxisMax,
-	yAxisStep,
-}: GraphData): number[] {
+export function steppedYAxisValues({ yAxisMin, yAxisMax, yAxisStep }: GraphData): number[] {
 	const vals = [];
 
 	// TODO currently ignoring graphs that only have data with negative values that should be plotted

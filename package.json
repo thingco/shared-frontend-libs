@@ -11,39 +11,48 @@
 	"private": true,
 	"workspaces": [
 		"packages/*",
-		"website"
+		"playground"
 	],
 	"scripts": {
-		"global:clean": "rimraf",
-		"global:compile": "cd $INIT_CWD && tsc --build",
-		"global:concurrently": "cd $INIT_CWD && concurrently",
-		"global:format": "prettier",
-		"global:lint": "cd $INIT_CWD && eslint",
-		"global:test": "jest",
-		"global:typecheck": "cd $INIT_CWD && tsc --noEmit"
+		"packages:build-all": "yarn workspaces foreach -v --topological-dev --exclude @thingco/shared-frontend-libs-playground run build",
+		"packages:test-all": "yarn workspaces foreach --exclude @thingco/shared-frontend-libs-playground run test",
+		"package:auth-flows": "yarn workspace @thingco/auth-flows",
+		"package:graphviz": "yarn workspace @thingco/graphviz",
+		"package:graphviz-web": "yarn workspace @thingco/graphviz-web",
+		"package:graphviz-native": "yarn workspace @thingco/graphviz-native",
+		"package:react-component-library": "yarn workspace @thingco/react-component-library",
+		"package:shared-types": "yarn workspace @thingco/shared-types",
+		"package:unit-formatter": "yarn workspace @thingco/unit-formatter",
+		"package:user-preferences": "yarn workspace @thingco/user-preferences",
+		"package:user-preferences-store-web": "yarn workspace @thingco/user-preferences-store-web",
+		"package:user-preferences-store-native": "yarn workspace @thingco/user-preferences-store-native",
+		"playground": "yarn workspace @thingco/shared-frontend-libs-playground",
+		"global:update-yarn": "yarn set version latest && yarn plugin import version && yarn plugin import typescript && yarn plugin import workspace-tools && yarn plugin import interactive-tools && yarn dlx @yarnpkg/pnpify --sdk",
+		"global:build": "cd $INIT_CWD && zx ../../scripts/build-library.mjs"
 	},
 	"devDependencies": {
-		"@types/concurrently": "^5.2.1",
-		"@types/eslint": "^7.2.6",
+		"@types/eslint": "^7.2.13",
 		"@types/eslint-plugin-prettier": "^3.1.0",
-		"@types/prettier": "^2.2.0",
+		"@types/prettier": "^2.3.0",
 		"@types/rimraf": "^3.0.0",
-		"@typescript-eslint/eslint-plugin": "^4.14.2",
-		"@typescript-eslint/parser": "^4.14.2",
-		"concurrently": "^5.3.0",
-		"eslint": "^7.19.0",
-		"eslint-config-prettier": "^7.2.0",
-		"eslint-plugin-jsdoc": "^32.2.0",
-		"eslint-plugin-prettier": "^3.3.1",
-		"eslint-plugin-react": "^7.22.0",
+		"@typescript-eslint/eslint-plugin": "^4.27.0",
+		"@typescript-eslint/parser": "^4.27.0",
+		"esbuild": "^0.12.13",
+		"eslint": "^7.29.0",
+		"eslint-config-prettier": "^8.3.0",
+		"eslint-plugin-prettier": "^3.4.0",
+		"eslint-plugin-react": "^7.24.0",
 		"eslint-plugin-react-hooks": "^4.2.0",
+		"eslint-plugin-tsdoc": "^0.2.14",
 		"husky": "^4.3.8",
-		"jest": "^26.6.3",
-		"lint-staged": "^10.5.4",
-		"prettier": "^2.2.1",
+		"lint-staged": "^11.0.0",
+		"prettier": "^2.3.1",
 		"rimraf": "^3.0.2",
-		"ts-jest": "^26.5.0",
-		"typescript": "^4.1.3"
+		"typescript": "^4.3.4",
+		"zx": "^1.14.2"
+	},
+	"resolutions": {
+		"typicode/husky": "4.3.8"
 	},
 	"husky": {
 		"hooks": {
@@ -51,6 +60,7 @@
 		}
 	},
 	"lint-staged": {
-		"*.{js,json,rjson,jsx,ts,tsx}": "yarn eslint --fix"
+		"*.{js,json,rjson,jsx,ts,tsx}": "eslint --fix",
+		"*.{css,html,js,json,jsx,mjs,rjson,ts,tsx}": "prettier --write"
 	}
 }

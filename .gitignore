@@ -3,11 +3,24 @@
 node_modules
 **/node_modules
 
+.yarn/*
+!.yarn/patches
+!.yarn/releases
+!.yarn/plugins
+!.yarn/sdks
+!.yarn/versions
+.pnp.*
+
 # Production
 build
 **/build
 lib
 **/lib
+dist
+**/dist
+docs
+**/docs
+
 
 # Misc
 .DS_Store

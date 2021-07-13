@@ -1,0 +1,18 @@
+{
+	"name": "@thingco/shared-types",
+	"description": "Internal shared types for the shared-frontend-libs repo",
+	"version": "0.4.0",
+	"main": "index.js",
+	"types": "index.d.ts",
+	"files": [
+		"**"
+	],
+	"public": true,
+	"publishConfig": {
+		"registry": "https://npm.pkg.github.com/"
+	},
+	"repository": "https://github.com/thingco/shared-frontend-libs",
+	"scripts": {
+		"docs": "yarn rimraf docs && yarn typedoc"
+	}
+}
