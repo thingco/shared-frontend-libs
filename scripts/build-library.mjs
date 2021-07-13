@@ -2,6 +2,12 @@ import { build } from "esbuild";
 import { join } from "path";
 import rimraf from "rimraf";
 
+$.verbose = false;
+const prepLog = (message) => console.log(chalk.magenta(`[PREPARE]	${message}`));
+const buildLog = (message) => console.log(chalk.cyan(`[BUILD]		${message}`));
+const finLog = (message) => console.log(chalk.green(`[COMPLETE]	${message}`));
+const warnLog = (message) => console.log(chalk.yellow(`[WARN]		${message}`));
+
 const workspacePath = process.env.INIT_CWD;
 const workspaceManifestPath = join(workspacePath, "package.json");
 const workspaceSourceDirectoryPath = join(workspacePath, "src");
@@ -14,11 +20,16 @@ const { name, peerDependencies } = JSON.parse(
 const peerDependenciesArray = Object.keys(peerDependencies ?? {});
 
 try {
-	console.log(`Starting building of ${name}`);
+	prepLog(`Starting build of ${name}`);
 	const start = await Date.now();
-	console.log(`Cleaning build directory at ${workspaceBuildDirectoryPath}`);
+	prepLog(`Cleaning build directory at ${chalk.underline(workspaceBuildDirectoryPath)}`);
 	await rimraf(workspaceBuildDirectoryPath, {}, () => void 0);
-	console.log(`Compiling Typescript declaration files to ${workspaceBuildDirectoryPath}/types/`);
+
+	buildLog(
+		`Compiling Typescript declaration files to ${chalk.underline(
+			`${workspaceBuildDirectoryPath}/types/`
+		)}`
+	);
 	await $`yarn tsc`;
 	const commonConfig = {
 		bundle: true,
@@ -28,15 +39,22 @@ try {
 		tsconfig: join(workspacePath, "tsconfig.json"),
 	};
 
-	console.log(
-		`Compiling and bundling source code in ESModule format to ${workspaceBuildDirectoryPath}`
+	warnLog(`ESM builds currently turned off due to publication issues.`);
+	// buildLog(
+	// 	`Compiling and bundling source code in ESModule format to ${chalk.underline(
+	// 		workspaceBuildDirectoryPath
+	// 	)}`
+	// );
+	// await build({
+	// 	...commonConfig,
+	// 	outfile: join(workspaceBuildDirectoryPath, "index.esm.js"),
+	// 	format: "esm",
+	// });
+	buildLog(
+		`Compiling and bundling source code in CJS format to ${chalk.underline(
+			workspaceBuildDirectoryPath
+		)}`
 	);
-	await build({
-		...commonConfig,
-		outfile: join(workspaceBuildDirectoryPath, "index.module.js"),
-		format: "esm",
-	});
-	console.log(`Compiling and bundling source code in CJS format to ${workspaceBuildDirectoryPath}`);
 	await build({
 		...commonConfig,
 		outfile: join(workspaceBuildDirectoryPath, "index.js"),
@@ -44,7 +62,7 @@ try {
 	});
 
 	const end = await Date.now();
-	console.log(`Finished building ${name} in ${end - start}ms`);
+	finLog(`Finished building ${name} in ${end - start}ms`);
 } catch (err) {
 	process.exit(1);
 }
