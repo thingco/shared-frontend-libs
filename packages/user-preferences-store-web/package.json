@@ -3,7 +3,6 @@
 	"description": "Web persistance for ThingCo React apps' user preferences",
 	"version": "0.4.0",
 	"main": "lib/index.js",
-	"module": "lib/index.module.js",
 	"types": "lib/types/index.d.ts",
 	"files": [
 		"lib/**"
