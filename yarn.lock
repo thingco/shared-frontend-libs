@@ -2705,7 +2705,7 @@ __metadata:
     ts-jest: ^27.0.3
     typedoc: ^0.21.0
     typescript: ^4.3.4
-    xstate: ^4.20.0
+    xstate: ^4.22.0
   peerDependencies:
     "@xstate/react": "*"
     react: "*"
@@ -2832,7 +2832,7 @@ __metadata:
     webpack: ^5.39.1
     webpack-cli: ^4.7.2
     webpack-dev-server: ^3.11.2
-    xstate: ^4.20.0
+    xstate: ^4.22.0
   languageName: unknown
   linkType: soft
 
@@ -14318,10 +14318,10 @@ typescript@^4.3.4:
   languageName: node
   linkType: hard
 
-"xstate@npm:^4.20.0":
-  version: 4.20.0
-  resolution: "xstate@npm:4.20.0"
-  checksum: 8815e70730d1797d627bbc81018769e73907d509a6f927c48875989257e09593deaa68aeedbe5709c14b32d56889920cc24f303b6f7134afff6ffbfafd6067bf
+"xstate@npm:^4.22.0":
+  version: 4.22.0
+  resolution: "xstate@npm:4.22.0"
+  checksum: 1bf72c899e1c293c993e4c5dbbaa7141bd7d3cfbcea9938de1b36728d2c1ac9225940ce3b64640a097008972205f2a4203a96b6060350f7dac5e299240b2b615
   languageName: node
   linkType: hard
 

@@ -1,4 +1,4 @@
-import { ServiceError } from "./utilities";
+import { ServiceError } from "./errors";
 
 import type { SessionCheckBehaviour } from "./types";
 

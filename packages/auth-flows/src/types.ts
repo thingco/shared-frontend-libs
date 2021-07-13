@@ -9,10 +9,12 @@ export type DeviceSecurityTypeKey = "@auth_device_security_type";
 
 export interface DeviceSecurityService {
 	getDeviceSecurityType: () => Promise<DeviceSecurityType>;
-	setDeviceSecurityType: (deviceSecurityType: DeviceSecurityType) => Promise<any>;
-	changeExistingPin: (currentPin: string, newPin: string) => Promise<any>;
-	checkPinIsSet: () => Promise<any>;
-	checkPinIsValid: (currentPin: string) => Promise<any>;
-	clearExistingPin: () => Promise<any>;
-	setNewPin: (newPin: string) => Promise<any>;
+	setDeviceSecurityType: (deviceSecurityType: DeviceSecurityType) => Promise<unknown>;
+	changeCurrentPin: (currentPin: string, newPin: string) => Promise<unknown>;
+	checkForBiometricSupport: () => Promise<unknown>;
+	checkBiometricAuthorisation: () => Promise<unknown>;
+	checkPinIsSet: () => Promise<unknown>;
+	checkPinIsValid: (currentPin: string) => Promise<unknown>;
+	clearCurrentPin: () => Promise<unknown>;
+	setNewPin: (newPin: string) => Promise<unknown>;
 }

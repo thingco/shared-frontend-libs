@@ -1,6 +1,8 @@
 import { Auth as AWSAuth } from "@aws-amplify/auth";
 import {
 	AuthProvider,
+	DeviceSecurityService,
+	DeviceSecurityType,
 	OTPService,
 	useAuthState,
 	useAuthUpdate,
@@ -9,9 +11,13 @@ import {
 import React from "react";
 
 import {
+	ChangeCurrentPinInput,
+	CurrentPinInput,
+	NewPinInput,
 	OtpLoginFlowInit,
 	OtpPasswordInput,
 	OtpUsernameInput,
+	PinFlowInit,
 	UsernamePasswordInput,
 	UsernamePasswordLoginFlowInit,
 } from "./AuthStages";
@@ -64,38 +70,60 @@ function createCognitoUsernamePasswordService(): UsernamePasswordService<Cognito
 	};
 }
 
-// const PINKEY = "@pintest";
+const PINKEY = "@pintest";
+const SECURITYTYPEKEY = "@securitytypetest";
 
-// const PinInterface = {
-// 	async hasPinSet() {
-// 		console.log("@thingco/auth-flows: checking if user has a PIN set");
-// 		const storedPin = localStorage.getItem(PINKEY);
-// 		return await !!storedPin;
-// 	},
-// 	async validatePin(pin: string) {
-// 		console.log("@thingco/auth-flows: validating an existing PIN");
-// 		const storedPin = localStorage.getItem(PINKEY);
-// 		if (pin === storedPin) {
-// 			return await null;
-// 		} else {
-// 			throw new Error("entered pin does not match stored pin");
-// 		}
-// 	},
-// 	async setNewPin(pin: string) {
-// 		console.log("@thingco/auth-flows: setting a new PIN");
-// 		localStorage.setItem(PINKEY, pin);
-// 		return await null;
-// 	},
-// 	async clearPin() {
-// 		console.log("@thingco/auth-flows: clearing existing PIN");
-// 		localStorage.removeItem(PINKEY);
-// 		return await null;
-// 	},
-// };
+const deviceSecurityApi: DeviceSecurityService = {
+	async getDeviceSecurityType() {
+		const securityType = localStorage.getItem(SECURITYTYPEKEY);
+		if (securityType) {
+			return securityType as DeviceSecurityType;
+		} else {
+			throw new Error();
+		}
+	},
+	async setDeviceSecurityType(deviceSecurityType: DeviceSecurityType) {
+		localStorage.setItem(SECURITYTYPEKEY, deviceSecurityType);
+		return;
+	},
+	async changeExistingPin(currentPin: string, newPin: string) {
+		const storedPin = localStorage.getItem(PINKEY);
+		if (currentPin !== storedPin) {
+			throw new Error();
+		} else {
+			localStorage.setItem(PINKEY, newPin);
+			return;
+		}
+	},
+	async checkPinIsSet() {
+		const storedPin = localStorage.getItem(PINKEY);
+		if (storedPin) {
+			return;
+		} else {
+			throw new Error();
+		}
+	},
+	async checkPinIsValid(currentPin: string) {
+		const storedPin = localStorage.getItem("pin");
+		if (currentPin !== storedPin) {
+			throw new Error();
+		} else {
+			return;
+		}
+	},
+	async clearExistingPin() {
+		localStorage.removeItem("pin");
+		return;
+	},
+	async setNewPin(newPin: string) {
+		localStorage.setItem("pin", newPin);
+		return;
+	},
+};
 
 const AuthTest = () => {
-	const { inAuthorisedState, loginFlowType } = useAuthState();
-	const { logOut, changeLoginFlowType } = useAuthUpdate();
+	const { inAuthorisedState } = useAuthState();
+	const { logOut } = useAuthUpdate();
 	// const [localPin, setLocalPin] = React.useState("");
 	// const [localPinConfirmation, setLocalPinConfirmation] = React.useState("");
 
@@ -108,54 +136,10 @@ const AuthTest = () => {
 				<OtpPasswordInput />
 				<UsernamePasswordLoginFlowInit />
 				<UsernamePasswordInput />
-
-				{/* <section style={{ opacity: _machineState.matches("pinInput") ? 1 : 0.25 }}>
-					<input
-						type="text"
-						value={localPin}
-						onChange={(e) => setLocalPin(e.target.value)}
-						disabled={!_machineState.matches("pinInput")}
-					/>
-					<button onClick={() => submitPin(localPin)} disabled={isLoading}>
-						Submit PIN
-					</button>
-					<button onClick={goBack}>Go back</button>
-				</section>
-				<section style={{ opacity: _machineState.matches("newPinInput") ? 1 : 0.25 }}>
-					<input
-						type="text"
-						value={localPin}
-						onChange={(e) => setLocalPin(e.target.value)}
-						disabled={!_machineState.matches("newPinInput")}
-					/>
-					<input
-						type="pin"
-						value={localPinConfirmation}
-						onChange={(e) => setLocalPinConfirmation(e.target.value)}
-						disabled={!_machineState.matches("newPinInput")}
-					/>
-					{localPin !== localPinConfirmation && <p>PIN confirmation doesn&#39;t match!</p>}
-					<button
-						onClick={() => submitPin(localPin)}
-						disabled={localPin !== localPinConfirmation || isLoading}
-					>
-						Set New PIN
-					</button>
-					<button onClick={skipSettingPin}>Skip setting PIN</button>
-					<button onClick={goBack}>Go back</button>
-				</section>
-				<section style={{ opacity: _machineState.matches("resetPinInput") ? 1 : 0.25 }}>
-					<input
-						type="text"
-						value={localPin}
-						onChange={(e) => setLocalPin(e.target.value)}
-						disabled={!_machineState.matches("resetPinInput")}
-					/>
-					<button onClick={() => submitPin(localPin)} disabled={isLoading}>
-						Submit Current PIN before setting new PIN
-					</button>
-					<button onClick={goBack}>Go back</button>
-				</section> */}
+				<PinFlowInit />
+				<CurrentPinInput />
+				<NewPinInput />
+				<ChangeCurrentPinInput />
 			</section>
 		);
 	} else {
@@ -163,20 +147,6 @@ const AuthTest = () => {
 			<section style={{ backgroundColor: "white", padding: "1rem" }}>
 				<h1>Logged in stuff!</h1>
 				<button onClick={logOut}>Log out</button>
-				<button
-					onClick={() => changeLoginFlowType(loginFlowType === "OTP" ? "USERNAME_PASSWORD" : "OTP")}
-				>
-					Change login flow type to {loginFlowType === "OTP" ? "USERNAME_PASSWORD" : "OTP"}
-				</button>
-				{/* <button onClick={isUsingPinSecurity ? turnOffPinSecurity : turnOnPinSecurity}>
-					Turn {isUsingPinSecurity ? "off" : "on"} PIN security
-				</button>
-				{isUsingPinSecurity && userHasPinSet && (
-					<button onClick={changeCurrentPin}>Change current PIN</button>
-				)}
-				{isUsingPinSecurity && !userHasPinSet && (
-					<button onClick={turnOnPinSecurity}>Set a PIN</button>
-				)} */}
 			</section>
 		);
 	}
@@ -186,8 +156,10 @@ export const AuthStuff = (): JSX.Element => (
 	<AuthProvider
 		inWebDebugMode={true}
 		loginFlowType="OTP"
+		deviceSecurityType="PIN"
 		otpServiceApi={createCognitoOTPService()}
 		usernamePasswordServiceApi={createCognitoUsernamePasswordService()}
+		deviceSecurityInterface={deviceSecurityApi}
 	>
 		<AuthTest />
 	</AuthProvider>

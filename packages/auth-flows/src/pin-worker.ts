@@ -1,10 +1,12 @@
-import { createMachine, sendParent } from "xstate";
-import { log } from "xstate/lib/actions";
-import { createModel } from "xstate/lib/model";
-
-import { DeviceSecurityService } from "./types";
-
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { sendParent, StateMachine } from "xstate";
+import { log } from "xstate/lib/actions";
+import { createModel, ModelEventsFrom } from "xstate/lib/model";
+
+import { ServiceError } from "./errors";
+
+import type { DeviceSecurityService } from "./types";
+
 import type { ModelContextFrom } from "xstate/lib/model";
 
 const model = createModel(
@@ -14,51 +16,23 @@ const model = createModel(
 	},
 	{
 		events: {
-			CHECK_FOR_EXISTING_PIN: () => ({}),
-			CHANGE_EXISTING_PIN: () => ({}),
+			CHECK_FOR_CURRENT_PIN: () => ({}),
+			CHANGE_CURRENT_PIN: () => ({}),
+			CLEAR_CURRENT_PIN: () => ({}),
 			SUBMIT_CURRENT_PIN: (currentPin: string) => ({ currentPin }),
 			SUBMIT_CURRENT_AND_NEW_PIN: (currentPin: string, newPin: string) => ({ currentPin, newPin }),
 			SUBMIT_NEW_PIN: (newPin: string) => ({ newPin }),
+			SERVICE_NOTIFICATION__ASYNC_REQUEST_PENDING: () => ({}),
+			SERVICE_NOTIFICATION__ASYNC_REQUEST_SETTLED: () => ({}),
+			SERVICE_NOTIFICATION__AUTH_FLOW_COMPLETE: () => ({}),
+			SERVICE_REQUEST__CURRENT_PIN_AND_NEW_PIN: () => ({}),
+			SERVICE_REQUEST__CURRENT_PIN: () => ({}),
+			SERVICE_REQUEST__NEW_PIN: () => ({}),
 		},
 	}
 );
 
-const implementations = {
-	services: {
-		checkPinIsSet: (_ctx: ModelContextFrom<typeof model>) => {
-			throw new Error("No implementation for checkPinIsSet method");
-		},
-		checkPinIsValid: (_ctx: ModelContextFrom<typeof model>) => {
-			throw new Error("No implementation for checkPinIsValid method");
-		},
-		clearExistingPin: (_ctx: ModelContextFrom<typeof model>) => {
-			throw new Error("No implementation for clearExistingPin method");
-		},
-		setNewPin: (_ctx: ModelContextFrom<typeof model>) => {
-			throw new Error("No implementation for setNewPin method");
-		},
-	},
-	actions: {
-		assignCurrentPinToContext: model.assign((_, e) => {
-			if (e.type !== "SUBMIT_CURRENT_PIN") return {};
-			return { currentPin: e.currentPin };
-		}),
-		assignCurrentPinAndNewPinToContext: model.assign((_, e) => {
-			if (e.type !== "SUBMIT_CURRENT_AND_NEW_PIN") return {};
-			return { currentPin: e.currentPin, newPin: e.newPin };
-		}),
-		clearPinsFromContext: model.assign({ currentPin: "", newPin: "" }),
-		// Keep in touch with yr parents
-		requestExistingPin: sendParent("REQUEST_EXISTING_PIN"),
-		requestExistingPinAndNewPin: sendParent("REQUEST_EXISTING_PIN_AND_NEW_PIN"),
-		requestNewPinSetup: sendParent("REQUEST_NEW_PIN"),
-		notifyRequestStarted: sendParent("ASYNC_REQUEST_PENDING"),
-		notifyRequestComplete: sendParent("ASYNC_REQUEST_SETTLED"),
-		notifyAuthFlowComplete: sendParent("AUTH_FLOW_COMPLETE"),
-	},
-};
-
-const machine = createMachine<typeof model>(
+const machine = model.createMachine(
 	{
 		id: "pinService",
 		initial: "init",
@@ -66,22 +40,19 @@ const machine = createMachine<typeof model>(
 		states: {
 			init: {
 				on: {
-					CHECK_FOR_EXISTING_PIN: {
-						target: "checkingForExistingPin",
-					},
-					CHANGE_EXISTING_PIN: {
-						target: "awaitingPinInputForPinChange",
+					CHECK_FOR_CURRENT_PIN: {
+						target: "checkingForCurrentPin",
 					},
 				},
 			},
-			checkingForExistingPin: {
+			checkingForCurrentPin: {
 				entry: "notifyRequestStarted",
 				invoke: {
 					id: "checkPinIsSet",
 					src: "checkPinIsSet",
 					onDone: {
-						actions: "requestExistingPin",
-						target: "awaitingPinInput",
+						actions: "requestCurrentPin",
+						target: "awaitingCurrentPinInput",
 					},
 					onError: {
 						actions: "requestNewPin",
@@ -90,52 +61,12 @@ const machine = createMachine<typeof model>(
 				},
 				exit: "notifyRequestComplete",
 			},
-			awaitingPinInput: {
-				on: {
-					SUBMIT_CURRENT_PIN: {
-						actions: "assignCurrentPinToContext",
-						target: "validatingPinInput",
-					},
-				},
-			},
-			validatingPinInput: {
+			clearingCurrentPin: {
 				entry: "notifyRequestStarted",
 				invoke: {
-					id: "checkPinIsValid",
-					src: "checkPinIsValid",
-					onDone: {
-						actions: "clearPinsFromContext",
-						target: "authorised",
-					},
-					onError: {
-						actions: log("TODO: PIN INPUT FAILURE"),
-						target: "awaitingNewPinInput",
-					},
-				},
-				exit: "notifyRequestComplete",
-			},
-			awaitingPinInputForPinChange: {
-				entry: "requestExistingPinAndNewPin",
-				on: {
-					SUBMIT_CURRENT_AND_NEW_PIN: {
-						actions: "assignCurrentPinAndNewPinToContext",
-						target: "attemptingPinChange",
-					},
-				},
-			},
-			attemptingPinChange: {
-				entry: "notifyRequestStarted",
-				invoke: {
-					id: "changePin",
-					src: "changePin",
-					onDone: {
-						actions: "clearPinsFromContext",
-						target: "authorised",
-					},
-					onError: {
-						actions: log("TODO: PIN CHANGE FAILURE"),
-						target: "awaitingPinInputForPinChange",
-					},
+					id: "clearCurrentPin",
+					src: "clearCurrentPin",
+					onDone: "authorised",
 				},
 				exit: "notifyRequestComplete",
 			},
@@ -163,24 +94,118 @@ const machine = createMachine<typeof model>(
 				},
 				exit: "notifyRequestComplete",
 			},
+			awaitingCurrentPinInput: {
+				on: {
+					SUBMIT_CURRENT_PIN: {
+						actions: "assignCurrentPinToContext",
+						target: "validatingCurrentPinInput",
+					},
+				},
+			},
+			validatingCurrentPinInput: {
+				entry: "notifyRequestStarted",
+				invoke: {
+					id: "checkPinIsValid",
+					src: "checkPinIsValid",
+					onDone: {
+						actions: "clearPinsFromContext",
+						target: "authorised",
+					},
+					onError: {
+						actions: log("TODO: PIN INPUT FAILURE"),
+						target: "awaitingNewPinInput",
+					},
+				},
+				exit: "notifyRequestComplete",
+			},
+			awaitingPinInputForPinChange: {
+				entry: "requestCurrentPinAndNewPin",
+				on: {
+					SUBMIT_CURRENT_AND_NEW_PIN: {
+						actions: "assignCurrentPinAndNewPinToContext",
+						target: "attemptingPinChange",
+					},
+				},
+			},
+			attemptingPinChange: {
+				entry: "notifyRequestStarted",
+				invoke: {
+					id: "changePin",
+					src: "changePin",
+					onDone: {
+						actions: "clearPinsFromContext",
+						target: "authorised",
+					},
+					onError: {
+						actions: log("TODO: PIN CHANGE FAILURE"),
+						target: "awaitingPinInputForPinChange",
+					},
+				},
+				exit: "notifyRequestComplete",
+			},
 			authorised: {
 				entry: "notifyAuthFlowComplete",
-				type: "final",
+				on: {
+					CHANGE_CURRENT_PIN: {
+						target: "awaitingPinInputForPinChange",
+					},
+					CLEAR_CURRENT_PIN: {
+						target: "clearingCurrentPin",
+					},
+				},
 			},
 		},
 	},
-	implementations
+	{
+		services: {
+			changeCurrentPin: () => {
+				throw new ServiceError("No implementation for changeCurrentPin method");
+			},
+			checkPinIsSet: () => {
+				throw new ServiceError("No implementation for checkPinIsSet method");
+			},
+			checkPinIsValid: () => {
+				throw new ServiceError("No implementation for checkPinIsValid method");
+			},
+			clearCurrentPin: () => {
+				throw new ServiceError("No implementation for clearCurrentPin method");
+			},
+			setNewPin: () => {
+				throw new ServiceError("No implementation for setNewPin method");
+			},
+		},
+		actions: {
+			assignCurrentPinToContext: model.assign((_, e: ModelEventsFrom<typeof model>) => {
+				if (e.type !== "SUBMIT_CURRENT_PIN") return {};
+				return { currentPin: e.currentPin };
+			}),
+			assignCurrentPinAndNewPinToContext: model.assign((_, e: ModelEventsFrom<typeof model>) => {
+				if (e.type !== "SUBMIT_CURRENT_AND_NEW_PIN") return {};
+				return { currentPin: e.currentPin, newPin: e.newPin };
+			}),
+			clearPinsFromContext: model.assign({ currentPin: "", newPin: "" }) as any,
+			// Keep in touch with yr parents
+			notifyAuthFlowComplete: sendParent(model.events.SERVICE_NOTIFICATION__AUTH_FLOW_COMPLETE),
+			notifyRequestComplete: sendParent(model.events.SERVICE_NOTIFICATION__ASYNC_REQUEST_SETTLED),
+			notifyRequestStarted: sendParent(model.events.SERVICE_NOTIFICATION__ASYNC_REQUEST_PENDING),
+			requestCurrentPin: sendParent(model.events.SERVICE_REQUEST__CURRENT_PIN),
+			requestCurrentPinAndNewPin: sendParent(model.events.SERVICE_REQUEST__CURRENT_PIN_AND_NEW_PIN),
+			requestNewPin: sendParent(model.events.SERVICE_REQUEST__NEW_PIN),
+		},
+	}
 );
 
-export function createPinWorker(serviceApi: DeviceSecurityService) {
+export function createPinWorker(
+	serviceApi: DeviceSecurityService
+): StateMachine<ModelContextFrom<typeof model>, any, ModelEventsFrom<typeof model>> {
 	return machine.withConfig({
 		services: {
-			changeExistingPin: (ctx: ModelContextFrom<typeof model>) =>
-				serviceApi.changeExistingPin(ctx.currentPin, ctx.newPin),
+			changeCurrentPin: (ctx: ModelContextFrom<typeof model>) =>
+				serviceApi.changeCurrentPin(ctx.currentPin, ctx.newPin),
 			checkPinIsSet: () => serviceApi.checkPinIsSet(),
 			checkPinIsValid: (ctx: ModelContextFrom<typeof model>) =>
 				serviceApi.checkPinIsValid(ctx.currentPin),
-			clearExistingPin: () => serviceApi.clearExistingPin(),
+			clearCurrentPin: () => serviceApi.clearCurrentPin(),
 			setNewPin: (ctx: ModelContextFrom<typeof model>) => serviceApi.setNewPin(ctx.currentPin),
 		},
 	});

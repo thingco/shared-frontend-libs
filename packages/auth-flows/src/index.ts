@@ -5,4 +5,4 @@ export * from "./otp-worker";
 export * from "./types";
 export * from "./username-password-service";
 export * from "./username-password-worker";
-export * from "./utilities";
+export * from "./errors";

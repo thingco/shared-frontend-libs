@@ -3,3 +3,7 @@ export * from "./OtpPasswordInput";
 export * from "./OtpUsernameInput";
 export * from "./UsernamePasswordLoginFlowInit";
 export * from "./UsernamePasswordInput";
+export * from "./ChangeCurrentPinInput";
+export * from "./CurrentPinInput";
+export * from "./NewPinInput";
+export * from "./PinFlowInit";

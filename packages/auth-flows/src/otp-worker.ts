@@ -1,10 +1,12 @@
-import { createMachine, sendParent } from "xstate";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { sendParent } from "xstate";
 import { createModel } from "xstate/lib/model";
 
+import { ServiceError } from "./errors";
 import { OTPService } from "./otp-service";
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import type { ModelContextFrom } from "xstate/lib/model";
+import type { StateMachine } from "xstate";
+import type { ModelContextFrom, ModelEventsFrom } from "xstate/lib/model";
 import type { SessionCheckBehaviour } from "./types";
 
 const model = createModel(
@@ -22,6 +24,12 @@ const model = createModel(
 			CHECK_FOR_SESSION: (sessionCheckBehaviour: SessionCheckBehaviour) => ({
 				sessionCheckBehaviour,
 			}),
+			SERVICE_NOTIFICATION__AUTH_FLOW_COMPLETE: () => ({}),
+			SERVICE_NOTIFICATION__LOGGED_OUT: () => ({}),
+			SERVICE_NOTIFICATION__ASYNC_REQUEST_SETTLED: () => ({}),
+			SERVICE_NOTIFICATION__ASYNC_REQUEST_PENDING: () => ({}),
+			SERVICE_REQUEST__PASSWORD: () => ({}),
+			SERVICE_REQUEST__USERNAME: () => ({}),
 			SUBMIT_USERNAME: (username: string) => ({ username }),
 			SUBMIT_PASSWORD: (password: string) => ({ password }),
 			"done.invoke.requestOtp": (data: any) => ({ data }),
@@ -30,67 +38,7 @@ const model = createModel(
 	}
 );
 
-/**
- * Why is this separated from the `createModel` function? Because TS goes crazy if it's passed in
- * directly as the second argument.
- *
- * See this comment on an XState issue thread: https://github.com/davidkpiano/xstate/issues/2338#issuecomment-867993878
- *
- * Assorted typing issues:
- * - context is not inferred for the functions in the `services`
- * - _in theory_, type hints can be provided directly to the `actions` block's `assign` functions
- *   as their second argument. This doesn't work, so need to narrow the type via checks on the `event`
- *   argument.
- */
-const implementations = {
-	services: {
-		requestOtp: (ctx: ModelContextFrom<typeof model>) => {
-			throw new Error("No implementation for requestOtp method");
-		},
-		checkForExtantSession: (ctx: ModelContextFrom<typeof model>) => {
-			throw new Error("No implementation for checkForExtantSession method");
-		},
-		validateOtp: (ctx: ModelContextFrom<typeof model>) => {
-			throw new Error("No implementation for validateOtp method");
-		},
-		logOut: () => {
-			throw new Error("No implementation for logOut method");
-		},
-	},
-	actions: {
-		assignUsernameToContext: model.assign((_, e) => {
-			if (e.type !== "SUBMIT_USERNAME") return {};
-			return { username: e.username };
-		}),
-		assignPasswordToContext: model.assign((_, e) => {
-			if (e.type !== "SUBMIT_PASSWORD") return {};
-			return { password: e.password };
-		}),
-		assignSessionCheckBehaviourToContext: model.assign((_, e) => {
-			if (e.type !== "CHECK_FOR_SESSION") return {};
-			return { sessionCheckBehaviour: e.sessionCheckBehaviour };
-		}),
-		// The userdata object is whatever comes back from the service provider on sign-in.
-		// It has to be stored to allow it to be passed into the OTP submission (OTP is
-		// a two-step process requiring two requests)
-		assignUserdataToContext: model.assign((_, e) => {
-			if (e.type !== "done.invoke.requestOtp") return {};
-			return { userdata: e.data };
-		}),
-		clearPasswordFromContext: model.assign({ password: "" }),
-		clearUserdataFromContext: model.assign({ userdata: "" }),
-		clearUsernameFromContext: model.assign({ username: "" }),
-		// Keep in touch with yr parents
-		notifyRequestStarted: sendParent("ASYNC_REQUEST_PENDING"),
-		notifyRequestComplete: sendParent("ASYNC_REQUEST_SETTLED"),
-		requestPassword: sendParent("REQUEST_PASSWORD"),
-		requestUsername: sendParent("REQUEST_USERNAME"),
-		notifyAuthFlowComplete: sendParent("AUTH_FLOW_COMPLETE"),
-		notifyLoggedOut: sendParent("LOGGED_OUT"),
-	},
-};
-
-const machine = createMachine<typeof model>(
+const machine = model.createMachine(
 	{
 		id: "otpService",
 		context: model.initialContext,
@@ -194,10 +142,58 @@ const machine = createMachine<typeof model>(
 			},
 		},
 	},
-	implementations
+	{
+		services: {
+			requestOtp: () => {
+				throw new ServiceError("No implementation for requestOtp method");
+			},
+			checkForExtantSession: () => {
+				throw new ServiceError("No implementation for checkForExtantSession method");
+			},
+			validateOtp: () => {
+				throw new ServiceError("No implementation for validateOtp method");
+			},
+			logOut: () => {
+				throw new ServiceError("No implementation for logOut method");
+			},
+		},
+		actions: {
+			assignUsernameToContext: model.assign((_, e) => {
+				if (e.type !== "SUBMIT_USERNAME") return {};
+				return { username: e.username };
+			}),
+			assignPasswordToContext: model.assign((_, e) => {
+				if (e.type !== "SUBMIT_PASSWORD") return {};
+				return { password: e.password };
+			}),
+			assignSessionCheckBehaviourToContext: model.assign((_, e) => {
+				if (e.type !== "CHECK_FOR_SESSION") return {};
+				return { sessionCheckBehaviour: e.sessionCheckBehaviour };
+			}),
+			// The userdata object is whatever comes back from the service provider on sign-in.
+			// It has to be stored to allow it to be passed into the OTP submission (OTP is
+			// a two-step process requiring two requests)
+			assignUserdataToContext: model.assign((_, e) => {
+				if (e.type !== "done.invoke.requestOtp") return {};
+				return { userdata: e.data };
+			}),
+			clearPasswordFromContext: model.assign({ password: "" }),
+			clearUserdataFromContext: model.assign({ userdata: "" }),
+			clearUsernameFromContext: model.assign({ username: "" }),
+			// Keep in touch with yr parents
+			notifyAuthFlowComplete: sendParent(model.events.SERVICE_NOTIFICATION__AUTH_FLOW_COMPLETE),
+			notifyLoggedOut: sendParent(model.events.SERVICE_NOTIFICATION__LOGGED_OUT),
+			notifyRequestComplete: sendParent(model.events.SERVICE_NOTIFICATION__ASYNC_REQUEST_SETTLED),
+			notifyRequestStarted: sendParent(model.events.SERVICE_NOTIFICATION__ASYNC_REQUEST_PENDING),
+			requestPassword: sendParent(model.events.SERVICE_REQUEST__PASSWORD),
+			requestUsername: sendParent(model.events.SERVICE_REQUEST__USERNAME),
+		},
+	}
 );
 
-export function createOtpWorker<User>(serviceApi: OTPService<User>) {
+export function createOtpWorker<User>(
+	serviceApi: OTPService<User>
+): StateMachine<ModelContextFrom<typeof model>, any, ModelEventsFrom<typeof model>> {
 	return machine.withConfig({
 		services: {
 			requestOtp: (ctx: ModelContextFrom<typeof model>) => serviceApi.requestOtp(ctx.username),
