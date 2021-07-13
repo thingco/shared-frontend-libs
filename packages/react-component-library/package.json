@@ -1,9 +1,8 @@
 {
 	"name": "@thingco/react-component-library",
 	"description": "React component lobrary",
-	"version": "0.6.0",
+	"version": "0.7.0",
 	"main": "lib/index.js",
-	"module": "lib/index.module.js",
 	"types": "lib/types/index.d.ts",
 	"files": [
 		"lib/**"
