@@ -31,7 +31,7 @@ export interface UserPreferences {
 
 export type PreferenceStorageKey = "@user_preferences";
 
-export interface Storage<UserPreferences> {
+export interface Storage {
 	getPreferences(): Promise<UserPreferences>;
 	getPreference<P extends keyof UserPreferences>(key: P): Promise<UserPreferences[P]>;
 	setPreference<P extends keyof UserPreferences>(key: P, value: UserPreferences[P]): Promise<void>;

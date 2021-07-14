@@ -27,7 +27,6 @@
 		"package:user-preferences-store-web": "yarn workspace @thingco/user-preferences-store-web",
 		"package:user-preferences-store-native": "yarn workspace @thingco/user-preferences-store-native",
 		"playground": "yarn workspace @thingco/shared-frontend-libs-playground",
-		"global:update-yarn": "yarn set version latest && yarn plugin import version && yarn plugin import typescript && yarn plugin import workspace-tools && yarn plugin import interactive-tools && yarn dlx @yarnpkg/pnpify --sdk",
 		"global:build": "cd $INIT_CWD && zx ../../scripts/build-single-package.md"
 	},
 	"devDependencies": {
