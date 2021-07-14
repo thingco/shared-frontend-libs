@@ -2,7 +2,12 @@
 
 ## Overview
 
-XState-powered auth flow providers for React. Bring-your-own auth functions.
+XState-powered auth flow providers for React.
+
+The auth system is exposed via a provider (`<AuthenticationProvider>`), which accepts serveral interfaces for accessing security APIs. Once that is in place, two hooks are available:
+
+- `useAuthState`, which returns an object that reflects which state you are in -- for example `authorised`, or `awaitingOtpPasswordInput` -- via a set of boolean flags -- `isInAuthorisedState`, `isInAwaitingOtpPasswordInputState` (**TODO** these flags are deliberately verbose and are not strictly necessary as XState provides a `match` function to check state). These states should, in the app, reflect screens or components.
+- `useAuthUpdate`, which provides a set of methods that, when executed, will in turn execute the logic required to move to another state -- for example `submitPassword("somepassword")`.
 
 ## Prerequisites
 
@@ -52,14 +57,15 @@ Configure auth:
 Auth.configure(myAwsAuthConfig);
 ```
 
-Set up the interfaces for OTP or username/password flow and device security as described below.
+Set up the interfaces for OTP or username/password flow and device security [as described below](#authorisation-interfaces).
 
 ```ts
-// Either OTP:
+// EITHER OTP:
 const myOtpServiceApi = { ...methods };
-// Or username/password:
+// OR username/password:
 const myUsernamePasswordServiceApi = { ...methods };
-// And if relevant, device security:
+
+// And device security:
 const myDeviceSecurityServiceApi = { ...methods };
 ```
 
