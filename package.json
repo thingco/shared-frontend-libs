@@ -14,7 +14,7 @@
 		"playground"
 	],
 	"scripts": {
-		"packages:build-all": "yarn workspaces foreach -v --topological-dev --exclude @thingco/shared-frontend-libs-playground run build",
+		"packages:build-all": "FORCE_COLOR=1 yarn workspaces foreach -v --topological-dev --exclude @thingco/shared-frontend-libs-playground run build",
 		"packages:test-all": "yarn workspaces foreach --exclude @thingco/shared-frontend-libs-playground run test",
 		"package:auth-flows": "yarn workspace @thingco/auth-flows",
 		"package:graphviz": "yarn workspace @thingco/graphviz",
