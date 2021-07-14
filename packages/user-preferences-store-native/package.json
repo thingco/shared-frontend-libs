@@ -20,17 +20,17 @@
 	"devDependencies": {
 		"@react-native-async-storage/async-storage": "^1.15.5",
 		"@thingco/shared-types": "workspace:*",
-		"@types/jest": "^26.0.23",
-		"@types/react": "^17.0.11",
-		"@types/react-native": "^0.64.10",
-		"@types/rimraf": "^3.0.0",
-		"jest": "^27.0.4",
+		"@types/jest": "^26.0.24",
+		"@types/react": "^17.0.14",
+		"@types/react-native": "^0.64.12",
+		"@types/rimraf": "^3.0.1",
+		"jest": "^27.0.6",
 		"react": "^17.0.2",
 		"react-native": "^0.64.2",
 		"rimraf": "^3.0.2",
 		"ts-jest": "^27.0.3",
-		"typedoc": "^0.21.0",
-		"typescript": "^4.3.4"
+		"typedoc": "^0.21.4",
+		"typescript": "^4.3.5"
 	},
 	"peerDependencies": {
 		"@react-native-async-storage/async-storage": "*",

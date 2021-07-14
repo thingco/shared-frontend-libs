@@ -1,2 +1,3 @@
-export * from "./AuthProvider";
-export * from "./core/types";
+export * from "./AuthenticationProvider";
+export * from "./types";
+export * from "./errors";
