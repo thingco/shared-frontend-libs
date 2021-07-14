@@ -1,33 +1,6 @@
-import { ServiceError } from "./errors";
+import { ServiceError } from "../errors";
 
-import type { SessionCheckBehaviour } from "./types";
-
-/**
- * A _service_ is a collection of functions whose execution is handled
- * by that service's state machine. These functions are always assumed
- * to be async, so do note that the type definitions will enforce this.
- *
- * The service is always a wrapper over a specific API -- so for example
- * AWS Amplify Auth, or Expo's SecureStore. The reason it is done this
- * way is to provide a consistent set of methods that the state machine
- * can use -- the underlying methods the service uses can easily be swapped
- * out for mock implementations if necessary.
- *
- * Because of this, the collection is defined as an object, the functions
- * being the methods, and the collection **may** be stateful. It can
- * also be assumed to trigger side effects outside of the control of the
- * authentication state machine.
- */
-
-export interface OTPService<User> {
-	checkForExtantSession(sessionCheckBehaviour?: SessionCheckBehaviour): Promise<unknown>;
-
-	requestOtp(username: string): Promise<User>;
-
-	validateOtp(user: User, password: string, triesRemaining: number): Promise<User>;
-
-	logOut(): Promise<unknown>;
-}
+import type { OTPService, SessionCheckBehaviour } from "../types";
 
 export function createDummyOTPService(
 	testUsername: string,
@@ -55,7 +28,6 @@ export function createDummyOTPService(
 		 * Given a username (which will be, in practice, an email or a phonenumber), send an OTP
 		 * to the user. The request should return an object of some kind, the user data, which
 		 * needs stored to be passed to the next function (`validateOtp`).
-		 *
 		 */
 		async requestOtp(username: string): Promise<string> {
 			if (username === testUsername) {

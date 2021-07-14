@@ -20,6 +20,31 @@ const model = createModel(
 	}
 );
 
+type ModelCtx = ModelContextFrom<typeof model>;
+type ModelEvt = ModelEventsFrom<typeof model>;
+
+const implementations = {
+	services: {
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		checkForBiometricSupport: (_c: ModelCtx, _e: ModelEvt) => {
+			throw new ServiceError("no implemetation provided for checkForBiometricSupport method");
+		},
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		checkBiometricAuthorisation: (_c: ModelCtx, _e: ModelEvt) => {
+			throw new ServiceError("no implemetation provided for checkBiometricAuthorisation method");
+		},
+	},
+	actions: {
+		// Keep in touch with yr parents
+		notifyAuthFlowComplete: sendParent(model.events.SERVICE_NOTIFICATION__AUTH_FLOW_COMPLETE),
+		notifyBiometricUnsupported: sendParent(
+			model.events.SERVICE_NOTIFICATION__BIOMETRIC_NOT_SUPPORTED
+		),
+		notifyRequestComplete: sendParent(model.events.SERVICE_NOTIFICATION__ASYNC_REQUEST_SETTLED),
+		notifyRequestStarted: sendParent(model.events.SERVICE_NOTIFICATION__ASYNC_REQUEST_PENDING),
+	},
+};
+
 const machine = model.createMachine(
 	{
 		id: "biometricService",
@@ -77,25 +102,7 @@ const machine = model.createMachine(
 			},
 		},
 	},
-	{
-		services: {
-			checkForBiometricSupport: () => {
-				throw new ServiceError("no implemetation provided for checkForBiometricSupport method");
-			},
-			checkBiometricAuthorisation: () => {
-				throw new ServiceError("no implemetation provided for checkBiometricAuthorisation method");
-			},
-		},
-		actions: {
-			// Keep in touch with yr parents
-			notifyAuthFlowComplete: sendParent(model.events.SERVICE_NOTIFICATION__AUTH_FLOW_COMPLETE),
-			notifyBiometricUnsupported: sendParent(
-				model.events.SERVICE_NOTIFICATION__BIOMETRIC_NOT_SUPPORTED
-			),
-			notifyRequestComplete: sendParent(model.events.SERVICE_NOTIFICATION__ASYNC_REQUEST_SETTLED),
-			notifyRequestStarted: sendParent(model.events.SERVICE_NOTIFICATION__ASYNC_REQUEST_PENDING),
-		},
-	}
+	implementations
 );
 
 export function createBiometricWorker(

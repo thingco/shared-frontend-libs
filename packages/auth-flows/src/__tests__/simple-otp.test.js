@@ -2,7 +2,7 @@ import { createModel } from "@xstate/test";
 import { createMachine, interpret } from "xstate";
 
 import { authSystemModel, createAuthSystem } from "../auth-system";
-import { DummyOTPService } from "../otp-service";
+import { DummyOTPService } from "./dummy-otp-service";
 
 const testMachine = createMachine({
 	id: "simpleOTPTestMachine",

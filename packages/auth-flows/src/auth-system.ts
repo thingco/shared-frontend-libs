@@ -12,13 +12,13 @@ import { createUsernamePasswordWorker } from "./username-password-worker";
 import type { StateMachine, ActorRef } from "xstate";
 import type { ModelContextFrom, ModelEventsFrom } from "xstate/lib/model";
 
-import type { UsernamePasswordService } from "./username-password-service";
-import type { OTPService } from "./otp-service";
 import type {
 	SessionCheckBehaviour,
 	DeviceSecurityService,
 	DeviceSecurityType,
 	LoginFlowType,
+	OTPService,
+	UsernamePasswordService,
 } from "./types";
 
 export const authSystemModel = createModel(

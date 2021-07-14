@@ -3,8 +3,8 @@
 	"compilerOptions": {
 		"emitDeclarationOnly": true,
 		"declarationDir": "./lib/types",
-		"rootDir": "./src",
-		"types": ["react", "jest"]
+		"skipLibCheck": true,
+		"rootDir": "./src"
 	},
 	"typedocOptions": {
 		"entryPoints": ["src/index.tsx"],

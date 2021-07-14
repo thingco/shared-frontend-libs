@@ -1,13 +1,12 @@
 import { inspect } from "@xstate/inspect";
 import { useMachine } from "@xstate/react";
 import * as React from "react";
-import { State } from "xstate";
 
 import { createAuthSystem } from "./auth-system";
-import { DeviceSecurityType, LoginFlowType, SessionCheckBehaviour } from "./types";
 
-import type { AuthSystemConfig } from "./auth-system";
-import type { AuthSystemContext, AuthSystemEvents } from "./auth-system";
+import type { DeviceSecurityType, LoginFlowType, SessionCheckBehaviour } from "./types";
+import type { AuthSystemConfig, AuthSystemContext, AuthSystemEvents } from "./auth-system";
+import type { State } from "xstate";
 
 inspect({
 	url: "https://statecharts.io/inspect",

@@ -2,11 +2,12 @@ import { build } from "esbuild";
 import { join } from "path";
 import rimraf from "rimraf";
 
-$.verbose = false;
+// $.verbose = false;
 const prepLog = (message) => console.log(chalk.magenta(`[PREPARE]	${message}`));
 const buildLog = (message) => console.log(chalk.cyan(`[BUILD]		${message}`));
 const finLog = (message) => console.log(chalk.green(`[COMPLETE]	${message}`));
 const warnLog = (message) => console.log(chalk.yellow(`[WARN]		${message}`));
+const errLog = (message) => console.log(chalk.red(`[ERROR]	${message}`));
 
 const workspacePath = process.env.INIT_CWD;
 const workspaceManifestPath = join(workspacePath, "package.json");
@@ -27,7 +28,7 @@ try {
 
 	buildLog(
 		`Compiling Typescript declaration files to ${chalk.underline(
-			`${workspaceBuildDirectoryPath}/types/`
+			workspaceBuildDirectoryPath + "/types/"
 		)}`
 	);
 	await $`yarn tsc`;
@@ -64,5 +65,7 @@ try {
 	const end = await Date.now();
 	finLog(`Finished building ${name} in ${end - start}ms`);
 } catch (err) {
+	errLog(err.message);
+	errLog(err.stack);
 	process.exit(1);
 }

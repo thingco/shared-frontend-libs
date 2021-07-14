@@ -2,7 +2,7 @@ import { createModel } from "@xstate/test";
 import { createMachine, interpret } from "xstate";
 
 import { authSystemModel, createAuthSystem } from "../auth-system";
-import { DummyUsernamePasswordService } from "../username-password-service";
+import { DummyUsernamePasswordService } from "./dummy-username-password-service";
 
 const testMachine = createMachine({
 	id: "simpleUsernamePasswordTestMachine",

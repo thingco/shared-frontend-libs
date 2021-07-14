@@ -3,11 +3,10 @@ import { sendParent } from "xstate";
 import { createModel } from "xstate/lib/model";
 
 import { ServiceError } from "./errors";
-import { UsernamePasswordService } from "./username-password-service";
 
 import type { StateMachine } from "xstate";
 import type { ModelContextFrom, ModelEventsFrom } from "xstate/lib/model";
-import type { SessionCheckBehaviour } from "./types";
+import type { SessionCheckBehaviour, UsernamePasswordService } from "./types";
 
 const model = createModel(
 	{
@@ -33,6 +32,43 @@ const model = createModel(
 		},
 	}
 );
+
+type ModelCtx = ModelContextFrom<typeof model>;
+type ModelEvt = ModelEventsFrom<typeof model>;
+
+const implementations = {
+	services: {
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		checkForExtantSession: (_c: ModelCtx, _e: ModelEvt) => {
+			throw new ServiceError("No implementation for checkExtantSession method");
+		},
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		logOut: (_c: ModelCtx, _e: ModelEvt) => {
+			throw new ServiceError("No implementation for logOut method");
+		},
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		validateUsernameAndPassword: (_c: ModelCtx, _e: ModelEvt) => {
+			throw new ServiceError("No implementation for validateUsernameAndPassword method");
+		},
+	},
+	actions: {
+		assignUsernameAndPasswordToContext: model.assign((_, e) => {
+			if (e.type !== "SUBMIT_USERNAME_AND_PASSWORD") return {};
+			return { username: e.username, password: e.password };
+		}),
+		assignSessionCheckBehaviourToContext: model.assign((_, e) => {
+			if (e.type !== "CHECK_FOR_SESSION") return {};
+			return { sessionCheckBehaviour: e.sessionCheckBehaviour };
+		}),
+		clearUsernameAndPasswordFromContext: model.assign({ password: "", username: "" }),
+		// Keep in touch with yr parents
+		notifyAuthFlowComplete: sendParent(model.events.SERVICE_NOTIFICATION__AUTH_FLOW_COMPLETE),
+		notifyLoggedOut: sendParent(model.events.SERVICE_NOTIFICATION__LOGGED_OUT),
+		notifyRequestComplete: sendParent(model.events.SERVICE_NOTIFICATION__ASYNC_REQUEST_SETTLED),
+		notifyRequestStarted: sendParent(model.events.SERVICE_NOTIFICATION__ASYNC_REQUEST_PENDING),
+		requestUsernameAndPassword: sendParent(model.events.SERVICE_REQUEST__USERNAME_AND_PASSWORD),
+	},
+};
 
 const machine = model.createMachine(
 	{
@@ -107,46 +143,17 @@ const machine = model.createMachine(
 			},
 		},
 	},
-	{
-		services: {
-			checkForExtantSession: () => {
-				throw new ServiceError("No implementation for checkExtantSession method");
-			},
-			logOut: () => {
-				throw new ServiceError("No implementation for logOut method");
-			},
-			validateUsernameAndPassword: () => {
-				throw new ServiceError("No implementation for validateUsernameAndPassword method");
-			},
-		},
-		actions: {
-			assignUsernameAndPasswordToContext: model.assign((_, e) => {
-				if (e.type !== "SUBMIT_USERNAME_AND_PASSWORD") return {};
-				return { username: e.username, password: e.password };
-			}),
-			assignSessionCheckBehaviourToContext: model.assign((_, e) => {
-				if (e.type !== "CHECK_FOR_SESSION") return {};
-				return { sessionCheckBehaviour: e.sessionCheckBehaviour };
-			}),
-			clearUsernameAndPasswordFromContext: model.assign({ password: "", username: "" }),
-			// Keep in touch with yr parents
-			notifyAuthFlowComplete: sendParent(model.events.SERVICE_NOTIFICATION__AUTH_FLOW_COMPLETE),
-			notifyLoggedOut: sendParent(model.events.SERVICE_NOTIFICATION__LOGGED_OUT),
-			notifyRequestComplete: sendParent(model.events.SERVICE_NOTIFICATION__ASYNC_REQUEST_SETTLED),
-			notifyRequestStarted: sendParent(model.events.SERVICE_NOTIFICATION__ASYNC_REQUEST_PENDING),
-			requestUsernameAndPassword: sendParent(model.events.SERVICE_REQUEST__USERNAME_AND_PASSWORD),
-		},
-	}
+	implementations
 );
 
 export function createUsernamePasswordWorker<User>(
 	serviceApi: UsernamePasswordService<User>
-): StateMachine<ModelContextFrom<typeof model>, any, ModelEventsFrom<typeof model>> {
+): StateMachine<ModelCtx, any, ModelEvt> {
 	return machine.withConfig({
 		services: {
-			checkForExtantSession: (ctx: ModelContextFrom<typeof model>) =>
+			checkForExtantSession: (ctx: ModelCtx) =>
 				serviceApi.checkForExtantSession(ctx.sessionCheckBehaviour),
-			validateOtp: (ctx: ModelContextFrom<typeof model>) =>
+			validateOtp: (ctx: ModelCtx) =>
 				serviceApi.validateUsernameAndPassword(ctx.username, ctx.password),
 			logOut: () => serviceApi.logOut(),
 		},
