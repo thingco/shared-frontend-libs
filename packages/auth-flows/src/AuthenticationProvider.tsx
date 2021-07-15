@@ -1,16 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { inspect } from "@xstate/inspect";
 import { useMachine } from "@xstate/react";
-import React, { createContext, useContext } from "react";
+import { createContext, useContext, useEffect } from "react";
 
 import type { DeviceSecurityType, LoginFlowType, SessionCheckBehaviour } from "./types";
 import type { AuthSystemConfig, AuthSystemContext, AuthSystemEvents } from "./auth-system";
 import type { State, StateMachine } from "xstate";
-
-inspect({
-	url: "https://statecharts.io/inspect",
-	iframe: false,
-});
 
 const AuthStateContext = createContext<{
 	state: State<AuthSystemContext, AuthSystemEvents>;
@@ -32,6 +27,15 @@ export function AuthProvider<User>({
 	authSystem,
 }: AuthProviderProps<User>): JSX.Element {
 	const [state, send] = useMachine(authSystem, { devTools: inWebDebugMode });
+
+	useEffect(() => {
+		if (window && inWebDebugMode) {
+			inspect({
+				url: "https://statecharts.io/inspect",
+				iframe: false,
+			});
+		}
+	}, [inWebDebugMode]);
 
 	return (
 		<AuthUpdateContext.Provider value={{ send }}>
