@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { inspect } from "@xstate/inspect";
 import { useMachine } from "@xstate/react";
-import { createContext, useContext, useEffect } from "react";
+import React, { createContext, useContext, useEffect } from "react";
 
 import type { DeviceSecurityType, LoginFlowType, SessionCheckBehaviour } from "./types";
 import type { AuthSystemConfig, AuthSystemContext, AuthSystemEvents } from "./auth-system";
