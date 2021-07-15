@@ -1,4 +1,5 @@
 import { useAuthState, useAuthUpdate } from "@thingco/auth-flows";
+import * as React from "react";
 
 export const Authorised = () => {
 	const { inAuthorisedState } = useAuthState();

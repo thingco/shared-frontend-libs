@@ -1,5 +1,6 @@
 import { Auth as AWSAuth } from "@aws-amplify/auth";
 import { AuthProvider, createAuthSystem, ServiceError } from "@thingco/auth-flows";
+import * as React from "react";
 
 import {
 	Authorised,
