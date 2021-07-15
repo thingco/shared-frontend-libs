@@ -39,7 +39,7 @@ import * as LocalAuthentication from "expo-local-authentication";
 import * as SecureStore from "expo-secure-store";
 import { Auth } from "@aws-amplify/auth";
 import { myAwsAuthConfig } from "wherever/it/is";
-import { AuthenticationProvider } from "@thingco/auth-flows";
+import { AuthenticationProvider, createAuthSystem } from "@thingco/auth-flows";
 
 import type { CognitoUser } from "@aws-amplify/auth";
 import type {
@@ -61,29 +61,37 @@ Set up the interfaces for OTP or username/password flow and device security [as 
 
 ```ts
 // EITHER OTP:
-const myOtpServiceApi = { ...methods };
+const otpServiceApi = { ...methods };
 // OR username/password:
-const myUsernamePasswordServiceApi = { ...methods };
+const usernamePasswordServiceApi = { ...methods };
 
 // And device security:
-const myDeviceSecurityServiceApi = { ...methods };
+const deviceSecurityServiceApi = { ...methods };
+```
+
+Create the XState machine for the AuthenticationProvider (_this is done outside of the provider to ensure that React does not rebuild it when things change & things rerender_).
+
+```ts
+const authSystem = createAuthSystem({
+	deviceSecurityType: "NONE" // or "PIN" or "BIOMETRIC"
+		loginFlowType: "OTP" // or "USERNAME_PASSWORD"
+		otpServiceApi, // ...if it is being used. Either that or
+		usernamePasswordApi, // ...if that is being used instead
+		deviceSecurityApi // and this if it's being used
+})
 ```
 
 Then add the provider. **This should be the top-level provider**.
 
 ```tsx
 export const MyAppEntryPoint = ({ children }: MyAppEntryPointProps) => (
-	<AuthenticationProvider
-		deviceSecurityType="NONE" // or "PIN" or "BIOMETRIC"
-		loginFlowType="OTP" // or "USERNAME_PASSWORD"
-		otpServiceApi={myOtpServiceApi}
-		usernamePasswordApi={myUsernamePasswordServiceApi}
-		deviceSecurityApi={myDeviceSecurityServiceApi}
-	>
+	<AuthenticationProvider authSystem={authSystem} inWebDebugMode={false}>
 		{children}
 	</AuthenticationProvider>
 );
 ```
+
+> NOTE the `inWebDebugMode` flag means that when the provider is used in a _web_ context (will not work for RN afaik), the authentication system is also rendered as an interactive state chart. TODO some bugs with this, as if it is turned _off_, the tab with the state chart still opens, just doesn't connect.
 
 Now, within app components, can use the `useAuthState` and `useAuthUpdate` hooks which, respectively, provide primitive values describing the current state of the auth system and provide update methods to modify that.
 
