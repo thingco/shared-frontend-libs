@@ -43,6 +43,7 @@ export const authSystemModel = createModel(
 			CHECK_FOR_SESSION: (sessionCheckBehaviour: SessionCheckBehaviour = "normal") => ({
 				sessionCheckBehaviour,
 			}),
+			CLEAR_CURRENT_PIN: () => ({}),
 			GO_BACK: () => ({}),
 			LOG_OUT: () => ({}),
 			RESEND_PASSWORD: () => ({}),
@@ -57,17 +58,17 @@ export const authSystemModel = createModel(
 			}),
 			SUBMIT_USERNAME: (username: string) => ({ username }),
 			// Messages **from** running worker services:
-			SERVICE_NOTIFICATION__ASYNC_REQUEST_PENDING: () => ({}),
-			SERVICE_NOTIFICATION__ASYNC_REQUEST_SETTLED: () => ({}),
-			SERVICE_NOTIFICATION__AUTH_FLOW_COMPLETE: () => ({}),
-			SERVICE_NOTIFICATION__BIOMETRIC_NOT_SUPPORTED: () => ({}),
-			SERVICE_NOTIFICATION__LOGGED_OUT: () => ({}),
-			SERVICE_REQUEST__CURRENT_PIN_AND_NEW_PIN: () => ({}),
-			SERVICE_REQUEST__CURRENT_PIN: () => ({}),
-			SERVICE_REQUEST__NEW_PIN: () => ({}),
-			SERVICE_REQUEST__PASSWORD: () => ({}),
-			SERVICE_REQUEST__USERNAME_AND_PASSWORD: () => ({}),
-			SERVICE_REQUEST__USERNAME: () => ({}),
+			WORKER_ASYNC_REQUEST_PENDING: () => ({}),
+			WORKER_ASYNC_REQUEST_SETTLED: () => ({}),
+			WORKER_AUTH_FLOW_COMPLETE: () => ({}),
+			WORKER_BIOMETRIC_NOT_SUPPORTED: () => ({}),
+			WORKER_LOGGED_OUT: () => ({}),
+			WORKER_REQUIRES_CURRENT_PIN_AND_NEW_PIN: () => ({}),
+			WORKER_REQUIRES_CURRENT_PIN: () => ({}),
+			WORKER_REQUIRES_NEW_PIN: () => ({}),
+			WORKER_REQUIRES_PASSWORD: () => ({}),
+			WORKER_REQUIRES_USERNAME_AND_PASSWORD: () => ({}),
+			WORKER_REQUIRES_USERNAME: () => ({}),
 		},
 	}
 );
@@ -79,20 +80,16 @@ export type AuthSystemEvents = ModelEventsFrom<typeof authSystemModel>;
 
 export type AuthSystemServiceRef = ActorRef<AuthSystemEvents>;
 
-/**
- * Why is this separated from the `createModel` function? Because TS goes crazy if it's passed in
- * directly as the second argument.
- *
- * See this comment on an XState issue thread: https://github.com/davidkpiano/xstate/issues/2338#issuecomment-867993878
- *
- * Assorted typing issues:
- * - context is not inferred for the functions in the `services`
- * - _in theory_, type hints can be provided directly to the `actions` block's `assign` functions
- *   as their second argument. This doesn't work, so need to narrow the type via checks on the `event`
- *   argument.
- */
 const authSysytemImplementations = {
 	actions: {
+		spawnOtpService: authSystemModel.assign({
+			otpService: null,
+		}),
+		spawnUsernamePasswordService: authSystemModel.assign({
+			usernamePasswordService: null,
+		}),
+		spawnPinService: authSystemModel.assign({ pinService: null }),
+		spawnBiometricService: authSystemModel.assign({ biometricService: null }),
 		// Generic actions to set the loading status of the machine. `loadingStarted`
 		// before every invocation of a network call and `loadingEnd` after that
 		// network call is settled. Triggered when a message comes in from one of the services.
@@ -105,6 +102,23 @@ const authSysytemImplementations = {
 		// some actions that occur on the system need to be followed by a log out, so
 		// following broadcasts a request for that to the machine:
 		broadcastLogOutRequest: send<AuthSystemContext, AuthSystemEvents>("LOG_OUT"),
+		// forwarding functions. NOTE THAT AT THE POINT THESE ARE USED THE RELEVANT SERVICE
+		// IS ASSUMED TO EXIST, hence the non-null assertions to keep TS happy.
+		// TODO better handling all round of the actors, and what to do if the service
+		// isn't live. Best is probably to handle lack of service in the workers: if they
+		// aren't supposed to be running, then send info back to parent.
+		forwardEventToOtpService: send<AuthSystemContext, AuthSystemEvents>((_, e) => e, {
+			to: (ctx) => ctx.otpService!,
+		}),
+		forwardEventToUsernamePasswordService: send<AuthSystemContext, AuthSystemEvents>((_, e) => e, {
+			to: (ctx) => ctx.usernamePasswordService!,
+		}),
+		forwardEventToPinService: send<AuthSystemContext, AuthSystemEvents>((_, e) => e, {
+			to: (ctx) => ctx.pinService!,
+		}),
+		forwardEventToBiometricService: send<AuthSystemContext, AuthSystemEvents>((_, e) => e, {
+			to: (ctx) => ctx.biometricService!,
+		}),
 	},
 };
 
@@ -114,8 +128,8 @@ export const authSystem = authSystemModel.createMachine(
 		initial: "loginFlowCheck",
 		context: authSystemModel.initialContext,
 		on: {
-			SERVICE_NOTIFICATION__ASYNC_REQUEST_PENDING: { actions: "loadingStarted", internal: true },
-			SERVICE_NOTIFICATION__ASYNC_REQUEST_SETTLED: { actions: "loadingComplete", internal: true },
+			WORKER_ASYNC_REQUEST_PENDING: { actions: "loadingStarted", internal: true },
+			WORKER_ASYNC_REQUEST_SETTLED: { actions: "loadingComplete", internal: true },
 		},
 		states: {
 			loginFlowCheck: {
@@ -123,40 +137,58 @@ export const authSystem = authSystemModel.createMachine(
 					{
 						cond: (ctx) => ctx.loginFlowType === "OTP",
 						target: "otpLoginFlowInit",
+						actions: "spawnOtpService",
 					},
 					{
 						cond: (ctx) => ctx.loginFlowType === "USERNAME_PASSWORD",
 						target: "usernamePasswordLoginFlowInit",
+						actions: "spawnUsernamePasswordService",
 					},
 				],
 			},
 			otpLoginFlowInit: {
 				on: {
-					SERVICE_REQUEST__USERNAME: "otpUsernameInput",
-					SERVICE_NOTIFICATION__AUTH_FLOW_COMPLETE: "deviceSecurityCheck",
+					CHECK_FOR_SESSION: {
+						actions: "forwardEventToOtpService",
+						target: undefined,
+					},
+					WORKER_REQUIRES_USERNAME: "otpUsernameInput",
+					WORKER_AUTH_FLOW_COMPLETE: "deviceSecurityCheck",
 				},
 			},
 			otpUsernameInput: {
 				on: {
-					SERVICE_REQUEST__PASSWORD: "otpPasswordInput",
+					SUBMIT_USERNAME: {
+						actions: "forwardEventToOtpService",
+					},
+					WORKER_REQUIRES_PASSWORD: "otpPasswordInput",
 				},
 			},
 			otpPasswordInput: {
 				on: {
+					SUBMIT_PASSWORD: {
+						actions: "forwardEventToOtpService",
+					},
 					RESEND_PASSWORD: undefined,
-					SERVICE_NOTIFICATION__AUTH_FLOW_COMPLETE: "deviceSecurityCheck",
+					WORKER_AUTH_FLOW_COMPLETE: "deviceSecurityCheck",
 					GO_BACK: "otpUsernameInput",
 				},
 			},
 			usernamePasswordLoginFlowInit: {
 				on: {
-					SERVICE_REQUEST__USERNAME_AND_PASSWORD: "usernamePasswordInput",
-					SERVICE_NOTIFICATION__AUTH_FLOW_COMPLETE: "deviceSecurityCheck",
+					CHECK_FOR_SESSION: {
+						actions: "forwardEventToUsernamePasswordService",
+					},
+					WORKER_REQUIRES_USERNAME_AND_PASSWORD: "usernamePasswordInput",
+					WORKER_AUTH_FLOW_COMPLETE: "deviceSecurityCheck",
 				},
 			},
 			usernamePasswordInput: {
 				on: {
-					SERVICE_NOTIFICATION__AUTH_FLOW_COMPLETE: "deviceSecurityCheck",
+					SUBMIT_USERNAME_AND_PASSWORD: {
+						actions: "forwardEventToUsernamePasswordService",
+					},
+					WORKER_AUTH_FLOW_COMPLETE: "deviceSecurityCheck",
 				},
 			},
 			// ------------ Device-level security
@@ -173,46 +205,69 @@ export const authSystem = authSystemModel.createMachine(
 					},
 					{
 						cond: (ctx) => ctx.deviceSecurityType === "PIN",
-						actions: "startPinService",
+						actions: "spawnPinService",
+						target: "pinFlowInit",
 					},
 					{
 						cond: (ctx) => ctx.deviceSecurityType === "BIOMETRIC",
-						actions: "startBiometricService",
+						actions: "spawnBiometricService",
+						target: "biometricFlowInit",
 					},
 				],
 			},
 			pinFlowInit: {
 				on: {
-					SERVICE_REQUEST__CURRENT_PIN: "currentPinInput",
-					SERVICE_REQUEST__NEW_PIN: "newPinInput",
+					CHECK_FOR_CURRENT_PIN: {
+						actions: "forwardEventToPinService",
+					},
+					WORKER_REQUIRES_CURRENT_PIN: "currentPinInput",
+					WORKER_REQUIRES_NEW_PIN: "newPinInput",
 				},
 			},
 			currentPinInput: {
 				on: {
-					SERVICE_NOTIFICATION__AUTH_FLOW_COMPLETE: "authorised",
+					SUBMIT_CURRENT_PIN: {
+						actions: "forwardEventToPinService",
+					},
+					WORKER_AUTH_FLOW_COMPLETE: "authorised",
 				},
 			},
 			newPinInput: {
 				on: {
-					SERVICE_NOTIFICATION__AUTH_FLOW_COMPLETE: "authorised",
+					SUBMIT_NEW_PIN: {
+						actions: "forwardEventToPinService",
+					},
+					WORKER_AUTH_FLOW_COMPLETE: "authorised",
 					SKIP_PIN_SETUP: "authorised",
 				},
 			},
 			changingCurrentPinInput: {
 				on: {
-					SERVICE_NOTIFICATION__AUTH_FLOW_COMPLETE: "authorised",
+					CHANGE_CURRENT_PIN: {
+						actions: "forwardEventToPinService",
+					},
+					WORKER_AUTH_FLOW_COMPLETE: "authorised",
 					SKIP_PIN_SETUP: "authorised",
 				},
 			},
 			clearingCurrentPin: {
 				on: {
-					SERVICE_NOTIFICATION__AUTH_FLOW_COMPLETE: "authorised",
+					CLEAR_CURRENT_PIN: {
+						actions: "forwardEventToPinService",
+					},
+					WORKER_AUTH_FLOW_COMPLETE: "authorised",
 				},
 			},
 			biometricFlowInit: {
 				on: {
-					SERVICE_NOTIFICATION__BIOMETRIC_NOT_SUPPORTED: "biometricNotSupported",
-					SERVICE_NOTIFICATION__AUTH_FLOW_COMPLETE: "authorised",
+					CHECK_FOR_BIOMETRIC_SECURITY: {
+						actions: "forwardEventToBiometricService",
+					},
+					ATHORISE_AGAINST_BIOMETRIC_SECURITY: {
+						actions: "forwardEventToBiometricService",
+					},
+					WORKER_BIOMETRIC_NOT_SUPPORTED: "biometricNotSupported",
+					WORKER_AUTH_FLOW_COMPLETE: "authorised",
 				},
 			},
 			biometricNotSupported: {
@@ -222,7 +277,7 @@ export const authSystem = authSystemModel.createMachine(
 			},
 			authorised: {
 				on: {
-					SERVICE_NOTIFICATION__LOGGED_OUT: "loginFlowCheck",
+					WORKER_LOGGED_OUT: "loginFlowCheck",
 					CHANGE_DEVICE_SECURITY_TYPE: [
 						{
 							cond: (ctx, e) => ctx.deviceSecurityType === e.deviceSecurityType,
@@ -309,33 +364,46 @@ export function createAuthSystem<User>({
 		);
 	}
 
-	return authSystem.withContext({
-		...authSystemModel.initialContext,
-		biometricService: deviceSecurityInterface
-			? (spawn(createBiometricWorker(deviceSecurityInterface), {
-					name: "biometricService",
-					autoForward: true,
-			  }) as any)
-			: null,
-		otpService: otpServiceApi
-			? (spawn(createOtpWorker(otpServiceApi), {
-					name: "otpService",
-					autoForward: true,
-			  }) as any)
-			: null,
-		pinService: deviceSecurityInterface
-			? (spawn(createPinWorker(deviceSecurityInterface), {
-					name: "pinService",
-					autoForward: true,
-			  }) as any)
-			: null,
-		usernamePasswordService: usernamePasswordServiceApi
-			? (spawn(createUsernamePasswordWorker(usernamePasswordServiceApi), {
-					name: "usernamePasswordService",
-					autoForward: true,
-			  }) as any)
-			: null,
-		deviceSecurityType,
-		loginFlowType,
-	});
+	return authSystem
+		.withContext({
+			...authSystemModel.initialContext,
+			deviceSecurityType,
+			loginFlowType,
+		})
+		.withConfig({
+			actions: {
+				spawnBiometricService: authSystemModel.assign({
+					biometricService: () =>
+						deviceSecurityInterface
+							? (spawn(createBiometricWorker(deviceSecurityInterface), {
+									name: "biometricService",
+							  }) as any)
+							: null,
+				}) as any,
+				spawnOtpService: authSystemModel.assign({
+					otpService: () =>
+						otpServiceApi
+							? (spawn(createOtpWorker(otpServiceApi), {
+									name: "otpService",
+							  }) as any)
+							: null,
+				}) as any,
+				spawnPinService: authSystemModel.assign({
+					pinService: () =>
+						deviceSecurityInterface
+							? (spawn(createPinWorker(deviceSecurityInterface), {
+									name: "pinService",
+							  }) as any)
+							: null,
+				}) as any,
+				spawnUsernamePasswordService: authSystemModel.assign({
+					usernamePasswordService: () =>
+						usernamePasswordServiceApi
+							? (spawn(createUsernamePasswordWorker(usernamePasswordServiceApi), {
+									name: "usernamePasswordService",
+							  }) as any)
+							: null,
+				}) as any,
+			},
+		});
 }

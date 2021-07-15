@@ -3,7 +3,7 @@ import React from "react";
 
 export const PinFlowInit = () => {
 	const { inPinFlowInitState, isLoading } = useAuthState();
-	const { checkForExistingPin } = useAuthUpdate();
+	const { checkForCurrentPin } = useAuthUpdate();
 
 	return inPinFlowInitState ? (
 		<section
@@ -11,7 +11,7 @@ export const PinFlowInit = () => {
 				opacity: inPinFlowInitState ? 1 : 0.25,
 			}}
 		>
-			<button onClick={() => checkForExistingPin()} disabled={isLoading}>
+			<button onClick={() => checkForCurrentPin()} disabled={isLoading}>
 				Check for existing pin
 			</button>
 		</section>

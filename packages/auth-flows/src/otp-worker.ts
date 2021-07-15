@@ -7,7 +7,6 @@ import { ServiceError } from "./errors";
 import type { StateMachine } from "xstate";
 import type { ModelContextFrom, ModelEventsFrom } from "xstate/lib/model";
 import type { OTPService, SessionCheckBehaviour } from "./types";
-
 const model = createModel(
 	{
 		userdata: {} as any,
@@ -23,12 +22,12 @@ const model = createModel(
 			CHECK_FOR_SESSION: (sessionCheckBehaviour: SessionCheckBehaviour) => ({
 				sessionCheckBehaviour,
 			}),
-			SERVICE_NOTIFICATION__AUTH_FLOW_COMPLETE: () => ({}),
-			SERVICE_NOTIFICATION__LOGGED_OUT: () => ({}),
-			SERVICE_NOTIFICATION__ASYNC_REQUEST_SETTLED: () => ({}),
-			SERVICE_NOTIFICATION__ASYNC_REQUEST_PENDING: () => ({}),
-			SERVICE_REQUEST__PASSWORD: () => ({}),
-			SERVICE_REQUEST__USERNAME: () => ({}),
+			WORKER_AUTH_FLOW_COMPLETE: () => ({}),
+			WORKER_LOGGED_OUT: () => ({}),
+			WORKER_ASYNC_REQUEST_SETTLED: () => ({}),
+			WORKER_ASYNC_REQUEST_PENDING: () => ({}),
+			WORKER_REQUIRES_PASSWORD: () => ({}),
+			WORKER_REQUIRES_USERNAME: () => ({}),
 			SUBMIT_USERNAME: (username: string) => ({ username }),
 			SUBMIT_PASSWORD: (password: string) => ({ password }),
 			"done.invoke.requestOtp": (data: any) => ({ data }),
@@ -83,12 +82,12 @@ const implementations = {
 		clearUserdataFromContext: model.assign({ userdata: "" }),
 		clearUsernameFromContext: model.assign({ username: "" }),
 		// Keep in touch with yr parents
-		notifyAuthFlowComplete: sendParent(model.events.SERVICE_NOTIFICATION__AUTH_FLOW_COMPLETE),
-		notifyLoggedOut: sendParent(model.events.SERVICE_NOTIFICATION__LOGGED_OUT),
-		notifyRequestComplete: sendParent(model.events.SERVICE_NOTIFICATION__ASYNC_REQUEST_SETTLED),
-		notifyRequestStarted: sendParent(model.events.SERVICE_NOTIFICATION__ASYNC_REQUEST_PENDING),
-		requestPassword: sendParent(model.events.SERVICE_REQUEST__PASSWORD),
-		requestUsername: sendParent(model.events.SERVICE_REQUEST__USERNAME),
+		notifyAuthFlowComplete: sendParent(model.events.WORKER_AUTH_FLOW_COMPLETE),
+		notifyLoggedOut: sendParent(model.events.WORKER_LOGGED_OUT),
+		notifyRequestComplete: sendParent(model.events.WORKER_ASYNC_REQUEST_SETTLED),
+		notifyRequestStarted: sendParent(model.events.WORKER_ASYNC_REQUEST_PENDING),
+		requestPassword: sendParent(model.events.WORKER_REQUIRES_PASSWORD),
+		requestUsername: sendParent(model.events.WORKER_REQUIRES_USERNAME),
 	},
 };
 
@@ -202,6 +201,7 @@ const machine = model.createMachine(
 export function createOtpWorker<User>(
 	serviceApi: OTPService<User>
 ): StateMachine<ModelCtx, any, ModelEvt> {
+	console.log("Initialising OTP service worker machine...");
 	return machine.withConfig({
 		services: {
 			requestOtp: (ctx: ModelCtx) => serviceApi.requestOtp(ctx.username),

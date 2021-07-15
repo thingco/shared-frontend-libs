@@ -8,7 +8,7 @@ export const CurrentPinInput = () => {
 	const [localPin, setLocalPin] = useState("");
 
 	return inCurrentPinInputState ? (
-		<section style={{ opacity: inCurrentPinInputState ? 1 : 0.25 }}>
+		<section>
 			<input
 				type="email"
 				value={localPin}

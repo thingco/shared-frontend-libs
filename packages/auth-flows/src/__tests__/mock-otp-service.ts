@@ -1,11 +1,9 @@
 import { ServiceError } from "../errors";
+import { VALID_PASSWORD, VALID_USERNAME } from "./mock-inputs";
 
 import type { OTPService, SessionCheckBehaviour } from "../types";
 
-export function createDummyOTPService(
-	testUsername: string,
-	testPassword: string
-): OTPService<string> {
+export function createMockOTPService(): OTPService<string> {
 	let sessionToken: "DUMMY_SESSION_TOKEN" | null = null;
 	let user: "DUMMY_USER_DATA" | null = null;
 
@@ -24,24 +22,19 @@ export function createDummyOTPService(
 			}
 		},
 
-		/**
-		 * Given a username (which will be, in practice, an email or a phonenumber), send an OTP
-		 * to the user. The request should return an object of some kind, the user data, which
-		 * needs stored to be passed to the next function (`validateOtp`).
-		 */
 		async requestOtp(username: string): Promise<string> {
-			if (username === testUsername) {
+			if (username === VALID_USERNAME) {
 				user = "DUMMY_USER_DATA";
 				return `VALID USER DATA! requires valid OTP to complete authorisation flow.`;
 			} else {
-				throw new ServiceError(`INVALID USERNAME! Username should be ${testUsername}`);
+				throw new ServiceError(`INVALID USERNAME! Username should be ${VALID_USERNAME}`);
 			}
 		},
 
-		async validateOtp(user: string, password: string, triesRemaining: number): Promise<string> {
+		async validateOtp(user: string, password: string, triesRemaining?: number): Promise<string> {
 			if (!user) {
 				throw new ServiceError(`NO USER DATA PRESENT! Cannot run OTP validation function.`);
-			} else if (password !== testPassword) {
+			} else if (password !== VALID_PASSWORD) {
 				throw new ServiceError(`INVALID OTP! ${triesRemaining} tries remaining.`);
 			} else {
 				sessionToken = "DUMMY_SESSION_TOKEN";

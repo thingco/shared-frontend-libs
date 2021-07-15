@@ -22,12 +22,12 @@ const model = createModel(
 			SUBMIT_CURRENT_PIN: (currentPin: string) => ({ currentPin }),
 			SUBMIT_CURRENT_AND_NEW_PIN: (currentPin: string, newPin: string) => ({ currentPin, newPin }),
 			SUBMIT_NEW_PIN: (newPin: string) => ({ newPin }),
-			SERVICE_NOTIFICATION__ASYNC_REQUEST_PENDING: () => ({}),
-			SERVICE_NOTIFICATION__ASYNC_REQUEST_SETTLED: () => ({}),
-			SERVICE_NOTIFICATION__AUTH_FLOW_COMPLETE: () => ({}),
-			SERVICE_REQUEST__CURRENT_PIN_AND_NEW_PIN: () => ({}),
-			SERVICE_REQUEST__CURRENT_PIN: () => ({}),
-			SERVICE_REQUEST__NEW_PIN: () => ({}),
+			WORKER_ASYNC_REQUEST_PENDING: () => ({}),
+			WORKER_ASYNC_REQUEST_SETTLED: () => ({}),
+			WORKER_AUTH_FLOW_COMPLETE: () => ({}),
+			WORKER_REQUIRES_CURRENT_PIN_AND_NEW_PIN: () => ({}),
+			WORKER_REQUIRES_CURRENT_PIN: () => ({}),
+			WORKER_REQUIRES_NEW_PIN: () => ({}),
 		},
 	}
 );
@@ -67,14 +67,18 @@ const implementations = {
 			if (e.type !== "SUBMIT_CURRENT_AND_NEW_PIN") return {};
 			return { currentPin: e.currentPin, newPin: e.newPin };
 		}),
+		assignNewPinToContext: model.assign((_, e: ModelEventsFrom<typeof model>) => {
+			if (e.type !== "SUBMIT_NEW_PIN") return {};
+			return { newPin: e.newPin };
+		}),
 		clearPinsFromContext: model.assign({ currentPin: "", newPin: "" }) as any,
 		// Keep in touch with yr parents
-		notifyAuthFlowComplete: sendParent(model.events.SERVICE_NOTIFICATION__AUTH_FLOW_COMPLETE),
-		notifyRequestComplete: sendParent(model.events.SERVICE_NOTIFICATION__ASYNC_REQUEST_SETTLED),
-		notifyRequestStarted: sendParent(model.events.SERVICE_NOTIFICATION__ASYNC_REQUEST_PENDING),
-		requestCurrentPin: sendParent(model.events.SERVICE_REQUEST__CURRENT_PIN),
-		requestCurrentPinAndNewPin: sendParent(model.events.SERVICE_REQUEST__CURRENT_PIN_AND_NEW_PIN),
-		requestNewPin: sendParent(model.events.SERVICE_REQUEST__NEW_PIN),
+		notifyAuthFlowComplete: sendParent(model.events.WORKER_AUTH_FLOW_COMPLETE),
+		notifyRequestComplete: sendParent(model.events.WORKER_ASYNC_REQUEST_SETTLED),
+		notifyRequestStarted: sendParent(model.events.WORKER_ASYNC_REQUEST_PENDING),
+		requestCurrentPin: sendParent(model.events.WORKER_REQUIRES_CURRENT_PIN),
+		requestCurrentPinAndNewPin: sendParent(model.events.WORKER_REQUIRES_CURRENT_PIN_AND_NEW_PIN),
+		requestNewPin: sendParent(model.events.WORKER_REQUIRES_NEW_PIN),
 	},
 };
 
@@ -208,6 +212,7 @@ const machine = model.createMachine(
 export function createPinWorker(
 	serviceApi: DeviceSecurityService
 ): StateMachine<ModelCtx, any, ModelEvt> {
+	console.log("Initialising PIN service worker machine...");
 	return machine.withConfig({
 		services: {
 			changeCurrentPin: (ctx: ModelCtx) => serviceApi.changeCurrentPin(ctx.currentPin, ctx.newPin),

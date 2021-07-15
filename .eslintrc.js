@@ -40,6 +40,8 @@ module.exports = {
 		// "import/prefer-default-export": "off",
 		// React:
 		"react/display-name": "off",
+		"react/jsx-uses-react": "off",
+		"react/react-in-jsx-scope": "off",
 		// "react/jsx-filename-extension": ["error", { "extensions": [".tsx"] }],
 		// "react/jsx-uses-react": "error",
 		// "react/jsx-uses-vars": "warn",

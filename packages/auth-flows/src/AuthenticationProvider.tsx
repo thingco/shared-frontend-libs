@@ -1,37 +1,36 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { inspect } from "@xstate/inspect";
 import { useMachine } from "@xstate/react";
-import * as React from "react";
-
-import { createAuthSystem } from "./auth-system";
+import React, { createContext, useContext } from "react";
 
 import type { DeviceSecurityType, LoginFlowType, SessionCheckBehaviour } from "./types";
 import type { AuthSystemConfig, AuthSystemContext, AuthSystemEvents } from "./auth-system";
-import type { State } from "xstate";
+import type { State, StateMachine } from "xstate";
 
 inspect({
 	url: "https://statecharts.io/inspect",
 	iframe: false,
 });
 
-const AuthStateContext = React.createContext<{
+const AuthStateContext = createContext<{
 	state: State<AuthSystemContext, AuthSystemEvents>;
 } | null>(null);
 
-const AuthUpdateContext = React.createContext<{
+const AuthUpdateContext = createContext<{
 	send: (e: AuthSystemEvents) => void;
 } | null>(null);
 
 export type AuthProviderProps<User> = {
 	children: React.ReactNode;
 	inWebDebugMode?: boolean;
+	authSystem: StateMachine<AuthSystemContext, any, AuthSystemEvents>;
 } & AuthSystemConfig<User>;
 
 export function AuthProvider<User>({
 	children,
 	inWebDebugMode = false,
-	...authSystemConfig
+	authSystem,
 }: AuthProviderProps<User>): JSX.Element {
-	const authSystem = createAuthSystem(authSystemConfig);
 	const [state, send] = useMachine(authSystem, { devTools: inWebDebugMode });
 
 	return (
@@ -42,7 +41,7 @@ export function AuthProvider<User>({
 }
 
 export function useAuthState() {
-	const ctx = React.useContext(AuthStateContext);
+	const ctx = useContext(AuthStateContext);
 
 	if (!ctx) {
 		throw new Error(
@@ -52,6 +51,7 @@ export function useAuthState() {
 
 	// prettier-ignore
 	return {
+		currentState: ctx.state,
 		deviceSecurityType: ctx.state.context.deviceSecurityType as DeviceSecurityType,
 		inAuthorisedState: ctx.state.matches("authorised"),
 		inBiometricFlowInitStage: ctx.state.matches("biometricFlowInit"),
@@ -71,7 +71,7 @@ export function useAuthState() {
 }
 
 export function useAuthUpdate() {
-	const ctx = React.useContext(AuthUpdateContext);
+	const ctx = useContext(AuthUpdateContext);
 
 	if (!ctx) {
 		throw new Error(

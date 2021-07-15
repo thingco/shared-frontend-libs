@@ -24,11 +24,11 @@ const model = createModel(
 				username,
 				password,
 			}),
-			SERVICE_NOTIFICATION__AUTH_FLOW_COMPLETE: () => ({}),
-			SERVICE_NOTIFICATION__LOGGED_OUT: () => ({}),
-			SERVICE_NOTIFICATION__ASYNC_REQUEST_SETTLED: () => ({}),
-			SERVICE_NOTIFICATION__ASYNC_REQUEST_PENDING: () => ({}),
-			SERVICE_REQUEST__USERNAME_AND_PASSWORD: () => ({}),
+			WORKER_AUTH_FLOW_COMPLETE: () => ({}),
+			WORKER_LOGGED_OUT: () => ({}),
+			WORKER_ASYNC_REQUEST_SETTLED: () => ({}),
+			WORKER_ASYNC_REQUEST_PENDING: () => ({}),
+			WORKER_REQUIRES_USERNAME_AND_PASSWORD: () => ({}),
 		},
 	}
 );
@@ -62,11 +62,11 @@ const implementations = {
 		}),
 		clearUsernameAndPasswordFromContext: model.assign({ password: "", username: "" }),
 		// Keep in touch with yr parents
-		notifyAuthFlowComplete: sendParent(model.events.SERVICE_NOTIFICATION__AUTH_FLOW_COMPLETE),
-		notifyLoggedOut: sendParent(model.events.SERVICE_NOTIFICATION__LOGGED_OUT),
-		notifyRequestComplete: sendParent(model.events.SERVICE_NOTIFICATION__ASYNC_REQUEST_SETTLED),
-		notifyRequestStarted: sendParent(model.events.SERVICE_NOTIFICATION__ASYNC_REQUEST_PENDING),
-		requestUsernameAndPassword: sendParent(model.events.SERVICE_REQUEST__USERNAME_AND_PASSWORD),
+		notifyAuthFlowComplete: sendParent(model.events.WORKER_AUTH_FLOW_COMPLETE),
+		notifyLoggedOut: sendParent(model.events.WORKER_LOGGED_OUT),
+		notifyRequestComplete: sendParent(model.events.WORKER_ASYNC_REQUEST_SETTLED),
+		notifyRequestStarted: sendParent(model.events.WORKER_ASYNC_REQUEST_PENDING),
+		requestUsernameAndPassword: sendParent(model.events.WORKER_REQUIRES_USERNAME_AND_PASSWORD),
 	},
 };
 
@@ -149,6 +149,7 @@ const machine = model.createMachine(
 export function createUsernamePasswordWorker<User>(
 	serviceApi: UsernamePasswordService<User>
 ): StateMachine<ModelCtx, any, ModelEvt> {
+	console.log("Initialising username/password service worker machine...");
 	return machine.withConfig({
 		services: {
 			checkForExtantSession: (ctx: ModelCtx) =>

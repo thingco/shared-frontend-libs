@@ -1,16 +1,8 @@
 import { Auth as AWSAuth } from "@aws-amplify/auth";
-import {
-	AuthProvider,
-	DeviceSecurityService,
-	DeviceSecurityType,
-	OTPService,
-	useAuthState,
-	useAuthUpdate,
-	UsernamePasswordService,
-} from "@thingco/auth-flows";
-import React from "react";
+import { AuthProvider, createAuthSystem, ServiceError } from "@thingco/auth-flows";
 
 import {
+	Authorised,
 	ChangeCurrentPinInput,
 	CurrentPinInput,
 	NewPinInput,
@@ -23,144 +15,132 @@ import {
 } from "./AuthStages";
 
 import type { CognitoUser } from "@aws-amplify/auth";
+import type {
+	DeviceSecurityService,
+	DeviceSecurityType,
+	DeviceSecurityTypeKey,
+	DeviceSecurityPinStorageKey,
+	OTPService,
+	UsernamePasswordService,
+} from "@thingco/auth-flows";
 
-function createCognitoOTPService(): OTPService<CognitoUser> {
-	if (!AWSAuth.configure()) {
-		throw new Error("AWS Auth is not configured!");
-	}
+const cognitoOTPService: OTPService<CognitoUser> = {
+	async checkForExtantSession() {
+		return await AWSAuth.currentSession();
+	},
 
-	return {
-		async checkForExtantSession() {
-			return await AWSAuth.currentSession();
-		},
+	async requestOtp(username: string) {
+		return await AWSAuth.signIn(username);
+	},
 
-		async requestOtp(username: string) {
-			return await AWSAuth.signIn(username);
-		},
+	async validateOtp(user: CognitoUser, password: string) {
+		await AWSAuth.sendCustomChallengeAnswer(user, password);
+		return await AWSAuth.currentAuthenticatedUser();
+	},
 
-		async validateOtp(user: CognitoUser, password: string) {
-			await AWSAuth.sendCustomChallengeAnswer(user, password);
-			return await AWSAuth.currentAuthenticatedUser();
-		},
+	async logOut() {
+		return await AWSAuth.signOut();
+	},
+};
 
-		async logOut() {
-			return await AWSAuth.signOut();
-		},
-	};
-}
+const cognitoUsernamePasswordService: UsernamePasswordService<CognitoUser> = {
+	async checkForExtantSession() {
+		return await AWSAuth.currentSession();
+	},
 
-function createCognitoUsernamePasswordService(): UsernamePasswordService<CognitoUser> {
-	if (!AWSAuth.configure()) {
-		throw new Error("AWS Auth is not configured!");
-	}
+	async validateUsernameAndPassword(username: string, password: string) {
+		await AWSAuth.signIn(username, password);
+		return await AWSAuth.currentAuthenticatedUser();
+	},
 
-	return {
-		async checkForExtantSession() {
-			return await AWSAuth.currentSession();
-		},
+	async logOut() {
+		return await AWSAuth.signOut();
+	},
+};
 
-		async validateUsernameAndPassword(username: string, password: string) {
-			await AWSAuth.signIn(username, password);
-			return await AWSAuth.currentAuthenticatedUser();
-		},
+const SECURITY_TYPE_KEY: DeviceSecurityTypeKey = "@auth_device_security_type";
+const PIN_KEY: DeviceSecurityPinStorageKey = "@auth_device_security_pin";
 
-		async logOut() {
-			return await AWSAuth.signOut();
-		},
-	};
-}
-
-const PINKEY = "@pintest";
-const SECURITYTYPEKEY = "@securitytypetest";
-
-const deviceSecurityApi: DeviceSecurityService = {
+const localSecurityService: DeviceSecurityService = {
 	async getDeviceSecurityType() {
-		const securityType = localStorage.getItem(SECURITYTYPEKEY);
-		if (securityType) {
-			return securityType as DeviceSecurityType;
+		const securityType = window.localStorage.getItem(SECURITY_TYPE_KEY);
+		if (!securityType) {
+			throw new ServiceError("No device security type found in storage");
 		} else {
-			throw new Error();
+			return await (securityType as DeviceSecurityType);
 		}
 	},
 	async setDeviceSecurityType(deviceSecurityType: DeviceSecurityType) {
-		localStorage.setItem(SECURITYTYPEKEY, deviceSecurityType);
-		return;
+		window.localStorage.setItem(SECURITY_TYPE_KEY, deviceSecurityType);
+		return await null;
 	},
-	async changeExistingPin(currentPin: string, newPin: string) {
-		const storedPin = localStorage.getItem(PINKEY);
-		if (currentPin !== storedPin) {
-			throw new Error();
+	async changeCurrentPin(currentPin: string, newPin: string) {
+		const currentStoredPin = window.localStorage.getItem(PIN_KEY);
+		if (!currentStoredPin || currentStoredPin !== currentPin) {
+			throw new ServiceError(
+				"No pin found in storage OR the doesn't validate -- TODO fix this bit of logic"
+			);
 		} else {
-			localStorage.setItem(PINKEY, newPin);
-			return;
+			return await window.localStorage.setItem(PIN_KEY, newPin);
 		}
 	},
+	async checkForBiometricSupport() {
+		throw new ServiceError("Currently incompatible with web, native only -- TODO split this out");
+	},
+	async checkBiometricAuthorisation() {
+		throw new ServiceError("Currently incompatible with web, native only -- TODO split this out");
+	},
 	async checkPinIsSet() {
-		const storedPin = localStorage.getItem(PINKEY);
-		if (storedPin) {
-			return;
+		const currentStoredPin = window.localStorage.getItem(PIN_KEY);
+		if (!currentStoredPin) {
+			throw new ServiceError("No pin set");
 		} else {
-			throw new Error();
+			return await null;
 		}
 	},
 	async checkPinIsValid(currentPin: string) {
-		const storedPin = localStorage.getItem("pin");
-		if (currentPin !== storedPin) {
-			throw new Error();
+		const currentStoredPin = window.localStorage.getItem(PIN_KEY);
+		if (currentStoredPin !== currentPin) {
+			throw new ServiceError("PIN doesn't validate");
 		} else {
-			return;
+			return await null;
 		}
 	},
-	async clearExistingPin() {
-		localStorage.removeItem("pin");
-		return;
+	async clearCurrentPin() {
+		window.localStorage.removeItem(PIN_KEY);
+		return await null;
 	},
 	async setNewPin(newPin: string) {
-		localStorage.setItem("pin", newPin);
-		return;
+		window.localStorage.setItem(PIN_KEY, newPin);
+		return await null;
 	},
 };
 
-const AuthTest = () => {
-	const { inAuthorisedState } = useAuthState();
-	const { logOut } = useAuthUpdate();
-	// const [localPin, setLocalPin] = React.useState("");
-	// const [localPinConfirmation, setLocalPinConfirmation] = React.useState("");
+const AuthTest = () => (
+	<section style={{ backgroundColor: "white", padding: "1rem" }}>
+		<OtpLoginFlowInit />
+		<OtpUsernameInput />
+		<OtpPasswordInput />
+		<UsernamePasswordLoginFlowInit />
+		<UsernamePasswordInput />
+		<PinFlowInit />
+		<CurrentPinInput />
+		<NewPinInput />
+		<ChangeCurrentPinInput />
+		<Authorised />
+	</section>
+);
 
-	if (!inAuthorisedState) {
-		return (
-			<section style={{ backgroundColor: "white", padding: "1rem" }}>
-				<h1>Login Stuff</h1>
-				<OtpLoginFlowInit />
-				<OtpUsernameInput />
-				<OtpPasswordInput />
-				<UsernamePasswordLoginFlowInit />
-				<UsernamePasswordInput />
-				<PinFlowInit />
-				<CurrentPinInput />
-				<NewPinInput />
-				<ChangeCurrentPinInput />
-			</section>
-		);
-	} else {
-		return (
-			<section style={{ backgroundColor: "white", padding: "1rem" }}>
-				<h1>Logged in stuff!</h1>
-				<button onClick={logOut}>Log out</button>
-			</section>
-		);
-	}
-};
+const authSystem = createAuthSystem({
+	loginFlowType: "OTP",
+	deviceSecurityType: "PIN",
+	otpServiceApi: cognitoOTPService,
+	usernamePasswordServiceApi: cognitoUsernamePasswordService,
+	deviceSecurityInterface: localSecurityService,
+});
 
 export const AuthStuff = (): JSX.Element => (
-	<AuthProvider
-		inWebDebugMode={true}
-		loginFlowType="OTP"
-		deviceSecurityType="PIN"
-		otpServiceApi={createCognitoOTPService()}
-		usernamePasswordServiceApi={createCognitoUsernamePasswordService()}
-		deviceSecurityInterface={deviceSecurityApi}
-	>
+	<AuthProvider inWebDebugMode={true} authSystem={authSystem}>
 		<AuthTest />
 	</AuthProvider>
 );

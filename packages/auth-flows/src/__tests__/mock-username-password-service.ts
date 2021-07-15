@@ -1,20 +1,23 @@
 import { ServiceError } from "../errors";
+import {
+	DUMMY_SESSION_TOKEN,
+	DUMMY_USER_OBJECT,
+	VALID_PASSWORD,
+	VALID_USERNAME,
+} from "./mock-inputs";
 
 import type { SessionCheckBehaviour, UsernamePasswordService } from "../types";
 
-export function createDummyUsernamePasswordService(
-	testUsername: string,
-	testPassword: string
-): UsernamePasswordService<string> {
-	let sessionToken: "DUMMY_SESSION_TOKEN" | null = null;
-	let user: "DUMMY_USER_DATA" | null = null;
+export function createMockUsernamePasswordService(): UsernamePasswordService<string> {
+	let sessionToken: typeof DUMMY_SESSION_TOKEN | null = null;
+	let user: typeof DUMMY_USER_OBJECT | null = null;
 
 	return {
 		async checkForExtantSession(
 			sessionCheckBehaviour: SessionCheckBehaviour = "normal"
 		): Promise<string> {
 			if (sessionCheckBehaviour === "forceSuccess") {
-				sessionToken = "DUMMY_SESSION_TOKEN";
+				sessionToken = DUMMY_SESSION_TOKEN;
 			}
 
 			if (sessionToken === null || sessionCheckBehaviour === "forceFailure") {
@@ -25,12 +28,12 @@ export function createDummyUsernamePasswordService(
 		},
 
 		async validateUsernameAndPassword(username: string, password: string): Promise<string> {
-			if (password !== testPassword && username !== testUsername) {
+			if (password !== VALID_PASSWORD && username !== VALID_USERNAME) {
 				throw new ServiceError(`INVALID USERNAME AND PASSWORD!`);
 			}
 
-			sessionToken = "DUMMY_SESSION_TOKEN";
-			user = "DUMMY_USER_DATA";
+			sessionToken = DUMMY_SESSION_TOKEN;
+			user = DUMMY_USER_OBJECT;
 			return `VALID USERNAME AND PASSWORD! Authorisation complete, session token set`;
 		},
 

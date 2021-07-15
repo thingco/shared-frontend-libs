@@ -12,10 +12,10 @@ const model = createModel(
 		events: {
 			AUTHORISE_AGAINST_BIOMETRIC_SECURITY: () => ({}),
 			CHECK_FOR_BIOMETRIC_SECURITY: () => ({}),
-			SERVICE_NOTIFICATION__ASYNC_REQUEST_PENDING: () => ({}),
-			SERVICE_NOTIFICATION__ASYNC_REQUEST_SETTLED: () => ({}),
-			SERVICE_NOTIFICATION__AUTH_FLOW_COMPLETE: () => ({}),
-			SERVICE_NOTIFICATION__BIOMETRIC_NOT_SUPPORTED: () => ({}),
+			WORKER_ASYNC_REQUEST_PENDING: () => ({}),
+			WORKER_ASYNC_REQUEST_SETTLED: () => ({}),
+			WORKER_AUTH_FLOW_COMPLETE: () => ({}),
+			WORKER_BIOMETRIC_NOT_SUPPORTED: () => ({}),
 		},
 	}
 );
@@ -36,12 +36,10 @@ const implementations = {
 	},
 	actions: {
 		// Keep in touch with yr parents
-		notifyAuthFlowComplete: sendParent(model.events.SERVICE_NOTIFICATION__AUTH_FLOW_COMPLETE),
-		notifyBiometricUnsupported: sendParent(
-			model.events.SERVICE_NOTIFICATION__BIOMETRIC_NOT_SUPPORTED
-		),
-		notifyRequestComplete: sendParent(model.events.SERVICE_NOTIFICATION__ASYNC_REQUEST_SETTLED),
-		notifyRequestStarted: sendParent(model.events.SERVICE_NOTIFICATION__ASYNC_REQUEST_PENDING),
+		notifyAuthFlowComplete: sendParent(model.events.WORKER_AUTH_FLOW_COMPLETE),
+		notifyBiometricUnsupported: sendParent(model.events.WORKER_BIOMETRIC_NOT_SUPPORTED),
+		notifyRequestComplete: sendParent(model.events.WORKER_ASYNC_REQUEST_SETTLED),
+		notifyRequestStarted: sendParent(model.events.WORKER_ASYNC_REQUEST_PENDING),
 	},
 };
 
@@ -108,6 +106,7 @@ const machine = model.createMachine(
 export function createBiometricWorker(
 	serviceApi: DeviceSecurityService
 ): StateMachine<ModelContextFrom<typeof model>, any, ModelEventsFrom<typeof model>> {
+	console.log("Initialising biometric service worker machine...");
 	return machine.withConfig({
 		services: {
 			checkForBiometricSupport: () => serviceApi.checkForBiometricSupport(),
