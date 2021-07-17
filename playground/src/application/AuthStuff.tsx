@@ -1,5 +1,5 @@
 import { Auth as AWSAuth } from "@aws-amplify/auth";
-import { AuthProvider, createAuthSystem, ServiceError } from "@thingco/auth-flows";
+import { AuthProvider, createAuthSystem, ServiceError, useAuthState } from "@thingco/auth-flows";
 import * as React from "react";
 
 import {
@@ -117,20 +117,46 @@ const localSecurityService: DeviceSecurityService = {
 	},
 };
 
-const AuthTest = () => (
-	<section style={{ backgroundColor: "white", padding: "1rem" }}>
-		<OtpLoginFlowInit />
-		<OtpUsernameInput />
-		<OtpPasswordInput />
-		<UsernamePasswordLoginFlowInit />
-		<UsernamePasswordInput />
-		<PinFlowInit />
-		<CurrentPinInput />
-		<NewPinInput />
-		<ChangeCurrentPinInput />
-		<Authorised />
-	</section>
-);
+const AuthTest = () => {
+	const {
+		inOtpLoginFlowInitState,
+		inOtpUsernameInputState,
+		inOtpPasswordInputState,
+		inUsernamePasswordLoginFlowInitState,
+		inUsernamePasswordInputState,
+		inPinFlowInitState,
+		inCurrentPinInputState,
+		inNewPinInputState,
+		inChangeCurrentPinInputState,
+		inAuthorisedState,
+	} = useAuthState();
+
+	return (
+		<section style={{ backgroundColor: "white", padding: "1rem" }}>
+			{inOtpLoginFlowInitState ? (
+				<OtpLoginFlowInit />
+			) : inOtpUsernameInputState ? (
+				<OtpUsernameInput />
+			) : inOtpPasswordInputState ? (
+				<OtpPasswordInput />
+			) : inUsernamePasswordLoginFlowInitState ? (
+				<UsernamePasswordLoginFlowInit />
+			) : inUsernamePasswordInputState ? (
+				<UsernamePasswordInput />
+			) : inPinFlowInitState ? (
+				<PinFlowInit />
+			) : inCurrentPinInputState ? (
+				<CurrentPinInput />
+			) : inNewPinInputState ? (
+				<NewPinInput />
+			) : inChangeCurrentPinInputState ? (
+				<ChangeCurrentPinInput />
+			) : inAuthorisedState ? (
+				<Authorised />
+			) : null}
+		</section>
+	);
+};
 
 const authSystem = createAuthSystem({
 	loginFlowType: "OTP",

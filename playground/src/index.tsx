@@ -11,5 +11,4 @@ AWSAuth.configure({
 	authenticationFlowType: "CUSTOM_AUTH",
 });
 
-// import { App } from "./application/App";
 ReactDOM.render(<App />, document.getElementById("root"));

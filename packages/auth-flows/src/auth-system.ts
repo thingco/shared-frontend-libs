@@ -9,7 +9,7 @@ import { createOtpWorker } from "./otp-worker";
 import { createPinWorker } from "./pin-worker";
 import { createUsernamePasswordWorker } from "./username-password-worker";
 
-import type { StateMachine, ActorRef } from "xstate";
+import type { StateMachine, StateNode, ActorRef } from "xstate";
 import type { ModelContextFrom, ModelEventsFrom } from "xstate/lib/model";
 
 import type {
@@ -77,6 +77,26 @@ export const authEvents = authSystemModel.events;
 
 export type AuthSystemContext = ModelContextFrom<typeof authSystemModel>;
 export type AuthSystemEvents = ModelEventsFrom<typeof authSystemModel>;
+
+export type AuthStateSchema = {
+	states: {
+		loginFlowCheck: StateNode;
+		otpLoginFlowInit: StateNode;
+		otpUsernameInput: StateNode;
+		otpPasswordInput: StateNode;
+		usernamePasswordLoginFlowInit: StateNode;
+		usernamePasswordInput: StateNode;
+		deviceSecurityCheck: StateNode;
+		pinFlowInit: StateNode;
+		currentPinInput: StateNode;
+		newPinInput: StateNode;
+		changingCurrentPinInput: StateNode;
+		clearingCurrentPin: StateNode;
+		biometricFlowInit: StateNode;
+		biometricNotSupported: StateNode;
+		authorised: StateNode;
+	};
+};
 
 export type AuthSystemServiceRef = ActorRef<AuthSystemEvents>;
 
@@ -277,6 +297,16 @@ export const authSystem = authSystemModel.createMachine(
 			},
 			authorised: {
 				on: {
+					LOG_OUT: [
+						{
+							cond: (ctx) => ctx.loginFlowType === "OTP",
+							actions: "forwardEventToOtpService",
+						},
+						{
+							cond: (ctx) => ctx.loginFlowType === "USERNAME_PASSWORD",
+							actions: "forwardEventToUsernamePasswordService",
+						},
+					],
 					WORKER_LOGGED_OUT: "loginFlowCheck",
 					CHANGE_DEVICE_SECURITY_TYPE: [
 						{
@@ -306,8 +336,6 @@ export const authSystem = authSystemModel.createMachine(
 	},
 	authSysytemImplementations
 );
-
-// authSystem.
 
 export type AuthSystemConfig<User> = {
 	/**
@@ -344,7 +372,11 @@ export function createAuthSystem<User>({
 	otpServiceApi = undefined,
 	usernamePasswordServiceApi = undefined,
 	deviceSecurityInterface = undefined,
-}: AuthSystemConfig<User> = {}): StateMachine<AuthSystemContext, any, AuthSystemEvents> {
+}: AuthSystemConfig<User> = {}): StateMachine<
+	AuthSystemContext,
+	AuthStateSchema,
+	AuthSystemEvents
+> {
 	/**
 	 * The authentication system **must use one or both of OTP and username/password auth**.
 	 */

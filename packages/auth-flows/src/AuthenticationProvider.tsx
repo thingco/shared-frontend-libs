@@ -9,6 +9,7 @@ import type { State, StateMachine } from "xstate";
 
 const AuthStateContext = createContext<{
 	state: State<AuthSystemContext, AuthSystemEvents>;
+	__machine__: StateMachine<AuthSystemContext, any, AuthSystemEvents>;
 } | null>(null);
 
 const AuthUpdateContext = createContext<{
@@ -39,7 +40,9 @@ export function AuthProvider<User>({
 
 	return (
 		<AuthUpdateContext.Provider value={{ send }}>
-			<AuthStateContext.Provider value={{ state }}>{children}</AuthStateContext.Provider>
+			<AuthStateContext.Provider value={{ state, __machine__: authSystem }}>
+				{children}
+			</AuthStateContext.Provider>
 		</AuthUpdateContext.Provider>
 	);
 }
@@ -55,7 +58,9 @@ export function useAuthState() {
 
 	// prettier-ignore
 	return {
+		__machine__: ctx.__machine__,
 		currentState: ctx.state,
+		currentStateIs: ctx.state.matches,
 		deviceSecurityType: ctx.state.context.deviceSecurityType as DeviceSecurityType,
 		inAuthorisedState: ctx.state.matches("authorised"),
 		inBiometricFlowInitStage: ctx.state.matches("biometricFlowInit"),
