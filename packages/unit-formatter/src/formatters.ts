@@ -13,6 +13,8 @@ import type {
 	TimeDisplayPreference,
 } from "@thingco/shared-types";
 
+import { config } from "./config";
+
 export interface DistanceOpts {
 	unitPreference?: DistanceUnitPreference;
 	precision?: DistancePrecisionPreference;
@@ -37,6 +39,32 @@ export function distance({
 				return `${formatter.format(metersToKilometers(Number(distanceInMeters)))} km`;
 			case "mi":
 				return `${formatter.format(metersToMiles(Number(distanceInMeters)))} mi`;
+		}
+	};
+}
+
+export function distanceUntilScored({
+	unitPreference = "km",
+	precision = 0,
+	locale = undefined,
+}: DistanceOpts = {}): (distanceInMeters: number | string) => string {
+	const formatter = Intl.NumberFormat(locale, {
+		style: "decimal",
+		useGrouping: true,
+		minimumFractionDigits: precision,
+		maximumFractionDigits: precision,
+	});
+
+	return function (distanceInMeters: number | string) {
+		switch (unitPreference) {
+			case "km":
+				return `${formatter.format(
+					metersToKilometers(config.distanceScored - Number(distanceInMeters))
+				)} km`;
+			case "mi":
+				return `${formatter.format(
+					metersToMiles(config.distanceScored - Number(distanceInMeters))
+				)} mi`;
 		}
 	};
 }
