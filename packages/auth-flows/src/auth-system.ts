@@ -266,7 +266,7 @@ export const authSystem = authSystemModel.createMachine(
 					SKIP_PIN_SETUP: "authorised",
 				},
 			},
-			changingCurrentPinInput: {
+			changeCurrentPinInput: {
 				on: {
 					CHANGE_CURRENT_PIN: {
 						actions: "forwardEventToPinService",
@@ -333,7 +333,8 @@ export const authSystem = authSystemModel.createMachine(
 						},
 					],
 					CHANGE_CURRENT_PIN: {
-						target: "changingCurrentPinInput",
+						actions: "forwardEventToPinService",
+						target: "changeCurrentPinInput",
 					},
 				},
 			},
