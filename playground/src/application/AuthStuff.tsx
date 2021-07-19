@@ -119,6 +119,8 @@ const localSecurityService: DeviceSecurityService = {
 
 const AuthTest = () => {
 	const {
+		// currentState,
+		inAuthorisedState,
 		inOtpLoginFlowInitState,
 		inOtpUsernameInputState,
 		inOtpPasswordInputState,
@@ -128,29 +130,31 @@ const AuthTest = () => {
 		inCurrentPinInputState,
 		inNewPinInputState,
 		inChangeCurrentPinInputState,
-		inAuthorisedState,
+		// inBiometricFlowInitStage,
+		// inBiometricNotSupportedStage,
+		isLoading,
 	} = useAuthState();
 
 	return (
 		<section style={{ backgroundColor: "white", padding: "1rem" }}>
 			{inOtpLoginFlowInitState ? (
-				<OtpLoginFlowInit />
+				<OtpLoginFlowInit isLoading={isLoading} />
 			) : inOtpUsernameInputState ? (
-				<OtpUsernameInput />
+				<OtpUsernameInput isLoading={isLoading} />
 			) : inOtpPasswordInputState ? (
-				<OtpPasswordInput />
+				<OtpPasswordInput isLoading={isLoading} />
 			) : inUsernamePasswordLoginFlowInitState ? (
-				<UsernamePasswordLoginFlowInit />
+				<UsernamePasswordLoginFlowInit isLoading={isLoading} />
 			) : inUsernamePasswordInputState ? (
-				<UsernamePasswordInput />
+				<UsernamePasswordInput isLoading={isLoading} />
 			) : inPinFlowInitState ? (
-				<PinFlowInit />
+				<PinFlowInit isLoading={isLoading} />
 			) : inCurrentPinInputState ? (
-				<CurrentPinInput />
+				<CurrentPinInput isLoading={isLoading} />
 			) : inNewPinInputState ? (
-				<NewPinInput />
+				<NewPinInput isLoading={isLoading} />
 			) : inChangeCurrentPinInputState ? (
-				<ChangeCurrentPinInput />
+				<ChangeCurrentPinInput isLoading={isLoading} />
 			) : inAuthorisedState ? (
 				<Authorised />
 			) : null}

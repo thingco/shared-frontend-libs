@@ -1,26 +1,25 @@
-import { useAuthState, useAuthUpdate } from "@thingco/auth-flows";
+import { useAuthUpdate } from "@thingco/auth-flows";
 import React from "react";
 
-export const UsernamePasswordInput = () => {
-	const { inUsernamePasswordInputState, isLoading } = useAuthState();
+export const UsernamePasswordInput = ({ isLoading }: { isLoading: boolean }) => {
 	const { submitUsernameAndPassword } = useAuthUpdate();
 
 	const [localUsername, setLocalUsername] = React.useState("");
 	const [localPassword, setLocalPassword] = React.useState("");
 
-	return inUsernamePasswordInputState ? (
-		<section style={{ opacity: inUsernamePasswordInputState ? 1 : 0.25 }}>
+	return (
+		<section>
 			<input
 				type="email"
 				value={localUsername}
 				onChange={(e) => setLocalUsername(e.target.value)}
-				disabled={!inUsernamePasswordInputState}
+				disabled={isLoading}
 			/>
 			<input
 				type="text"
 				value={localPassword}
 				onChange={(e) => setLocalPassword(e.target.value)}
-				disabled={!inUsernamePasswordInputState}
+				disabled={isLoading}
 			/>
 			<button
 				onClick={() => submitUsernameAndPassword(localUsername, localPassword)}
@@ -29,5 +28,5 @@ export const UsernamePasswordInput = () => {
 				Submit email and password
 			</button>
 		</section>
-	) : null;
+	);
 };

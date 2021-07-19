@@ -1,4 +1,10 @@
-import { kmphToMph, metersToKilometers, metersToMiles, secondsToDurationObj } from "./converters";
+import {
+	kmphToMph,
+	metersToKilometers,
+	metersToMiles,
+	secondsToDurationObj,
+	secondsToHours,
+} from "./converters";
 
 import type {
 	DistancePrecisionPreference,
@@ -58,6 +64,38 @@ export function speed({
 				return `${formatter.format(Number(speedInKmph))} km/h`;
 			case "mi":
 				return `${formatter.format(kmphToMph(Number(speedInKmph)))} mph`;
+		}
+	};
+}
+
+export function averageSpeed({
+	unitPreference = "km",
+	precision = 0,
+	locale = undefined,
+}: SpeedOpts = {}): (
+	distanceInMeters: number | string,
+	durationInSeconds: number | string
+) => string {
+	const formatter = new Intl.NumberFormat(locale, {
+		style: "decimal",
+		useGrouping: true,
+		minimumFractionDigits: precision,
+		maximumFractionDigits: precision,
+	});
+	return function (distanceInMeters: number | string, durationInSeconds: number | string) {
+		switch (unitPreference) {
+			case "km":
+				return `${formatter.format(
+					Number(
+						metersToKilometers(Number(distanceInMeters)) / secondsToHours(Number(durationInSeconds))
+					)
+				)} km/h`;
+			case "mi":
+				return `${formatter.format(
+					Number(
+						metersToMiles(Number(distanceInMeters)) / secondsToHours(Number(durationInSeconds))
+					)
+				)} mph`;
 		}
 	};
 }
