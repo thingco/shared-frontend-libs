@@ -219,7 +219,7 @@ export function createPinWorker(
 			checkPinIsSet: () => serviceApi.checkPinIsSet(),
 			checkPinIsValid: (ctx: ModelCtx) => serviceApi.checkPinIsValid(ctx.currentPin),
 			clearCurrentPin: () => serviceApi.clearCurrentPin(),
-			setNewPin: (ctx: ModelCtx) => serviceApi.setNewPin(ctx.currentPin),
+			setNewPin: (ctx: ModelCtx) => serviceApi.setNewPin(ctx.newPin),
 		},
 	});
 }

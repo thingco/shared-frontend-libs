@@ -86,24 +86,25 @@ const localSecurityService: DeviceSecurityService = {
 		window.localStorage.setItem(SECURITY_TYPE_KEY, deviceSecurityType);
 		return await null;
 	},
-	async changeCurrentPin(currentPin: string, newPin: string) {
-		const currentStoredPin = window.localStorage.getItem(PIN_KEY);
-		if (!currentStoredPin || currentStoredPin !== currentPin) {
-			throw new ServiceError(
-				"No pin found in storage OR the doesn't validate -- TODO fix this bit of logic"
-			);
-		} else {
-			return await window.localStorage.setItem(PIN_KEY, newPin);
-		}
-	},
 	async checkForBiometricSupport() {
 		throw new ServiceError("Currently incompatible with web, native only -- TODO split this out");
 	},
 	async checkBiometricAuthorisation() {
 		throw new ServiceError("Currently incompatible with web, native only -- TODO split this out");
 	},
+	async changeCurrentPin(currentPin: string, newPin: string) {
+		const currentStoredPin = localStorage.getItem(PIN_KEY);
+		if (!currentStoredPin || currentStoredPin !== currentPin) {
+			throw new ServiceError(
+				"No pin found in storage OR the doesn't validate -- TODO fix this bit of logic"
+			);
+		} else {
+			localStorage.setItem(PIN_KEY, newPin);
+			return await null;
+		}
+	},
 	async checkPinIsSet() {
-		const currentStoredPin = window.localStorage.getItem(PIN_KEY);
+		const currentStoredPin = localStorage.getItem(PIN_KEY);
 		if (!currentStoredPin) {
 			throw new ServiceError("No pin set");
 		} else {
@@ -111,7 +112,7 @@ const localSecurityService: DeviceSecurityService = {
 		}
 	},
 	async checkPinIsValid(currentPin: string) {
-		const currentStoredPin = window.localStorage.getItem(PIN_KEY);
+		const currentStoredPin = localStorage.getItem(PIN_KEY);
 		if (currentStoredPin !== currentPin) {
 			throw new ServiceError("PIN doesn't validate");
 		} else {
@@ -119,12 +120,21 @@ const localSecurityService: DeviceSecurityService = {
 		}
 	},
 	async clearCurrentPin() {
-		window.localStorage.removeItem(PIN_KEY);
-		return await null;
+		localStorage.removeItem(PIN_KEY);
+		if (!localStorage.getItem(PIN_KEY)) {
+			return null;
+		} else {
+			throw new Error("Error, pin not cleared");
+		}
 	},
 	async setNewPin(newPin: string) {
 		window.localStorage.setItem(PIN_KEY, newPin);
-		return await null;
+		console.log(`key: ${PIN_KEY}, value: ${newPin}`);
+		if (localStorage.getItem(PIN_KEY)) {
+			return null;
+		} else {
+			throw new Error("Error, pin not saved");
+		}
 	},
 };
 
