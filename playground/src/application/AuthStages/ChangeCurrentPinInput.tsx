@@ -1,26 +1,25 @@
-import { useAuthState, useAuthUpdate } from "@thingco/auth-flows";
+import { useAuthUpdate } from "@thingco/auth-flows";
 import React, { useState } from "react";
 
-export const ChangeCurrentPinInput = () => {
-	const { inChangeCurrentPinInputState, isLoading } = useAuthState();
+export const ChangeCurrentPinInput = ({ isLoading }: { isLoading: boolean }) => {
 	const { submitCurrentAndNewPin, skipPinSetup } = useAuthUpdate();
 
 	const [localPin, setLocalPin] = useState("");
 	const [localNewPin, setLocalNewPin] = useState("");
 
-	return inChangeCurrentPinInputState ? (
-		<section style={{ opacity: inChangeCurrentPinInputState ? 1 : 0.25 }}>
+	return (
+		<section>
 			<input
 				type="text"
 				value={localPin}
 				onChange={(e) => setLocalPin(e.target.value)}
-				disabled={!inChangeCurrentPinInputState}
+				disabled={isLoading}
 			/>
 			<input
 				type="text"
 				value={localNewPin}
 				onChange={(e) => setLocalNewPin(e.target.value)}
-				disabled={!inChangeCurrentPinInputState}
+				disabled={isLoading}
 			/>
 			<button onClick={() => submitCurrentAndNewPin(localPin, localNewPin)} disabled={isLoading}>
 				Submit pin
@@ -28,5 +27,5 @@ export const ChangeCurrentPinInput = () => {
 
 			<button onClick={() => skipPinSetup()}>Skip pin setup</button>
 		</section>
-	) : null;
+	);
 };
