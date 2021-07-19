@@ -1,19 +1,14 @@
-import { useAuthState, useAuthUpdate } from "@thingco/auth-flows";
-import React, { useState } from "react";
+import { useAuthUpdate } from "@thingco/auth-flows";
+import * as React from "react";
 
-export const OtpLoginFlowInit = () => {
-	const { inOtpLoginFlowInitState, isLoading } = useAuthState();
+export const OtpLoginFlowInit = ({ isLoading }: { isLoading: boolean }) => {
 	const { runSessionCheck } = useAuthUpdate();
 
-	return inOtpLoginFlowInitState ? (
-		<section
-			style={{
-				opacity: inOtpLoginFlowInitState ? 1 : 0.25,
-			}}
-		>
+	return (
+		<section>
 			<button onClick={() => runSessionCheck()} disabled={isLoading}>
 				Check session
 			</button>
 		</section>
-	) : null;
+	);
 };

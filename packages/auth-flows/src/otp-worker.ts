@@ -1,12 +1,12 @@
-import { createMachine, sendParent } from "xstate";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { sendParent } from "xstate";
 import { createModel } from "xstate/lib/model";
 
-import { OTPService } from "./otp-service";
+import { ServiceError } from "./errors";
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import type { ModelContextFrom } from "xstate/lib/model";
-import type { SessionCheckBehaviour } from "./types";
-
+import type { StateMachine } from "xstate";
+import type { ModelContextFrom, ModelEventsFrom } from "xstate/lib/model";
+import type { OTPService, SessionCheckBehaviour } from "./types";
 const model = createModel(
 	{
 		userdata: {} as any,
@@ -22,6 +22,12 @@ const model = createModel(
 			CHECK_FOR_SESSION: (sessionCheckBehaviour: SessionCheckBehaviour) => ({
 				sessionCheckBehaviour,
 			}),
+			WORKER_AUTH_FLOW_COMPLETE: () => ({}),
+			WORKER_LOGGED_OUT: () => ({}),
+			WORKER_ASYNC_REQUEST_SETTLED: () => ({}),
+			WORKER_ASYNC_REQUEST_PENDING: () => ({}),
+			WORKER_REQUIRES_PASSWORD: () => ({}),
+			WORKER_REQUIRES_USERNAME: () => ({}),
 			SUBMIT_USERNAME: (username: string) => ({ username }),
 			SUBMIT_PASSWORD: (password: string) => ({ password }),
 			"done.invoke.requestOtp": (data: any) => ({ data }),
@@ -30,31 +36,26 @@ const model = createModel(
 	}
 );
 
-/**
- * Why is this separated from the `createModel` function? Because TS goes crazy if it's passed in
- * directly as the second argument.
- *
- * See this comment on an XState issue thread: https://github.com/davidkpiano/xstate/issues/2338#issuecomment-867993878
- *
- * Assorted typing issues:
- * - context is not inferred for the functions in the `services`
- * - _in theory_, type hints can be provided directly to the `actions` block's `assign` functions
- *   as their second argument. This doesn't work, so need to narrow the type via checks on the `event`
- *   argument.
- */
+type ModelCtx = ModelContextFrom<typeof model>;
+type ModelEvt = ModelEventsFrom<typeof model>;
+
 const implementations = {
 	services: {
-		requestOtp: (ctx: ModelContextFrom<typeof model>) => {
-			throw new Error("No implementation for requestOtp method");
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		requestOtp: (_c: ModelCtx, _e: ModelEvt) => {
+			throw new ServiceError("No implementation for requestOtp method");
 		},
-		checkForExtantSession: (ctx: ModelContextFrom<typeof model>) => {
-			throw new Error("No implementation for checkForExtantSession method");
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		checkForExtantSession: (_c: ModelCtx, _e: ModelEvt) => {
+			throw new ServiceError("No implementation for checkForExtantSession method");
 		},
-		validateOtp: (ctx: ModelContextFrom<typeof model>) => {
-			throw new Error("No implementation for validateOtp method");
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		validateOtp: (_c: ModelCtx, _e: ModelEvt) => {
+			throw new ServiceError("No implementation for validateOtp method");
 		},
-		logOut: () => {
-			throw new Error("No implementation for logOut method");
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		logOut: (_c: ModelCtx, _e: ModelEvt) => {
+			throw new ServiceError("No implementation for logOut method");
 		},
 	},
 	actions: {
@@ -81,16 +82,16 @@ const implementations = {
 		clearUserdataFromContext: model.assign({ userdata: "" }),
 		clearUsernameFromContext: model.assign({ username: "" }),
 		// Keep in touch with yr parents
-		notifyRequestStarted: sendParent("ASYNC_REQUEST_PENDING"),
-		notifyRequestComplete: sendParent("ASYNC_REQUEST_SETTLED"),
-		requestPassword: sendParent("REQUEST_PASSWORD"),
-		requestUsername: sendParent("REQUEST_USERNAME"),
-		notifyAuthFlowComplete: sendParent("AUTH_FLOW_COMPLETE"),
-		notifyLoggedOut: sendParent("LOGGED_OUT"),
+		notifyAuthFlowComplete: sendParent(model.events.WORKER_AUTH_FLOW_COMPLETE),
+		notifyLoggedOut: sendParent(model.events.WORKER_LOGGED_OUT),
+		notifyRequestComplete: sendParent(model.events.WORKER_ASYNC_REQUEST_SETTLED),
+		notifyRequestStarted: sendParent(model.events.WORKER_ASYNC_REQUEST_PENDING),
+		requestPassword: sendParent(model.events.WORKER_REQUIRES_PASSWORD),
+		requestUsername: sendParent(model.events.WORKER_REQUIRES_USERNAME),
 	},
 };
 
-const machine = createMachine<typeof model>(
+const machine = model.createMachine(
 	{
 		id: "otpService",
 		context: model.initialContext,
@@ -197,13 +198,16 @@ const machine = createMachine<typeof model>(
 	implementations
 );
 
-export function createOtpWorker<User>(serviceApi: OTPService<User>) {
+export function createOtpWorker<User>(
+	serviceApi: OTPService<User>
+): StateMachine<ModelCtx, any, ModelEvt> {
+	console.log("Initialising OTP service worker machine...");
 	return machine.withConfig({
 		services: {
-			requestOtp: (ctx: ModelContextFrom<typeof model>) => serviceApi.requestOtp(ctx.username),
-			checkForExtantSession: (ctx: ModelContextFrom<typeof model>) =>
+			requestOtp: (ctx: ModelCtx) => serviceApi.requestOtp(ctx.username),
+			checkForExtantSession: (ctx: ModelCtx) =>
 				serviceApi.checkForExtantSession(ctx.sessionCheckBehaviour),
-			validateOtp: (ctx: ModelContextFrom<typeof model>) =>
+			validateOtp: (ctx: ModelCtx) =>
 				serviceApi.validateOtp(ctx.userdata, ctx.password, ctx.triesRemaining),
 			logOut: () => serviceApi.logOut(),
 		},

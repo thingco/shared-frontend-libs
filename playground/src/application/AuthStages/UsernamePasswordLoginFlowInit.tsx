@@ -1,19 +1,14 @@
-import { useAuthState, useAuthUpdate } from "@thingco/auth-flows";
+import { useAuthUpdate } from "@thingco/auth-flows";
 import React from "react";
 
-export const UsernamePasswordLoginFlowInit = () => {
-	const { inUsernamePasswordLoginFlowInitState, isLoading } = useAuthState();
+export const UsernamePasswordLoginFlowInit = ({ isLoading }: { isLoading: boolean }) => {
 	const { runSessionCheck } = useAuthUpdate();
 
-	return inUsernamePasswordLoginFlowInitState ? (
-		<section
-			style={{
-				opacity: inUsernamePasswordLoginFlowInitState ? 1 : 0.25,
-			}}
-		>
+	return (
+		<section>
 			<button onClick={() => runSessionCheck()} disabled={isLoading}>
 				Check session
 			</button>
 		</section>
-	) : null;
+	);
 };

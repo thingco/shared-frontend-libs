@@ -1,11 +1,12 @@
-import { createMachine, sendParent } from "xstate";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { sendParent } from "xstate";
 import { createModel } from "xstate/lib/model";
 
-import { UsernamePasswordService } from "./username-password-service";
+import { ServiceError } from "./errors";
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import type { ModelContextFrom } from "xstate/lib/model";
-import type { SessionCheckBehaviour } from "./types";
+import type { StateMachine } from "xstate";
+import type { ModelContextFrom, ModelEventsFrom } from "xstate/lib/model";
+import type { SessionCheckBehaviour, UsernamePasswordService } from "./types";
 
 const model = createModel(
 	{
@@ -23,34 +24,31 @@ const model = createModel(
 				username,
 				password,
 			}),
-			SUBMIT_USERNAME: (username: string) => ({ username }),
-			SUBMIT_PASSWORD: (password: string) => ({ password }),
+			WORKER_AUTH_FLOW_COMPLETE: () => ({}),
+			WORKER_LOGGED_OUT: () => ({}),
+			WORKER_ASYNC_REQUEST_SETTLED: () => ({}),
+			WORKER_ASYNC_REQUEST_PENDING: () => ({}),
+			WORKER_REQUIRES_USERNAME_AND_PASSWORD: () => ({}),
 		},
 	}
 );
 
-/**
- * Why is this separated from the `createModel` function? Because TS goes crazy if it's passed in
- * directly as the second argument.
- *
- * See this comment on an XState issue thread: https://github.com/davidkpiano/xstate/issues/2338#issuecomment-867993878
- *
- * Assorted typing issues:
- * - context is not inferred for the functions in the `services`
- * - _in theory_, type hints can be provided directly to the `actions` block's `assign` functions
- *   as their second argument. This doesn't work, so need to narrow the type via checks on the `event`
- *   argument.
- */
+type ModelCtx = ModelContextFrom<typeof model>;
+type ModelEvt = ModelEventsFrom<typeof model>;
+
 const implementations = {
 	services: {
-		checkForExtantSession: (_ctx: ModelContextFrom<typeof model>) => {
-			throw new Error("No implementation for checkExtantSession method");
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		checkForExtantSession: (_c: ModelCtx, _e: ModelEvt) => {
+			throw new ServiceError("No implementation for checkExtantSession method");
 		},
-		logOut: () => {
-			throw new Error("No implementation for logOut method");
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		logOut: (_c: ModelCtx, _e: ModelEvt) => {
+			throw new ServiceError("No implementation for logOut method");
 		},
-		validateUsernameAndPassword: (_ctx: ModelContextFrom<typeof model>) => {
-			throw new Error("No implementation for validateUsernameAndPassword method");
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		validateUsernameAndPassword: (_c: ModelCtx, _e: ModelEvt) => {
+			throw new ServiceError("No implementation for validateUsernameAndPassword method");
 		},
 	},
 	actions: {
@@ -64,15 +62,15 @@ const implementations = {
 		}),
 		clearUsernameAndPasswordFromContext: model.assign({ password: "", username: "" }),
 		// Keep in touch with yr parents
-		requestUsernameAndPassword: sendParent("REQUEST_USERNAME_AND_PASSWORD"),
-		notifyRequestStarted: sendParent("ASYNC_REQUEST_PENDING"),
-		notifyRequestComplete: sendParent("ASYNC_REQUEST_SETTLED"),
-		notifyAuthFlowComplete: sendParent("AUTH_FLOW_COMPLETE"),
-		notifyLoggedOut: sendParent("LOGGED_OUT"),
+		notifyAuthFlowComplete: sendParent(model.events.WORKER_AUTH_FLOW_COMPLETE),
+		notifyLoggedOut: sendParent(model.events.WORKER_LOGGED_OUT),
+		notifyRequestComplete: sendParent(model.events.WORKER_ASYNC_REQUEST_SETTLED),
+		notifyRequestStarted: sendParent(model.events.WORKER_ASYNC_REQUEST_PENDING),
+		requestUsernameAndPassword: sendParent(model.events.WORKER_REQUIRES_USERNAME_AND_PASSWORD),
 	},
 };
 
-const machine = createMachine<typeof model>(
+const machine = model.createMachine(
 	{
 		id: "usernamePasswordService",
 		context: model.initialContext,
@@ -148,12 +146,15 @@ const machine = createMachine<typeof model>(
 	implementations
 );
 
-export function createUsernamePasswordWorker<User>(serviceApi: UsernamePasswordService<User>) {
+export function createUsernamePasswordWorker<User>(
+	serviceApi: UsernamePasswordService<User>
+): StateMachine<ModelCtx, any, ModelEvt> {
+	console.log("Initialising username/password service worker machine...");
 	return machine.withConfig({
 		services: {
-			checkForExtantSession: (ctx: ModelContextFrom<typeof model>) =>
+			checkForExtantSession: (ctx: ModelCtx) =>
 				serviceApi.checkForExtantSession(ctx.sessionCheckBehaviour),
-			validateOtp: (ctx: ModelContextFrom<typeof model>) =>
+			validateOtp: (ctx: ModelCtx) =>
 				serviceApi.validateUsernameAndPassword(ctx.username, ctx.password),
 			logOut: () => serviceApi.logOut(),
 		},

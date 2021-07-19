@@ -3,13 +3,13 @@
 	"compilerOptions": {
 		"emitDeclarationOnly": true,
 		"declarationDir": "./lib/types",
-		"rootDir": "./src",
-		"types": ["react", "jest"]
+		"skipLibCheck": true,
+		"rootDir": "./src"
 	},
 	"typedocOptions": {
-		"entryPoints": ["src/index.tsx"],
+		"entryPoints": ["src/index.ts"],
 		"out": "docs"
 	},
 	"include": ["src/**/*"],
-	"exclude": ["src/__tests__/*.{ts,tsx}"]
+	"exclude": ["src/__tests__/*.{js,ts,tsx}"]
 }

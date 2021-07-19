@@ -14,7 +14,7 @@
 		"playground"
 	],
 	"scripts": {
-		"packages:build-all": "yarn workspaces foreach -v --topological-dev --exclude @thingco/shared-frontend-libs-playground run build",
+		"packages:build-all": "FORCE_COLOR=1 yarn workspaces foreach -v --topological-dev --exclude @thingco/shared-frontend-libs-playground run build",
 		"packages:test-all": "yarn workspaces foreach --exclude @thingco/shared-frontend-libs-playground run test",
 		"package:auth-flows": "yarn workspace @thingco/auth-flows",
 		"package:graphviz": "yarn workspace @thingco/graphviz",
@@ -27,29 +27,29 @@
 		"package:user-preferences-store-web": "yarn workspace @thingco/user-preferences-store-web",
 		"package:user-preferences-store-native": "yarn workspace @thingco/user-preferences-store-native",
 		"playground": "yarn workspace @thingco/shared-frontend-libs-playground",
-		"global:update-yarn": "yarn set version latest && yarn plugin import version && yarn plugin import typescript && yarn plugin import workspace-tools && yarn plugin import interactive-tools && yarn dlx @yarnpkg/pnpify --sdk",
-		"global:build": "cd $INIT_CWD && zx ../../scripts/build-library.mjs"
+		"global:build": "cd $INIT_CWD && zx ../../scripts/build-single-package.md"
 	},
 	"devDependencies": {
-		"@types/eslint": "^7.2.13",
+		"@types/eslint": "^7.28.0",
 		"@types/eslint-plugin-prettier": "^3.1.0",
-		"@types/prettier": "^2.3.0",
-		"@types/rimraf": "^3.0.0",
-		"@typescript-eslint/eslint-plugin": "^4.27.0",
-		"@typescript-eslint/parser": "^4.27.0",
-		"esbuild": "^0.12.13",
-		"eslint": "^7.29.0",
+		"@types/node": "^16.3.2",
+		"@types/prettier": "^2.3.2",
+		"@types/rimraf": "^3.0.1",
+		"@typescript-eslint/eslint-plugin": "^4.28.3",
+		"@typescript-eslint/parser": "^4.28.3",
+		"esbuild": "^0.12.15",
+		"eslint": "^7.30.0",
 		"eslint-config-prettier": "^8.3.0",
 		"eslint-plugin-prettier": "^3.4.0",
 		"eslint-plugin-react": "^7.24.0",
 		"eslint-plugin-react-hooks": "^4.2.0",
 		"eslint-plugin-tsdoc": "^0.2.14",
 		"husky": "^4.3.8",
-		"lint-staged": "^11.0.0",
-		"prettier": "^2.3.1",
+		"lint-staged": "^11.0.1",
+		"prettier": "^2.3.2",
 		"rimraf": "^3.0.2",
-		"typescript": "^4.3.4",
-		"zx": "^1.14.2"
+		"typescript": "^4.3.5",
+		"zx": "^2.0.0"
 	},
 	"resolutions": {
 		"typicode/husky": "4.3.8"

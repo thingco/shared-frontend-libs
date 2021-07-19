@@ -1,23 +1,22 @@
-import { useAuthState, useAuthUpdate } from "@thingco/auth-flows";
+import { useAuthUpdate } from "@thingco/auth-flows";
 import React, { useState } from "react";
 
-export const OtpUsernameInput = () => {
-	const { inOtpUsernameInputState, isLoading } = useAuthState();
+export const OtpUsernameInput = ({ isLoading }: { isLoading: boolean }) => {
 	const { submitUsername } = useAuthUpdate();
 
 	const [localOtpUsername, setLocalOtpUsername] = useState("");
 
-	return inOtpUsernameInputState ? (
-		<section style={{ opacity: inOtpUsernameInputState ? 1 : 0.25 }}>
+	return (
+		<section>
 			<input
 				type="email"
 				value={localOtpUsername}
 				onChange={(e) => setLocalOtpUsername(e.target.value)}
-				disabled={!inOtpUsernameInputState}
+				disabled={isLoading}
 			/>
 			<button onClick={() => submitUsername(localOtpUsername)} disabled={isLoading}>
 				Submit email
 			</button>
 		</section>
-	) : null;
+	);
 };
