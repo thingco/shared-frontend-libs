@@ -42,7 +42,7 @@ const UserPrefs = () => {
 			</dl>
 
 			<div>
-				<h2>Unit formatting:</h2>
+				<h2>Unit formatting (passing numbers into funcs):</h2>
 				<ul style={{ padding: "1rem" }}>
 					<li>Average speed: {averageSpeed(4000, 500)}</li>
 					<li>Date: {date(1626694284)}</li>
@@ -51,6 +51,17 @@ const UserPrefs = () => {
 					<li>Duration (compact): {compactDuration(4000)}</li>
 					<li>Duration: (expanded): {expandedDuration(4000)}</li>
 					<li>Time: {time(1626694284)}</li>
+				</ul>
+
+				<h2>Unit formatting (passing strings into funcs):</h2>
+				<ul style={{ padding: "1rem" }}>
+					<li>Average speed: {averageSpeed("4000", "500")}</li>
+					<li>Date: {date("1626694284")}</li>
+					<li>DateTime: {dateTime("1626694284")}</li>
+					<li>Distance: {distance("400000")}</li>
+					<li>Duration (compact): {compactDuration("4000")}</li>
+					<li>Duration: (expanded): {expandedDuration("4000")}</li>
+					<li>Time: {time("1626694284")}</li>
 				</ul>
 			</div>
 		</section>
