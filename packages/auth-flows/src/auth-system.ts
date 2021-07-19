@@ -191,6 +191,7 @@ export const authSystem = authSystemModel.createMachine(
 					},
 					GO_BACK: {
 						actions: "forwardEventToOtpService",
+						target: "otpUsernameInput",
 					},
 					RESEND_PASSWORD: {
 						actions: "forwardEventToOtpService",
