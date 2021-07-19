@@ -1,3 +1,4 @@
+import { config } from "./config";
 import {
 	kmphToMph,
 	metersToKilometers,
@@ -12,8 +13,6 @@ import type {
 	LocalePreference,
 	TimeDisplayPreference,
 } from "@thingco/shared-types";
-
-import { config } from "./config";
 
 export interface DistanceOpts {
 	unitPreference?: DistanceUnitPreference;
@@ -142,7 +141,7 @@ export function date({ locale = undefined }: DateOpts = {}): (
 	});
 
 	return function (timestamp: string | number) {
-		return formatter.format(new Date(timestamp));
+		return formatter.format(new Date(Number(timestamp)));
 	};
 }
 
@@ -161,7 +160,7 @@ export function time({ locale = undefined, timeDisplay = "24" }: TimeOpts = {}):
 	});
 
 	return function (timestamp: string | number) {
-		return formatter.format(new Date(timestamp));
+		return formatter.format(new Date(Number(timestamp)));
 	};
 }
 
@@ -183,7 +182,7 @@ export function dateTime({ locale = undefined, timeDisplay = "24" }: DateTimeOpt
 	});
 
 	return function (timestamp: string | number) {
-		return formatter.format(new Date(timestamp));
+		return formatter.format(new Date(Number(timestamp)));
 	};
 }
 
