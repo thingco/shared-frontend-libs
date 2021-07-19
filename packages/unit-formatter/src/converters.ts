@@ -57,6 +57,14 @@ export function secondsToHours(duration: number): number {
 }
 
 /**
+ * Given block progress return the meters until block is compeleted
+ */
+export function blockDistanceToMetersLeft(distance: number): number {
+	const untilComplete = config.distanceScored - Number(distance);
+	return untilComplete;
+}
+
+/**
  * Given block progress return the position of the progress bar
  */
 export function blockDistanceToBarWidth(distance: number): number {

@@ -21,11 +21,6 @@ export interface DistanceOpts {
 	locale?: LocalePreference | undefined;
 }
 
-export interface UntilScored {
-	text: string;
-	barWidth: number;
-}
-
 export function distance({
 	unitPreference = "km",
 	precision = 0,
