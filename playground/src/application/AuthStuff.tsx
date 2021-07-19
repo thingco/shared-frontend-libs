@@ -1,5 +1,6 @@
 import { Auth as AWSAuth } from "@aws-amplify/auth";
 import { AuthProvider, createAuthSystem, ServiceError, useAuthState } from "@thingco/auth-flows";
+import { inspect } from "@xstate/inspect";
 import * as React from "react";
 
 import {
@@ -24,6 +25,16 @@ import type {
 	OTPService,
 	UsernamePasswordService,
 } from "@thingco/auth-flows";
+
+// NOTE: COMMENT THIS OUT IF YOU DON'T WANT WEB DEBUGGING OF XSTATE.
+// NOTE: THIS WILL ATTEMPT TO OPEN A NEW TAB, SO YOU'LL NEED TO SAY "YES" TO
+//		 	 POPUPS IN YOUR BROWSER WHEN IT ASKS.
+// NOTE: THIS ISN'T LOCAL, SO IF YOU AREN'T CONNECTED TO INTERNET, THIS WILL JUST OPEN A
+// 			 TAB THAT HANGS.
+inspect({
+	url: "https://statecharts.io/inspect",
+	iframe: false,
+});
 
 const cognitoOTPService: OTPService<CognitoUser> = {
 	async checkForExtantSession() {

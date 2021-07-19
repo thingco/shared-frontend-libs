@@ -17,7 +17,7 @@ export const App = (): JSX.Element => (
 		}}
 	>
 		{/* <GraphStuff /> */}
-		<UserPrefStuff />
 		<AuthStuff />
+		<UserPrefStuff />
 	</div>
 );

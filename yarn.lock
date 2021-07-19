@@ -2713,7 +2713,6 @@ __metadata:
     "@types/react": ^17.0.14
     "@types/react-dom": ^17.0.9
     "@types/rimraf": ^3.0.1
-    "@xstate/inspect": ^0.4.1
     "@xstate/react": ^1.5.1
     "@xstate/test": ^0.4.2
     esbuild: ^0.12.15
@@ -2835,6 +2834,8 @@ __metadata:
     "@types/react": ^17.0.14
     "@types/react-dom": ^17.0.9
     "@types/webpack-dev-server": ^3.11.5
+    "@types/ws": ^7
+    "@xstate/inspect": ^0.4.1
     "@xstate/react": ^1.5.1
     buffer: ^6.0.3
     clean-webpack-plugin: ^4.0.0-alpha.0
@@ -2851,6 +2852,7 @@ __metadata:
     webpack: ^5.44.0
     webpack-cli: ^4.7.2
     webpack-dev-server: ^3.11.2
+    ws: ^7.5.3
     xstate: ^4.22.0
   languageName: unknown
   linkType: soft
@@ -3426,6 +3428,15 @@ __metadata:
     anymatch: ^3.0.0
     source-map: ^0.6.0
   checksum: a247f48905777ac96fd43699cbef0aa053d25316f4242f3b1b9c5193850883fe42397e745a87b209c1da94f61dbbb9db2cef0a74b420bd3fe3af3be6a5ed039f
+  languageName: node
+  linkType: hard
+
+"@types/ws@npm:^7":
+  version: 7.4.6
+  resolution: "@types/ws@npm:7.4.6"
+  dependencies:
+    "@types/node": "*"
+  checksum: 500c2f7edcb5bbcb34ecf535c6163aad6c901a04d806089931125eecd630e9f30e41a167a4b9929aaaae9658d4fc4146f3a29762857f0d18a4038b6641ec36f8
   languageName: node
   linkType: hard
 
@@ -14307,7 +14318,7 @@ typescript@^4.3.5:
   languageName: node
   linkType: hard
 
-"ws@npm:^7, ws@npm:^7.4.5":
+"ws@npm:^7, ws@npm:^7.4.5, ws@npm:^7.5.3":
   version: 7.5.3
   resolution: "ws@npm:7.5.3"
   peerDependencies:

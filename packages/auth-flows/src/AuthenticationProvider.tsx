@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { inspect } from "@xstate/inspect";
 import { useMachine } from "@xstate/react";
-import React, { createContext, useContext, useEffect } from "react";
+import React, { createContext, useContext } from "react";
 
 import type { DeviceSecurityType, LoginFlowType, SessionCheckBehaviour } from "./types";
 import type { AuthSystemConfig, AuthSystemContext, AuthSystemEvents } from "./auth-system";
@@ -28,15 +27,6 @@ export function AuthProvider<User>({
 	authSystem,
 }: AuthProviderProps<User>): JSX.Element {
 	const [state, send] = useMachine(authSystem, { devTools: inWebDebugMode });
-
-	useEffect(() => {
-		if (window && inWebDebugMode) {
-			inspect({
-				url: "https://statecharts.io/inspect",
-				iframe: false,
-			});
-		}
-	}, [inWebDebugMode]);
 
 	return (
 		<AuthUpdateContext.Provider value={{ send }}>

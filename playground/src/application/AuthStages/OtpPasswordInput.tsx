@@ -2,7 +2,7 @@ import { useAuthUpdate } from "@thingco/auth-flows";
 import React, { useState } from "react";
 
 export const OtpPasswordInput = ({ isLoading }: { isLoading: boolean }) => {
-	const { submitPassword } = useAuthUpdate();
+	const { submitPassword, goBack } = useAuthUpdate();
 
 	const [localOtpPassword, setLocalOtpPassword] = useState("");
 
@@ -16,6 +16,9 @@ export const OtpPasswordInput = ({ isLoading }: { isLoading: boolean }) => {
 			/>
 			<button onClick={() => submitPassword(localOtpPassword)} disabled={isLoading}>
 				Submit OTP
+			</button>
+			<button onClick={() => goBack()} disabled={isLoading}>
+				Re-enter username
 			</button>
 		</section>
 	);

@@ -43,9 +43,10 @@ module.exports = {
 	},
 	plugins: [
 		new HtmlWebpackPlugin({
-			title: "Shared frontend libraries playground",
-			template: path.resolve(__dirname, "./src/template.html"),
+			favicon: "./src/favicon.ico",
 			filename: "index.html",
+			template: path.resolve(__dirname, "./src/template.html"),
+			title: "Shared frontend libraries playground",
 		}),
 		new CleanWebpackPlugin(),
 		new webpack.HotModuleReplacementPlugin(),
