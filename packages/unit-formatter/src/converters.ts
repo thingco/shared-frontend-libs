@@ -1,3 +1,4 @@
+import { config } from "./config";
 /**
  * Given a number, round it to a specified precision. Note that
  * this helper function is primarily for use in testing to avoid
@@ -53,4 +54,15 @@ export function secondsToDurationObj(duration: number): {
 export function secondsToHours(duration: number): number {
 	const hours = duration / 3600;
 	return hours;
+}
+
+/**
+ * Given block progress return the position of the progress bar
+ */
+export function blockDistanceToBarWidth(distance: number): number {
+	const untilComplete = config.distanceScored - Number(distance);
+	const clampedProgress = untilComplete < 0 ? 0 : untilComplete;
+	const progressBarValue = config.distanceScored - clampedProgress;
+	const value = 3 + (metersToMiles(progressBarValue) / 100) * 97;
+	return value;
 }
