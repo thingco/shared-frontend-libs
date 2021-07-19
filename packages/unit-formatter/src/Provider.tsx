@@ -1,13 +1,23 @@
 import { usePrefs } from "@thingco/user-preferences";
 import React from "react";
 
-import { averageSpeed, date, dateTime, distance, duration, speed, time } from "./formatters";
+import {
+	averageSpeed,
+	date,
+	dateTime,
+	distance,
+	distanceUntilScored,
+	duration,
+	speed,
+	time,
+} from "./formatters";
 
 type UnitFormatterFunctionName =
 	| "compactDuration"
 	| "date"
 	| "dateTime"
 	| "distance"
+	| "distanceUntilScored"
 	| "expandedDuration"
 	| "speed"
 	| "averageSpeed"
@@ -28,6 +38,11 @@ export const UnitFormatterProvider = ({ children }: { children: React.ReactNode 
 		date: date({ locale: prefs.localePref }),
 		dateTime: dateTime({ locale: prefs.localePref, timeDisplay: prefs.timeDisplayPref }),
 		distance: distance({
+			locale: prefs.localePref,
+			precision: prefs.distanceUnitPrecisionPref,
+			unitPreference: prefs.distanceUnitPref,
+		}),
+		distanceUntilScored: distanceUntilScored({
 			locale: prefs.localePref,
 			precision: prefs.distanceUnitPrecisionPref,
 			unitPreference: prefs.distanceUnitPref,
