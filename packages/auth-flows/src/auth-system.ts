@@ -268,7 +268,7 @@ export const authSystem = authSystemModel.createMachine(
 			},
 			changeCurrentPinInput: {
 				on: {
-					CHANGE_CURRENT_PIN: {
+					SUBMIT_CURRENT_AND_NEW_PIN: {
 						actions: "forwardEventToPinService",
 					},
 					WORKER_AUTH_FLOW_COMPLETE: "authorised",
