@@ -1,3 +1,4 @@
+import { config } from "./config";
 import {
 	kmphToMph,
 	metersToKilometers,
@@ -37,6 +38,32 @@ export function distance({
 				return `${formatter.format(metersToKilometers(Number(distanceInMeters)))} km`;
 			case "mi":
 				return `${formatter.format(metersToMiles(Number(distanceInMeters)))} mi`;
+		}
+	};
+}
+
+export function distanceUntilScored({
+	unitPreference = "km",
+	precision = 0,
+	locale = undefined,
+}: DistanceOpts = {}): (distanceInMeters: number | string) => string {
+	const formatter = Intl.NumberFormat(locale, {
+		style: "decimal",
+		useGrouping: true,
+		minimumFractionDigits: precision,
+		maximumFractionDigits: precision,
+	});
+
+	return function (distanceInMeters: number | string) {
+		switch (unitPreference) {
+			case "km":
+				return `${formatter.format(
+					metersToKilometers(config.distanceScored - Number(distanceInMeters))
+				)} km`;
+			case "mi":
+				return `${formatter.format(
+					metersToMiles(config.distanceScored - Number(distanceInMeters))
+				)} mi`;
 		}
 	};
 }
@@ -114,7 +141,7 @@ export function date({ locale = undefined }: DateOpts = {}): (
 	});
 
 	return function (timestamp: string | number) {
-		return formatter.format(new Date(timestamp));
+		return formatter.format(new Date(Number(timestamp)));
 	};
 }
 
@@ -133,7 +160,7 @@ export function time({ locale = undefined, timeDisplay = "24" }: TimeOpts = {}):
 	});
 
 	return function (timestamp: string | number) {
-		return formatter.format(new Date(timestamp));
+		return formatter.format(new Date(Number(timestamp)));
 	};
 }
 
@@ -155,7 +182,7 @@ export function dateTime({ locale = undefined, timeDisplay = "24" }: DateTimeOpt
 	});
 
 	return function (timestamp: string | number) {
-		return formatter.format(new Date(timestamp));
+		return formatter.format(new Date(Number(timestamp)));
 	};
 }
 
