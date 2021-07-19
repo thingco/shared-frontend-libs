@@ -189,9 +189,13 @@ export const authSystem = authSystemModel.createMachine(
 					SUBMIT_PASSWORD: {
 						actions: "forwardEventToOtpService",
 					},
-					RESEND_PASSWORD: undefined,
+					GO_BACK: {
+						actions: "forwardEventToOtpService",
+					},
+					RESEND_PASSWORD: {
+						actions: "forwardEventToOtpService",
+					},
 					WORKER_AUTH_FLOW_COMPLETE: "deviceSecurityCheck",
-					GO_BACK: "otpUsernameInput",
 				},
 			},
 			usernamePasswordLoginFlowInit: {

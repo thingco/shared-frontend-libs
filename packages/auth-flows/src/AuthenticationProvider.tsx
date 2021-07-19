@@ -87,6 +87,7 @@ export function useAuthUpdate() {
 		checkForCurrentPin: () => ctx.send({ type: "CHECK_FOR_CURRENT_PIN" }),
 		goBack: () => ctx.send({ type: "GO_BACK" }),
 		logOut: () => ctx.send({ type: "LOG_OUT" }),
+		resendPassword: () => ctx.send({ type: "RESEND_PASSWORD" }),
 		runSessionCheck: (sessionCheckBehaviour: SessionCheckBehaviour = "normal") => ctx.send({ type: "CHECK_FOR_SESSION", sessionCheckBehaviour }),
 		skipPinSetup: () => ctx.send({ type: "SKIP_PIN_SETUP" }),
 		submitCurrentAndNewPin: (currentPin: string, newPin: string) => ctx.send({ type: "SUBMIT_CURRENT_AND_NEW_PIN", currentPin, newPin }),
