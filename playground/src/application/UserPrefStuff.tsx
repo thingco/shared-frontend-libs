@@ -44,7 +44,7 @@ const UserPrefs = () => {
 			<div>
 				<h2>Unit formatting:</h2>
 				<ul style={{ padding: "1rem" }}>
-					{/* <li>Average speed: { averageSpeed(400, )}</li> */}
+					<li>Average speed: {averageSpeed(4000, 500)}</li>
 					<li>Date: {date(1626694284)}</li>
 					<li>DateTime: {dateTime(1626694284)}</li>
 					<li>Distance: {distance(400000)}</li>

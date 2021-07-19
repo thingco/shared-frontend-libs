@@ -23,7 +23,7 @@ type UnitFormatterFunctionName =
 	| "averageSpeed"
 	| "time";
 
-type UnitFormatterFunction = (arg: number | string) => string;
+type UnitFormatterFunction = (...args: (number | string)[]) => string;
 
 const UnitFormatterContext = React.createContext<Record<
 	UnitFormatterFunctionName,
@@ -33,7 +33,7 @@ const UnitFormatterContext = React.createContext<Record<
 export const UnitFormatterProvider = ({ children }: { children: React.ReactNode }): JSX.Element => {
 	const { prefs } = usePrefs();
 
-	const formatters: Record<UnitFormatterFunctionName, (...args: (number | string)[]) => string> = {
+	const formatters: Record<UnitFormatterFunctionName, UnitFormatterFunction> = {
 		compactDuration: duration({ locale: prefs.localePref, displayStyle: "compact" }),
 		date: date({ locale: prefs.localePref }),
 		dateTime: dateTime({ locale: prefs.localePref, timeDisplay: prefs.timeDisplayPref }),
