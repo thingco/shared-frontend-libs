@@ -180,8 +180,8 @@ const machine = model.createMachine(
 			attemptingPinChange: {
 				entry: "notifyRequestStarted",
 				invoke: {
-					id: "changePin",
-					src: "changePin",
+					id: "changeCurrentPin",
+					src: "changeCurrentPin",
 					onDone: {
 						actions: "clearPinsFromContext",
 						target: "authorised",

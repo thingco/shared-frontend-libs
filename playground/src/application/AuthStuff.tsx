@@ -93,15 +93,8 @@ const localSecurityService: DeviceSecurityService = {
 		throw new ServiceError("Currently incompatible with web, native only -- TODO split this out");
 	},
 	async changeCurrentPin(currentPin: string, newPin: string) {
-		const currentStoredPin = localStorage.getItem(PIN_KEY);
-		if (!currentStoredPin || currentStoredPin !== currentPin) {
-			throw new ServiceError(
-				"No pin found in storage OR the doesn't validate -- TODO fix this bit of logic"
-			);
-		} else {
-			localStorage.setItem(PIN_KEY, newPin);
-			return await null;
-		}
+		await this.checkPinIsValid(currentPin);
+		await this.setNewPin(newPin);
 	},
 	async checkPinIsSet() {
 		const currentStoredPin = localStorage.getItem(PIN_KEY);
@@ -124,16 +117,15 @@ const localSecurityService: DeviceSecurityService = {
 		if (!localStorage.getItem(PIN_KEY)) {
 			return null;
 		} else {
-			throw new Error("Error, pin not cleared");
+			throw new ServiceError("Error, pin not cleared");
 		}
 	},
 	async setNewPin(newPin: string) {
-		window.localStorage.setItem(PIN_KEY, newPin);
-		console.log(`key: ${PIN_KEY}, value: ${newPin}`);
+		localStorage.setItem(PIN_KEY, newPin);
 		if (localStorage.getItem(PIN_KEY)) {
 			return null;
 		} else {
-			throw new Error("Error, pin not saved");
+			throw new ServiceError("Error, pin not saved");
 		}
 	},
 };
