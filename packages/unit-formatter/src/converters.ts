@@ -65,12 +65,12 @@ export function blockDistanceToMetersLeft(distance: number): number {
 }
 
 /**
- * Given block progress return the position of the progress bar
+ * Given block progress return the precentage compelete for the block
  */
-export function blockDistanceToBarWidth(distance: number): number {
+export function blockDistanceToPercentage(distance: number): number {
 	const untilComplete = config.distanceScored - Number(distance);
 	const clampedProgress = untilComplete < 0 ? 0 : untilComplete;
 	const progressBarValue = config.distanceScored - clampedProgress;
-	const value = 3 + (metersToMiles(progressBarValue) / 100) * 97;
-	return value;
+	const percentProgress = metersToMiles(progressBarValue) * 0.01;
+	return percentProgress;
 }
