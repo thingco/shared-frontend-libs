@@ -1,3 +1,4 @@
+import { config } from "./config";
 /**
  * Given a number, round it to a specified precision. Note that
  * this helper function is primarily for use in testing to avoid
@@ -53,4 +54,23 @@ export function secondsToDurationObj(duration: number): {
 export function secondsToHours(duration: number): number {
 	const hours = duration / 3600;
 	return hours;
+}
+
+/**
+ * Given block progress return the meters until block is compeleted
+ */
+export function blockDistanceToMetersLeft(distance: number): number {
+	const untilComplete = config.distanceScored - Number(distance);
+	return untilComplete;
+}
+
+/**
+ * Given block progress return the precentage compelete for the block
+ */
+export function blockDistanceToPercentage(distance: number): number {
+	const untilComplete = config.distanceScored - Number(distance);
+	const clampedProgress = untilComplete < 0 ? 0 : untilComplete;
+	const progressBarValue = config.distanceScored - clampedProgress;
+	const percentProgress = metersToMiles(progressBarValue) * 0.01;
+	return percentProgress;
 }

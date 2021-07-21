@@ -55,15 +55,13 @@ export function distanceUntilScored({
 	});
 
 	return function (distanceInMeters: number | string) {
+		const untilComplete = config.distanceScored - Number(distanceInMeters);
+		const clampedProgress = untilComplete < 0 ? 0 : untilComplete;
 		switch (unitPreference) {
 			case "km":
-				return `${formatter.format(
-					metersToKilometers(config.distanceScored - Number(distanceInMeters))
-				)} km`;
+				return `${formatter.format(metersToKilometers(clampedProgress))} km`;
 			case "mi":
-				return `${formatter.format(
-					metersToMiles(config.distanceScored - Number(distanceInMeters))
-				)} mi`;
+				return `${formatter.format(metersToMiles(clampedProgress))} mi`;
 		}
 	};
 }
