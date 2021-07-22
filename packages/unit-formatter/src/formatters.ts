@@ -1,4 +1,11 @@
-import { kmphToMph, metersToKilometers, metersToMiles, secondsToDurationObj } from "./converters";
+import { config } from "./config";
+import {
+	kmphToMph,
+	metersToKilometers,
+	metersToMiles,
+	secondsToDurationObj,
+	secondsToHours,
+} from "./converters";
 
 import type {
 	DistancePrecisionPreference,
@@ -35,6 +42,30 @@ export function distance({
 	};
 }
 
+export function distanceUntilScored({
+	unitPreference = "km",
+	precision = 0,
+	locale = undefined,
+}: DistanceOpts = {}): (distanceInMeters: number | string) => string {
+	const formatter = Intl.NumberFormat(locale, {
+		style: "decimal",
+		useGrouping: true,
+		minimumFractionDigits: precision,
+		maximumFractionDigits: precision,
+	});
+
+	return function (distanceInMeters: number | string) {
+		const untilComplete = config.distanceScored - Number(distanceInMeters);
+		const clampedProgress = untilComplete < 0 ? 0 : untilComplete;
+		switch (unitPreference) {
+			case "km":
+				return `${formatter.format(metersToKilometers(clampedProgress))} km`;
+			case "mi":
+				return `${formatter.format(metersToMiles(clampedProgress))} mi`;
+		}
+	};
+}
+
 export interface SpeedOpts {
 	unitPreference?: DistanceUnitPreference;
 	precision?: DistancePrecisionPreference;
@@ -62,6 +93,38 @@ export function speed({
 	};
 }
 
+export function averageSpeed({
+	unitPreference = "km",
+	precision = 0,
+	locale = undefined,
+}: SpeedOpts = {}): (
+	distanceInMeters: number | string,
+	durationInSeconds: number | string
+) => string {
+	const formatter = new Intl.NumberFormat(locale, {
+		style: "decimal",
+		useGrouping: true,
+		minimumFractionDigits: precision,
+		maximumFractionDigits: precision,
+	});
+	return function (distanceInMeters: number | string, durationInSeconds: number | string) {
+		switch (unitPreference) {
+			case "km":
+				return `${formatter.format(
+					Number(
+						metersToKilometers(Number(distanceInMeters)) / secondsToHours(Number(durationInSeconds))
+					)
+				)} km/h`;
+			case "mi":
+				return `${formatter.format(
+					Number(
+						metersToMiles(Number(distanceInMeters)) / secondsToHours(Number(durationInSeconds))
+					)
+				)} mph`;
+		}
+	};
+}
+
 export interface DateOpts {
 	locale?: LocalePreference;
 }
@@ -76,7 +139,7 @@ export function date({ locale = undefined }: DateOpts = {}): (
 	});
 
 	return function (timestamp: string | number) {
-		return formatter.format(new Date(timestamp));
+		return formatter.format(new Date(Number(timestamp)));
 	};
 }
 
@@ -95,7 +158,7 @@ export function time({ locale = undefined, timeDisplay = "24" }: TimeOpts = {}):
 	});
 
 	return function (timestamp: string | number) {
-		return formatter.format(new Date(timestamp));
+		return formatter.format(new Date(Number(timestamp)));
 	};
 }
 
@@ -117,7 +180,7 @@ export function dateTime({ locale = undefined, timeDisplay = "24" }: DateTimeOpt
 	});
 
 	return function (timestamp: string | number) {
-		return formatter.format(new Date(timestamp));
+		return formatter.format(new Date(Number(timestamp)));
 	};
 }
 

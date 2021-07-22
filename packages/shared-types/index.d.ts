@@ -35,4 +35,6 @@ export interface Storage {
 	getPreferences(): Promise<UserPreferences>;
 	getPreference<P extends keyof UserPreferences>(key: P): Promise<UserPreferences[P]>;
 	setPreference<P extends keyof UserPreferences>(key: P, value: UserPreferences[P]): Promise<void>;
+
+	// clearPreferences(): Promise<null>;
 }

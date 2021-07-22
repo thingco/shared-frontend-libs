@@ -40,6 +40,8 @@ module.exports = {
 		// "import/prefer-default-export": "off",
 		// React:
 		"react/display-name": "off",
+		// "react/jsx-uses-react": "off",
+		// "react/react-in-jsx-scope": "off",
 		// "react/jsx-filename-extension": ["error", { "extensions": [".tsx"] }],
 		// "react/jsx-uses-react": "error",
 		// "react/jsx-uses-vars": "warn",
@@ -48,6 +50,7 @@ module.exports = {
 		// "react-hooks/exhaustive-deps": "warn",
 		// "react-hooks/rules-of-hooks": "error",
 		// Typescript:
+		"@typescript-eslint/explicit-module-boundary-types": "off",
 		"@typescript-eslint/explicit-function-return-type": "off",
 		"@typescript-eslint/no-unused-vars": "warn",
 		"@typescript-eslint/no-use-before-define": "off",

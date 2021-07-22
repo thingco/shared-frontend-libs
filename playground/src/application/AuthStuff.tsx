@@ -1,241 +1,190 @@
 import { Auth as AWSAuth } from "@aws-amplify/auth";
-import { AuthProvider, useAuth } from "@thingco/auth-flows";
-import React from "react";
+import { AuthProvider, createAuthSystem, ServiceError, useAuthState } from "@thingco/auth-flows";
+import { inspect } from "@xstate/inspect";
+import * as React from "react";
 
-/**
- * Amplify uses a singleton pattern to configure it -- you import the `Auth` module then run
- * `Auth.configure(awsConfigsHere)` somewhere at the top of the app.
- *
- * That then configures Auth so you can use the methods (`Auth.signIn` or whatever).
- *
- * However that is now implicitly an instance of Amplify's `Auth` class. Which is now implicitly a
- * global variable referring to a specific instance of the `Auth` class. Except there's no global variable
- * anywhere, it's just implicit when you import `{ Auth } from "@aws-amplify/auth"` in other files, as
- * long as the imports happen further down the line from the original configure call.
- *
- * If you try to reference the functions, which is what I'm doing with the auth (I pass in a reference
- * to the `currentSession`, `signIn`, `sendCustomChallengeAnswer` and `signOut` methods to the provider
- * so they can be used by the machine), instead of referencing the configured global instance, it
- * references an entirely different instance, one which isn't configured.
- *
- * So nowt works, because when the machine ties to run the functions, they in turn run against a version
- * of the Auth class that has no configuration, and everything blows up.
- *
- * Solution is to wrap the functions required in another object, and that object is the instance used.
- * Then it all works as long as this object is always used (if you then attempt to use another AWS auth
- * method, it's going to fail because it'll be a different instance).
- *
- * tl/dr global variables are bad, singletons are not great, Amplify is a bit of a hack job.
- */
-const Auth = {
-	configure(awsConfig?: Record<string, unknown>) {
-		return AWSAuth.configure(awsConfig);
-	},
+import {
+	Authorised,
+	ChangeCurrentPinInput,
+	CurrentPinInput,
+	NewPinInput,
+	OtpLoginFlowInit,
+	OtpPasswordInput,
+	OtpUsernameInput,
+	PinFlowInit,
+	UsernamePasswordInput,
+	UsernamePasswordLoginFlowInit,
+} from "./AuthStages";
 
-	async checkSession() {
+import type { CognitoUser } from "@aws-amplify/auth";
+import type {
+	DeviceSecurityService,
+	DeviceSecurityType,
+	DeviceSecurityTypeKey,
+	DeviceSecurityPinStorageKey,
+	OTPService,
+	UsernamePasswordService,
+} from "@thingco/auth-flows";
+
+// NOTE: COMMENT THIS OUT IF YOU DON'T WANT WEB DEBUGGING OF XSTATE.
+// NOTE: THIS WILL ATTEMPT TO OPEN A NEW TAB, SO YOU'LL NEED TO SAY "YES" TO
+//		 	 POPUPS IN YOUR BROWSER WHEN IT ASKS.
+// NOTE: THIS ISN'T LOCAL, SO IF YOU AREN'T CONNECTED TO INTERNET, THIS WILL JUST OPEN A
+// 			 TAB THAT HANGS.
+inspect({
+	url: "https://statecharts.io/inspect",
+	iframe: false,
+});
+
+const cognitoOTPService: OTPService<CognitoUser> = {
+	async checkForExtantSession() {
 		return await AWSAuth.currentSession();
 	},
 
-	async validateUserIdentifier(username: string) {
+	async requestOtp(username: string) {
 		return await AWSAuth.signIn(username);
 	},
 
-	async validateUsernamePassword(username: string, password: string) {
-		return await AWSAuth.signIn(username, password);
+	async validateOtp(user: CognitoUser, password: string) {
+		await AWSAuth.sendCustomChallengeAnswer(user, password);
+		return await AWSAuth.currentAuthenticatedUser();
 	},
 
-	async validateOtp(user: unknown, code: string) {
-		return await AWSAuth.sendCustomChallengeAnswer(user, code);
-	},
-
-	async signOut() {
+	async logOut() {
 		return await AWSAuth.signOut();
 	},
 };
 
-Auth.configure({
-	region: "eu-west-1",
-	userPoolId: "eu-west-1_FrRYZGJO6",
-	userPoolWebClientId: "47jbuurvrfafht3em4dvv0qa4d",
-	authenticationFlowType: "CUSTOM_AUTH",
-});
-
-const PINKEY = "@pintest";
-
-const PinInterface = {
-	async hasPinSet() {
-		console.log("@thingco/auth-flows: checking if user has a PIN set");
-		const storedPin = localStorage.getItem(PINKEY);
-		return await !!storedPin;
+const cognitoUsernamePasswordService: UsernamePasswordService<CognitoUser> = {
+	async checkForExtantSession() {
+		return await AWSAuth.currentSession();
 	},
-	async validatePin(pin: string) {
-		console.log("@thingco/auth-flows: validating an existing PIN");
-		const storedPin = localStorage.getItem(PINKEY);
-		if (pin === storedPin) {
-			return await null;
+
+	async validateUsernameAndPassword(username: string, password: string) {
+		await AWSAuth.signIn(username, password);
+		return await AWSAuth.currentAuthenticatedUser();
+	},
+
+	async logOut() {
+		return await AWSAuth.signOut();
+	},
+};
+
+const SECURITY_TYPE_KEY: DeviceSecurityTypeKey = "@auth_device_security_type";
+const PIN_KEY: DeviceSecurityPinStorageKey = "@auth_device_security_pin";
+
+const localSecurityService: DeviceSecurityService = {
+	async getDeviceSecurityType() {
+		const securityType = window.localStorage.getItem(SECURITY_TYPE_KEY);
+		if (!securityType) {
+			throw new ServiceError("No device security type found in storage");
 		} else {
-			throw new Error("entered pin does not match stored pin");
+			return await (securityType as DeviceSecurityType);
 		}
 	},
-	async setNewPin(pin: string) {
-		console.log("@thingco/auth-flows: setting a new PIN");
-		localStorage.setItem(PINKEY, pin);
+	async setDeviceSecurityType(deviceSecurityType: DeviceSecurityType) {
+		window.localStorage.setItem(SECURITY_TYPE_KEY, deviceSecurityType);
 		return await null;
 	},
-	async clearPin() {
-		console.log("@thingco/auth-flows: clearing existing PIN");
-		localStorage.removeItem(PINKEY);
-		return await null;
+	async checkForBiometricSupport() {
+		throw new ServiceError("Currently incompatible with web, native only -- TODO split this out");
+	},
+	async checkBiometricAuthorisation() {
+		throw new ServiceError("Currently incompatible with web, native only -- TODO split this out");
+	},
+	async changeCurrentPin(currentPin: string, newPin: string) {
+		await this.checkPinIsValid(currentPin);
+		await this.setNewPin(newPin);
+	},
+	async checkPinIsSet() {
+		const currentStoredPin = localStorage.getItem(PIN_KEY);
+		if (!currentStoredPin) {
+			throw new ServiceError("No pin set");
+		} else {
+			return await null;
+		}
+	},
+	async checkPinIsValid(currentPin: string) {
+		const currentStoredPin = localStorage.getItem(PIN_KEY);
+		if (currentStoredPin !== currentPin) {
+			throw new ServiceError("PIN doesn't validate");
+		} else {
+			return await null;
+		}
+	},
+	async clearCurrentPin() {
+		localStorage.removeItem(PIN_KEY);
+		if (!localStorage.getItem(PIN_KEY)) {
+			return null;
+		} else {
+			throw new ServiceError("Error, pin not cleared");
+		}
+	},
+	async setNewPin(newPin: string) {
+		localStorage.setItem(PIN_KEY, newPin);
+		if (localStorage.getItem(PIN_KEY)) {
+			return null;
+		} else {
+			throw new ServiceError("Error, pin not saved");
+		}
 	},
 };
 
 const AuthTest = () => {
 	const {
-		_machineState,
-		isAuthorised,
+		// currentState,
+		inAuthorisedState,
+		inOtpLoginFlowInitState,
+		inOtpUsernameInputState,
+		inOtpPasswordInputState,
+		inUsernamePasswordLoginFlowInitState,
+		inUsernamePasswordInputState,
+		inPinFlowInitState,
+		inCurrentPinInputState,
+		inNewPinInputState,
+		inChangeCurrentPinInputState,
+		// inBiometricFlowInitStage,
+		// inBiometricNotSupportedStage,
 		isLoading,
-		isUsingPinSecurity,
-		currentState,
-		userHasPinSet,
-		changeCurrentPin,
-		goBack,
-		skipSettingPin,
-		submitOtpUsername,
-		submitOtp,
-		submitPin,
-		signOut,
-		turnOffPinSecurity,
-		turnOnPinSecurity,
-	} = useAuth();
-	const [localEmail, setLocalEmail] = React.useState("");
-	const [localOtp, setLocalOtp] = React.useState("");
-	const [localPin, setLocalPin] = React.useState("");
-	const [localPinConfirmation, setLocalPinConfirmation] = React.useState("");
+	} = useAuthState();
 
-	if (!isAuthorised) {
-		return (
-			<section style={{ backgroundColor: "white", padding: "1rem" }}>
-				<h1>Login Stuff</h1>
-				<details>
-					<summary>State machine state:</summary>
-					<p>Current state: {currentState}</p>
-					<p>Machine state: {JSON.stringify(_machineState, null, 2)}</p>
-				</details>
-				<section style={{ opacity: _machineState.matches("otpUsernameInput") ? 1 : 0.25 }}>
-					<input
-						type="email"
-						value={localEmail}
-						onChange={(e) => setLocalEmail(e.target.value)}
-						disabled={!_machineState.matches("otpUsernameInput")}
-					/>
-					<button onClick={() => submitOtpUsername(localEmail)} disabled={isLoading}>
-						Submit email
-					</button>
-				</section>
-				<section style={{ opacity: _machineState.matches("otpInput") ? 1 : 0.25 }}>
-					<input
-						type="text"
-						value={localOtp}
-						onChange={(e) => setLocalOtp(e.target.value)}
-						disabled={!_machineState.matches("otpInput")}
-					/>
-					<button onClick={() => submitOtp(localOtp)} disabled={isLoading}>
-						Submit otp
-					</button>
-					<button onClick={goBack}>Go back</button>
-				</section>
-				<section style={{ opacity: _machineState.matches("pinInput") ? 1 : 0.25 }}>
-					<input
-						type="text"
-						value={localPin}
-						onChange={(e) => setLocalPin(e.target.value)}
-						disabled={!_machineState.matches("pinInput")}
-					/>
-					<button onClick={() => submitPin(localPin)} disabled={isLoading}>
-						Submit PIN
-					</button>
-					<button onClick={goBack}>Go back</button>
-				</section>
-				<section style={{ opacity: _machineState.matches("newPinInput") ? 1 : 0.25 }}>
-					<input
-						type="text"
-						value={localPin}
-						onChange={(e) => setLocalPin(e.target.value)}
-						disabled={!_machineState.matches("newPinInput")}
-					/>
-					<input
-						type="pin"
-						value={localPinConfirmation}
-						onChange={(e) => setLocalPinConfirmation(e.target.value)}
-						disabled={!_machineState.matches("newPinInput")}
-					/>
-					{localPin !== localPinConfirmation && <p>PIN confirmation doesn&#39;t match!</p>}
-					<button
-						onClick={() => submitPin(localPin)}
-						disabled={localPin !== localPinConfirmation || isLoading}
-					>
-						Set New PIN
-					</button>
-					<button onClick={skipSettingPin}>Skip setting PIN</button>
-					<button onClick={goBack}>Go back</button>
-				</section>
-				<section style={{ opacity: _machineState.matches("resetPinInput") ? 1 : 0.25 }}>
-					<input
-						type="text"
-						value={localPin}
-						onChange={(e) => setLocalPin(e.target.value)}
-						disabled={!_machineState.matches("resetPinInput")}
-					/>
-					<button onClick={() => submitPin(localPin)} disabled={isLoading}>
-						Submit Current PIN before setting new PIN
-					</button>
-					<button onClick={goBack}>Go back</button>
-				</section>
-			</section>
-		);
-	} else {
-		return (
-			<section style={{ backgroundColor: "white", padding: "1rem" }}>
-				<h1>Logged in stuff!</h1>
-				<details>
-					<summary>State machine state:</summary>
-					<p>Current state: {currentState}</p>
-					<p>Machine state: {JSON.stringify(_machineState, null, 2)}</p>
-				</details>
-				<button onClick={signOut}>Log out</button>
-				<button onClick={isUsingPinSecurity ? turnOffPinSecurity : turnOnPinSecurity}>
-					Turn {isUsingPinSecurity ? "off" : "on"} PIN security
-				</button>
-				{isUsingPinSecurity && userHasPinSet && (
-					<button onClick={changeCurrentPin}>Change current PIN</button>
-				)}
-				{isUsingPinSecurity && !userHasPinSet && (
-					<button onClick={turnOnPinSecurity}>Set a PIN</button>
-				)}
-			</section>
-		);
-	}
+	return (
+		<section style={{ backgroundColor: "white", padding: "1rem" }}>
+			{inOtpLoginFlowInitState ? (
+				<OtpLoginFlowInit isLoading={isLoading} />
+			) : inOtpUsernameInputState ? (
+				<OtpUsernameInput isLoading={isLoading} />
+			) : inOtpPasswordInputState ? (
+				<OtpPasswordInput isLoading={isLoading} />
+			) : inUsernamePasswordLoginFlowInitState ? (
+				<UsernamePasswordLoginFlowInit isLoading={isLoading} />
+			) : inUsernamePasswordInputState ? (
+				<UsernamePasswordInput isLoading={isLoading} />
+			) : inPinFlowInitState ? (
+				<PinFlowInit isLoading={isLoading} />
+			) : inCurrentPinInputState ? (
+				<CurrentPinInput isLoading={isLoading} />
+			) : inNewPinInputState ? (
+				<NewPinInput isLoading={isLoading} />
+			) : inChangeCurrentPinInputState ? (
+				<ChangeCurrentPinInput isLoading={isLoading} />
+			) : inAuthorisedState ? (
+				<Authorised />
+			) : null}
+		</section>
+	);
 };
 
+const authSystem = createAuthSystem({
+	loginFlowType: "OTP",
+	deviceSecurityType: "PIN",
+	otpServiceApi: cognitoOTPService,
+	usernamePasswordServiceApi: cognitoUsernamePasswordService,
+	deviceSecurityInterface: localSecurityService,
+});
+
 export const AuthStuff = (): JSX.Element => (
-	<AuthProvider
-		authServiceFunctions={{
-			checkSession: Auth.checkSession,
-			validateOtpUsername: Auth.validateUserIdentifier,
-			validateOtp: Auth.validateOtp,
-			validateUsernamePassword: Auth.validateUsernamePassword,
-			signOut: Auth.signOut,
-		}}
-		pinServiceFunctions={{
-			hasPinSet: PinInterface.hasPinSet,
-			validatePin: PinInterface.validatePin,
-			setNewPin: PinInterface.setNewPin,
-			clearPin: PinInterface.clearPin,
-		}}
-		useOtpAuth={true}
-		usePinSecurity={true}
-		allowedOtpRetries={3}
-	>
+	<AuthProvider inWebDebugMode={true} authSystem={authSystem}>
 		<AuthTest />
 	</AuthProvider>
 );
