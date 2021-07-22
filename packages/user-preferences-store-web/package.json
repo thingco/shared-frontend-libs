@@ -19,7 +19,7 @@
 	},
 	"devDependencies": {
 		"@testing-library/jest-dom": "^5.14.1",
-		"@thingco/shared-types": "workspace:*",
+		"@thingco/application-configuration": "workspace:*",
 		"@types/jest": "^26.0.24",
 		"@types/rimraf": "^3.0.1",
 		"@types/testing-library__jest-dom": "^5.14.0",
@@ -30,6 +30,6 @@
 		"typescript": "^4.3.5"
 	},
 	"peerDependencies": {
-		"@thingco/shared-types": "*"
+		"@thingco/application-configuration": "*"
 	}
 }

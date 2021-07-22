@@ -1,8 +1,12 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import type { Storage, PreferenceStorageKey, UserPreferences } from "@thingco/shared-types";
+import type {
+	UserPreferencesStorage,
+	UserPreferencesStorageKey,
+	UserPreferences,
+} from "@thingco/application-configuration";
 
-const KEY: PreferenceStorageKey = "@user_preferences";
+const KEY: UserPreferencesStorageKey = "@user_preferences";
 
 const NO_STORED_DATA_WARNING = `
 No preferences found in storage!
@@ -10,7 +14,7 @@ This indicates that either the local storage has not yet been populated (maybe y
 The preferences are being reset back to defaults.
 `;
 
-export function createPrefStore(defaultPreferences: UserPreferences): Storage {
+export function createPrefStore(defaultPreferences: UserPreferences): UserPreferencesStorage {
 	return {
 		async getPreferences() {
 			const storedPrefs = await AsyncStorage.getItem(KEY);

@@ -1,0 +1,15 @@
+{
+	"extends": "../../tsconfig.json",
+	"compilerOptions": {
+		"emitDeclarationOnly": true,
+		"declarationDir": "./lib/types",
+		"rootDir": "./src",
+		"types": ["jest"]
+	},
+	"typedocOptions": {
+		"entryPoints": ["src/index.ts"],
+		"out": "docs"
+	},
+	"include": ["src/**/*"],
+	"exclude": ["src/**/*.test.{js|ts|tsx}", "src/setupTests.ts"]
+}
