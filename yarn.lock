@@ -2757,7 +2757,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@thingco/data-transformers@workspace:packages/data-transformers":
+"@thingco/data-transformers@workspace:*, @thingco/data-transformers@workspace:packages/data-transformers":
   version: 0.0.0-use.local
   resolution: "@thingco/data-transformers@workspace:packages/data-transformers"
   dependencies:
@@ -2876,9 +2876,9 @@ __metadata:
   dependencies:
     "@aws-amplify/auth": ^4.1.1
     "@aws-amplify/core": ^4.1.3
+    "@thingco/application-configuration": "workspace:*"
     "@thingco/auth-flows": "workspace:*"
-    "@thingco/unit-formatter": "workspace:*"
-    "@thingco/user-preferences": "workspace:*"
+    "@thingco/data-transformers": "workspace:*"
     "@thingco/user-preferences-store-web": "workspace:*"
     "@types/events": ^3.0.0
     "@types/react": ^17.0.14
@@ -2913,7 +2913,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@thingco/unit-formatter@workspace:*, @thingco/unit-formatter@workspace:packages/unit-formatter":
+"@thingco/unit-formatter@workspace:packages/unit-formatter":
   version: 0.0.0-use.local
   resolution: "@thingco/unit-formatter@workspace:packages/unit-formatter"
   dependencies:
@@ -2945,7 +2945,7 @@ __metadata:
   resolution: "@thingco/user-preferences-store-native@workspace:packages/user-preferences-store-native"
   dependencies:
     "@react-native-async-storage/async-storage": ^1.15.5
-    "@thingco/shared-types": "workspace:*"
+    "@thingco/application-configuration": "workspace:*"
     "@types/jest": ^26.0.24
     "@types/react": ^17.0.14
     "@types/react-native": ^0.64.12
@@ -2959,7 +2959,7 @@ __metadata:
     typescript: ^4.3.5
   peerDependencies:
     "@react-native-async-storage/async-storage": "*"
-    "@thingco/shared-types": "*"
+    "@thingco/application-configuration": "*"
     react: "*"
     react-native: "*"
   languageName: unknown
@@ -2970,7 +2970,7 @@ __metadata:
   resolution: "@thingco/user-preferences-store-web@workspace:packages/user-preferences-store-web"
   dependencies:
     "@testing-library/jest-dom": ^5.14.1
-    "@thingco/shared-types": "workspace:*"
+    "@thingco/application-configuration": "workspace:*"
     "@types/jest": ^26.0.24
     "@types/rimraf": ^3.0.1
     "@types/testing-library__jest-dom": ^5.14.0
@@ -2980,11 +2980,11 @@ __metadata:
     typedoc: ^0.21.4
     typescript: ^4.3.5
   peerDependencies:
-    "@thingco/shared-types": "*"
+    "@thingco/application-configuration": "*"
   languageName: unknown
   linkType: soft
 
-"@thingco/user-preferences@0.8.0, @thingco/user-preferences@workspace:*, @thingco/user-preferences@workspace:packages/user-preferences":
+"@thingco/user-preferences@0.8.0, @thingco/user-preferences@workspace:packages/user-preferences":
   version: 0.0.0-use.local
   resolution: "@thingco/user-preferences@workspace:packages/user-preferences"
   dependencies:

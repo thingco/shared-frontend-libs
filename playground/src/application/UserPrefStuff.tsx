@@ -1,17 +1,17 @@
-import { UnitFormatterProvider, useFormatter } from "@thingco/unit-formatter";
-import { usePrefs, UserPrefsProvider } from "@thingco/user-preferences";
+import { ApplicationConfigProvider, usePreferences } from "@thingco/application-configuration";
+import { useFormatter } from "@thingco/data-transformers";
 import { createPrefStore } from "@thingco/user-preferences-store-web";
 import React from "react";
 
 const store = createPrefStore({
-	distanceUnitPref: "km",
-	timeDisplayPref: "24",
-	distanceUnitPrecisionPref: 0,
-	localePref: "en-GB",
+	distanceUnit: "km",
+	timeDisplay: "24",
+	distanceUnitPrecision: 0,
+	locale: "en-GB",
 });
 
 const UserPrefs = () => {
-	const { prefs, setPref } = usePrefs();
+	const { prefs, setPref } = usePreferences();
 	const { compactDuration, date, dateTime, distance, expandedDuration, averageSpeed, time } =
 		useFormatter();
 
@@ -22,23 +22,19 @@ const UserPrefs = () => {
 				<dt>
 					Unit pref{" "}
 					<button
-						onClick={() =>
-							setPref("distanceUnitPref", prefs.distanceUnitPref === "km" ? "mi" : "km")
-						}
+						onClick={() => setPref("distanceUnit", prefs.distanceUnit === "km" ? "mi" : "km")}
 					>
 						change
 					</button>
 				</dt>
-				<dd>{prefs.distanceUnitPref}</dd>
+				<dd>{prefs.distanceUnit}</dd>
 				<dt>
 					Time pref{" "}
-					<button
-						onClick={() => setPref("timeDisplayPref", prefs.timeDisplayPref === "24" ? "12" : "24")}
-					>
+					<button onClick={() => setPref("timeDisplay", prefs.timeDisplay === "24" ? "12" : "24")}>
 						change
 					</button>
 				</dt>
-				<dd>{prefs.timeDisplayPref}</dd>
+				<dd>{prefs.timeDisplay}</dd>
 			</dl>
 
 			<div>
@@ -69,9 +65,7 @@ const UserPrefs = () => {
 };
 
 export const UserPrefStuff = () => (
-	<UserPrefsProvider store={store}>
-		<UnitFormatterProvider>
-			<UserPrefs />
-		</UnitFormatterProvider>
-	</UserPrefsProvider>
+	<ApplicationConfigProvider configs={{ distanceUntilScored: 160934 }} store={store}>
+		<UserPrefs />
+	</ApplicationConfigProvider>
 );
