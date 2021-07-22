@@ -2703,7 +2703,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@thingco/auth-flows@workspace:*, @thingco/auth-flows@workspace:packages/auth-flows":
+"@thingco/auth-flows@2.0.0, @thingco/auth-flows@workspace:*, @thingco/auth-flows@workspace:packages/auth-flows":
   version: 0.0.0-use.local
   resolution: "@thingco/auth-flows@workspace:packages/auth-flows"
   dependencies:
@@ -12412,6 +12412,7 @@ resolve@~1.19.0:
   version: 0.0.0-use.local
   resolution: "shared-frontend-libs@workspace:."
   dependencies:
+    "@thingco/auth-flows": 2.0.0
     "@types/eslint": ^7.28.0
     "@types/eslint-plugin-prettier": ^3.1.0
     "@types/node": ^16.3.2

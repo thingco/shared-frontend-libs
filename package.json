@@ -62,5 +62,8 @@
 	"lint-staged": {
 		"*.{js,json,rjson,jsx,ts,tsx}": "eslint --fix",
 		"*.{css,html,js,json,jsx,mjs,rjson,ts,tsx}": "prettier --write"
+	},
+	"dependencies": {
+		"@thingco/auth-flows": "2.0.0"
 	}
 }
