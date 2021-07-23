@@ -35,8 +35,8 @@ export interface UsernamePasswordService<User> {
 	logOut(): Promise<unknown>;
 }
 
-export type DeviceSecurityPinStorageKey = "@auth_device_security_pin";
-export type DeviceSecurityTypeKey = "@auth_device_security_type";
+export type DeviceSecurityPinStorageKey = "auth_device_security_pin";
+export type DeviceSecurityTypeKey = "auth_device_security_type";
 
 export interface DeviceSecurityService {
 	getDeviceSecurityType: () => Promise<DeviceSecurityType>;

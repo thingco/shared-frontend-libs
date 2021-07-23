@@ -138,7 +138,7 @@ const machine = model.createMachine(
 						target: "authorised",
 					},
 					onError: {
-						actions: log("TODO: PIN SETUP FAILURE"),
+						actions: log((_, e) => e.data),
 						target: "awaitingNewPinInput",
 					},
 				},
@@ -162,7 +162,7 @@ const machine = model.createMachine(
 						target: "authorised",
 					},
 					onError: {
-						actions: log("TODO: PIN INPUT FAILURE"),
+						actions: log((_, e) => e.data),
 						target: "awaitingNewPinInput",
 					},
 				},
@@ -187,7 +187,7 @@ const machine = model.createMachine(
 						target: "authorised",
 					},
 					onError: {
-						actions: log("TODO: PIN CHANGE FAILURE"),
+						actions: log((_, e) => e.data),
 						target: "awaitingPinInputForPinChange",
 					},
 				},

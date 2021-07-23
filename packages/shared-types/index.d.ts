@@ -29,7 +29,7 @@ export interface UserPreferences {
 	timeDisplayPref: TimeDisplayPreference;
 }
 
-export type PreferenceStorageKey = "@user_preferences";
+export type PreferenceStorageKey = "user_preferences";
 
 export interface Storage {
 	getPreferences(): Promise<UserPreferences>;

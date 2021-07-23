@@ -1,6 +1,6 @@
 import type { Storage, PreferenceStorageKey, UserPreferences } from "@thingco/shared-types";
 
-const KEY: PreferenceStorageKey = "@user_preferences";
+const KEY: PreferenceStorageKey = "user_preferences";
 
 const NO_STORED_DATA_WARNING = `
 No preferences found in storage!
