@@ -8,7 +8,7 @@ const KEY: UserPreferencesStorageKey = "@user_preferences";
 
 const NO_STORED_DATA_WARNING = `
 No preferences found in storage!
-This indicates that either the local storage has not yet been populated (maybe you cleared your browser data?).
+This indicates that the local storage has not yet been populatedd.
 The preferences are being reset back to defaults.
 `;
 

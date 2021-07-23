@@ -40,7 +40,7 @@ export interface ApplicationConfiguration {
 /**
  * Literal type for key under which user preferences are persisted.
  */
-export type UserPreferencesStorageKey = "@user_preferences";
+export type UserPreferencesStorageKey = "user_preferences";
 
 /**
  * Interface for storage of user preferences. Used as a facade for an underlying API, either
