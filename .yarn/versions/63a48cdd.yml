@@ -1,8 +1,5 @@
 undecided:
-<<<<<<< HEAD
   - "@thingco/application-configuration"
-=======
->>>>>>> develop
   - "@thingco/auth-flows"
   - "@thingco/graphviz"
   - "@thingco/graphviz-native"
