@@ -6,13 +6,12 @@ import { authSystemModel, createAuthSystem } from "../auth-system";
 import { VALID_PASSWORD, VALID_USERNAME } from "./mock-inputs";
 import { createMockUsernamePasswordService } from "./mock-username-password-service";
 
-import type { Interpreter } from "xstate";
-import type { ModelContextFrom, ModelEventsFrom } from "xstate/lib/model";
+import type { Interpreter, ContextFrom, EventFrom } from "xstate";
 
 type Service = Interpreter<
-	ModelContextFrom<typeof authSystemModel>,
+	ContextFrom<typeof authSystemModel>,
 	any,
-	ModelEventsFrom<typeof authSystemModel>
+	EventFrom<typeof authSystemModel>
 >;
 
 const testMachine = createMachine({

@@ -52,19 +52,7 @@ export interface UserPreferences {
 	timeDisplay: TimeDisplayPreference;
 }
 
-export interface ApplicationPreferences {
-	/**
-	 * A distance (in metres) that represents the distance travelled will trigger
-	 * creation of a new block. By default this will be
-	 */
-	distanceUntilScored: number;
-}
-
-/**
- * Literal type for key under which user preferences are persisted.
- * @deprecated Use UserPreferencesStorageKey instead
- */
-export type PreferenceStorageKey = "@user_preferences";
+export type PreferenceStorageKey = "user_preferences";
 
 /**
  * Literal type for key under which user preferences are persisted.

@@ -6,7 +6,7 @@ import type {
 	UserPreferences,
 } from "@thingco/application-configuration";
 
-const KEY: UserPreferencesStorageKey = "@user_preferences";
+const KEY: UserPreferencesStorageKey = "user_preferences";
 
 const NO_STORED_DATA_WARNING = `
 No preferences found in storage!

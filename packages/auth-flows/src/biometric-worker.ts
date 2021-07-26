@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { sendParent, StateMachine } from "xstate";
-import { createModel, ModelContextFrom, ModelEventsFrom } from "xstate/lib/model";
+import { createModel } from "xstate/lib/model";
 
 import { ServiceError } from "./errors";
 
+import type { ContextFrom, EventFrom } from "xstate";
 import type { DeviceSecurityService } from "./types";
 
 const model = createModel(
@@ -20,8 +21,8 @@ const model = createModel(
 	}
 );
 
-type ModelCtx = ModelContextFrom<typeof model>;
-type ModelEvt = ModelEventsFrom<typeof model>;
+type ModelCtx = ContextFrom<typeof model>;
+type ModelEvt = EventFrom<typeof model>;
 
 const implementations = {
 	services: {
@@ -105,7 +106,7 @@ const machine = model.createMachine(
 
 export function createBiometricWorker(
 	serviceApi: DeviceSecurityService
-): StateMachine<ModelContextFrom<typeof model>, any, ModelEventsFrom<typeof model>> {
+): StateMachine<ModelCtx, any, ModelEvt> {
 	console.log("Initialising biometric service worker machine...");
 	return machine.withConfig({
 		services: {

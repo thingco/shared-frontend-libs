@@ -9,8 +9,7 @@ import { createOtpWorker } from "./otp-worker";
 import { createPinWorker } from "./pin-worker";
 import { createUsernamePasswordWorker } from "./username-password-worker";
 
-import type { StateMachine, StateNode, ActorRef } from "xstate";
-import type { ModelContextFrom, ModelEventsFrom } from "xstate/lib/model";
+import type { ContextFrom, EventFrom, StateMachine, StateNode, ActorRef } from "xstate";
 
 import type {
 	SessionCheckBehaviour,
@@ -75,8 +74,8 @@ export const authSystemModel = createModel(
 
 export const authEvents = authSystemModel.events;
 
-export type AuthSystemContext = ModelContextFrom<typeof authSystemModel>;
-export type AuthSystemEvents = ModelEventsFrom<typeof authSystemModel>;
+export type AuthSystemContext = ContextFrom<typeof authSystemModel>;
+export type AuthSystemEvents = EventFrom<typeof authSystemModel>;
 
 export type AuthStateSchema = {
 	states: {
