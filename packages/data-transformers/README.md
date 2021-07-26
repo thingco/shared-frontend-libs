@@ -52,3 +52,21 @@ function useFormatter(): {
 	time: (timestamp: string | number) => string;
 };
 ```
+
+Then in a component (assuming that the `ApplicationConfigProvider` has been added at the top of the component tree):
+
+```tsx
+import { useFormatter } from "@thingco/data-transformers";
+import { Text } from "my-component-library";
+
+export const MyComponent = ({ data }: { data: SomeApiData }) => {
+	const { date, distance, duration, time } = useFormatter();
+
+	return (
+		<Text>
+			On {date(data.startTime)} at {time(data.startTime)} you travelled{" "}
+			{distance(data.journeyDistance)} in {duration(distance.journeyDuration)}.
+		</Text>
+	);
+};
+```
