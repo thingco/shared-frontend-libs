@@ -1,11 +1,12 @@
 undecided:
-  - "@thingco/application-configuration"
   - "@thingco/auth-flows"
+  - "@thingco/data-transformers"
   - "@thingco/graphviz"
   - "@thingco/graphviz-native"
   - "@thingco/graphviz-web"
   - "@thingco/react-component-library"
   - "@thingco/shared-types"
+  - "@thingco/unit-formatter"
   - "@thingco/user-preferences"
   - "@thingco/user-preferences-store-native"
   - "@thingco/user-preferences-store-web"

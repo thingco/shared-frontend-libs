@@ -1,7 +1,7 @@
 {
 	"name": "@thingco/application-configuration",
 	"description": "User preference storage/access and application configuration access for ThingCo React apps",
-	"version": "1.0.0",
+	"version": "1.1.0",
 	"main": "lib/index.js",
 	"types": "lib/types/index.d.ts",
 	"files": [
