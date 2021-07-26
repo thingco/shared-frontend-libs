@@ -1,6 +1,6 @@
 undecided:
+  - "@thingco/application-configuration"
   - "@thingco/auth-flows"
-  - "@thingco/data-transformers"
   - "@thingco/graphviz"
   - "@thingco/graphviz-native"
   - "@thingco/graphviz-web"
