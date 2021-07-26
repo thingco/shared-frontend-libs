@@ -20,7 +20,6 @@
 	"devDependencies": {
 		"@testing-library/jest-dom": "^5.14.1",
 		"@testing-library/react": "^12.0.0",
-		"@thingco/shared-types": "workspace:*",
 		"@types/jest": "^26.0.24",
 		"@types/react": "^17.0.15",
 		"@types/react-dom": "^17.0.9",
@@ -35,7 +34,6 @@
 		"typescript": "^4.3.5"
 	},
 	"peerDependencies": {
-		"@thingco/shared-types": "*",
 		"react": "*"
 	}
 }
