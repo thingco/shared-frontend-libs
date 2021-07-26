@@ -30,8 +30,10 @@ storage.
 There are three reasons:
 
 1. `usePreferences` functionality is already in the app -- this package simply moves that API into this package -- and is required for reading/writing user preferences.
-2. `useConfiguration` functionality moves configs into one single place in the app: this means that there is one place to write them to at build time, rather that multiple places. Following on from this:
+2. `useConfiguration` functionality moves configs into one single place in the app: this means that there is a centralised place to write them to at build time rather than multiple places. Following on from this:
 3. It becomes easier to test, as there is a single provider to mock to inject configuration values into integration tests -- any components making use of configurations can just use a mock version of this provider, rather than having to fiddle around mocking disparate imports.
+
+> **NOTE** currently only one config value is present -- aim would be to push all relevant values into the provider. This also opens up possibility of getting them asynchronously from (_eg_) an S3 bucket that contains all configs used by a given client.
 
 ## Installation
 
