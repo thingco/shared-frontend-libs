@@ -56,6 +56,7 @@ export function useAuthState() {
 		inBiometricFlowInitStage: ctx.state.matches("biometricFlowInit"),
 		inBiometricNotSupportedStage: ctx.state.matches("biometricNotSupported"),
 		inChangeCurrentPinInputState: ctx.state.matches("changeCurrentPinInput"),
+		inClearingCurrentPinState: ctx.state.matches("clearingCurrentPin"),
 		inCurrentPinInputState: ctx.state.matches("currentPinInput"),
 		inNewPinInputState: ctx.state.matches("newPinInput"),
 		inOtpLoginFlowInitState: ctx.state.matches("otpLoginFlowInit"),
