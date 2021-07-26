@@ -21,6 +21,8 @@ use of the `usePreferences` and `useConfig` hooks, so without those available it
 yarn add @thingco/data-transformers
 ```
 
+> **NOTE** this library makes use of the browser `Intl` API. This is not an issue on web or on iOS, but the JS Core version used by React Native on Android does not include the API, and will need a polyfill.
+
 ## Usage (formatters)
 
 The `useFormatter()` hook returns a collection of formatter functions. Just give them a string or number and they will return a locale- and config-aware formatted string.

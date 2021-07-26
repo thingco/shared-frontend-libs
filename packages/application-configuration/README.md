@@ -15,15 +15,23 @@ Provides a provider and two hooks:
 </ApplicationConfigProvider>
 ```
 
-Because of what it contains, it needs to sit at the top of the app, everything else (including authentication)
+Because of what it contains, it needs to sit at the top of the app, everything else
 feeds off it.
 
 `useConfiguration` is a hook that allows access to configuration values -- it returns a plain object with
-prmitives for all values.
+primitives for all values.
 
 `usePreferences` is a hook that allows read and write access to persisted user preferences -- it returns an
 object with two properties: the preferences themselves are a plain object under the key `prefs`, and the `setPref` method takes the key of a specific preference + new value and sets it both locally an in persisted
 storage.
+
+## Why use a provider for this?
+
+There are three reasons:
+
+1. `usePreferences` functionality is already in the app -- this package simply moves that API into this package -- and is required for reading/writing user preferences.
+2. `useConfiguration` functionality moves configs into one single place in the app: this means that there is one place to write them to at build time, rather that multiple places. Following on from this:
+3. It becomes easier to test, as there is a single provider to mock to inject configuration values into integration tests -- any components making use of configurations can just use a mock version of this provider, rather than having to fiddle around mocking disparate imports.
 
 ## Installation
 
@@ -105,6 +113,51 @@ You can now get and set the user preferences using the `usePreferences` hook, an
 > 3. The two preferences store packages, `@thingco/user-preferences-store-{native|web}`
 > 4. The data transformations package, `@thingco/data-transformers`
 
+### Hooks
+
+#### `useConfig`
+
+##### Interface
+
+```typescript
+interface ApplicationConfiguration {
+	/**
+	 * A distance (in metres) that represents the distance travelled will trigger
+	 * creation of a new block. By default this will be 160934, _ie_ one mile in metres
+	 */
+	distanceUntilScored: number;
+}
+```
+
+##### Usage
+
+```typescript
+function useConfig(): ApplcationConfig;
+```
+
+The `useConfig` hook returns an object containing all properties passed into the provider in the first place.
+
+To _read_ the configs in components:
+
+```typescript
+const MyComponent = () => {
+	const { distanceUntilScored } = useConfig();
+
+	return (
+		<dl>
+			<dt>The distance in metres until a block score is complete and a score can be calculated:</dt>
+			<dd>{distanceUntilScored}</dd>
+		</dl>
+	);
+};
+```
+
+---
+
+#### `usePreferences`
+
+##### Interface
+
 ```typescript
 interface UserPreferences {
 	/**
@@ -133,30 +186,7 @@ interface UserPreferences {
 }
 ```
 
-### Hooks
-
-```typescript
-function useConfig(): ApplcationConfig;
-```
-
-The `useConfig` hook returns an object containing all properties passed into the provider in the first place.
-
-To _read_ the configs in components:
-
-```typescript
-const MyComponent = () => {
-	const { distanceUntilScored } = useConfig();
-
-	return (
-		<dl>
-			<dt>The distance in metres until a block score is complete and a score can be calculated:</dt>
-			<dd>{distanceUntilScored}</dd>
-		</dl>
-	);
-};
-```
-
----
+##### Usage
 
 ```typescript
 function usePreferences(): {
