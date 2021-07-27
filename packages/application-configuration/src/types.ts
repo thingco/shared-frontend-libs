@@ -9,28 +9,9 @@ export type LocalePreference = undefined | "af" | "af-NA" | "am" | "ar" | "ar-AE
 
 export interface UserPreferences {
 	/**
-	 * Imperial or Si, so miles or kilometres (`"mi"` or `"km"`)
-	 * @deprecated Use distanceUnit instead
-	 */
-	distanceUnitPref: DistanceUnitPreference;
-	/**
-	 * The precision used to display distance units
-	 * @deprecated Use distanceUnitPrecision instead
-	 */
-	distanceUnitPrecisionPref: DistancePrecisionPreference;
-	/**
-	 * The locale used for formatting. Note that this is currently set as the Unicode
-	 * organisation's BCP 47 scheme of language tags, using the "modern" set.
-	 *
-	 * Taken from https://github.com/unicode-org/cldr-json/blob/master/cldr-json/cldr-core/availableLocales.json
-	 * @deprecated Use locale instead
-	 */
-	localePref: LocalePreference;
-	/**
 	 * Whether to show time in 12 or 24 hour format.
-	 * @deprecated Use timeDisplay instead
 	 */
-	timeDisplayPref: TimeDisplayPreference;
+	timeDisplay: TimeDisplayPreference;
 	/**
 	 * Imperial or Si, so miles or kilometres (`"mi"` or `"km"`)
 	 */
@@ -46,31 +27,20 @@ export interface UserPreferences {
 	 * Taken from https://github.com/unicode-org/cldr-json/blob/master/cldr-json/cldr-core/availableLocales.json
 	 */
 	locale: LocalePreference;
-	/**
-	 * Whether to show time in 12 or 24 hour format.
-	 */
-	timeDisplay: TimeDisplayPreference;
 }
 
-export type PreferenceStorageKey = "user_preferences";
+export interface ApplicationConfiguration {
+	/**
+	 * A distance (in metres) that represents the distance travelled will trigger
+	 * creation of a new block. By default this will be 160934, _ie_ one mile in metres
+	 */
+	distanceUntilScored: number;
+}
 
 /**
  * Literal type for key under which user preferences are persisted.
  */
-export type UserPreferencesStorageKey = "@user_preferences";
-
-/**
- * Interface for storage of user preferences. Used as a facade for an underlying API, either
- * localStorage in a web context or AsyncStorage in a native context.
- * @deprecated Use UserPreferenceStorage instead to avoid conflicts with JS' Storage interface
- */
-export interface Storage {
-	getPreferences(): Promise<UserPreferences>;
-	getPreference<P extends keyof UserPreferences>(key: P): Promise<UserPreferences[P]>;
-	setPreference<P extends keyof UserPreferences>(key: P, value: UserPreferences[P]): Promise<void>;
-
-	// clearPreferences(): Promise<null>;
-}
+export type UserPreferencesStorageKey = "user_preferences";
 
 /**
  * Interface for storage of user preferences. Used as a facade for an underlying API, either

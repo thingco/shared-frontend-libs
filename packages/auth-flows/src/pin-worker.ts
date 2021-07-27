@@ -1,13 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { sendParent, StateMachine } from "xstate";
+import { sendParent } from "xstate";
 import { log } from "xstate/lib/actions";
-import { createModel, ModelEventsFrom } from "xstate/lib/model";
+import { createModel } from "xstate/lib/model";
 
 import { ServiceError } from "./errors";
 
+import type { ContextFrom, EventFrom, StateMachine } from "xstate";
 import type { DeviceSecurityService } from "./types";
-
-import type { ModelContextFrom } from "xstate/lib/model";
 
 const model = createModel(
 	{
@@ -32,8 +31,8 @@ const model = createModel(
 	}
 );
 
-type ModelCtx = ModelContextFrom<typeof model>;
-type ModelEvt = ModelEventsFrom<typeof model>;
+type ModelCtx = ContextFrom<typeof model>;
+type ModelEvt = EventFrom<typeof model>;
 
 const implementations = {
 	services: {
@@ -59,15 +58,15 @@ const implementations = {
 		},
 	},
 	actions: {
-		assignCurrentPinToContext: model.assign((_, e: ModelEventsFrom<typeof model>) => {
+		assignCurrentPinToContext: model.assign((_, e: EventFrom<typeof model>) => {
 			if (e.type !== "SUBMIT_CURRENT_PIN") return {};
 			return { currentPin: e.currentPin };
 		}),
-		assignCurrentPinAndNewPinToContext: model.assign((_, e: ModelEventsFrom<typeof model>) => {
+		assignCurrentPinAndNewPinToContext: model.assign((_, e: EventFrom<typeof model>) => {
 			if (e.type !== "SUBMIT_CURRENT_AND_NEW_PIN") return {};
 			return { currentPin: e.currentPin, newPin: e.newPin };
 		}),
-		assignNewPinToContext: model.assign((_, e: ModelEventsFrom<typeof model>) => {
+		assignNewPinToContext: model.assign((_, e: EventFrom<typeof model>) => {
 			if (e.type !== "SUBMIT_NEW_PIN") return {};
 			return { newPin: e.newPin };
 		}),

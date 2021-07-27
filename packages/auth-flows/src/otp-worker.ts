@@ -4,8 +4,7 @@ import { createModel } from "xstate/lib/model";
 
 import { ServiceError } from "./errors";
 
-import type { StateMachine } from "xstate";
-import type { ModelContextFrom, ModelEventsFrom } from "xstate/lib/model";
+import type { ContextFrom, EventFrom, StateMachine } from "xstate";
 import type { OTPService, SessionCheckBehaviour } from "./types";
 const model = createModel(
 	{
@@ -36,8 +35,8 @@ const model = createModel(
 	}
 );
 
-type ModelCtx = ModelContextFrom<typeof model>;
-type ModelEvt = ModelEventsFrom<typeof model>;
+type ModelCtx = ContextFrom<typeof model>;
+type ModelEvt = EventFrom<typeof model>;
 
 const implementations = {
 	services: {

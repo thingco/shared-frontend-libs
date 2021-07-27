@@ -70,8 +70,8 @@ const cognitoUsernamePasswordService: UsernamePasswordService<CognitoUser> = {
 	},
 };
 
-const SECURITY_TYPE_KEY: DeviceSecurityTypeKey = "@auth_device_security_type";
-const PIN_KEY: DeviceSecurityPinStorageKey = "@auth_device_security_pin";
+const SECURITY_TYPE_KEY: DeviceSecurityTypeKey = "auth_device_security_type";
+const PIN_KEY: DeviceSecurityPinStorageKey = "auth_device_security_pin";
 
 const localSecurityService: DeviceSecurityService = {
 	async getDeviceSecurityType() {
