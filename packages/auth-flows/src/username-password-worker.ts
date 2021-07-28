@@ -61,6 +61,7 @@ const implementations = {
 			if (e.type !== "CHECK_FOR_SESSION") return {};
 			return { sessionCheckBehaviour: e.sessionCheckBehaviour };
 		}),
+		clearPasswordFromContext: model.assign({ password: "" }),
 		clearUsernameAndPasswordFromContext: model.assign({ password: "", username: "" }),
 		// Keep in touch with yr parents
 		notifyAuthFlowComplete: sendParent(model.events.WORKER_AUTH_FLOW_COMPLETE),
@@ -121,6 +122,10 @@ const machine = model.createMachine(
 					src: "validateUsernameAndPassword",
 					onDone: {
 						target: "authComplete",
+					},
+					onError: {
+						target: "awaitingUsernameAndPasswordInput",
+						actions: "clearPasswordFromContext",
 					},
 				},
 				exit: "notifyRequestComplete",
