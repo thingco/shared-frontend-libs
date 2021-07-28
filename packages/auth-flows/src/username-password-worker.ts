@@ -150,7 +150,6 @@ const machine = model.createMachine(
 export function createUsernamePasswordWorker<User>(
 	serviceApi: UsernamePasswordService<User>
 ): StateMachine<ModelCtx, any, ModelEvt> {
-	console.log("Initialising username/password service worker machine...");
 	return machine.withConfig({
 		services: {
 			checkForExtantSession: (ctx: ModelCtx) =>

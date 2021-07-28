@@ -107,7 +107,6 @@ const machine = model.createMachine(
 export function createBiometricWorker(
 	serviceApi: DeviceSecurityService
 ): StateMachine<ModelContextFrom<typeof model>, any, ModelEventsFrom<typeof model>> {
-	console.log("Initialising biometric service worker machine...");
 	return machine.withConfig({
 		services: {
 			checkForBiometricSupport: () => serviceApi.checkForBiometricSupport(),

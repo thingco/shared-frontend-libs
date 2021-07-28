@@ -213,7 +213,6 @@ const machine = model.createMachine(
 export function createPinWorker(
 	serviceApi: DeviceSecurityService
 ): StateMachine<ModelCtx, any, ModelEvt> {
-	console.log("Initialising PIN service worker machine...");
 	return machine.withConfig({
 		services: {
 			changeCurrentPin: (ctx: ModelCtx) => serviceApi.changeCurrentPin(ctx.currentPin, ctx.newPin),

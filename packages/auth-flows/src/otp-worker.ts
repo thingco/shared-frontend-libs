@@ -202,7 +202,6 @@ const machine = model.createMachine(
 export function createOtpWorker<User>(
 	serviceApi: OTPService<User>
 ): StateMachine<ModelCtx, any, ModelEvt> {
-	console.log("Initialising OTP service worker machine...");
 	return machine.withConfig({
 		services: {
 			requestOtp: (ctx: ModelCtx) => serviceApi.requestOtp(ctx.username),
