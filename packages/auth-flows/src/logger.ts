@@ -1,9 +1,16 @@
+import { authSystem, AuthSystemContext, AuthSystemEvents } from "./auth-system";
+
 import type { State, StateValue, Subscription } from "xstate";
 
-import type { AuthSystemContext, AuthSystemEvents } from "./auth-system";
+const isBrowser = new Function("try {return this===window;}catch(e){ return false;}");
 
-function reify<T = Record<string, unknown>>(obj: T): T {
-	return JSON.parse(JSON.stringify(obj));
+function reify<T = Record<string, unknown>>(obj: T): T | string {
+	if (isBrowser) {
+		return JSON.parse(JSON.stringify(obj));
+	} else {
+		// We are looking at logs in a Node terminal
+		return `[use browser debugger to view] ${JSON.stringify(obj).substr(0, 20)}...`;
+	}
 }
 
 // prettier-ignore
@@ -57,6 +64,11 @@ export class AuthSystemLogger {
 		}[this.id];
 	}
 
+	get logIndent() {
+		if (isBrowser || this.id === "authSystem") return "";
+		return "    ";
+	}
+
 	get serviceInfo() {
 		// prettier-ignore
 		return {
@@ -69,18 +81,18 @@ export class AuthSystemLogger {
 	}
 
 	initEventLog(s: AuthSystemLoggableState) {
-		console.groupCollapsed("%s %s", this.logPrefix, this.serviceInfo);
-		console.log("◼ event details", reify(s.event));
-		console.log("↓ next state", reify(s));
+		console.groupCollapsed("%s%s %s", this.logIndent, this.logPrefix, this.serviceInfo);
+		console.log("%s◼ event details", this.logIndent, reify(s.event));
+		console.log("%s↓ next state", this.logIndent, reify(s));
 		console.groupEnd();
 	}
 
 	standardEventLog(s: AuthSystemLoggableState) {
 		// prettier-ignore
-		console.groupCollapsed("%s %s", this.logPrefix, s.event.type);
-		console.log("↑ prev state", reify(s.history));
-		console.log("◼ event details", reify(s.event));
-		console.log("↓ next state", reify(s));
+		console.groupCollapsed("%s%s %s", this.logIndent, this.logPrefix, s.event.type);
+		console.log("%s↑ prev state", this.logIndent, reify(s.history));
+		console.log("%s◼ event details", this.logIndent, reify(s.event));
+		console.log("%s↓ next state", this.logIndent, reify(s));
 		console.groupEnd();
 	}
 }
