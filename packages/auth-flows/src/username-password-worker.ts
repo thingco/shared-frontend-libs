@@ -7,7 +7,6 @@ import { ServiceError } from "./errors";
 import type { StateMachine } from "xstate";
 import type { ModelContextFrom, ModelEventsFrom } from "xstate/lib/model";
 import type { SessionCheckBehaviour, UsernamePasswordService } from "./types";
-
 const model = createModel(
 	{
 		username: "",
@@ -119,6 +118,7 @@ const machine = model.createMachine(
 			validatingUsernameAndPassword: {
 				entry: "notifyRequestStarted",
 				invoke: {
+					id: "validateUsernameAndPassword",
 					src: "validateUsernameAndPassword",
 					onDone: {
 						target: "authComplete",
