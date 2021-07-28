@@ -2,8 +2,15 @@ import type { State, StateValue, Subscription } from "xstate";
 
 import type { AuthSystemContext, AuthSystemEvents } from "./auth-system";
 
-function reify<T = Record<string, unknown>>(obj: T): T {
-	return JSON.parse(JSON.stringify(obj));
+const isBrowser = new Function("try {return this===window;}catch(e){ return false;}");
+
+function reify<T = Record<string, unknown>>(obj: T): T | string {
+	if (isBrowser) {
+		return JSON.parse(JSON.stringify(obj));
+	} else {
+		// We are looking at logs in a Node terminal
+		return `[use browser debugger to view] ${JSON.stringify(obj).substr(0, 20)}...`;
+	}
 }
 
 // prettier-ignore
