@@ -36,6 +36,7 @@ type ModelCtx = ModelContextFrom<typeof model>;
 type ModelEvt = ModelEventsFrom<typeof model>;
 
 const implementations = {
+	preserveActionOrder: true,
 	services: {
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		changeCurrentPin: (_c: ModelCtx, _e: ModelEvt) => {
@@ -212,7 +213,6 @@ const machine = model.createMachine(
 export function createPinWorker(
 	serviceApi: DeviceSecurityService
 ): StateMachine<ModelCtx, any, ModelEvt> {
-	console.log("Initialising PIN service worker machine...");
 	return machine.withConfig({
 		services: {
 			changeCurrentPin: (ctx: ModelCtx) => serviceApi.changeCurrentPin(ctx.currentPin, ctx.newPin),

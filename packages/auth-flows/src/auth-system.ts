@@ -101,6 +101,7 @@ export type AuthStateSchema = {
 export type AuthSystemServiceRef = ActorRef<AuthSystemEvents>;
 
 const authSysytemImplementations = {
+	preserveActionOrder: true,
 	actions: {
 		spawnOtpService: authSystemModel.assign({
 			otpService: null,

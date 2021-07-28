@@ -40,6 +40,7 @@ type ModelCtx = ModelContextFrom<typeof model>;
 type ModelEvt = ModelEventsFrom<typeof model>;
 
 const implementations = {
+	preserveActionOrder: true,
 	services: {
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		requestOtp: (_c: ModelCtx, _e: ModelEvt) => {
@@ -201,7 +202,6 @@ const machine = model.createMachine(
 export function createOtpWorker<User>(
 	serviceApi: OTPService<User>
 ): StateMachine<ModelCtx, any, ModelEvt> {
-	console.log("Initialising OTP service worker machine...");
 	return machine.withConfig({
 		services: {
 			requestOtp: (ctx: ModelCtx) => serviceApi.requestOtp(ctx.username),
