@@ -24,6 +24,7 @@ type ModelCtx = ModelContextFrom<typeof model>;
 type ModelEvt = ModelEventsFrom<typeof model>;
 
 const implementations = {
+	preserveActionOrder: true,
 	services: {
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		checkForBiometricSupport: (_c: ModelCtx, _e: ModelEvt) => {

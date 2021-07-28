@@ -1,7 +1,9 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useMachine } from "@xstate/react";
-import React, { createContext, useContext } from "react";
+import React, { createContext, useCallback, useContext, useEffect } from "react";
 
+import { AuthSystemLogger } from "./logger";
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { DeviceSecurityType, LoginFlowType, SessionCheckBehaviour } from "./types";
 import type { AuthSystemConfig, AuthSystemContext, AuthSystemEvents } from "./auth-system";
 import type { State, StateMachine } from "xstate";
@@ -26,7 +28,14 @@ export function AuthProvider<User>({
 	inWebDebugMode = false,
 	authSystem,
 }: AuthProviderProps<User>): JSX.Element {
-	const [state, send] = useMachine(authSystem, { devTools: inWebDebugMode });
+	const [state, send, service] = useMachine(authSystem, { devTools: inWebDebugMode });
+
+	useEffect(() => {
+		const logger = new AuthSystemLogger("authSystem");
+		logger.log(service.state);
+		const subscription = service.subscribe(logger.log);
+		return subscription.unsubscribe;
+	}, [service]);
 
 	return (
 		<AuthUpdateContext.Provider value={{ send }}>
