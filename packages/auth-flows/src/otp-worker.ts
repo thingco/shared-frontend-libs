@@ -204,9 +204,9 @@ export function createOtpWorker<User>(
 ): StateMachine<ModelCtx, any, ModelEvt> {
 	return machine.withConfig({
 		services: {
-			requestOtp: (ctx: ModelCtx) => serviceApi.requestOtp(ctx.username),
 			checkForExtantSession: (ctx: ModelCtx) =>
 				serviceApi.checkForExtantSession(ctx.sessionCheckBehaviour),
+			requestOtp: (ctx: ModelCtx) => serviceApi.requestOtp(ctx.username),
 			validateOtp: (ctx: ModelCtx) =>
 				serviceApi.validateOtp(ctx.userdata, ctx.password, ctx.triesRemaining),
 			logOut: () => serviceApi.logOut(),
