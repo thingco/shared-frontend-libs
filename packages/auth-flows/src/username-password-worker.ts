@@ -154,7 +154,7 @@ export function createUsernamePasswordWorker<User>(
 		services: {
 			checkForExtantSession: (ctx: ModelCtx) =>
 				serviceApi.checkForExtantSession(ctx.sessionCheckBehaviour),
-			validateOtp: (ctx: ModelCtx) =>
+			validateUsernameAndPassword: (ctx: ModelCtx) =>
 				serviceApi.validateUsernameAndPassword(ctx.username, ctx.password),
 			logOut: () => serviceApi.logOut(),
 		},
