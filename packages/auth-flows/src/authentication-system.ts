@@ -9,7 +9,7 @@ import { createOtpWorker } from "./otp-worker";
 import { createPinWorker } from "./pin-worker";
 import { createUsernamePasswordWorker } from "./username-password-worker";
 
-import type { StateMachine, StateNode, ActorRef } from "xstate";
+import type { StateMachine, ActorRef } from "xstate";
 import type { ModelContextFrom, ModelEventsFrom } from "xstate/lib/model";
 
 import type {
@@ -33,7 +33,7 @@ export const authSystemModel = createModel(
 	},
 	{
 		events: {
-			ATHORISE_AGAINST_BIOMETRIC_SECURITY: () => ({}),
+			AUTHORISE_AGAINST_BIOMETRIC_SECURITY: () => ({}),
 			CHANGE_DEVICE_SECURITY_TYPE: (deviceSecurityType: DeviceSecurityType) => ({
 				deviceSecurityType,
 			}),
@@ -50,6 +50,10 @@ export const authSystemModel = createModel(
 			SKIP_PIN_SETUP: () => ({}),
 			SUBMIT_CURRENT_AND_NEW_PIN: (currentPin: string, newPin: string) => ({ currentPin, newPin }),
 			SUBMIT_CURRENT_PIN: (currentPin: string) => ({ currentPin }),
+			SUBMIT_NEW_PASSWORD: (password: string, newPassword: string) => ({
+				password,
+				newPassword,
+			}),
 			SUBMIT_NEW_PIN: (newPin: string) => ({ newPin }),
 			SUBMIT_PASSWORD: (password: string) => ({ password }),
 			SUBMIT_USERNAME_AND_PASSWORD: (username: string, password: string) => ({
@@ -67,6 +71,8 @@ export const authSystemModel = createModel(
 			WORKER_REQUIRES_CURRENT_PIN: () => ({}),
 			WORKER_REQUIRES_NEW_PIN: () => ({}),
 			WORKER_REQUIRES_PASSWORD: () => ({}),
+			WORKER_REQUIRES_PASSWORD_CHANGE: () => ({}),
+			WORKER_REQUIRES_TEMPORARY_PASSWORD_CHANGE: () => ({}),
 			WORKER_REQUIRES_USERNAME_AND_PASSWORD: () => ({}),
 			WORKER_REQUIRES_USERNAME: () => ({}),
 		},
@@ -77,26 +83,6 @@ export const authEvents = authSystemModel.events;
 
 export type AuthSystemContext = ModelContextFrom<typeof authSystemModel>;
 export type AuthSystemEvents = ModelEventsFrom<typeof authSystemModel>;
-
-export type AuthStateSchema = {
-	states: {
-		loginFlowCheck: StateNode;
-		otpLoginFlowInit: StateNode;
-		otpUsernameInput: StateNode;
-		otpPasswordInput: StateNode;
-		usernamePasswordLoginFlowInit: StateNode;
-		usernamePasswordInput: StateNode;
-		deviceSecurityCheck: StateNode;
-		pinFlowInit: StateNode;
-		currentPinInput: StateNode;
-		newPinInput: StateNode;
-		changingCurrentPinInput: StateNode;
-		clearingCurrentPin: StateNode;
-		biometricFlowInit: StateNode;
-		biometricNotSupported: StateNode;
-		authorised: StateNode;
-	};
-};
 
 export type AuthSystemServiceRef = ActorRef<AuthSystemEvents>;
 
@@ -162,7 +148,7 @@ export const authSystem = authSystemModel.createMachine(
 					},
 					{
 						cond: (ctx) => ctx.loginFlowType === "USERNAME_PASSWORD",
-						target: "usernamePasswordLoginFlowInit",
+						target: "usernameAndPasswordLoginFlowInit",
 						actions: "spawnUsernamePasswordService",
 					},
 				],
@@ -200,18 +186,35 @@ export const authSystem = authSystemModel.createMachine(
 					WORKER_AUTH_FLOW_COMPLETE: "deviceSecurityCheck",
 				},
 			},
-			usernamePasswordLoginFlowInit: {
+			usernameAndPasswordLoginFlowInit: {
 				on: {
 					CHECK_FOR_SESSION: {
 						actions: "forwardEventToUsernamePasswordService",
 					},
-					WORKER_REQUIRES_USERNAME_AND_PASSWORD: "usernamePasswordInput",
+					WORKER_REQUIRES_USERNAME_AND_PASSWORD: "usernameAndPasswordInput",
 					WORKER_AUTH_FLOW_COMPLETE: "deviceSecurityCheck",
 				},
 			},
-			usernamePasswordInput: {
+			usernameAndPasswordInput: {
 				on: {
 					SUBMIT_USERNAME_AND_PASSWORD: {
+						actions: "forwardEventToUsernamePasswordService",
+					},
+					WORKER_AUTH_FLOW_COMPLETE: "deviceSecurityCheck",
+					WORKER_REQUIRES_TEMPORARY_PASSWORD_CHANGE: "changeTemporaryPasswordInput",
+				},
+			},
+			changeTemporaryPasswordInput: {
+				on: {
+					SUBMIT_NEW_PASSWORD: {
+						actions: "forwardEventToUsernamePasswordService",
+					},
+					WORKER_AUTH_FLOW_COMPLETE: "deviceSecurityCheck",
+				},
+			},
+			changePasswordInput: {
+				on: {
+					SUBMIT_NEW_PASSWORD: {
 						actions: "forwardEventToUsernamePasswordService",
 					},
 					WORKER_AUTH_FLOW_COMPLETE: "deviceSecurityCheck",
@@ -289,7 +292,7 @@ export const authSystem = authSystemModel.createMachine(
 					CHECK_FOR_BIOMETRIC_SECURITY: {
 						actions: "forwardEventToBiometricService",
 					},
-					ATHORISE_AGAINST_BIOMETRIC_SECURITY: {
+					AUTHORISE_AGAINST_BIOMETRIC_SECURITY: {
 						actions: "forwardEventToBiometricService",
 					},
 					WORKER_BIOMETRIC_NOT_SUPPORTED: "biometricNotSupported",
@@ -379,11 +382,7 @@ export function createAuthSystem<User>({
 	otpServiceApi = undefined,
 	usernamePasswordServiceApi = undefined,
 	deviceSecurityInterface = undefined,
-}: AuthSystemConfig<User> = {}): StateMachine<
-	AuthSystemContext,
-	AuthStateSchema,
-	AuthSystemEvents
-> {
+}: AuthSystemConfig<User> = {}): StateMachine<AuthSystemContext, any, AuthSystemEvents> {
 	/**
 	 * The authentication system **must use one or both of OTP and username/password auth**.
 	 */

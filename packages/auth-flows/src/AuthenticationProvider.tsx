@@ -1,11 +1,16 @@
 import { useMachine } from "@xstate/react";
-import React, { createContext, useCallback, useContext, useEffect } from "react";
+import React, { createContext, useContext, useEffect } from "react";
 
+import {
+	AuthSystemConfig,
+	AuthSystemContext,
+	AuthSystemEvents,
+	authSystemModel,
+} from "./authentication-system";
 import { AuthSystemLogger } from "./logger";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { DeviceSecurityType, LoginFlowType, SessionCheckBehaviour } from "./types";
-import type { AuthSystemConfig, AuthSystemContext, AuthSystemEvents } from "./auth-system";
 import type { State, StateMachine } from "xstate";
 
 const AuthStateContext = createContext<{
@@ -65,14 +70,16 @@ export function useAuthState() {
 		inBiometricFlowInitStage: ctx.state.matches("biometricFlowInit"),
 		inBiometricNotSupportedStage: ctx.state.matches("biometricNotSupported"),
 		inChangeCurrentPinInputState: ctx.state.matches("changeCurrentPinInput"),
+		inChangePasswordInputState: ctx.state.matches("changePasswordInputState"),
+		inChangeTemporaryPasswordInputState: ctx.state.matches("changeTemporaryPasswordInput"),
 		inCurrentPinInputState: ctx.state.matches("currentPinInput"),
 		inNewPinInputState: ctx.state.matches("newPinInput"),
 		inOtpLoginFlowInitState: ctx.state.matches("otpLoginFlowInit"),
 		inOtpPasswordInputState: ctx.state.matches("otpPasswordInput"),
 		inOtpUsernameInputState: ctx.state.matches("otpUsernameInput"),
 		inPinFlowInitState: ctx.state.matches("pinFlowInit"),
-		inUsernamePasswordInputState: ctx.state.matches("usernamePasswordInput"),
-		inUsernamePasswordLoginFlowInitState: ctx.state.matches("usernamePasswordLoginFlowInit"),
+		inUsernameAndPasswordLoginFlowInitState: ctx.state.matches("usernameAndPasswordLoginFlowInit"),
+		inUsernameAndPasswordInputState: ctx.state.matches("usernameAndPasswordInput"),
 		isLoading: ctx.state.context.isLoading,
 		loginFlowType: ctx.state.context.loginFlowType as LoginFlowType,
 	};
@@ -89,18 +96,19 @@ export function useAuthUpdate() {
 
 	// prettier-ignore
 	return {
-		authoriseAgainstBiometricSecurity: () => ctx.send({ type: "ATHORISE_AGAINST_BIOMETRIC_SECURITY"}),
-		changeCurrentPin: () => ctx.send({ type: "CHANGE_CURRENT_PIN" }),
-		changeDeviceSecurityType: (deviceSecurityType: DeviceSecurityType) => ctx.send({ type: "CHANGE_DEVICE_SECURITY_TYPE", deviceSecurityType }),
-		checkForBiometricSupport: () => ctx.send({ type: "CHECK_FOR_BIOMETRIC_SECURITY"}),
-		checkForCurrentPin: () => ctx.send({ type: "CHECK_FOR_CURRENT_PIN" }),
-		goBack: () => ctx.send({ type: "GO_BACK" }),
-		logOut: () => ctx.send({ type: "LOG_OUT" }),
-		resendPassword: () => ctx.send({ type: "RESEND_PASSWORD" }),
-		runSessionCheck: (sessionCheckBehaviour: SessionCheckBehaviour = "normal") => ctx.send({ type: "CHECK_FOR_SESSION", sessionCheckBehaviour }),
-		skipPinSetup: () => ctx.send({ type: "SKIP_PIN_SETUP" }),
-		submitCurrentAndNewPin: (currentPin: string, newPin: string) => ctx.send({ type: "SUBMIT_CURRENT_AND_NEW_PIN", currentPin, newPin }),
-		submitCurrentPin: (currentPin: string) => ctx.send({ type: "SUBMIT_CURRENT_PIN", currentPin }),
+		authoriseAgainstBiometricSecurity: () => ctx.send(authSystemModel.events.AUTHORISE_AGAINST_BIOMETRIC_SECURITY()),
+		changeCurrentPin: () => ctx.send(authSystemModel.events.CHANGE_CURRENT_PIN()),
+		changeDeviceSecurityType: (deviceSecurityType: DeviceSecurityType) => ctx.send(authSystemModel.events.CHANGE_DEVICE_SECURITY_TYPE(deviceSecurityType)),
+		checkForBiometricSupport: () => ctx.send(authSystemModel.events.CHECK_FOR_BIOMETRIC_SECURITY()),
+		checkForCurrentPin: () => ctx.send(authSystemModel.events.CHECK_FOR_CURRENT_PIN()),
+		goBack: () => ctx.send(authSystemModel.events.GO_BACK()),
+		logOut: () => ctx.send(authSystemModel.events.LOG_OUT()),
+		resendPassword: () => ctx.send(authSystemModel.events.RESEND_PASSWORD()),
+		runSessionCheck: (sessionCheckBehaviour: SessionCheckBehaviour = "normal") => ctx.send(authSystemModel.events.CHECK_FOR_SESSION(sessionCheckBehaviour)),
+		skipPinSetup: () => ctx.send(authSystemModel.events.SKIP_PIN_SETUP()),
+		submitCurrentAndNewPin: (currentPin: string, newPin: string) => ctx.send(authSystemModel.events.SUBMIT_CURRENT_AND_NEW_PIN(currentPin, newPin)),
+		submitCurrentPin: (currentPin: string) => ctx.send(authSystemModel.events.SUBMIT_CURRENT_PIN(currentPin)),
+		submitNewPassword: (password: string, newPassword: string) => ctx.send({ type: "SUBMIT_NEW_PASSWORD", password, newPassword }),
 		submitNewPin: (newPin: string) => ctx.send({ type: "SUBMIT_NEW_PIN", newPin }),
 		submitPassword: (password: string) => ctx.send({ type: "SUBMIT_PASSWORD", password }),
 		submitUsername: (username: string) => ctx.send({ type: "SUBMIT_USERNAME", username }),

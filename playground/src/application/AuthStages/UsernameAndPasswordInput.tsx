@@ -1,7 +1,7 @@
 import { useAuthUpdate } from "@thingco/auth-flows";
 import React from "react";
 
-export const UsernamePasswordInput = ({ isLoading }: { isLoading: boolean }) => {
+export const UsernameAndPasswordInput = ({ isLoading }: { isLoading: boolean }) => {
 	const { submitUsernameAndPassword } = useAuthUpdate();
 
 	const [localUsername, setLocalUsername] = React.useState("");
