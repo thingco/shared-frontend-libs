@@ -13,6 +13,7 @@ const model = createModel(
 	{
 		currentPin: "",
 		newPin: "",
+		error: null as null | string,
 	},
 	{
 		events: {
@@ -72,7 +73,10 @@ const implementations = {
 			if (e.type !== "SUBMIT_NEW_PIN") return {};
 			return { newPin: e.newPin };
 		}),
-		clearPinsFromContext: model.assign({ currentPin: "", newPin: "" }) as any,
+		assignErrorToContext: model.assign({ error: "INVALID" }) as any,
+		clearErrorFromContext: model.assign({ error: null }) as any,
+		clearPinsFromContext: model.assign({ currentPin: "", newPin: "", error: null }) as any,
+
 		// Keep in touch with yr parents
 		notifyAuthFlowComplete: sendParent(model.events.WORKER_AUTH_FLOW_COMPLETE),
 		notifyRequestComplete: sendParent(model.events.WORKER_ASYNC_REQUEST_SETTLED),
@@ -163,8 +167,8 @@ const machine = model.createMachine(
 						target: "authorised",
 					},
 					onError: {
-						actions: log((_, e) => e.data),
-						target: "awaitingNewPinInput",
+						actions: "assignErrorToContext",
+						target: "awaitingCurrentPinInput",
 					},
 				},
 				exit: "notifyRequestComplete",

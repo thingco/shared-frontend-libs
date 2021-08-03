@@ -14,6 +14,7 @@ const model = createModel(
 		password: "",
 		sessionCheckBehaviour: "normal" as SessionCheckBehaviour,
 		triesRemaining: 3,
+		error: null as null | string,
 	},
 	{
 		events: {
@@ -79,6 +80,8 @@ const implementations = {
 			if (e.type !== "done.invoke.requestOtp") return {};
 			return { userdata: e.data };
 		}),
+		assignErrorToContext: model.assign({ error: "INVALID" }) as any,
+		clearErrorFromContext: model.assign({ error: null }) as any,
 		clearPasswordFromContext: model.assign({ password: "" }),
 		clearUserdataFromContext: model.assign({ userdata: "" }),
 		clearUsernameFromContext: model.assign({ username: "" }),
@@ -173,9 +176,12 @@ const machine = model.createMachine(
 					onDone: {
 						target: "authComplete",
 					},
-					onError: "awaitingOtpInput",
+					onError: {
+						actions: "assignErrorToContext",
+						target: "awaitingOtpInput",
+					},
 				},
-				exit: ["notifyRequestComplete", "clearPasswordFromContext"],
+				exit: ["notifyRequestComplete", "clearPasswordFromContext", "clearErrorFromContext"],
 			},
 			loggingOut: {
 				entry: "notifyRequestStarted",
