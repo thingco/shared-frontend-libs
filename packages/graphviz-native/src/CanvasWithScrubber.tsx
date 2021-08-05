@@ -68,7 +68,7 @@ export const CanvasWithScrubber = ({
 		<View onLayout={onLayoutHandler} data-componentid="scrubber-viewport">
 			{canvasWidth && (
 				<Svg
-					transform={`translateX(${slideAmount}px)`}
+					transform={`translate(${slideAmount})`}
 					height={height}
 					width={graphWidth}
 					viewBox={`${viewBoxMinX} ${viewBoxMinY} ${viewBoxWidth} ${viewBoxHeight}`}
