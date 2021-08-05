@@ -4,7 +4,9 @@
 		"emitDeclarationOnly": true,
 		"declarationDir": "./lib/types",
 		"rootDir": "./src",
-		"types": ["react", "jest"]
+		"types": ["react", "jest"],
+		"skipLibCheck": true,
+		"skipDefaultLibCheck": true
 	},
 	"typedocOptions": {
 		"entryPoints": ["src/index.ts"],
