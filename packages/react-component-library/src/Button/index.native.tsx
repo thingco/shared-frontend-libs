@@ -11,7 +11,7 @@ interface ButtonProps extends TouchableOpacityProps {
 
 export const Button = ({
 	children,
-	variant = "",
+	// variant = "",
 	isDisabled = false,
 	style = [],
 	textStyle = [],
