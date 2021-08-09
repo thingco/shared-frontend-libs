@@ -3,12 +3,13 @@ import { LayoutChangeEvent, View } from "react-native";
 import { Svg } from "react-native-svg";
 
 import { useGraph } from "./Context";
+import { ScrubberControl } from "./Scrubber";
 
 export type GraphPadding = number | { top: number; right: number; bottom: number; left: number };
 
 export interface CanvasWithScrubberProps {
 	children: React.ReactNode;
-
+	setCurrentDataPointIndex: (index: number) => void;
 	currentDataPointIndex: number;
 	height: number | string;
 	padding?: GraphPadding;
@@ -17,6 +18,7 @@ export interface CanvasWithScrubberProps {
 
 export const CanvasWithScrubber = ({
 	children,
+	setCurrentDataPointIndex,
 	currentDataPointIndex,
 	padding = 10,
 	height = "100%",
@@ -67,16 +69,22 @@ export const CanvasWithScrubber = ({
 	return (
 		<View onLayout={onLayoutHandler} data-componentid="scrubber-viewport">
 			{canvasWidth && (
-				<Svg
-					transform={`translate(${slideAmount})`}
-					height={height}
-					width={graphWidth}
-					viewBox={`${viewBoxMinX} ${viewBoxMinY} ${viewBoxWidth} ${viewBoxHeight}`}
-					preserveAspectRatio="none"
-					data-componentid="svg-canvas-scrubbable"
-				>
-					{children}
-				</Svg>
+				<>
+					<Svg
+						transform={`translate(${slideAmount})`}
+						height={height}
+						width={graphWidth}
+						viewBox={`${viewBoxMinX} ${viewBoxMinY} ${viewBoxWidth} ${viewBoxHeight}`}
+						preserveAspectRatio="none"
+						data-componentid="svg-canvas-scrubbable"
+					>
+						{children}
+					</Svg>
+					<ScrubberControl
+						currentDataPointIndex={currentDataPointIndex}
+						setCurrentDataPointIndex={setCurrentDataPointIndex}
+					/>
+				</>
 			)}
 		</View>
 	);
