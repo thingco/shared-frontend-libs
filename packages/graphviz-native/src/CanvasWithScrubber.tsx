@@ -71,7 +71,9 @@ export const CanvasWithScrubber = ({
 			{canvasWidth && (
 				<>
 					<Svg
-						transform={`translate(${slideAmount})`}
+						// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+						//@ts-ignore
+						transform={[{ translateX: slideAmount }]}
 						height={height}
 						width={graphWidth}
 						viewBox={`${viewBoxMinX} ${viewBoxMinY} ${viewBoxWidth} ${viewBoxHeight}`}
