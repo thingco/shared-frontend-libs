@@ -1,5 +1,5 @@
 import React from "react";
-import { LayoutChangeEvent, View } from "react-native";
+import { LayoutChangeEvent, View, ViewProps } from "react-native";
 import { Svg } from "react-native-svg";
 
 import { useGraph } from "./Context";
@@ -14,6 +14,7 @@ export interface CanvasWithScrubberProps {
 	height: number | string;
 	padding?: GraphPadding;
 	preserveAspectRatio?: string;
+	scrubberControlStyle?: ViewProps;
 }
 
 export const CanvasWithScrubber = ({
@@ -22,6 +23,7 @@ export const CanvasWithScrubber = ({
 	currentDataPointIndex,
 	padding = 10,
 	height = "100%",
+	scrubberControlStyle = {},
 }: CanvasWithScrubberProps): JSX.Element => {
 	const { xAxisSize, xAxisScale, yAxisSize } = useGraph();
 	const [tPad, rPad, bPad, lPad] =
@@ -70,6 +72,11 @@ export const CanvasWithScrubber = ({
 		<View onLayout={onLayoutHandler} data-componentid="scrubber-viewport">
 			{canvasWidth && (
 				<>
+					<ScrubberControl
+						currentDataPointIndex={currentDataPointIndex}
+						setCurrentDataPointIndex={setCurrentDataPointIndex}
+						scrubberControlStyle={scrubberControlStyle}
+					/>
 					<Svg
 						// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 						//@ts-ignore
@@ -82,10 +89,6 @@ export const CanvasWithScrubber = ({
 					>
 						{children}
 					</Svg>
-					<ScrubberControl
-						currentDataPointIndex={currentDataPointIndex}
-						setCurrentDataPointIndex={setCurrentDataPointIndex}
-					/>
 				</>
 			)}
 		</View>

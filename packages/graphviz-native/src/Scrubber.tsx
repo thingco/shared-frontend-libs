@@ -1,16 +1,15 @@
 import Slider from "@react-native-community/slider";
 import { HorizontalAlignment, px, verticalLineFullHeight } from "@thingco/graphviz";
 import React from "react";
+import { ViewStyle } from "react-native";
 import { G, Line } from "react-native-svg";
 
 import { useGraph } from "./Context";
 
-export interface ScrubberControlProps {
+export interface ScrubberLineProps {
 	currentDataPointIndex: number;
-	setCurrentDataPointIndex: (n: number) => void;
-	scrubberControlStyle?: VisibleScrubberControlStyle;
+	scrubberLineStyle?: VisibleScrubberControlStyle;
 }
-
 interface VisibleScrubberControlStyle {
 	fill?: string;
 	stroke?: string;
@@ -24,13 +23,13 @@ const defaultVisibleScrubberControlStyle = {
 };
 
 export const ScrubberHorizontal = ({
-	scrubberControlStyle = {},
+	scrubberLineStyle = {},
 	currentDataPointIndex,
 	startPosition = "zero",
-}: ScrubberControlProps & {
+}: ScrubberLineProps & {
 	startPosition: HorizontalAlignment;
 }): JSX.Element => {
-	scrubberControlStyle = { ...defaultVisibleScrubberControlStyle, ...scrubberControlStyle };
+	scrubberLineStyle = { ...defaultVisibleScrubberControlStyle, ...scrubberLineStyle };
 
 	const graph = useGraph();
 
@@ -52,15 +51,31 @@ export const ScrubberHorizontal = ({
 	return (
 		<React.Fragment>
 			<G transform={`translate(${px(graph, graph.xAxisValues[currentDataPointIndex])})`}>
-				<Line x1={x1} x2={x2} y1={y1} y2={y2} {...scrubberControlStyle} />
+				<Line x1={x1} x2={x2} y1={y1} y2={y2} {...scrubberLineStyle} />
 			</G>
 		</React.Fragment>
 	);
 };
 
+export interface ScrubberControlProps {
+	currentDataPointIndex: number;
+	setCurrentDataPointIndex: (n: number) => void;
+	scrubberControlStyle?: ViewStyle;
+}
+
+const defaultScrubberControlStyle: ViewStyle = {
+	zIndex: 10,
+	position: "absolute",
+	backgroundColor: "transparent",
+	opacity: 0,
+	width: "100%",
+	height: "100%",
+};
+
 export const ScrubberControl = ({
 	currentDataPointIndex,
 	setCurrentDataPointIndex,
+	scrubberControlStyle = {},
 }: ScrubberControlProps) => {
 	const graph = useGraph();
 	return (
@@ -69,12 +84,7 @@ export const ScrubberControl = ({
 			minimumValue={0}
 			maximumValue={graph.xAxisValues.length - 1}
 			step={1}
-			style={{
-				backgroundColor: "transparent",
-				opacity: 0,
-				width: "100%",
-				height: "100%",
-			}}
+			style={{ ...defaultScrubberControlStyle, ...scrubberControlStyle }}
 			value={currentDataPointIndex}
 		/>
 	);
