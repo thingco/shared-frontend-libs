@@ -1,68 +1,25 @@
 import React from "react";
 import {
-	TextStyle,
-	TouchableOpacity,
-	ViewStyle,
-	Text,
-	TouchableOpacityProps,
-} from "react-native";
+	Button as ThemeUIButton,
+	ButtonProps as ThemeUIButtonProps,
+	ThemeUIStyleObject,
+} from "theme-ui";
 
-interface ButtonProps extends TouchableOpacityProps {
-	children?: React.ReactElement | string;
-	isDisabled?: boolean;
+export interface ButtonProps extends ThemeUIButtonProps {
+	children?: React.ReactNode;
 	variant?: string;
-	style?: ViewStyle[] | ViewStyle;
-	textStyle?: TextStyle[] | TextStyle;
+	sx?: ThemeUIStyleObject;
+	testid?: string;
 }
 
 export const Button = ({
 	children,
-	// variant = "",
-	isDisabled = false,
-	style = [],
-	textStyle = [],
+	variant = "primary",
+	sx = {},
+	testid = "Button",
 	...props
-}: ButtonProps) => {
-	const custStyle = style instanceof Array ? style : [style];
-	const custTextStyle = textStyle instanceof Array ? textStyle : [textStyle];
-
-	return (
-		<TouchableOpacity
-			style={[
-				{
-					borderRadius: 10,
-					height: 50,
-					padding: 5,
-					marginVertical: 5,
-					justifyContent: "center",
-					alignItems: "center",
-					backgroundColor: "#199a8d",
-					borderColor: "#199a8d",
-				},
-				isDisabled && {
-					opacity: 0.5,
-				},
-				...custStyle,
-			]}
-			disabled={isDisabled}
-			{...props}
-		>
-			<Text
-				style={[
-					{
-						fontSize: 18,
-						lineHeight: 22,
-						fontWeight: "700",
-						color: "#ffffff",
-					},
-					isDisabled && {
-						opacity: 0.5,
-					},
-					...custTextStyle,
-				]}
-			>
-				{children}
-			</Text>
-		</TouchableOpacity>
-	);
-};
+}: ButtonProps): JSX.Element => (
+	<ThemeUIButton data-testid={testid} variant={variant} sx={sx} {...props}>
+		{children}
+	</ThemeUIButton>
+);
