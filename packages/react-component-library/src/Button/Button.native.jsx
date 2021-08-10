@@ -1,19 +1,14 @@
 import React from "react";
-import {
-	TextStyle,
-	TouchableOpacity,
-	ViewStyle,
-	Text,
-	TouchableOpacityProps,
-} from "react-native";
+import { TextStyle, TouchableOpacity, ViewStyle, Text, TouchableOpacityProps } from "react-native";
+/* eslint-disable react/prop-types */
 
-interface ButtonProps extends TouchableOpacityProps {
-	children?: React.ReactElement | string;
-	isDisabled?: boolean;
-	variant?: string;
-	style?: ViewStyle[] | ViewStyle;
-	textStyle?: TextStyle[] | TextStyle;
-}
+// interface ButtonProps extends TouchableOpacityProps {
+// 	children?: React.ReactElement | string;
+// 	isDisabled?: boolean;
+// 	variant?: string;
+// 	style?: ViewStyle[] | ViewStyle;
+// 	textStyle?: TextStyle[] | TextStyle;
+// }
 
 export const Button = ({
 	children,
@@ -22,7 +17,7 @@ export const Button = ({
 	style = [],
 	textStyle = [],
 	...props
-}: ButtonProps) => {
+}) => {
 	const custStyle = style instanceof Array ? style : [style];
 	const custTextStyle = textStyle instanceof Array ? textStyle : [textStyle];
 
