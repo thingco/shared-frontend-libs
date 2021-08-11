@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Dimensions, Image } from "react-native";
+import { View, Dimensions } from "react-native";
 import { Logo as TheoLogo } from "../../../assets/Logo";
 
 const LOGO_ASPECT_RATIO = 0.25;
@@ -16,11 +16,6 @@ export const Logo = () => (
 			}}
 		>
 			<TheoLogo />
-			{/* <Image
-				resizeMethod="scale"
-				resizeMode="contain"
-				source={require("./logo.png")}
-			/> */}
 		</View>
 	</View>
 );

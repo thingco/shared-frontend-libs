@@ -5,13 +5,12 @@ import {
 	ViewStyle,
 	Text,
 	TouchableOpacityProps,
-	Image,
 } from "react-native";
 
 import { useTheme } from "../Provider/ThemeProvider";
 import { variantToTheme } from "../util";
 
-import { buttonImageSources as imageSources } from "../Icons/ImageSources";
+import { buttonImageSources as ImageSources } from "../Icons/ImageSources";
 
 interface ImageButtonProps extends TouchableOpacityProps {
 	image: string;
@@ -43,11 +42,9 @@ export const ImageButton = ({
 
 	return (
 		<TouchableOpacity style={[...buttonStyles, ...custStyle]} {...props}>
-			<Image
-				source={imageSources[image].uri}
+			<ImageSources
+				image={image}
 				style={{
-					height: 25,
-					resizeMode: "contain",
 					marginRight: 20,
 				}}
 			/>

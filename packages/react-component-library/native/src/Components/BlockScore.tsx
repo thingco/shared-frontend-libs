@@ -7,6 +7,9 @@ import { ProgressCircle } from "react-native-svg-charts";
 import _ from "lodash";
 import I18n from "../../app/I18n";
 
+import Up from "../Icons/icon_points_up.svg";
+import Down from "../Icons/icon_points_down.svg";
+
 interface BlockScoreProps {
 	score: number;
 	scored: boolean;
@@ -41,23 +44,31 @@ export const BlockScore = ({
 
 	let change = blockChange ? _.round(blockChange, 0) : undefined;
 	let showChange = change ? Math.abs(change) : undefined;
-	const up = require("../Icons/icon_points_up.png");
-	const down = require("../Icons/icon_points_down.png");
 
 	let since;
 
 	if (blockChange && change !== 0 && from) {
 		since = (
 			<View style={{ display: "flex", flexDirection: "row" }}>
-				<Image
-					style={{
-						flex: 0,
-						alignSelf: "center",
-						width: 5,
-						marginRight: 5,
-					}}
-					source={blockChange > 0 ? up : down}
-				/>
+				{blockChange > 0 ? (
+					<Up
+						style={{
+							flex: 0,
+							alignSelf: "center",
+							width: 5,
+							marginRight: 5,
+						}}
+					/>
+				) : (
+					<Down
+						style={{
+							flex: 0,
+							alignSelf: "center",
+							width: 5,
+							marginRight: 5,
+						}}
+					/>
+				)}
 				<Text variant={"xsmall greyscale50"}>
 					<Text style={{ fontWeight: "bold" }}>{showChange}</Text>{" "}
 					{I18n.t("since")} {from}

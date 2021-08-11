@@ -1,14 +1,11 @@
 import I18n from "i18n-js";
 import React from "react";
-import {
-	ActivityIndicator,
-	Dimensions,
-	Image,
-	TouchableOpacity,
-} from "react-native";
+import { ActivityIndicator, Dimensions, TouchableOpacity } from "react-native";
 import { useTheme } from "../Provider/ThemeProvider";
 import { View } from "./Containers";
 import { Text } from "./Typography";
+
+import Warning from "./icon_warning.svg";
 
 const { width: viewportWidth } = Dimensions.get("window");
 
@@ -104,12 +101,7 @@ export const CarouselEvent = ({ item, index, height, onPress }) => {
 				{item.location} at {item.time}
 			</Text>
 		);
-		icon = (
-			<Image
-				source={require("./icon_warning.png")}
-				style={{ marginRight: 10 }}
-			/>
-		);
+		icon = <Warning style={{ marginRight: 10 }} />;
 		return (
 			<TouchableOpacity
 				activeOpacity={1}

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="7px" height="4px" viewBox="0 0 7 4" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: sketchtool 52.2 (67145) - http://www.bohemiancoding.com/sketch -->
+    <title>4A536BF0-09AC-44D8-93DD-EE7ADFC6830D</title>
+    <desc>Created with sketchtool.</desc>
+    <g id="Dashboard+Settings" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Dashboard-Overall-Score" transform="translate(-126.000000, -220.000000)" fill="#FF6D37">
+            <g id="Score" transform="translate(64.000000, 75.000000)">
+                <g id="Group" transform="translate(62.000000, 138.000000)">
+                    <g id="Points-Down" transform="translate(3.500000, 9.000000) scale(1, -1) translate(-3.500000, -9.000000) translate(0.000000, 7.000000)">
+                        <path d="M3.81294387,0.130586195 L6.83441602,3.05797857 C7.03434683,3.25168412 7.05631129,3.59035947 6.88347502,3.81443112 C6.7925784,3.93227303 6.66045699,4 6.52146826,4 L0.478523974,4 C0.214242481,4 5.31268334e-17,3.7598886 0,3.46369619 C0,3.30792512 0.06043026,3.15985059 0.165576218,3.05797857 L3.18704836,0.130586195 C3.36675895,-0.0435287317 3.63323329,-0.0435287317 3.81294387,0.130586195 Z" id="icon_points_down"></path>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>
