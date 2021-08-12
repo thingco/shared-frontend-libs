@@ -9,12 +9,14 @@ export type GraphPadding = number | { top: number; right: number; bottom: number
 
 export interface CanvasWithScrubberProps {
 	children: React.ReactNode;
+	width?: number | undefined;
 	setCurrentDataPointIndex: (index: number) => void;
 	currentDataPointIndex: number;
 	height: number | string;
 	padding?: GraphPadding;
 	preserveAspectRatio?: string;
 	scrubberControlStyle?: ViewProps;
+	scrubberStep?: number;
 }
 
 export const CanvasWithScrubber = ({
@@ -23,7 +25,9 @@ export const CanvasWithScrubber = ({
 	currentDataPointIndex,
 	padding = 10,
 	height = "100%",
+	width,
 	scrubberControlStyle = {},
+	scrubberStep = 1,
 }: CanvasWithScrubberProps): JSX.Element => {
 	const { xAxisSize, xAxisScale, yAxisSize } = useGraph();
 	const [tPad, rPad, bPad, lPad] =
@@ -31,7 +35,7 @@ export const CanvasWithScrubber = ({
 			? [padding, padding, padding, padding]
 			: [padding.top, padding.right, padding.bottom, padding.left];
 
-	const [canvasWidth, setCanvasWidth] = React.useState<number | undefined>();
+	const [canvasWidth, setCanvasWidth] = React.useState<number | undefined>(width);
 	const [graphWidth, setGraphWidth] = React.useState(xAxisSize + lPad + rPad);
 	const [slideAmount, setSlideAmount] = React.useState(0);
 
@@ -76,6 +80,7 @@ export const CanvasWithScrubber = ({
 						currentDataPointIndex={currentDataPointIndex}
 						setCurrentDataPointIndex={setCurrentDataPointIndex}
 						scrubberControlStyle={scrubberControlStyle}
+						scrubberStep={scrubberStep}
 					/>
 					<Svg
 						// eslint-disable-next-line @typescript-eslint/ban-ts-comment

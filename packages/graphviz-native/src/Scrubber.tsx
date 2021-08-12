@@ -61,6 +61,7 @@ export interface ScrubberControlProps {
 	currentDataPointIndex: number;
 	setCurrentDataPointIndex: (n: number) => void;
 	scrubberControlStyle?: ViewStyle;
+	scrubberStep: number;
 }
 
 const defaultScrubberControlStyle: ViewStyle = {
@@ -76,6 +77,7 @@ export const ScrubberControl = ({
 	currentDataPointIndex,
 	setCurrentDataPointIndex,
 	scrubberControlStyle = {},
+	scrubberStep,
 }: ScrubberControlProps) => {
 	const graph = useGraph();
 	return (
@@ -83,7 +85,7 @@ export const ScrubberControl = ({
 			onValueChange={setCurrentDataPointIndex}
 			minimumValue={0}
 			maximumValue={graph.xAxisValues.length - 1}
-			step={1}
+			step={scrubberStep}
 			style={{ ...defaultScrubberControlStyle, ...scrubberControlStyle }}
 			value={currentDataPointIndex}
 		/>
