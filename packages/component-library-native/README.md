@@ -1,0 +1,1 @@
+# `@thingco/component-library-core`
