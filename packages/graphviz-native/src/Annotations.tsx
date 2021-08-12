@@ -16,7 +16,6 @@ export interface AxisAnnotationsProps {
 	offsetX?: number;
 	annotations: (string | number)[];
 	annotationStyle?: AxisAnnotationTextStyle;
-	roundTo?: number;
 }
 
 export interface AxisAnnotationTextStyle {
@@ -38,7 +37,6 @@ export const XAxisAnnotations = ({
 	annotations,
 	offsetY = 4,
 	position = "bottom",
-	roundTo = 2,
 }: AxisAnnotationsProps & { position?: VerticalAlignment }): JSX.Element => {
 	annotationStyle = { ...defaultAnnotationStyle, ...annotationStyle };
 	const graph = useGraph();
@@ -54,7 +52,7 @@ export const XAxisAnnotations = ({
 					y={y - offsetY}
 					data-componentid={`x-axis-annotation-${x}${y}${i}`}
 				>
-					{annotations && Number(annotations[i]).toFixed(roundTo)}
+					{annotations && annotations[i]}
 				</Text>
 			))}
 		</G>
@@ -66,7 +64,6 @@ export const YAxisAnnotations = ({
 	offsetY = 0,
 	annotations,
 	annotationStyle = {},
-	roundTo = 2,
 }: AxisAnnotationsProps): JSX.Element => {
 	annotationStyle = { ...defaultAnnotationStyle, ...annotationStyle };
 	const graph = useGraph();
@@ -84,7 +81,7 @@ export const YAxisAnnotations = ({
 					textAnchor="end"
 					data-componentid={`y-axis-annotation-${x}${y}${i}`}
 				>
-					{annotations && Number(annotations[i]).toFixed(roundTo)}
+					{annotations && annotations[i]}
 				</Text>
 			))}
 		</G>
