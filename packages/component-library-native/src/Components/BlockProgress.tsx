@@ -1,52 +1,30 @@
 import React from "react";
-import I18n from "../../app/I18n";
+import _ from "lodash";
 import { Dimensions } from "react-native";
 import { Text } from "./Typography";
 
 import Svg, { Line } from "react-native-svg";
 
-import {
-	distanceUntilScored,
-	blockDistanceToMetersLeft,
-	blockDistanceToPercentage,
-} from "@thingco/unit-formatter";
-import { usePrefs } from "@thingco/user-preferences";
-
 import { useTheme } from "../Provider/ThemeProvider";
 import { View } from "./Containers";
 
-const { width: viewportWidth, height: viewportHeight } = Dimensions.get("window");
+const { width: viewportWidth } = Dimensions.get("window");
 interface BlockProgressProps {
-	progress?: { BlockDistance: number; BlockDuration: number };
+	progressPercentage: number;
+	text: string;
 	total?: number;
 	strokeWidth?: number;
 	margin?: number;
 }
 
-const config = {
-	distanceScored: 160934,
-};
-
 export const BlockProgress = ({
-	progress = {
-		BlockDistance: 0,
-		BlockDuration: 0,
-	},
+	text,
+	progressPercentage,
 	strokeWidth = 7,
 	margin = 50,
 }: BlockProgressProps) => {
 	const { theme } = useTheme();
-	const { prefs } = usePrefs();
 
-	const disUntilScored = distanceUntilScored({
-		unitPreference: prefs.distanceUnitPref,
-	});
-
-	const untilComplete = progress.BlockDistance
-		? disUntilScored(progress.BlockDistance)
-		: disUntilScored(0);
-	const metersLeft = blockDistanceToMetersLeft(progress.BlockDistance);
-	const progressPercentage = blockDistanceToPercentage(progress.BlockDistance);
 	const value = 3 + progressPercentage * 97;
 	const width = (viewportWidth - margin) * (value / 100);
 
@@ -57,11 +35,7 @@ export const BlockProgress = ({
 			}}
 		>
 			<Text variant={"base greyscale50 centred"}>
-				<Text variant={"bold"}>
-					{I18n.t("unit until scored", {
-						unit: metersLeft < 0 ? 0 : progress ? untilComplete : "100 mi",
-					})}
-				</Text>
+				<Text variant={"bold"}>{text}</Text>
 			</Text>
 			<Svg width={viewportWidth - 20} height="20">
 				<Line

@@ -4,7 +4,6 @@ import { Text } from "./Typography";
 import { useTheme } from "../Provider/ThemeProvider";
 import { ProgressCircle } from "react-native-svg-charts";
 import _ from "lodash";
-import I18n from "../../app/I18n";
 
 import Up from "../Icons/icon_points_up.svg";
 import Down from "../Icons/icon_points_down.svg";
@@ -18,6 +17,9 @@ interface BlockScoreProps {
 	total?: number;
 	blockChange?: number;
 	from?: string;
+	sinceText: string;
+	noScoreText: string;
+	noChangeText: string;
 }
 export const BlockScore = ({
 	score,
@@ -28,6 +30,9 @@ export const BlockScore = ({
 	total = 100,
 	blockChange,
 	from,
+	sinceText,
+	noScoreText,
+	noChangeText,
 }: BlockScoreProps) => {
 	const { theme } = useTheme();
 	const textColor = textVariant ? textVariant : "text_appBackground bold";
@@ -69,19 +74,19 @@ export const BlockScore = ({
 					/>
 				)}
 				<Text variant={"xsmall greyscale50"}>
-					<Text style={{ fontWeight: "bold" }}>{showChange}</Text> {I18n.t("since")} {from}
+					<Text style={{ fontWeight: "bold" }}>{showChange}</Text> {sinceText} {from}
 				</Text>
 			</View>
 		);
 	} else if (change === 0 && from) {
 		since = (
 			<Text variant={"xsmall greyscale50"} style={{ textAlign: "center" }}>
-				<Text style={{ fontWeight: "bold" }}>{I18n.t("No Change")}</Text> {"\n"}
-				{I18n.t("since")} {from}
+				<Text style={{ fontWeight: "bold" }}>{noChangeText}</Text> {"\n"}
+				{sinceText} {from}
 			</Text>
 		);
 	} else if (change === 0) {
-		since = <Text variant={"xsmall greyscale50"}>{I18n.t("No score yet")}</Text>;
+		since = <Text variant={"xsmall greyscale50"}>{noScoreText}</Text>;
 	}
 
 	return (
