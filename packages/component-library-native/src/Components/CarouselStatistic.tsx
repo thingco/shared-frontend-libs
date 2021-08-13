@@ -20,6 +20,11 @@ interface CarouselStatisticsProps {
 	height: number;
 }
 
+interface StatisticProps {
+	value: number;
+	name: string;
+}
+
 export const CarouselStatistic = ({ stats, height }: CarouselStatisticsProps) => {
 	const { prefs } = usePrefs();
 
@@ -29,7 +34,7 @@ export const CarouselStatistic = ({ stats, height }: CarouselStatisticsProps) =>
 	});
 	const dur = duration({ locale: prefs.localePref });
 
-	const Statistic = ({ value, name }) => {
+	const Statistic = ({ value, name }: StatisticProps) => {
 		return (
 			<View
 				variant={"flexCol centred"}

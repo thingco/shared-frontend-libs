@@ -1,5 +1,4 @@
 import React from "react";
-import _ from "lodash";
 import I18n from "../../app/I18n";
 import { Dimensions } from "react-native";
 import { Text } from "./Typography";
@@ -39,7 +38,7 @@ export const BlockProgress = ({
 	const { theme } = useTheme();
 	const { prefs } = usePrefs();
 
-	let disUntilScored = distanceUntilScored({
+	const disUntilScored = distanceUntilScored({
 		unitPreference: prefs.distanceUnitPref,
 	});
 

@@ -1,11 +1,5 @@
 import React from "react";
-import {
-	TextStyle,
-	TouchableOpacity,
-	ViewStyle,
-	Text,
-	TouchableOpacityProps,
-} from "react-native";
+import { TextStyle, TouchableOpacity, ViewStyle, Text, TouchableOpacityProps } from "react-native";
 
 import { useTheme } from "../Provider/ThemeProvider";
 import { variantToTheme } from "../util";
@@ -43,20 +37,12 @@ export const Button = ({
 
 	return (
 		<TouchableOpacity
-			style={[
-				...buttonStyles,
-				isDisabled && theme.buttons.disabled,
-				...custStyle,
-			]}
+			style={[...buttonStyles, isDisabled && theme.buttons.disabled, ...custStyle]}
 			disabled={isDisabled}
 			{...props}
 		>
 			<Text
-				style={[
-					...textStyles,
-					isDisabled && theme.typography.buttons.disabled,
-					...custTextStyle,
-				]}
+				style={[...textStyles, isDisabled && theme.typography.buttons.disabled, ...custTextStyle]}
 			>
 				{children}
 			</Text>
@@ -78,7 +64,7 @@ export const IconButton = ({
 	style = {},
 	icon,
 	stroke,
-	strokeWidth = 2,
+	// strokeWidth = 2,
 	size,
 	...props
 }: IconButtonProps) => {
@@ -96,7 +82,7 @@ interface TabButtonProps {
 	children: React.ReactNode[];
 }
 
-export const TabButton = ({ selected, onClick, children }) => {
+export const TabButton = ({ selected, onClick, children }: TabButtonProps) => {
 	const { theme } = useTheme();
 	return (
 		<Button

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { ReactComponentElement, useState } from "react";
 import { TextStyle, ViewStyle, View } from "react-native";
 import Carousel, { Pagination } from "react-native-snap-carousel";
 
@@ -6,7 +6,7 @@ import { useTheme } from "../Provider/ThemeProvider";
 
 interface CarouselProps {
 	variant: string;
-	items: {}[];
+	items: unknown[];
 	height: number;
 	width: number;
 	style?: ViewStyle[] | ViewStyle;

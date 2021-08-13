@@ -3215,6 +3215,7 @@ __metadata:
     react-native-confirmation-code-field: ^7.1.0
     react-native-maps: ^0.28.0
     react-native-snap-carousel: ^3.9.1
+    react-native-svg: ^12.1.1
     react-native-svg-charts: ^5.4.0
     react-native-svg-transformer: ^0.14.3
     rimraf: ^3.0.2

@@ -11,7 +11,26 @@ const { width: viewportWidth } = Dimensions.get("window");
 
 const tileWidth = viewportWidth - 40;
 
-export const CarouselEvent = ({ item, index, height, onPress }) => {
+interface CarouselEventProps {
+	item: CarouselItem;
+	index: number;
+	height: number | string;
+	onPress: (arg: any) => void;
+}
+
+interface CarouselItem {
+	type: string;
+	distance: string;
+	duration: string;
+	avgspeed: string;
+	title: string;
+	description: string;
+	location: string;
+	time: number | string;
+	index: number;
+}
+
+export const CarouselEvent = ({ item, index, height, onPress }: CarouselEventProps) => {
 	let event;
 	let icon;
 	let details;
@@ -72,10 +91,7 @@ export const CarouselEvent = ({ item, index, height, onPress }) => {
 			>
 				<View variant={"card"} style={{ minHeight: height }}>
 					<View style={{ marginTop: 6, marginBottom: 6 }}>
-						<Text
-							variant={"base bold text_background"}
-							style={{ letterSpacing: 0.5 }}
-						>
+						<Text variant={"base bold text_background"} style={{ letterSpacing: 0.5 }}>
 							{item.title}
 						</Text>
 					</View>
@@ -117,10 +133,7 @@ export const CarouselEvent = ({ item, index, height, onPress }) => {
 					<View style={{ flex: 1, display: "flex", flexDirection: "row" }}>
 						{icon}
 						<View style={{ flex: 3 }}>
-							<Text
-								variant={"base bold text_background"}
-								style={{ letterSpacing: 0.5 }}
-							>
+							<Text variant={"base bold text_background"} style={{ letterSpacing: 0.5 }}>
 								{item.title}
 							</Text>
 							{event}

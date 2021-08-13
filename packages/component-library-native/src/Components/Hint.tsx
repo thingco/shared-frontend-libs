@@ -1,8 +1,12 @@
-import React from "react";
+import React, { ReactNode } from "react";
 import { View } from "./Containers";
 import { Text } from "./Typography";
 
-export const Hint = ({ children }) => {
+interface ChildProps {
+	children: React.ReactNode;
+}
+
+export const Hint = ({ children }: ChildProps) => {
 	return (
 		<View
 			style={{
@@ -19,7 +23,7 @@ export const Hint = ({ children }) => {
 	);
 };
 
-export const ValidationError = ({ children }) => {
+export const ValidationError = ({ children }: ChildProps) => {
 	return (
 		<View
 			style={{

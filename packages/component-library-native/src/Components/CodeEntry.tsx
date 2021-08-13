@@ -25,6 +25,12 @@ interface CodeEntryProps extends TextInputProps {
 	focused: boolean;
 }
 
+interface renderCellProps {
+	index: number;
+	symbol: string | null;
+	isFocused: boolean;
+}
+
 export const CodeEntry = ({
 	variant = "box",
 	mask = false,
@@ -57,7 +63,7 @@ export const CodeEntry = ({
 	const borderFocus = border.focus ?? theme.colors.primary;
 	const borderNoFocus = border.noFocus ?? theme.colors.secondary;
 
-	const renderCell = ({ index, symbol, isFocused }) => {
+	const renderCell = ({ index, symbol, isFocused }: renderCellProps) => {
 		let textChild: React.ReactElement | null = null;
 
 		if (symbol) {

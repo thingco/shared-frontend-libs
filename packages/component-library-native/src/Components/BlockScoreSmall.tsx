@@ -10,14 +10,8 @@ interface BlockScoreProps {
 	angle?: number;
 	size?: number;
 }
-export const BlockScoreSmall = ({
-	score,
-	scored,
-	angle = 0.8,
-	size = 70,
-}: BlockScoreProps) => {
+export const BlockScoreSmall = ({ score, scored, angle = 0.8, size = 70 }: BlockScoreProps) => {
 	const { theme } = useTheme();
-	const spacing = theme.spacing;
 
 	const scoreBoundaries = [50, 75]; // TODO: Get this from config?
 

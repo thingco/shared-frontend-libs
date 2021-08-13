@@ -41,8 +41,8 @@ export const BlockScore = ({
 			? theme.colors.errorDark
 			: theme.colors.primary;
 
-	let change = blockChange ? _.round(blockChange, 0) : undefined;
-	let showChange = change ? Math.abs(change) : undefined;
+	const change = blockChange ? _.round(blockChange, 0) : undefined;
+	const showChange = change ? Math.abs(change) : undefined;
 
 	let since;
 
