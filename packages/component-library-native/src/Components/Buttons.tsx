@@ -6,7 +6,7 @@ import { variantToTheme } from "../util";
 import { IconType, LineIcon } from "./Icons";
 
 interface ButtonProps extends TouchableOpacityProps {
-	children?: React.ReactElement | string;
+	children?: React.ReactNode;
 	isDisabled?: boolean;
 	variant?: string;
 	style?: ViewStyle[] | ViewStyle;
