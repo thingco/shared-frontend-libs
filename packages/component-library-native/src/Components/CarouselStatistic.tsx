@@ -1,22 +1,28 @@
 import React from "react";
-import I18n from "../../app/I18n";
 
 import { Text } from "./Typography";
 import { View } from "./Containers";
-
-import { distance, duration } from "@thingco/unit-formatter";
-import { usePrefs } from "@thingco/user-preferences";
 interface Stats {
-	StatTotalDistance: number;
-	StatTotalDuration: number;
+	StatTotalDistance: string;
+	StatTotalDuration: string;
 	StatCompletedTripCount: number;
 	StatPerfectTripCount: number;
 	StatPerfectTripStreak: number;
 	StatTotalEventCount: number;
 }
 
+interface Titles {
+	TotalDistance: string;
+	TotalDuration: string;
+	CompletedTripCount: string;
+	PerfectTripCount: string;
+	PerfectTripStreak: string;
+	TotalEventCount: string;
+}
+
 interface CarouselStatisticsProps {
 	stats: Stats;
+	titles: Titles;
 	height: number;
 }
 
@@ -25,15 +31,18 @@ interface StatisticProps {
 	name: string;
 }
 
-export const CarouselStatistic = ({ stats, height }: CarouselStatisticsProps) => {
-	const { prefs } = usePrefs();
-
-	const dist = distance({
-		unitPreference: prefs.distanceUnitPref,
-		precision: prefs.distanceUnitPrecisionPref,
-	});
-	const dur = duration({ locale: prefs.localePref });
-
+export const CarouselStatistic = ({
+	stats,
+	titles = {
+		TotalDistance: "",
+		TotalDuration: "",
+		CompletedTripCount: "",
+		PerfectTripCount: "",
+		PerfectTripStreak: "",
+		TotalEventCount: "",
+	},
+	height,
+}: CarouselStatisticsProps) => {
 	const Statistic = ({ value, name }: StatisticProps) => {
 		return (
 			<View
@@ -67,8 +76,8 @@ export const CarouselStatistic = ({ stats, height }: CarouselStatisticsProps) =>
 						flex: 1,
 					}}
 				>
-					<Text variant={"xxxlarge greyscale50 centred"}>{dist(stats.StatTotalDistance)}</Text>
-					<Text variant={"xxxlarge greyscale50 centred"}>{I18n.t("totalDistance")}</Text>
+					<Text variant={"xxxlarge greyscale50 centred"}>{stats.StatTotalDistance}</Text>
+					<Text variant={"xxxlarge greyscale50 centred"}>{titles.TotalDistance}</Text>
 				</View>
 				<View
 					variant={"flexCol centred"}
@@ -76,8 +85,8 @@ export const CarouselStatistic = ({ stats, height }: CarouselStatisticsProps) =>
 						flex: 1,
 					}}
 				>
-					<Text variant={"xxxlarge greyscale50 centred"}>{dur(stats.StatTotalDuration)}</Text>
-					<Text variant={"xxxlarge greyscale50 centred"}>{I18n.t("totalDuration")}</Text>
+					<Text variant={"xxxlarge greyscale50 centred"}>{stats.StatTotalDuration}</Text>
+					<Text variant={"xxxlarge greyscale50 centred"}>{titles.TotalDuration}</Text>
 				</View>
 			</View>
 			<View
@@ -86,10 +95,10 @@ export const CarouselStatistic = ({ stats, height }: CarouselStatisticsProps) =>
 					flex: 1,
 				}}
 			>
-				<Statistic name={I18n.t("completedCount")} value={stats.StatCompletedTripCount} />
-				<Statistic name={I18n.t("perfectCount")} value={stats.StatPerfectTripCount} />
-				<Statistic name={I18n.t("perfectStreak")} value={stats.StatPerfectTripStreak} />
-				<Statistic name={I18n.t("totalEventCount")} value={stats.StatTotalEventCount} />
+				<Statistic name={titles.CompletedTripCount} value={stats.StatCompletedTripCount} />
+				<Statistic name={titles.PerfectTripCount} value={stats.StatPerfectTripCount} />
+				<Statistic name={titles.PerfectTripStreak} value={stats.StatPerfectTripStreak} />
+				<Statistic name={titles.TotalEventCount} value={stats.StatTotalEventCount} />
 			</View>
 		</View>
 	);
