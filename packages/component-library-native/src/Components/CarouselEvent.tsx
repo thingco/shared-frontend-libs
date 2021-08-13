@@ -18,6 +18,9 @@ interface CarouselEventProps {
 	onPress: (arg: any) => void;
 }
 
+interface CarouselEventEmptyProps {
+	height: number | string;
+}
 interface CarouselItem {
 	type: string;
 	distance: string;
@@ -157,7 +160,7 @@ export const CarouselEvent = ({ item, index, height, onPress }: CarouselEventPro
 	}
 };
 
-export const CarouselEventEmpty = ({ height }) => {
+export const CarouselEventEmpty = ({ height }: CarouselEventEmptyProps) => {
 	const { theme } = useTheme();
 	return (
 		<View

@@ -40,9 +40,10 @@ export const CodeEntry = ({
 
 	const inputs = value.map((value, index) => (
 		<InputField
+			key={index}
 			value={value}
 			setValue={(s) => {
-				let values = [...value];
+				const values = [...value];
 				values[index] = s;
 				setValue(values);
 			}}

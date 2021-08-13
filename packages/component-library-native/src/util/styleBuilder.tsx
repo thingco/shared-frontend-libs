@@ -1,13 +1,5 @@
 export type variantProps = {
-	component:
-		| "button"
-		| "text"
-		| "textentry"
-		| "view"
-		| "input"
-		| "label"
-		| "carousel"
-		| "hint";
+	component: "button" | "text" | "textentry" | "view" | "input" | "label" | "carousel" | "hint";
 	styles: string;
 };
 import { useTheme } from "../Provider/ThemeProvider";
@@ -15,7 +7,7 @@ import { useTheme } from "../Provider/ThemeProvider";
 export const variantToTheme = ({ component, styles }: variantProps): any[] => {
 	const { theme } = useTheme();
 	const variants = styles.split(" ");
-	let variantStyles: any[] = [];
+	const variantStyles: any[] = [];
 	const themeRef =
 		component === "button"
 			? theme.buttons
@@ -31,10 +23,7 @@ export const variantToTheme = ({ component, styles }: variantProps): any[] => {
 	variants.map((v) => {
 		if (themeRef[v]) {
 			variantStyles.push(themeRef[v]);
-		} else if (
-			(component === "text" || component === "label") &&
-			theme.typography.fontSize[v]
-		) {
+		} else if ((component === "text" || component === "label") && theme.typography.fontSize[v]) {
 			variantStyles.push(themeRef.fontSize[v]);
 		} else if (component === "text" && themeRef.buttons[v]) {
 			variantStyles.push(themeRef.buttons[v]);

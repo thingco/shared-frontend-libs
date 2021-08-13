@@ -25,9 +25,7 @@ export function processPolyline(polylineJSON: string): LatLng[] {
 
 	// Data in dev is not in order, so need to sort it first.
 	// Note that this should not be the case in prod.
-	const polylineKeys = Object.keys(polylineSegments).sort(
-		(a, b) => Number(a) - Number(b)
-	);
+	const polylineKeys = Object.keys(polylineSegments).sort((a, b) => Number(a) - Number(b));
 
 	return polylineKeys.flatMap((key) => {
 		if (polylineSegments[key] == null) {
@@ -47,8 +45,6 @@ export function getMapRegion({
 	max,
 	min,
 	mid,
-	height,
-	width,
 }: {
 	max: LatLng;
 	min: LatLng;

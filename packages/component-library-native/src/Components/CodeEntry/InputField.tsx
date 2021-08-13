@@ -1,4 +1,4 @@
-import React, { ForwardedRef } from "react";
+import React from "react";
 import { TextInput, View } from "react-native";
 import { useTheme } from "../../Provider/ThemeProvider";
 

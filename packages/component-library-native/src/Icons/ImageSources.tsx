@@ -4,7 +4,12 @@ import Units from "./icon_settings_ruler.svg";
 import Lock from "./icon_settings_lock.svg";
 import Login from "./icon_settings_login.svg";
 
-export const buttonImageSources = ({ image, style = {} }) => {
+interface ButtonImageSourcesProps {
+	image: string;
+	style: unknown;
+}
+
+export const buttonImageSources = ({ image, style = {} }: ButtonImageSourcesProps) => {
 	switch (image) {
 		case "Account":
 			return <Account style={style} />;

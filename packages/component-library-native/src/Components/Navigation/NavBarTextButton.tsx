@@ -1,9 +1,13 @@
 import React from "react";
 
-import { TouchableOpacity } from "react-native";
+import { TouchableOpacity, TouchableOpacityProps } from "react-native";
 import { Text } from "../Typography";
 
-export const NavBarTextButton = ({ text, ...props }) => {
+interface NavBarTextButtonProps extends TouchableOpacityProps {
+	text: string;
+}
+
+export const NavBarTextButton = ({ text, ...props }: NavBarTextButtonProps) => {
 	return (
 		<TouchableOpacity
 			style={{

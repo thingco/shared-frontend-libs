@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Dimensions } from "react-native";
-import { Logo as TheoLogo } from "../../../assets/Logo";
+import { TheoLogo } from "./TheoLogo";
 
 const LOGO_ASPECT_RATIO = 0.25;
 const LOGO_TARGET_WIDTH = 0.5; //% of screen width the logo should be

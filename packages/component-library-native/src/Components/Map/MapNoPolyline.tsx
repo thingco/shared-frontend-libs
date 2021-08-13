@@ -1,8 +1,6 @@
-import React, { Ref } from "react";
+import React from "react";
 import { View } from "../Containers";
 import { IconPin } from "./MarkerIcons";
-import { getMapRegion, calculateBounds } from "./MapUtil";
-import { generate } from "shortid";
 
 import MapView, { MAP_TYPES, UrlTile, Marker, LatLng } from "react-native-maps";
 

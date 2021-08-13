@@ -4,13 +4,7 @@ import { IconPin } from "./MarkerIcons";
 import { getMapRegion, calculateBounds } from "./MapUtil";
 import { generate } from "shortid";
 
-import MapView, {
-	MAP_TYPES,
-	Polyline,
-	UrlTile,
-	Marker,
-	LatLng,
-} from "react-native-maps";
+import MapView, { MAP_TYPES, Polyline, UrlTile, Marker, LatLng } from "react-native-maps";
 
 export interface MapViewProps {
 	height: number;

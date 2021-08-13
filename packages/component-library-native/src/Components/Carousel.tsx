@@ -1,4 +1,4 @@
-import React, { ReactComponentElement, useState } from "react";
+import React, { useState } from "react";
 import { TextStyle, ViewStyle, View } from "react-native";
 import Carousel, { Pagination } from "react-native-snap-carousel";
 
