@@ -1,7 +1,7 @@
 {
-	"name": "@thingco/graphviz-native",
-	"description": "React-Native-based graph/chart visualisations",
-	"version": "1.2.0",
+	"name": "@thingco/authentication",
+	"description": "XState-powered auth flows for React",
+	"version": "0.1.0",
 	"main": "lib/index.js",
 	"types": "lib/types/index.d.ts",
 	"files": [
@@ -14,29 +14,36 @@
 	"repository": "https://github.com/thingco/shared-frontend-libs",
 	"scripts": {
 		"build": "yarn global:build",
+		"watch": "yarn global:watch",
 		"test": "yarn jest",
 		"docs": "yarn rimraf docs && yarn typedoc"
 	},
 	"devDependencies": {
-		"@react-native-community/slider": "^3.0.3",
-		"@thingco/graphviz": "workspace:*",
+		"@aws-amplify/auth": "^4.2.1",
+		"@testing-library/react": "^12.0.0",
+		"@types/jest": "^27.0.1",
+		"@types/node": "^16.6.1",
 		"@types/react": "^17.0.17",
-		"@types/react-native": "^0.64.13",
+		"@types/react-dom": "^17.0.9",
 		"@types/rimraf": "^3.0.1",
+		"@xstate/inspect": "^0.4.1",
+		"@xstate/react": "^1.5.1",
+		"@xstate/test": "^0.4.2",
+		"classnames": "^2.3.1",
+		"esbuild": "^0.12.20",
 		"jest": "^27.0.6",
 		"react": "^17.0.2",
-		"react-native": "^0.64.2",
-		"react-native-svg": "^12.2.0",
+		"react-dom": "^17.0.2",
 		"rimraf": "^3.0.2",
 		"ts-jest": "^27.0.4",
 		"typedoc": "^0.21.5",
-		"typescript": "^4.3.5"
+		"typescript": "^4.3.5",
+		"xstate": "^4.23.1"
 	},
 	"peerDependencies": {
-		"@react-native-community/slider": "*",
-		"@thingco/graphviz": "*",
+		"@xstate/react": "*",
 		"react": "*",
-		"react-native": "*",
-		"react-native-svg": "*"
+		"react-dom": "*",
+		"xstate": "*"
 	}
 }
