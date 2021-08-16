@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, TextInputProps } from "react-native";
+import { Text, TextInputProps, View } from "react-native";
 import {
 	CodeField,
 	isLastFilledCell,
@@ -10,6 +10,7 @@ import {
 
 import { useTheme } from "../Provider/ThemeProvider";
 import { variantToTheme } from "../util";
+
 interface CodeEntryProps extends TextInputProps {
 	variant?: "box" | "underline";
 	fill?: string;
@@ -60,11 +61,11 @@ export const CodeEntry = ({
 		styles: variant,
 	});
 
-	const borderFocus = border.focus ?? theme.colors.primary;
-	const borderNoFocus = border.noFocus ?? theme.colors.secondary;
+	const borderFocus = border.focus ?? theme?.colors?.primary;
+	const borderNoFocus = border.noFocus ?? theme?.colors?.secondary;
 
 	const renderCell = ({ index, symbol, isFocused }: renderCellProps) => {
-		let textChild: React.ReactElement | null = null;
+		let textChild: React.ReactElement | null | string = null;
 
 		if (symbol) {
 			textChild = mask ? (
@@ -81,7 +82,7 @@ export const CodeEntry = ({
 				key={index}
 				onLayout={getCellOnLayoutHandler(index)}
 				style={[
-					theme.inputs.cell,
+					theme?.inputs?.cell,
 					...cellStyles,
 					{
 						borderColor: isFocused ? borderFocus : borderNoFocus,
@@ -90,7 +91,7 @@ export const CodeEntry = ({
 					fill && { backgroundColor: fill },
 				]}
 			>
-				<Text style={[theme.inputs.cellText, cursor && { color: cursor }]}>{textChild}</Text>
+				<Text style={[{ color: cursor }]}>{textChild}</Text>
 			</View>
 		);
 	};
