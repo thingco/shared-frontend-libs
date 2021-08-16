@@ -1,10 +1,10 @@
 import React, { Ref } from "react";
-import { View } from "../Containers";
-import { IconPin } from "./MarkerIcons";
-import { getMapRegion, calculateBounds } from "./MapUtil";
+import MapView, { LatLng, MAP_TYPES, Marker, Polyline, UrlTile } from "react-native-maps";
 import { generate } from "shortid";
 
-import MapView, { MAP_TYPES, Polyline, UrlTile, Marker, LatLng } from "react-native-maps";
+import { View } from "../Containers";
+import { calculateBounds, getMapRegion } from "./MapUtil";
+import { IconPin } from "./MarkerIcons";
 
 export interface MapViewProps {
 	height: number;
@@ -83,7 +83,7 @@ export const MapWithPolyline = React.forwardRef(
 			);
 		});
 
-		const handleEventClick = (e) => {
+		const handleEventClick = (e: any) => {
 			e.nativeEvent.id && onSelectMarker(parseInt(e.nativeEvent.id) + 1);
 		};
 
