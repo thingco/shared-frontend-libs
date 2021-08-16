@@ -1,11 +1,5 @@
 import React, { useState } from "react";
-import {
-	TextStyle,
-	TextInput,
-	ViewStyle,
-	Text,
-	TextInputProps,
-} from "react-native";
+import { TextStyle, TextInput, ViewStyle, Text, TextInputProps } from "react-native";
 import { View } from "./Containers";
 import { useTheme } from "../Provider/ThemeProvider";
 import { variantToTheme } from "../util";
@@ -49,9 +43,7 @@ export const TextEntry = ({
 	return (
 		<View style={{ marginVertical: 5 }}>
 			{label && (
-				<Text style={[theme.typography.label, ...textStyles, ...custTextStyle]}>
-					{label}
-				</Text>
+				<Text style={[theme.typography?.label, ...textStyles, ...custTextStyle]}>{label}</Text>
 			)}
 			<TextInput
 				onFocus={(e) => setIsFocused(true)}
@@ -62,9 +54,7 @@ export const TextEntry = ({
 						: [...inputStyles, ...custStyle]
 				}
 				placeholderTextColor={
-					variant.includes("dark")
-						? theme.colors.greyscale800
-						: theme.colors.greyscale50
+					variant.includes("dark") ? theme.colors?.greyscale800 : theme.colors?.greyscale50
 				}
 				autoCorrect={autoCorrect}
 				underlineColorAndroid="rgba(0,0,0,0)"

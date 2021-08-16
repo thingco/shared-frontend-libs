@@ -17,10 +17,10 @@ export const BlockScoreSmall = ({ score, scored, angle = 0.8, size = 70 }: Block
 
 	const progColor =
 		scored && score < scoreBoundaries[0]
-			? theme.colors.errorLight
+			? theme.colors?.errorLight
 			: scored && score < scoreBoundaries[1]
-			? theme.colors.errorDark
-			: theme.colors.primary;
+			? theme.colors?.errorDark
+			: theme.colors?.primary;
 
 	return (
 		<View
@@ -39,7 +39,7 @@ export const BlockScoreSmall = ({ score, scored, angle = 0.8, size = 70 }: Block
 				}}
 				progress={score / 100}
 				progressColor={progColor}
-				backgroundColor={theme.colors.greyscale100}
+				backgroundColor={theme.colors?.greyscale100}
 				startAngle={-Math.PI * angle}
 				endAngle={Math.PI * angle}
 			/>

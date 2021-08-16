@@ -43,7 +43,7 @@ export const BlockProgress = ({
 					y1="10"
 					x2={viewportWidth - margin}
 					y2="10"
-					stroke={theme.colors.text_appBackground}
+					stroke={theme.colors?.text_appBackground}
 					strokeWidth={strokeWidth}
 					strokeLinecap="round"
 				/>
@@ -52,7 +52,7 @@ export const BlockProgress = ({
 					y1="10"
 					x2={width}
 					y2="10"
-					stroke={theme.colors.primary}
+					stroke={theme.colors?.primary}
 					strokeWidth={strokeWidth}
 					strokeLinecap="round"
 				/>
@@ -79,7 +79,7 @@ export const BlockProgressLoading = () => {
 					y1="10"
 					x2={width}
 					y2="10"
-					stroke={theme.colors.text_appBackground}
+					stroke={theme.colors?.text_appBackground}
 					strokeWidth={strokeWidth}
 					strokeLinecap="round"
 				/>
@@ -88,7 +88,7 @@ export const BlockProgressLoading = () => {
 					y1="10"
 					x2={0}
 					y2="10"
-					stroke={theme.colors.text_appBackground}
+					stroke={theme.colors?.text_appBackground}
 					strokeWidth={strokeWidth}
 					strokeLinecap="round"
 				/>

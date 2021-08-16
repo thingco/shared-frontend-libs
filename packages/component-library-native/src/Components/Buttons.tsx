@@ -37,12 +37,12 @@ export const Button = ({
 
 	return (
 		<TouchableOpacity
-			style={[...buttonStyles, isDisabled && theme.buttons.disabled, ...custStyle]}
+			style={[...buttonStyles, isDisabled && theme.buttons?.disabled, ...custStyle]}
 			disabled={isDisabled}
 			{...props}
 		>
 			<Text
-				style={[...textStyles, isDisabled && theme.typography.buttons.disabled, ...custTextStyle]}
+				style={[...textStyles, isDisabled && theme.typography?.buttons?.disabled, ...custTextStyle]}
 			>
 				{children}
 			</Text>
@@ -87,8 +87,8 @@ export const TabButton = ({ selected, onClick, children }: TabButtonProps) => {
 	return (
 		<Button
 			variant={"tab"}
-			style={selected ? theme.buttons.tabSelected : {}}
-			textStyle={selected ? theme.typography.bold : theme.typography.body}
+			style={selected ? theme.buttons?.tabSelected : {}}
+			textStyle={selected ? theme.typography?.bold : theme.typography?.body}
 			onPress={onClick}
 			activeOpacity={1}
 		>

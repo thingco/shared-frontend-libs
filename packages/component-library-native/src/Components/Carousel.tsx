@@ -31,7 +31,7 @@ export const AppCarousel = ({
 		<View style={{ height: height }}>
 			<Carousel
 				data={items}
-				renderItem={({ item, index }) => item}
+				renderItem={({ item, index }: { item: any; index: any }) => item}
 				sliderWidth={sliderWidth}
 				itemWidth={itemWidth}
 				onSnapToItem={(index) => setActiveSlide(index)}
@@ -53,12 +53,8 @@ export const AppCarousel = ({
 };
 
 export const QuestionCarousel = ({
-	variant = "",
 	items = [],
-	height,
 	width,
-	style = [],
-	textStyle = [],
 	scrollEnabled = true,
 	...props
 }: CarouselProps) => {
@@ -69,7 +65,7 @@ export const QuestionCarousel = ({
 		<View style={{ height: "100%", width: "100%" }}>
 			<Carousel
 				data={items}
-				renderItem={({ item, index }) => item}
+				renderItem={({ item, index }: { item: any; index: any }) => item}
 				sliderWidth={width}
 				itemWidth={width}
 				slideStyle={{ width: width }}

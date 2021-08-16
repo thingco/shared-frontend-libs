@@ -6,7 +6,7 @@ import Login from "./icon_settings_login.svg";
 
 interface ButtonImageSourcesProps {
 	image: string;
-	style: unknown;
+	style: any;
 }
 
 export const buttonImageSources = ({ image, style = {} }: ButtonImageSourcesProps) => {

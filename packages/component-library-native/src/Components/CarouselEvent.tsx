@@ -90,7 +90,7 @@ export const CarouselEvent = ({ item, index, height, onPress }: CarouselEventPro
 					paddingTop: 18, // needed for shadow
 					paddingBottom: 18, // needed for shadow,
 				}}
-				onPress={(e) => onPress(e, index)}
+				onPress={(e) => onPress(e)}
 			>
 				<View variant={"card"} style={{ minHeight: height }}>
 					<View style={{ marginTop: 6, marginBottom: 6 }}>
@@ -130,7 +130,7 @@ export const CarouselEvent = ({ item, index, height, onPress }: CarouselEventPro
 					paddingTop: 18, // needed for shadow
 					paddingBottom: 18, // needed for shadow
 				}}
-				onPress={(e) => onPress(e, index)}
+				onPress={(e) => onPress(e)}
 			>
 				<View variant={"card"} style={{ minHeight: height }}>
 					<View style={{ flex: 1, display: "flex", flexDirection: "row" }}>
@@ -167,7 +167,7 @@ export const CarouselEventEmpty = ({ height }: CarouselEventEmptyProps) => {
 			variant="card centred"
 			style={{ minHeight: height, marginHorizontal: 20, marginBottom: 10 }}
 		>
-			<ActivityIndicator size="large" color={theme.colors.primary} />
+			<ActivityIndicator size="large" color={theme.colors?.primary} />
 		</View>
 	);
 };

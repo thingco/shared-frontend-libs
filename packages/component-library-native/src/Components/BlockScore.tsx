@@ -41,10 +41,10 @@ export const BlockScore = ({
 
 	const progColor =
 		scored && score < scoreBoundaries[0]
-			? theme.colors.errorLight
+			? theme.colors?.errorLight
 			: scored && score < scoreBoundaries[1]
-			? theme.colors.errorDark
-			: theme.colors.primary;
+			? theme.colors?.errorDark
+			: theme.colors?.primary;
 
 	const change = blockChange ? _.round(blockChange, 0) : undefined;
 	const showChange = change ? Math.abs(change) : undefined;
@@ -104,7 +104,7 @@ export const BlockScore = ({
 				}}
 				progress={score / 100}
 				progressColor={progColor}
-				backgroundColor={theme.colors.text_appBackground}
+				backgroundColor={theme.colors?.text_appBackground}
 				startAngle={-Math.PI * angle}
 				endAngle={Math.PI * angle}
 				strokeWidth={size / 20}
@@ -150,7 +150,7 @@ export const BlockScoreEmpty = ({ size, angle = 0.8 }: BlockScoreEmptyProps) => 
 				}}
 				progress={0}
 				progressColor={"transparent"}
-				backgroundColor={theme.colors.text_appBackground}
+				backgroundColor={theme.colors?.text_appBackground}
 				startAngle={-Math.PI * angle}
 				endAngle={Math.PI * angle}
 				strokeWidth={size / 20}
@@ -179,7 +179,7 @@ export const BlockScoreNoData = ({ size, angle = 0.8 }: BlockScoreEmptyProps) =>
 				}}
 				progress={0}
 				progressColor={"transparent"}
-				backgroundColor={theme.colors.text_appBackground}
+				backgroundColor={theme.colors?.text_appBackground}
 				startAngle={-Math.PI * angle}
 				endAngle={Math.PI * angle}
 				strokeWidth={size / 20}
