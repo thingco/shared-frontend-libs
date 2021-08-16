@@ -1,4 +1,6 @@
-export const viewStyles = (colours, spacing) => ({
+import type { ThemeColour } from "./defaultTheme";
+
+export const viewStyles = (colours: ThemeColour) => ({
 	card: {
 		paddingHorizontal: 20,
 		paddingVertical: 10,
@@ -78,3 +80,5 @@ export const viewStyles = (colours, spacing) => ({
 		justifyContent: "flex-end",
 	},
 });
+
+export type ThemeView = ReturnType<typeof viewStyles>;

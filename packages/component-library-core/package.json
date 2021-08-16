@@ -36,5 +36,8 @@
 	},
 	"peerDependencies": {
 		"react": "*"
+	},
+	"dependencies": {
+		"csstype": "^3.0.8"
 	}
 }

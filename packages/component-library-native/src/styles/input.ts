@@ -1,4 +1,5 @@
-export const inputStyles = (colours, spacing) => ({
+import type { ThemeColour, ThemeFontSize } from "./defaultTheme";
+export const inputStyles = (colours: ThemeColour, fontSize: ThemeFontSize) => ({
 	primary: {
 		backgroundColor: colours.accent,
 		borderWidth: 0,
@@ -6,7 +7,7 @@ export const inputStyles = (colours, spacing) => ({
 		paddingHorizontal: 15,
 		paddingVertical: 15,
 		color: colours.greyscale50,
-		...spacing.fontSizes.large,
+		...fontSize.large,
 	},
 	secondary: {
 		borderWidth: 0,
@@ -17,7 +18,7 @@ export const inputStyles = (colours, spacing) => ({
 		paddingTop: 10,
 		paddingBottom: 5,
 		color: colours.greyscale50,
-		...spacing.fontSizes.base,
+		...fontSize.base,
 	},
 	focused: {
 		backgroundColor: colours.secondary,
@@ -58,3 +59,5 @@ export const inputStyles = (colours, spacing) => ({
 		borderBottomColor: colours.greyscale900,
 	},
 });
+
+export type ThemeInput = ReturnType<typeof inputStyles>;

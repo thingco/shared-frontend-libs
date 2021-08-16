@@ -1,45 +1,63 @@
 import {
-	colours as defaultColours,
 	buttonStyles,
 	buttonText,
+	carouselStyles,
+	colours as defaultColours,
+	fontSizes,
 	inputStyles,
 	inputText,
-	text,
 	spacing as defaultSpacing,
+	text,
+	ThemeCarousel,
 	viewStyles,
-	carouselStyles,
+} from "./styles";
+
+import type {
+	ThemeButton,
+	ThemeButtonText,
+	ThemeColour,
+	ThemeFontSize,
+	ThemeInput,
+	ThemeInputText,
+	ThemeSpacing,
+	ThemeText,
+	ThemeView,
 } from "./styles";
 
 export interface Theme {
-	spacing?: any;
-	colors?: any;
-	buttons?: any;
-	inputs?: any;
-	typography?: any;
-	textentry?: any;
-	views?: any;
-	carousel?: any;
+	spacing?: ThemeSpacing;
+	colors?: ThemeColour;
+	buttons?: ThemeButton;
+	inputs?: ThemeInput;
+	typography?: {
+		buttons?: ThemeButtonText;
+		inputs?: ThemeInputText;
+		fontSize?: ThemeFontSize;
+		text?: ThemeText;
+	};
+	views?: ThemeView;
+	carousel?: ThemeCarousel;
 }
 
 interface ThemeProps {
-	colors?: any;
-	spacing?: any;
+	colors?: ThemeColour;
+	spacing?: ThemeSpacing;
 }
 
 export const buildTheme = ({
 	colors = defaultColours,
 	spacing = defaultSpacing,
-}: ThemeProps) => ({
+}: ThemeProps): Theme => ({
 	colors: colors,
 	spacing: spacing,
-	buttons: buttonStyles(colors, spacing),
-	inputs: inputStyles(colors, spacing),
+	buttons: buttonStyles(colors),
+	inputs: inputStyles(colors, fontSizes),
 	typography: {
-		buttons: buttonText(colors, spacing.fontSizes),
-		input: inputText(colors, spacing.fontSizes),
-		fontSize: spacing.fontSizes,
-		...text(colors, spacing.fontSizes),
+		buttons: buttonText(colors, fontSizes),
+		inputs: inputText(colors, fontSizes),
+		fontSize: fontSizes,
+		text: text(colors, fontSizes),
 	},
-	views: viewStyles(colors, spacing),
-	carousel: carouselStyles(colors, spacing),
+	views: viewStyles(colors),
+	carousel: carouselStyles(colors),
 });

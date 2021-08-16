@@ -1,4 +1,5 @@
-export const buttonText = (colours, fontSizes) => ({
+import type { ThemeColour, ThemeFontSize } from "./defaultTheme";
+export const buttonText = (colours: ThemeColour, fontSizes: ThemeFontSize) => ({
 	primary: {
 		...fontSizes.large,
 		fontWeight: "700",
@@ -38,7 +39,9 @@ export const buttonText = (colours, fontSizes) => ({
 	},
 });
 
-export const inputText = (colours, fontSizes) => ({
+export type ThemeButtonText = ReturnType<typeof buttonText>;
+
+export const inputText = (colours: ThemeColour, fontSizes: ThemeFontSize) => ({
 	primary: {
 		...fontSizes.large,
 		color: colours.text_primary_dark,
@@ -57,7 +60,9 @@ export const inputText = (colours, fontSizes) => ({
 	},
 });
 
-export const text = (colours, fontSizes) => ({
+export type ThemeInputText = ReturnType<typeof inputText>;
+
+export const text = (colours: ThemeColour, fontSizes: ThemeFontSize) => ({
 	huge: {
 		...fontSizes.huge,
 		fontWeight: "800",
@@ -110,3 +115,5 @@ export const text = (colours, fontSizes) => ({
 		textAlign: "center",
 	},
 });
+
+export type ThemeText = ReturnType<typeof text>;

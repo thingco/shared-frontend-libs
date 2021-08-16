@@ -1,4 +1,6 @@
-export const buttonStyles = (colours, spacing) => ({
+import type { ThemeColour } from "./defaultTheme";
+
+export const buttonStyles = (colours: ThemeColour) => ({
 	primary: {
 		borderRadius: 10,
 		height: 50,
@@ -69,3 +71,5 @@ export const buttonStyles = (colours, spacing) => ({
 		paddingBottom: 10,
 	},
 });
+
+export type ThemeButton = ReturnType<typeof buttonStyles>;

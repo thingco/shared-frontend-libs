@@ -1,9 +1,10 @@
 import { Dimensions } from "react-native";
 
-const { width: viewportWidth, height: viewportHeight } =
-	Dimensions.get("window");
+import type { ThemeColour } from "./defaultTheme";
 
-export const carouselStyles = (colours, spacing) => ({
+const { width: viewportWidth } = Dimensions.get("window");
+
+export const carouselStyles = (colours: ThemeColour) => ({
 	slideInnerContainer: {
 		flex: 1,
 		width: viewportWidth - 40,
@@ -30,3 +31,5 @@ export const carouselStyles = (colours, spacing) => ({
 		backgroundColor: colours.greyscale200,
 	},
 });
+
+export type ThemeCarousel = ReturnType<typeof carouselStyles>;

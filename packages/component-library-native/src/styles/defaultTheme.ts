@@ -39,49 +39,54 @@ export const colours = {
 	errorDark: "#F18F01",
 };
 
-export const spacing = {
-	fontSizes: {
-		xxxsmall: {
-			fontSize: 8,
-			lineHeight: 12,
-		},
-		xxsmall: {
-			fontSize: 10,
-			lineHeight: 12,
-		},
-		xsmall: {
-			fontSize: 12,
-			lineHeight: 15,
-		},
-		small: {
-			fontSize: 14,
-			lineHeight: 17,
-		},
-		base: {
-			fontSize: 16,
-			lineHeight: 20,
-		},
-		large: {
-			fontSize: 18,
-			lineHeight: 22,
-		},
-		xlarge: {
-			fontSize: 20,
-			lineHeight: 25,
-		},
-		xxlarge: {
-			fontSize: 22,
-			lineHeight: 27,
-		},
-		xxxlarge: {
-			fontSize: 25,
-			lineHeight: 30,
-		},
-		huge: {
-			fontSize: 28,
-			lineHeight: 35,
-		},
+export type ThemeColour = Partial<typeof colours>;
+
+export const fontSizes = {
+	xxxsmall: {
+		fontSize: 8,
+		lineHeight: 12,
 	},
+	xxsmall: {
+		fontSize: 10,
+		lineHeight: 12,
+	},
+	xsmall: {
+		fontSize: 12,
+		lineHeight: 15,
+	},
+	small: {
+		fontSize: 14,
+		lineHeight: 17,
+	},
+	base: {
+		fontSize: 16,
+		lineHeight: 20,
+	},
+	large: {
+		fontSize: 18,
+		lineHeight: 22,
+	},
+	xlarge: {
+		fontSize: 20,
+		lineHeight: 25,
+	},
+	xxlarge: {
+		fontSize: 22,
+		lineHeight: 27,
+	},
+	xxxlarge: {
+		fontSize: 25,
+		lineHeight: 30,
+	},
+	huge: {
+		fontSize: 28,
+		lineHeight: 35,
+	},
+};
+
+export type ThemeFontSize = Partial<typeof fontSizes>;
+
+export const spacing = {
 	mx0: {
 		marginHorizontal: 0,
 	},
@@ -143,3 +148,4 @@ export const spacing = {
 		paddingVertical: 20,
 	},
 };
+export type ThemeSpacing = Partial<typeof spacing>;
