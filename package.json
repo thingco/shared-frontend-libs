@@ -27,7 +27,8 @@
 		"package:user-preferences-store-web": "yarn workspace @thingco/user-preferences-store-web",
 		"package:user-preferences-store-native": "yarn workspace @thingco/user-preferences-store-native",
 		"playground": "yarn workspace @thingco/shared-frontend-libs-playground",
-		"global:build": "cd $INIT_CWD && zx ../../scripts/build-single-package.md"
+		"global:build": "cd $INIT_CWD && zx ../../scripts/build-single-package.md",
+		"global:watch": "cd $INIT_CWD && zx ../../scripts/develop-against-test-app.md"
 	},
 	"devDependencies": {
 		"@types/eslint": "^7.28.0",
