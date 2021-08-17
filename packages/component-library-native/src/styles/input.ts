@@ -27,16 +27,16 @@ export const inputStyles = (colours: ThemeColour, fontSize: ThemeFontSize) => ({
 		height: 40,
 		width: 40,
 		marginHorizontal: 5,
-		justifyContent: "center",
-		alignItems: "center",
+		justifyContent: "center" as const,
+		alignItems: "center" as const,
 	},
 	cellText: {
 		lineHeight: 32,
 		fontSize: 28,
-		fontWeight: "500",
+		fontWeight: "500" as const,
 		color: colours.greyscale50,
-		textAlign: "center",
-		textAlignVertical: "center",
+		textAlign: "center" as const,
+		textAlignVertical: "center" as const,
 		backgroundColor: "transparent",
 	},
 	box: {
@@ -49,7 +49,7 @@ export const inputStyles = (colours: ThemeColour, fontSize: ThemeFontSize) => ({
 		borderBottomWidth: 2,
 	},
 	number: {
-		fontWeight: "800",
+		fontWeight: "800" as const,
 	},
 	light: {
 		color: colours.greyscale50,

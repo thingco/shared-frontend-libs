@@ -24,22 +24,22 @@ export const InputField = ({
 		view: {
 			height: size,
 			width: size,
-			borderColor: isFocus ? theme.colors.primary : theme.colors.secondary,
+			borderColor: isFocus ? theme.colors?.primary : theme.colors?.secondary,
 		},
 	};
 	return (
 		<View
 			style={[
-				theme.inputs.cell,
+				theme.inputs?.cell,
 				styles.view,
-				style === "box" ? theme.inputs.box : theme.inputs.underline,
+				style === "box" ? theme.inputs?.box : theme.inputs?.underline,
 			]}
 		>
 			<TextInput
 				value={value}
 				onChangeText={(e) => setValue(e)}
 				maxLength={1}
-				style={[theme.inputs.cellText]}
+				style={[theme.inputs?.cellText]}
 				keyboardType={keyboardType}
 			/>
 		</View>

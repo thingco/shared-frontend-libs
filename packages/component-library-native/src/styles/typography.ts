@@ -2,34 +2,34 @@ import type { ThemeColour, ThemeFontSize } from "./defaultTheme";
 export const buttonText = (colours: ThemeColour, fontSizes: ThemeFontSize) => ({
 	primary: {
 		...fontSizes.large,
-		fontWeight: "700",
+		fontWeight: "700" as const,
 		color: colours.text_primary,
 	},
 	secondary: {
 		...fontSizes.base,
-		fontWeight: "600",
+		fontWeight: "600" as const,
 		color: colours.text_secondary,
 	},
 	tertiary: {
 		...fontSizes.base,
-		fontWeight: "500",
+		fontWeight: "500" as const,
 		color: colours.text_appBackground,
 	},
 	standalone: {
 		...fontSizes.base,
-		fontWeight: "400",
+		fontWeight: "400" as const,
 		color: colours.text_appBackground,
 	},
 	menu: {
 		...fontSizes.large,
-		fontWeight: "400",
+		fontWeight: "400" as const,
 		color: colours.text_appBackground,
 	},
 	disabled: {
 		opacity: 0.5,
 	},
 	tab: {
-		textAlign: "center",
+		textAlign: "center" as const,
 		...fontSizes.xlarge,
 		color: colours.primary,
 	},
@@ -65,31 +65,31 @@ export type ThemeInputText = ReturnType<typeof inputText>;
 export const text = (colours: ThemeColour, fontSizes: ThemeFontSize) => ({
 	huge: {
 		...fontSizes.huge,
-		fontWeight: "800",
+		fontWeight: "800" as const,
 	},
 	heading: {
 		...fontSizes.xlarge,
-		fontWeight: "600",
+		fontWeight: "600" as const,
 	},
 	subheading: {
 		...fontSizes.large,
 	},
 	body: {
-		fontWeight: "400",
+		fontWeight: "400" as const,
 		...fontSizes.base,
 	},
 	bodyHeavy: {
-		fontWeight: "600",
+		fontWeight: "600" as const,
 		...fontSizes.base,
 	},
 	desc: {
-		fontWeight: "400",
+		fontWeight: "400" as const,
 		...fontSizes.small,
 	},
 	hintSymbol: {
 		color: colours.appBackground,
-		fontWeight: "500",
-		textAlign: "center",
+		fontWeight: "500" as const,
+		textAlign: "center" as const,
 		...fontSizes.xxsmall,
 	},
 	hint: {
@@ -103,16 +103,16 @@ export const text = (colours: ThemeColour, fontSizes: ThemeFontSize) => ({
 		marginLeft: 5,
 	},
 	bold: {
-		fontWeight: "700",
+		fontWeight: "700" as const,
 	},
 	heavy: {
-		fontWeight: "600",
+		fontWeight: "600" as const,
 	},
 	light: {
-		fontWeight: "200",
+		fontWeight: "200" as const,
 	},
 	centred: {
-		textAlign: "center",
+		textAlign: "center" as const,
 	},
 });
 

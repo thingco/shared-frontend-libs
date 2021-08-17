@@ -88,7 +88,7 @@ export const TabButton = ({ selected, onClick, children }: TabButtonProps) => {
 		<Button
 			variant={"tab"}
 			style={selected ? theme.buttons?.tabSelected : {}}
-			textStyle={selected ? theme.typography?.bold : theme.typography?.body}
+			textStyle={selected ? theme.typography?.text?.bold : theme.typography?.text?.body}
 			onPress={onClick}
 			activeOpacity={1}
 		>

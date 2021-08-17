@@ -43,7 +43,9 @@ export const TextEntry = ({
 	return (
 		<View style={{ marginVertical: 5 }}>
 			{label && (
-				<Text style={[theme.typography?.label, ...textStyles, ...custTextStyle]}>{label}</Text>
+				<Text style={[theme.typography?.buttons?.label, ...textStyles, ...custTextStyle]}>
+					{label}
+				</Text>
 			)}
 			<TextInput
 				onFocus={(e) => setIsFocused(true)}
