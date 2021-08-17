@@ -1,7 +1,7 @@
 undecided:
+  - "@thingco/auth-flows"
   - "@thingco/graphviz"
   - "@thingco/graphviz-native"
-  - "@thingco/graphviz-web"
   - "@thingco/react-component-library"
   - "@thingco/shared-types"
   - "@thingco/unit-formatter"
