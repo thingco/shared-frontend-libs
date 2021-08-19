@@ -1,25 +1,33 @@
 import React from "react";
-import { LayoutChangeEvent, View } from "react-native";
+import { LayoutChangeEvent, View, ViewProps } from "react-native";
 import { Svg } from "react-native-svg";
 
 import { useGraph } from "./Context";
+import { ScrubberControl } from "./Scrubber";
 
 export type GraphPadding = number | { top: number; right: number; bottom: number; left: number };
 
 export interface CanvasWithScrubberProps {
 	children: React.ReactNode;
-
+	width?: number | undefined;
+	setCurrentDataPointIndex: (index: number) => void;
 	currentDataPointIndex: number;
 	height: number | string;
 	padding?: GraphPadding;
 	preserveAspectRatio?: string;
+	scrubberControlStyle?: ViewProps;
+	scrubberStep?: number;
 }
 
 export const CanvasWithScrubber = ({
 	children,
+	setCurrentDataPointIndex,
 	currentDataPointIndex,
 	padding = 10,
 	height = "100%",
+	width,
+	scrubberControlStyle = {},
+	scrubberStep = 1,
 }: CanvasWithScrubberProps): JSX.Element => {
 	const { xAxisSize, xAxisScale, yAxisSize } = useGraph();
 	const [tPad, rPad, bPad, lPad] =
@@ -27,7 +35,7 @@ export const CanvasWithScrubber = ({
 			? [padding, padding, padding, padding]
 			: [padding.top, padding.right, padding.bottom, padding.left];
 
-	const [canvasWidth, setCanvasWidth] = React.useState<number | undefined>();
+	const [canvasWidth, setCanvasWidth] = React.useState<number | undefined>(width);
 	const [graphWidth, setGraphWidth] = React.useState(xAxisSize + lPad + rPad);
 	const [slideAmount, setSlideAmount] = React.useState(0);
 
@@ -67,16 +75,26 @@ export const CanvasWithScrubber = ({
 	return (
 		<View onLayout={onLayoutHandler} data-componentid="scrubber-viewport">
 			{canvasWidth && (
-				<Svg
-					transform={`translateX(${slideAmount}px)`}
-					height={height}
-					width={graphWidth}
-					viewBox={`${viewBoxMinX} ${viewBoxMinY} ${viewBoxWidth} ${viewBoxHeight}`}
-					preserveAspectRatio="none"
-					data-componentid="svg-canvas-scrubbable"
-				>
-					{children}
-				</Svg>
+				<>
+					<ScrubberControl
+						currentDataPointIndex={currentDataPointIndex}
+						setCurrentDataPointIndex={setCurrentDataPointIndex}
+						scrubberControlStyle={scrubberControlStyle}
+						scrubberStep={scrubberStep}
+					/>
+					<Svg
+						// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+						//@ts-ignore
+						transform={[{ translateX: slideAmount }]}
+						height={height}
+						width={graphWidth}
+						viewBox={`${viewBoxMinX} ${viewBoxMinY} ${viewBoxWidth} ${viewBoxHeight}`}
+						preserveAspectRatio="none"
+						data-componentid="svg-canvas-scrubbable"
+					>
+						{children}
+					</Svg>
+				</>
 			)}
 		</View>
 	);
