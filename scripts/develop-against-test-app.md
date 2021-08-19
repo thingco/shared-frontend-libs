@@ -2,7 +2,9 @@
 
 ## Overview
 
-Assuming Yarn is being used, a package that has a `test-app/` (System Under Test) subdirectory will have the app contained therein built on watch mode so a developer has a visual representation to work against.
+Assuming Yarn is being used, a package that has a `test-app/` subdirectory containing a react app will have the app built on watch mode so a developer has a visual representation to work against.
+
+> **NOTE** this is currently only for web apps, the script needs work to allow for Expo test apps.
 
 ## How it works
 
@@ -15,6 +17,15 @@ Unlike build, which is a one-off designed to construct the output prior to publi
 - and reloads that every time files change.
 
 Note that hot reloading is not supported by ESBuild: it simply refreshes every time.
+
+## Setup
+
+1. In the package you want a test app, add a `test-app/` directory under `src/`
+2. In that folder, add a `www/` directory. Add an `index.html` and whatever else should be public (CSS, favicon to stop the browser screaming that there isn't one, etc etc).
+3. JS/TS Code for the app should go directly into the `test-app/` folder, so you'll need an `index.tsx` at the very least.
+4. In the `tsconfig.json`, add `"src/test-app/**/*"` to the array of excluded files (`"exclude"` property). This is going to ensure that the test app is _not_ included in the final package output.
+5. In the `package.json`, add `"watch": "yarn global:watch"` to the `"scripts"` field.
+6. Run `yarn workspace @thingco/my-package watch` and a server should start up, serving at localhost:3000.
 
 ## Imports
 
