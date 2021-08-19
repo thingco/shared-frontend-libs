@@ -1,4 +1,4 @@
-# Develping against a test app
+# Developing against a test app
 
 ## Overview
 
