@@ -14,7 +14,7 @@ export function createLogger(implementation: LoggerImplementation) {
 }
 
 /**
- * Default implnentation, just using `console` functions.
+ * Default implementation, just using `console` functions.
  */
 export const useLogger = createLogger({
 	info: console.info,

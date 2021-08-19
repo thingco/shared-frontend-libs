@@ -55,7 +55,7 @@ const ComponentUsingLogging = () => {
 };
 ```
 
-`createLogger` takes an implementation, allowing you to specify your own functionality for the four funcitons, and returns a function that allows access to them. It is a factory for creating your own `useLogger` hook:
+`createLogger` takes an implementation, allowing you to specify your own functionality for the four functions, and returns a function that allows access to them. It is a factory for creating your own `useLogger` hook:
 
 ```tsx
 import React, { useEffect } from "react";
