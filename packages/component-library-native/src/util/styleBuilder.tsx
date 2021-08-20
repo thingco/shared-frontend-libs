@@ -23,12 +23,12 @@ export const variantToTheme = ({ component, styles }: variantProps): any[] => {
 	variants.map((v) => {
 		if (themeRef ? [v] : {}) {
 			variantStyles.push(themeRef ? [v] : {});
-		} else if (
-			(component === "text" || component === "label") && theme.typography?.fontSize ? [v] : {}
-		) {
-			variantStyles.push(themeRef?.fontSize[v]);
-		} else if (component === "text" && themeRef?.buttons[v]) {
-			variantStyles.push(themeRef?.buttons[v]);
+			// } else if (
+			// 	(component === "text" || component === "label") && theme.typography?.fontSize ? [v] : {}
+			// ) {
+			// 	variantStyles.push(themeRef?.fontSize[v]);
+			// } else if (component === "text" && themeRef?.buttons[v]) {
+			// 	variantStyles.push(themeRef?.buttons[v]);
 		} else if (theme.colors ? [v] : {}) {
 			if (component === "text") {
 				variantStyles.push({ color: theme.colors ? [v] : {} });

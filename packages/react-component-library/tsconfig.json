@@ -4,7 +4,8 @@
 		"emitDeclarationOnly": true,
 		"declarationDir": "./lib/types",
 		"rootDir": "./src",
-		"types": ["react", "jest"]
+		"types": ["react", "jest"],
+		"jsx": "react-native"
 	},
 	"typedocOptions": {
 		"entryPoints": ["src/index.ts"],
