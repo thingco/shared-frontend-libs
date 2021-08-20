@@ -1,16 +1,10 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { renderHook } from "@testing-library/react-hooks";
+import { cleanup, renderHook } from "@testing-library/react-hooks";
 import React from "react";
-import { createMachine } from "xstate";
 
-import {
-	AuthenticationSystemContext,
-	AuthenticationSystemEvent,
-	AuthStateId,
-	machine,
-} from "./auth-system";
+import { AuthenticationSystemEvent, AuthStateId, machine } from "./auth-system";
 import * as AuthHook from "./auth-system-hooks";
 
 /* ========================================================================= *\
@@ -48,26 +42,6 @@ const eventsForStates = Object.entries(machine.config.states!).reduce((eventMap,
 }, new Map());
 
 /**
- * The state machine needs to be primed for the tests. Each hook relates to a
- * specific exposed state, and so the machine must start in that state. And
- * some events depend upon specific context values, so again, those need to be
- * forced
- *
- * THIS DOESN'T WORK :(
- */
-function createTestAuthSystem(
-	initialState: AuthStateId,
-	contextOverride: Partial<AuthenticationSystemContext> = {}
-) {
-	const rawConfig = machine.config;
-	rawConfig.initial = initialState;
-	// @ts-ignore
-	rawConfig.context = { ...rawConfig.context, ...contextOverride };
-
-	return createMachine(rawConfig);
-}
-
-/**
  * The events sent by the hooks need to go somewhere, and that somewhere is here.
  * The event sink needs to
  *
@@ -76,17 +50,16 @@ function createTestAuthSystem(
  * c. be reset for a new hook test run
  */
 class EventRecorder {
-	eventType: any = null;
-	eventStack: any[] = [];
+	event: AuthenticationSystemEvent | null = null;
+	eventStack = new Set();
 
 	log(event: AuthenticationSystemEvent) {
-		this.eventType = event.type;
-		this.eventStack.push(event);
+		this.eventStack.add(event.type);
 	}
 
 	reset() {
-		this.eventType = null;
-		this.eventStack = [];
+		this.event = null;
+		this.eventStack = new Set();
 	}
 }
 
@@ -113,11 +86,19 @@ jest.mock("@xstate/react", () => ({
 	useSelector: jest.fn(),
 }));
 
+jest.mock("@thingco/logger", () => ({
+	useLogger: jest.fn(() => ({
+		info: jest.fn(),
+		log: jest.fn(),
+		warn: jest.fn(),
+		error: jest.fn(),
+	})),
+}));
+
 jest.mock("./AuthSystemProvider", () => ({
 	useAuthSystem: jest.fn(() => ({
 		send: (event: AuthenticationSystemEvent) => eventSink.log(event),
 	})),
-	useAuthSystemLogger: jest.fn(),
 }));
 
 /* ------------------------------------------------------------------------- *\
@@ -131,16 +112,29 @@ jest.mock("./AuthSystemProvider", () => ({
 type HookTestMap = {
 	stateId: AuthStateId;
 	hookSpec: {
-		primaryMethod: string;
-		callbacks: {
+		primaryMethod?: string;
+		callbacks?: {
+			runs?: number;
 			args: any[];
-			callback: jest.Mock<Promise<void>, []>;
-			eventType: string;
-			contextAdjustment?: any;
+			callback: jest.MockedFunction<(...args: any[]) => Promise<any>>;
+			expectedEvent: AuthenticationSystemEvent;
 		}[];
-		additionalMethods?: any[];
+		additionalMethods?: { method: string; expectedEvent: AuthenticationSystemEvent }[];
 	};
 }[];
+
+const VALID_USERNAME = "validuser@example.com";
+const INVALID_USERNAME = "invaliduser@example.com";
+
+const VALID_CODE = "123456";
+const INVALID_CODE = "654321";
+
+const VALID_PASSWORD = "validpassword";
+const ANOTHER_VALID_PASSWORD = "anothervalidpassword";
+const INVALID_PASSWORD = "invalidpassword";
+const TEMPORARY_PASSWORD = "temporarypassword";
+
+const USER_OBJECT = { description: "I represent the user object returned by the OAuth system" };
 
 const hookTestMap: HookTestMap = [
 	{
@@ -151,39 +145,197 @@ const hookTestMap: HookTestMap = [
 				{
 					args: [],
 					callback: jest.fn(() => Promise.resolve()),
-					eventType: "SESSION_PRESENT",
+					expectedEvent: { type: "SESSION_PRESENT" },
 				},
 				{
 					args: [],
 					callback: jest.fn(() => Promise.reject()),
-					eventType: "SESSION_NOT_PRESENT",
+					expectedEvent: { type: "SESSION_NOT_PRESENT" },
 				},
 			],
 		},
 	},
-	// {
-	// 	stateId: AuthStateId.awaitingUsername,
-	// 	hookSpec: {
-	// 		primaryMethod: "validateUsername",
-	// 		callbacks: [
-	// 			{
-	// 				args: ["valid_username__otp_flow_inferred@example.com"],
-	// 				callback: jest.fn(() => Promise.resolve()),
-	// 				eventType: "USERNAME_VALID__OTP_FLOW_DETECTED",
-	// 			},
-	// 			{
-	// 				args: ["invalid_username__otp_flow_inferred@example.com"],
-	// 				callback: jest.fn(() => Promise.reject()),
-	// 				eventType: "USERNAME_INVALID",
-	// 			},
-	// 			{
-	// 				args: ["unknown_username__username_password_flow_inferred@example.com"],
-	// 				callback: jest.fn(() => Promise.reject("CUSTOM_AUTH is not enabled for the client.")),
-	// 				eventType: "USERNAME_VALIDITY_UNKNOWN__PASSWORD_FLOW_DETECTED",
-	// 			},
-	// 		],
-	// 	},
-	// },
+	{
+		stateId: AuthStateId.awaitingOtpUsername,
+		hookSpec: {
+			primaryMethod: "validateUsername",
+			callbacks: [
+				{
+					args: [VALID_USERNAME],
+					callback: jest.fn(() => Promise.resolve(USER_OBJECT)),
+					expectedEvent: {
+						type: "USERNAME_VALID",
+						username: VALID_USERNAME,
+						user: USER_OBJECT,
+					},
+				},
+				{
+					args: [INVALID_USERNAME],
+					callback: jest.fn(() => Promise.reject()),
+					expectedEvent: { type: "USERNAME_INVALID" },
+				},
+			],
+		},
+	},
+	{
+		stateId: AuthStateId.awaitingOtp,
+		hookSpec: {
+			primaryMethod: "validateOtp",
+			callbacks: [
+				{
+					args: [VALID_CODE],
+					callback: jest.fn(() => Promise.resolve(USER_OBJECT)),
+					expectedEvent: { type: "OTP_VALID", user: USER_OBJECT },
+				},
+				{
+					args: [INVALID_CODE],
+					callback: jest.fn(() => Promise.reject()),
+					expectedEvent: { type: "OTP_INVALID" },
+				},
+				{
+					runs: 3,
+					args: [INVALID_CODE],
+					callback: jest.fn(() => Promise.reject()),
+					expectedEvent: { type: "OTP_INVALID_RETRIES_EXCEEDED" },
+				},
+			],
+			additionalMethods: [{ method: "goBack", expectedEvent: { type: "GO_BACK" } }],
+		},
+	},
+	{
+		stateId: AuthStateId.awaitingUsernameAndPassword,
+		hookSpec: {
+			primaryMethod: "validateUsernameAndPassword",
+			callbacks: [
+				{
+					args: [VALID_USERNAME, VALID_PASSWORD],
+					callback: jest.fn(() => Promise.resolve(USER_OBJECT)),
+					expectedEvent: {
+						type: "USERNAME_AND_PASSWORD_VALID",
+						username: VALID_USERNAME,
+						user: USER_OBJECT,
+					},
+				},
+				{
+					args: [VALID_USERNAME, TEMPORARY_PASSWORD],
+					callback: jest.fn(() => Promise.resolve({ NEW_PASSWORD_REQUIRED: true, ...USER_OBJECT })),
+					expectedEvent: {
+						type: "USERNAME_AND_PASSWORD_VALID_PASSWORD_CHANGE_REQUIRED",
+						user: { NEW_PASSWORD_REQUIRED: true, ...USER_OBJECT },
+						username: VALID_USERNAME,
+					},
+				},
+				{
+					args: [INVALID_USERNAME, INVALID_PASSWORD],
+					callback: jest.fn(() => Promise.reject()),
+					expectedEvent: { type: "USERNAME_AND_PASSWORD_INVALID" },
+				},
+			],
+			additionalMethods: [
+				{ method: "forgottenPassword", expectedEvent: { type: "FORGOTTEN_PASSWORD" } },
+			],
+		},
+	},
+	{
+		stateId: AuthStateId.awaitingForcedChangePassword,
+		hookSpec: {
+			primaryMethod: "validateNewPassword",
+			callbacks: [
+				{
+					args: [VALID_PASSWORD],
+					callback: jest.fn(() => Promise.resolve(USER_OBJECT)),
+					expectedEvent: { type: "PASSWORD_CHANGE_SUCCESS" },
+				},
+				{
+					args: [INVALID_PASSWORD],
+					callback: jest.fn(() => Promise.reject()),
+					expectedEvent: { type: "PASSWORD_CHANGE_FAILURE" },
+				},
+			],
+		},
+	},
+	{
+		stateId: AuthStateId.awaitingPasswordResetRequest,
+		hookSpec: {
+			primaryMethod: "requestNewPassword",
+			callbacks: [
+				{
+					args: [VALID_USERNAME],
+					callback: jest.fn(() => Promise.resolve()),
+					expectedEvent: { type: "PASSWORD_RESET_REQUEST_SUCCESS" },
+				},
+				{
+					args: [INVALID_USERNAME],
+					callback: jest.fn(() => Promise.reject()),
+					expectedEvent: { type: "PASSWORD_RESET_REQUEST_FAILURE" },
+				},
+			],
+		},
+	},
+	{
+		stateId: AuthStateId.awaitingPasswordResetSubmission,
+		hookSpec: {
+			primaryMethod: "submitNewPassword",
+			callbacks: [
+				{
+					args: [VALID_CODE, VALID_PASSWORD],
+					callback: jest.fn(() => Promise.resolve()),
+					expectedEvent: { type: "PASSWORD_RESET_SUCCESS" },
+				},
+				{
+					args: [INVALID_CODE, INVALID_PASSWORD],
+					callback: jest.fn(() => Promise.reject()),
+					expectedEvent: { type: "PASSWORD_RESET_FAILURE" },
+				},
+			],
+		},
+	},
+	{
+		stateId: AuthStateId.awaitingChangePassword,
+		hookSpec: {
+			primaryMethod: "submitNewPassword",
+			callbacks: [
+				{
+					args: [VALID_PASSWORD, ANOTHER_VALID_PASSWORD],
+					callback: jest.fn(() => Promise.resolve()),
+					expectedEvent: { type: "PASSWORD_CHANGE_SUCCESS" },
+				},
+				{
+					args: [INVALID_PASSWORD, INVALID_PASSWORD],
+					callback: jest.fn(() => Promise.reject()),
+					expectedEvent: { type: "PASSWORD_CHANGE_FAILURE" },
+				},
+			],
+		},
+	},
+	{
+		stateId: AuthStateId.loggingOut,
+		hookSpec: {
+			primaryMethod: "logOut",
+			callbacks: [
+				{
+					args: [],
+					callback: jest.fn(() => Promise.resolve()),
+					expectedEvent: { type: "LOG_OUT_SUCCESS" },
+				},
+				{
+					args: [],
+					callback: jest.fn(() => Promise.reject()),
+					expectedEvent: { type: "LOG_OUT_FAILURE" },
+				},
+			],
+			additionalMethods: [{ method: "cancelLogOut", expectedEvent: { type: "CANCEL_LOG_OUT" } }],
+		},
+	},
+	{
+		stateId: AuthStateId.authenticated,
+		hookSpec: {
+			additionalMethods: [
+				{ method: "requestLogOut", expectedEvent: { type: "REQUEST_LOG_OUT" } },
+				{ method: "requestPasswordChange", expectedEvent: { type: "REQUEST_PASSWORD_CHANGE" } },
+			],
+		},
+	},
 ];
 
 /* ------------------------------------------------------------------------- *\
@@ -215,30 +367,42 @@ describe("hooks fire and emit all available transition events that are specified
 				eventSink.reset();
 			});
 
-			for (const { args, callback, contextAdjustment, eventType } of hookSpec.callbacks) {
-				// const testAuthSystem = createTestAuthSystem(stateId, contextAdjustment);
-				// const wrapper = ({ children }: { children: any }) => (
-				// 	<AuthenticationSystemProvider
-				// 		authenticationSystem={testAuthSystem}
-				// 		eventSink={eventRecorder.log}
-				// 	>
-				// 		{children}
-				// 	</AuthenticationSystemProvider>
-				// );
-				const { result, waitForNextUpdate } = renderHook(() => AuthHook[hookName](callback));
+			afterEach(cleanup);
 
-				test(`${eventType} message sent`, async () => {
-					// @ts-ignore
-					result.current[hookSpec.primaryMethod](...args);
+			if (hookSpec.callbacks) {
+				for (const { args, callback, expectedEvent, runs } of hookSpec.callbacks) {
+					test(`${JSON.stringify(expectedEvent)} message sent`, () => {
+						const { result, waitForNextUpdate, waitFor } = renderHook(() =>
+							AuthHook[hookName](callback)
+						);
 
-					await waitForNextUpdate();
+						for (let i = 0; i < (runs ?? 1); i++) {
+							// @ts-ignore
+							result.current[hookSpec.primaryMethod](...args);
+							waitForNextUpdate();
+						}
+						waitFor(() => expect(eventSink.event).toEqual(expectedEvent));
+					});
+				}
+			}
 
-					expect(eventSink.eventType).toEqual(eventType);
-				});
+			if (hookSpec.additionalMethods) {
+				for (const { method, expectedEvent } of hookSpec.additionalMethods) {
+					test(`${JSON.stringify(expectedEvent)} message sent`, () => {
+						const { result, waitForNextUpdate, waitFor } = renderHook(() =>
+							AuthHook[hookName](jest.fn())
+						);
+
+						// @ts-ignore
+						result.current[method]();
+						waitForNextUpdate();
+						waitFor(() => expect(eventSink.event).toEqual(expectedEvent));
+					});
+				}
 			}
 
 			test(`${hookName} sends all possible events defined in system for ${stateId}`, () => {
-				expect(eventSink.eventStack).toEqual(eventsForStates.get(stateId));
+				expect([...eventSink.eventStack]).toEqual(eventsForStates.get(stateId));
 			});
 		});
 	}

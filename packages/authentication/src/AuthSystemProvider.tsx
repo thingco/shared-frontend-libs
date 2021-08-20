@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-types */
 import { useInterpret } from "@xstate/react";
-import React, { createContext, useContext, useEffect } from "react";
+import React, { createContext, useContext } from "react";
 
 import { MSG__UNSCOPED_HOOK } from "./auth-system-utils";
 
@@ -11,16 +11,8 @@ import type {
 	AuthenticationSystemState,
 } from "./auth-system";
 
-type Logger = {
-	log: Function;
-	info: Function;
-	warn: Function;
-	error: Function;
-};
-
 const AuthSystemProviderContext = createContext<{
 	authenticator: AuthenticationSystemInterpreter;
-	logger: Logger;
 } | null>(null);
 
 export type AuthenticationSystemProviderProps = {
@@ -45,19 +37,13 @@ export type AuthenticationSystemProviderProps = {
 	 * 2. enables pushing records of events/state to somewhere controlled during tests
 	 */
 	eventSink?: (state: AuthenticationSystemState) => void;
-	/**
-	 * Logging. Needs to be an interface with the standard console functions of `log`, `info`, `warn` and `error`.
-	 * It defaults to console, but using a logger that can be turned off and on for different environments
-	 * is preferable.
-	 */
-	logger?: Logger;
 };
+
 export function AuthenticationSystemProvider({
 	authenticationSystem,
 	children,
 	useDevTools = false,
 	eventSink = undefined,
-	logger = console,
 }: AuthenticationSystemProviderProps) {
 	const authenticator = useInterpret(authenticationSystem, { devTools: useDevTools }, (state) => {
 		if (eventSink) {
@@ -68,7 +54,7 @@ export function AuthenticationSystemProvider({
 	});
 
 	return (
-		<AuthSystemProviderContext.Provider value={{ authenticator, logger }}>
+		<AuthSystemProviderContext.Provider value={{ authenticator }}>
 			{children}
 		</AuthSystemProviderContext.Provider>
 	);
@@ -78,10 +64,4 @@ export function useAuthSystem() {
 	const ctx = useContext(AuthSystemProviderContext);
 	if (!ctx) throw new Error(MSG__UNSCOPED_HOOK("useAuthSystem"));
 	return ctx.authenticator;
-}
-
-export function useAuthSystemLogger() {
-	const ctx = useContext(AuthSystemProviderContext);
-	if (!ctx) throw new Error(MSG__UNSCOPED_HOOK("useAuthSystem"));
-	return ctx.logger;
 }

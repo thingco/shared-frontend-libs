@@ -13,7 +13,8 @@ describe("sanity checks for the overall auth system", () => {
 			.map((id) => id.replace(/authSystem.?/, ""))
 			.filter((id) => id);
 		const statesDefinedInEnum = Object.values(AuthStateId);
-		expect(statesDefinedInMachine).toEqual(statesDefinedInEnum);
+
+		expect(statesDefinedInMachine.sort()).toEqual(statesDefinedInEnum.sort());
 	});
 
 	it("should start in an initial state of 'awaitingSessionCheck'", () => {
