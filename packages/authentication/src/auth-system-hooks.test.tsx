@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { cleanup, renderHook } from "@testing-library/react-hooks";
-import React from "react";
+import { act } from "react-test-renderer";
 
 import { AuthenticationSystemEvent, AuthStateId, machine } from "./auth-system";
 import * as AuthHook from "./auth-system-hooks";
@@ -128,6 +128,8 @@ const INVALID_USERNAME = "invaliduser@example.com";
 
 const VALID_CODE = "123456";
 const INVALID_CODE = "654321";
+const ANOTHER_VALID_CODE = "123456";
+const ANOTHER_INVALID_CODE = "654321";
 
 const VALID_PASSWORD = "validpassword";
 const ANOTHER_VALID_PASSWORD = "anothervalidpassword";
@@ -172,7 +174,7 @@ const hookTestMap: HookTestMap = [
 				{
 					args: [INVALID_USERNAME],
 					callback: jest.fn(() => Promise.reject()),
-					expectedEvent: { type: "USERNAME_INVALID" },
+					expectedEvent: { type: "USERNAME_INVALID", error: "USERNAME_INVALID" },
 				},
 			],
 		},
@@ -185,18 +187,21 @@ const hookTestMap: HookTestMap = [
 				{
 					args: [VALID_CODE],
 					callback: jest.fn(() => Promise.resolve(USER_OBJECT)),
-					expectedEvent: { type: "OTP_VALID", user: USER_OBJECT },
+					expectedEvent: { type: "OTP_VALID" },
 				},
 				{
 					args: [INVALID_CODE],
 					callback: jest.fn(() => Promise.reject()),
-					expectedEvent: { type: "OTP_INVALID" },
+					expectedEvent: { type: "OTP_INVALID", error: "PASSWORD_INVALID_2_RETRIES_REMAINING" },
 				},
 				{
 					runs: 3,
 					args: [INVALID_CODE],
 					callback: jest.fn(() => Promise.reject()),
-					expectedEvent: { type: "OTP_INVALID_RETRIES_EXCEEDED" },
+					expectedEvent: {
+						type: "OTP_INVALID_RETRIES_EXCEEDED",
+						error: "PASSWORD_RETRIES_EXCEEDED",
+					},
 				},
 			],
 			additionalMethods: [{ method: "goBack", expectedEvent: { type: "GO_BACK" } }],
@@ -223,12 +228,16 @@ const hookTestMap: HookTestMap = [
 						type: "USERNAME_AND_PASSWORD_VALID_PASSWORD_CHANGE_REQUIRED",
 						user: { NEW_PASSWORD_REQUIRED: true, ...USER_OBJECT },
 						username: VALID_USERNAME,
+						error: "PASSWORD_CHANGE_REQUIRED",
 					},
 				},
 				{
 					args: [INVALID_USERNAME, INVALID_PASSWORD],
 					callback: jest.fn(() => Promise.reject()),
-					expectedEvent: { type: "USERNAME_AND_PASSWORD_INVALID" },
+					expectedEvent: {
+						type: "USERNAME_AND_PASSWORD_INVALID",
+						error: "USERNAME_AND_PASSWORD_INVALID",
+					},
 				},
 			],
 			additionalMethods: [
@@ -249,7 +258,7 @@ const hookTestMap: HookTestMap = [
 				{
 					args: [INVALID_PASSWORD],
 					callback: jest.fn(() => Promise.reject()),
-					expectedEvent: { type: "PASSWORD_CHANGE_FAILURE" },
+					expectedEvent: { type: "PASSWORD_CHANGE_FAILURE", error: "PASSWORD_CHANGE_FAILURE" },
 				},
 			],
 		},
@@ -262,12 +271,15 @@ const hookTestMap: HookTestMap = [
 				{
 					args: [VALID_USERNAME],
 					callback: jest.fn(() => Promise.resolve()),
-					expectedEvent: { type: "PASSWORD_RESET_REQUEST_SUCCESS" },
+					expectedEvent: { type: "PASSWORD_RESET_REQUEST_SUCCESS", username: VALID_USERNAME },
 				},
 				{
 					args: [INVALID_USERNAME],
 					callback: jest.fn(() => Promise.reject()),
-					expectedEvent: { type: "PASSWORD_RESET_REQUEST_FAILURE" },
+					expectedEvent: {
+						type: "PASSWORD_RESET_REQUEST_FAILURE",
+						error: "PASSWORD_RESET_REQUEST_FAILURE",
+					},
 				},
 			],
 		},
@@ -285,7 +297,7 @@ const hookTestMap: HookTestMap = [
 				{
 					args: [INVALID_CODE, INVALID_PASSWORD],
 					callback: jest.fn(() => Promise.reject()),
-					expectedEvent: { type: "PASSWORD_RESET_FAILURE" },
+					expectedEvent: { type: "PASSWORD_RESET_FAILURE", error: "PASSWORD_RESET_FAILURE" },
 				},
 			],
 		},
@@ -303,8 +315,86 @@ const hookTestMap: HookTestMap = [
 				{
 					args: [INVALID_PASSWORD, INVALID_PASSWORD],
 					callback: jest.fn(() => Promise.reject()),
-					expectedEvent: { type: "PASSWORD_CHANGE_FAILURE" },
+					expectedEvent: { type: "PASSWORD_CHANGE_FAILURE", error: "PASSWORD_CHANGE_FAILURE" },
 				},
+			],
+			additionalMethods: [
+				{ method: "cancelChangePassword", expectedEvent: { type: "CANCEL_PASSWORD_CHANGE" } },
+			],
+		},
+	},
+	{
+		stateId: AuthStateId.pinChecks,
+		hookSpec: {
+			primaryMethod: "checkForExistingPin",
+			callbacks: [
+				{
+					args: [],
+					callback: jest.fn(() => Promise.resolve()),
+					expectedEvent: { type: "PIN_IS_SET_UP" },
+				},
+				{
+					args: [],
+					callback: jest.fn(() => Promise.reject()),
+					expectedEvent: { type: "PIN_IS_NOT_SET_UP" },
+				},
+			],
+		},
+	},
+	{
+		stateId: AuthStateId.awaitingCurrentPinInput,
+		hookSpec: {
+			primaryMethod: "validatePin",
+			callbacks: [
+				{
+					args: [VALID_CODE],
+					callback: jest.fn(() => Promise.resolve()),
+					expectedEvent: { type: "PIN_VALID" },
+				},
+				{
+					args: [INVALID_CODE],
+					callback: jest.fn(() => Promise.reject()),
+					expectedEvent: { type: "PIN_INVALID", error: "PIN_INVALID" },
+				},
+			],
+		},
+	},
+	{
+		stateId: AuthStateId.awaitingNewPinInput,
+		hookSpec: {
+			primaryMethod: "setNewPin",
+			callbacks: [
+				{
+					args: [VALID_CODE],
+					callback: jest.fn(() => Promise.resolve()),
+					expectedEvent: { type: "NEW_PIN_VALID" },
+				},
+				{
+					args: [INVALID_CODE],
+					callback: jest.fn(() => Promise.reject()),
+					expectedEvent: { type: "NEW_PIN_INVALID", error: "NEW_PIN_INVALID" },
+				},
+			],
+		},
+	},
+	{
+		stateId: AuthStateId.awaitingChangePinInput,
+		hookSpec: {
+			primaryMethod: "changePin",
+			callbacks: [
+				{
+					args: [VALID_CODE, ANOTHER_VALID_CODE],
+					callback: jest.fn(() => Promise.resolve()),
+					expectedEvent: { type: "PIN_CHANGE_SUCCESS" },
+				},
+				{
+					args: [INVALID_CODE, ANOTHER_INVALID_CODE],
+					callback: jest.fn(() => Promise.reject()),
+					expectedEvent: { type: "PIN_CHANGE_FAILURE", error: "PIN_CHANGE_FAILURE" },
+				},
+			],
+			additionalMethods: [
+				{ method: "cancelChangePin", expectedEvent: { type: "CANCEL_PIN_CHANGE" } },
 			],
 		},
 	},
@@ -321,7 +411,7 @@ const hookTestMap: HookTestMap = [
 				{
 					args: [],
 					callback: jest.fn(() => Promise.reject()),
-					expectedEvent: { type: "LOG_OUT_FAILURE" },
+					expectedEvent: { type: "LOG_OUT_FAILURE", error: "LOG_OUT_FAILURE" },
 				},
 			],
 			additionalMethods: [{ method: "cancelLogOut", expectedEvent: { type: "CANCEL_LOG_OUT" } }],
@@ -332,6 +422,7 @@ const hookTestMap: HookTestMap = [
 		hookSpec: {
 			additionalMethods: [
 				{ method: "requestLogOut", expectedEvent: { type: "REQUEST_LOG_OUT" } },
+				{ method: "requestPinChange", expectedEvent: { type: "REQUEST_PIN_CHANGE" } },
 				{ method: "requestPasswordChange", expectedEvent: { type: "REQUEST_PASSWORD_CHANGE" } },
 			],
 		},
@@ -350,7 +441,9 @@ describe("sanity checks for the auth system hooks", () => {
 
 		const actualExportedHookNames = Object.keys(AuthHook);
 
-		expect(nonInternalMachineStatesAsHookNames).toEqual(actualExportedHookNames);
+		expect(nonInternalMachineStatesAsHookNames).toEqual(
+			expect.arrayContaining(actualExportedHookNames)
+		);
 	});
 });
 
@@ -369,9 +462,9 @@ describe("hooks fire and emit all available transition events that are specified
 
 			afterEach(cleanup);
 
-			if (hookSpec.callbacks) {
+			if (hookSpec.primaryMethod && hookSpec.callbacks) {
 				for (const { args, callback, expectedEvent, runs } of hookSpec.callbacks) {
-					test(`${JSON.stringify(expectedEvent)} message sent`, () => {
+					test(`${JSON.stringify(expectedEvent)} message sent`, async () => {
 						const { result, waitForNextUpdate, waitFor } = renderHook(() =>
 							AuthHook[hookName](callback)
 						);
@@ -379,8 +472,10 @@ describe("hooks fire and emit all available transition events that are specified
 						for (let i = 0; i < (runs ?? 1); i++) {
 							// @ts-ignore
 							result.current[hookSpec.primaryMethod](...args);
-							waitForNextUpdate();
+
+							await waitForNextUpdate();
 						}
+
 						waitFor(() => expect(eventSink.event).toEqual(expectedEvent));
 					});
 				}
@@ -395,6 +490,7 @@ describe("hooks fire and emit all available transition events that are specified
 
 						// @ts-ignore
 						result.current[method]();
+
 						waitForNextUpdate();
 						waitFor(() => expect(eventSink.event).toEqual(expectedEvent));
 					});
@@ -402,7 +498,9 @@ describe("hooks fire and emit all available transition events that are specified
 			}
 
 			test(`${hookName} sends all possible events defined in system for ${stateId}`, () => {
-				expect([...eventSink.eventStack]).toEqual(eventsForStates.get(stateId));
+				expect([...eventSink.eventStack]).toEqual(
+					expect.arrayContaining(eventsForStates.get(stateId))
+				);
 			});
 		});
 	}
