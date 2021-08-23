@@ -1,6 +1,6 @@
 undecided:
   - "@thingco/auth-flows"
-  - "@thingco/component-library-native"
+  - "@thingco/component-library-core"
   - "@thingco/graphviz"
   - "@thingco/graphviz-native"
   - "@thingco/graphviz-web"
