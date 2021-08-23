@@ -3,7 +3,8 @@
 	"compilerOptions": {
 		// "emitDeclarationOnly": true,
 		"declarationDir": "./lib/types",
-		"rootDir": "./src"
+		"rootDir": "./src",
+		"outDir": "./lib"
 	},
 	"typedocOptions": {
 		"entryPoints": ["src/index.ts"],
