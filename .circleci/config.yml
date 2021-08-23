@@ -9,7 +9,8 @@ jobs:
       - checkout
       - run: node --version
       - run: yarn
-      - run: yarn workspaces foreach -v --topological-dev --exclude @thingco/shared-frontend-libs-playground run build
+      - run: yarn workspace @thingco/logger build
+      - run: yarn workspace @thingco/authentication test
       - run: yarn workspace @thingco/authentication test
 
 workflows:
