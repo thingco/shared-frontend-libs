@@ -11,3 +11,9 @@ jobs:
       - run: yarn
       - run: yarn workspaces foreach -v --topological-dev --exclude @thingco/shared-frontend-libs-playground run build
       - run: yarn workspace @thingco/authentication test
+
+workflows:
+  version: 2.1
+  build_and_test:
+    jobs:
+      - build_packages
