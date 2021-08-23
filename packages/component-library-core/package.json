@@ -1,7 +1,7 @@
 {
 	"name": "@thingco/component-library-core",
 	"description": "Core shared components for component libs",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"main": "lib/index.js",
 	"types": "lib/types/index.d.ts",
 	"files": [
