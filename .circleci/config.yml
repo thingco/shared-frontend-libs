@@ -9,5 +9,5 @@ jobs:
       - checkout
       - run: node --version
       - run: yarn
-			- run: FORCE_COLOR=1 yarn workspaces foreach -v --topological-dev --exclude @thingco/shared-frontend-libs-playground run build
+			- run: yarn workspaces foreach -v --topological-dev --exclude @thingco/shared-frontend-libs-playground run build
 			- run: yarn workspace @thingco/authentication test
