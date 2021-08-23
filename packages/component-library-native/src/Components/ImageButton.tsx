@@ -1,11 +1,5 @@
 import React from "react";
-import {
-	TextStyle,
-	TouchableOpacity,
-	ViewStyle,
-	Text,
-	TouchableOpacityProps,
-} from "react-native";
+import { TextStyle, TouchableOpacity, ViewStyle, Text, TouchableOpacityProps } from "react-native";
 
 import { useTheme } from "../Provider/ThemeProvider";
 import { variantToTheme } from "../util";

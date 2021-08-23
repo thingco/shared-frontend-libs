@@ -3157,7 +3157,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@thingco/component-library-core@workspace:*, @thingco/component-library-core@workspace:packages/component-library-core":
+"@thingco/component-library-core@0.1.1, @thingco/component-library-core@workspace:packages/component-library-core":
   version: 0.0.0-use.local
   resolution: "@thingco/component-library-core@workspace:packages/component-library-core"
   dependencies:
@@ -3194,8 +3194,8 @@ __metadata:
     "@react-navigation/stack": ^6.0.6
     "@testing-library/jest-dom": ^5.14.1
     "@testing-library/react": ^12.0.0
-    "@thingco/component-library-core": "workspace:*"
-    "@thingco/unit-formatter": "workspace:*"
+    "@thingco/component-library-core": 0.1.1
+    "@thingco/unit-formatter": 1.4.0
     "@types/i18n-js": ^3
     "@types/jest": ^26.0.24
     "@types/lodash": ^4
@@ -3225,6 +3225,8 @@ __metadata:
     typedoc: ^0.21.4
     typescript: ^4.3.5
   peerDependencies:
+    "@thingco/component-library-core": "*"
+    "@thingco/unit-formatter": "*"
     react: "*"
   languageName: unknown
   linkType: soft
@@ -3360,7 +3362,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@thingco/unit-formatter@workspace:*, @thingco/unit-formatter@workspace:packages/unit-formatter":
+"@thingco/unit-formatter@1.4.0, @thingco/unit-formatter@workspace:*, @thingco/unit-formatter@workspace:packages/unit-formatter":
   version: 0.0.0-use.local
   resolution: "@thingco/unit-formatter@workspace:packages/unit-formatter"
   dependencies:
