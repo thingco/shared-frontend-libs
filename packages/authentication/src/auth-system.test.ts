@@ -182,10 +182,7 @@ describe("authentication test system using OTP (ignoring device security)", () =
 		describe(`authentication test system ${plan.description}`, () => {
 			plan.paths.forEach((path) => {
 				it(path.description, async () => {
-					const service = interpret(subject).onTransition((/* state */) => {
-						// NOTE test logging for debugging purposes goes here.
-						// console.log(`${path.description}: ${state.value}`);
-					});
+					const service = interpret(subject);
 					service.start();
 					await path.test(service);
 				});
@@ -234,7 +231,7 @@ describe("authentication test system using username and password (ignoring devic
 			},
 			usernameAndPasswordError: {
 				on: {
-					GOOD_LOGIN: "authenticated",
+					GOOD_LOGIN_ON_SECOND_ATTEMPT: "authenticated",
 				},
 				meta: {
 					test: async (service: AuthenticationSystemInterpreter) => {
@@ -261,7 +258,7 @@ describe("authentication test system using username and password (ignoring devic
 			},
 			submittingChangeTemporaryPasswordError: {
 				on: {
-					ATTEMPT_TO_CHANGE_TEMPORARY_PASSWORD_SUCCEEDED: "authenticated",
+					ATTEMPT_TO_CHANGE_TEMPORARY_PASSWORD_SUCCEEDED_ON_SECOND_ATTEMPT: "authenticated",
 				},
 				meta: {
 					test: async (service: AuthenticationSystemInterpreter) => {
@@ -285,7 +282,7 @@ describe("authentication test system using username and password (ignoring devic
 			},
 			forgotPasswordRequestANewOneError: {
 				on: {
-					RESET_CODE_REQUEST_SUCCESS: "forgotPasswordSubmitANewOne",
+					RESET_CODE_REQUEST_SUCCESS_ON_SECOND_ATTEMPT: "forgotPasswordSubmitANewOne",
 				},
 				meta: {
 					test: async (service: AuthenticationSystemInterpreter) => {
@@ -309,13 +306,13 @@ describe("authentication test system using username and password (ignoring devic
 			},
 			forgotPasswordSubmitANewOneError: {
 				on: {
-					RESET_CODE_AND_NEW_PASSWORD_ARE_FINE: "authenticated",
+					RESET_CODE_AND_NEW_PASSWORD_ARE_FINE_ON_SECOND_ATTEMPT: "authenticated",
 				},
 				meta: {
 					test: async (service: AuthenticationSystemInterpreter) => {
 						expect(service.state.matches(AuthStateId.awaitingPasswordResetSubmission));
 						/*
-						 * FIXME there is a test failure here. Atm, the way errors are
+						 * FIXME there is a test failure here. ATM, the way errors are
 						 * assigned and cleared causes this part to flip back and forth between
 						 * "PASSWORD_RESET_REQUEST_FAILURE" when the flow goes
 						 *
@@ -373,16 +370,21 @@ describe("authentication test system using username and password (ignoring devic
 		THERE_IS_NO_SESSION: doSend({ type: "SESSION_NOT_PRESENT"}),
 		GOOD_LOGIN: doSend({ type: "USERNAME_AND_PASSWORD_VALID", username: VALID_USERNAME, user: USER_OBJECT }),
 		BAD_LOGIN: doSend({ type: "USERNAME_AND_PASSWORD_INVALID", error: "USERNAME_AND_PASSWORD_INVALID"}),
+		GOOD_LOGIN_ON_SECOND_ATTEMPT: doSend({ type: "USERNAME_AND_PASSWORD_VALID", username: VALID_USERNAME, user: USER_OBJECT }),
 		GOOD_LOGIN_BUT_YOU_HAVE_A_TEMPORARY_PASSWORD: doSend({ type: "USERNAME_AND_PASSWORD_VALID_PASSWORD_CHANGE_REQUIRED", error: "PASSWORD_CHANGE_REQUIRED", username: VALID_USERNAME, user: USER_OBJECT }),
 		ATTEMPT_TO_CHANGE_TEMPORARY_PASSWORD_SUCCEEDED: doSend({ type: "PASSWORD_CHANGE_SUCCESS" }),
 		ATTEMPT_TO_CHANGE_TEMPORARY_PASSWORD_FAILED: doSend({ type: "PASSWORD_CHANGE_FAILURE", error: "PASSWORD_CHANGE_FAILURE" }),
+		ATTEMPT_TO_CHANGE_TEMPORARY_PASSWORD_SUCCEEDED_ON_SECOND_ATTEMPT: doSend({ type: "PASSWORD_CHANGE_SUCCESS" }),
 		FORGOT_PASSWORD: doSend({ type: "FORGOTTEN_PASSWORD"}),
 		NEW_PASSWORD_IS_FINE: doSend({ type: "PASSWORD_CHANGE_SUCCESS" }),
 		NEW_PASSWORD_IS_NOT_FINE: doSend({ type: "PASSWORD_CHANGE_FAILURE", error: "PASSWORD_CHANGE_FAILURE" }),
+		NEW_PASSWORD_IS_FINE_ON_SECOND_ATTEMPT: doSend({ type: "PASSWORD_CHANGE_SUCCESS" }),
 		RESET_CODE_REQUEST_SUCCESS: doSend({ type: "PASSWORD_RESET_REQUEST_SUCCESS", username: VALID_USERNAME }),
 		RESET_CODE_REQUEST_FAILURE: doSend({ type: "PASSWORD_RESET_REQUEST_FAILURE", error: "PASSWORD_RESET_REQUEST_FAILURE"}),
+		RESET_CODE_REQUEST_SUCCESS_ON_SECOND_ATTEMPT: doSend({ type: "PASSWORD_RESET_REQUEST_SUCCESS", username: VALID_USERNAME }),
 		RESET_CODE_AND_NEW_PASSWORD_ARE_FINE: doSend({ type: "PASSWORD_RESET_SUCCESS" }),
 		RESET_CODE_AND_NEW_PASSWORD_ARE_NOT_FINE: doSend({ type: "PASSWORD_RESET_FAILURE", error: "PASSWORD_RESET_FAILURE" }),
+		RESET_CODE_AND_NEW_PASSWORD_ARE_FINE_ON_SECOND_ATTEMPT: doSend({ type: "PASSWORD_RESET_SUCCESS" }),
 		CAN_I_LOG_OUT_PLEASE: doSend({ type: "REQUEST_LOG_OUT" }),
 		CAN_I_CHANGE_MY_PASSWORD: doSend({ type: "REQUEST_PASSWORD_CHANGE"}),
 		LOG_OUT_WORKED: doSend({ type: "LOG_OUT_SUCCESS"}),
@@ -396,10 +398,156 @@ describe("authentication test system using username and password (ignoring devic
 		describe(`authentication test system ${plan.description}`, () => {
 			plan.paths.forEach((path) => {
 				it(path.description, async () => {
-					const service = interpret(subject).onTransition((/* state */) => {
-						// NOTE test logging for debugging purposes goes here.
-						// console.log(`${path.description}: ${state.value}`);
-					});
+					const service = interpret(subject);
+					service.start();
+					await path.test(service);
+				});
+			});
+		});
+	});
+
+	it("should have full coverage", () => {
+		return model.testCoverage();
+	});
+});
+
+describe("authentication test system for PIN (ignoring login flow)", () => {
+	const subject = createAuthenticationSystem({
+		loginFlowType: "OTP",
+		deviceSecurityType: "PIN",
+	});
+
+	const machine = createMachine({
+		id: "otpWithPin",
+		initial: "checkingSession",
+		states: {
+			checkingSession: {
+				on: { THERE_IS_A_SESSION: "pinChecks" },
+				meta: {
+					test: async (service: AuthenticationSystemInterpreter) => {
+						expect(service.state.matches(AuthStateId.awaitingSessionCheck));
+					},
+				},
+			},
+			pinChecks: {
+				on: {
+					THERE_IS_A_PIN_SET: "submitCurrentPin",
+					THERE_IS_NO_PIN_SET: "setANewPin",
+				},
+				meta: {
+					test: async (service: AuthenticationSystemInterpreter) => {
+						expect(service.state.matches(AuthStateId.pinChecks));
+					},
+				},
+			},
+			submitCurrentPin: {
+				on: {
+					PIN_SUBMITTED_WAS_CORRECT: "authenticated",
+					PIN_SUBMITTED_WAS_NOT_CORRECT: "incorrectCurrentPin",
+				},
+				meta: {
+					test: async (service: AuthenticationSystemInterpreter) => {
+						expect(service.state.matches(AuthStateId.awaitingCurrentPinInput));
+					},
+				},
+			},
+			incorrectCurrentPin: {
+				on: {
+					PIN_SUBMITTED_WAS_CORRECT_ON_SECOND_ATTEMPT: "authenticated",
+				},
+				meta: {
+					test: async (service: AuthenticationSystemInterpreter) => {
+						expect(service.state.matches(AuthStateId.awaitingCurrentPinInput));
+						expect(service.state.context.error).toBe("PIN_INVALID" as AuthenticationSystemError);
+					},
+				},
+			},
+			setANewPin: {
+				on: {
+					NEW_PIN_IS_FINE: "authenticated",
+					NEW_PIN_IS_NOT_FINE: "errorSettingNewPin",
+				},
+				meta: {
+					test: async (service: AuthenticationSystemInterpreter) => {
+						expect(service.state.matches(AuthStateId.awaitingNewPinInput));
+					},
+				},
+			},
+			errorSettingNewPin: {
+				on: {
+					NEW_PIN_IS_FINE_ON_SECOND_ATTEMPT: "authenticated",
+				},
+				meta: {
+					test: async (service: AuthenticationSystemInterpreter) => {
+						expect(service.state.matches(AuthStateId.awaitingCurrentPinInput));
+						expect(service.state.context.error).toBe(
+							"NEW_PIN_INVALID" as AuthenticationSystemError
+						);
+					},
+				},
+			},
+			changeCurrentPin: {
+				on: {
+					PIN_CHANGE_SUCCEEDED: "authenticated",
+					PIN_CHANGE_FAILED: "errorChangingCurrentPin",
+					ACTUALLY_CANCEL_THAT_PIN_CHANGE_REQUEST: "authenticated",
+				},
+				meta: {
+					test: async (service: AuthenticationSystemInterpreter) => {
+						expect(service.state.matches(AuthStateId.awaitingChangePinInput));
+					},
+				},
+			},
+			errorChangingCurrentPin: {
+				on: {
+					PIN_CHANGE_SUCCEEDED_ON_SECOND_ATTEMPT: "authenticated",
+				},
+				meta: {
+					test: async (service: AuthenticationSystemInterpreter) => {
+						expect(service.state.matches(AuthStateId.awaitingChangePinInput));
+						expect(service.state.context.error).toBe(
+							"PIN_CHANGE_FAILURE" as AuthenticationSystemError
+						);
+					},
+				},
+			},
+			authenticated: {
+				on: {
+					CHANGE_CURRENT_PIN_PLEASE: "changeCurrentPin",
+				},
+				meta: {
+					test: async (service: AuthenticationSystemInterpreter) => {
+						expect(service.state.matches(AuthStateId.authenticated));
+					},
+				},
+			},
+		},
+	});
+
+	const model = createModel(machine).withEvents({
+		THERE_IS_A_SESSION: doSend({ type: "SESSION_PRESENT" }),
+		THERE_IS_A_PIN_SET: doSend({ type: "PIN_IS_SET_UP" }),
+		THERE_IS_NO_PIN_SET: doSend({ type: "PIN_IS_NOT_SET_UP" }),
+		PIN_SUBMITTED_WAS_CORRECT: doSend({ type: "PIN_VALID" }),
+		PIN_SUBMITTED_WAS_NOT_CORRECT: doSend({ type: "PIN_INVALID", error: "PIN_INVALID" }),
+		PIN_SUBMITTED_WAS_CORRECT_ON_SECOND_ATTEMPT: doSend({ type: "PIN_VALID" }),
+		NEW_PIN_IS_FINE: doSend({ type: "NEW_PIN_VALID" }),
+		NEW_PIN_IS_NOT_FINE: doSend({ type: "NEW_PIN_INVALID", error: "NEW_PIN_INVALID" }),
+		NEW_PIN_IS_FINE_ON_SECOND_ATTEMPT: doSend({ type: "NEW_PIN_VALID" }),
+		PIN_CHANGE_SUCCEEDED: doSend({ type: "PIN_CHANGE_SUCCESS" }),
+		PIN_CHANGE_FAILED: doSend({ type: "PIN_CHANGE_FAILURE", error: "PIN_CHANGE_FAILURE" }),
+		PIN_CHANGE_SUCCEEDED_ON_SECOND_ATTEMPT: doSend({ type: "PIN_CHANGE_SUCCESS" }),
+		ACTUALLY_CANCEL_THAT_PIN_CHANGE_REQUEST: doSend({ type: "CANCEL_PIN_CHANGE" }),
+		CHANGE_CURRENT_PIN_PLEASE: doSend({ type: "REQUEST_PIN_CHANGE" }),
+	});
+
+	const testPlans = model.getSimplePathPlans();
+
+	testPlans.forEach((plan) => {
+		describe(`authentication test system ${plan.description}`, () => {
+			plan.paths.forEach((path) => {
+				it(path.description, async () => {
+					const service = interpret(subject);
 					service.start();
 					await path.test(service);
 				});
