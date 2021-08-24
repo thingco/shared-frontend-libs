@@ -55,7 +55,7 @@ interface IconButtonProps extends TouchableOpacityProps {
 	style?: ViewStyle[] | ViewStyle;
 	icon: IconType;
 	size: number | string;
-	stroke: string;
+	stroke?: string;
 	strokeWidth?: number;
 }
 
@@ -79,7 +79,7 @@ export const IconButton = ({
 interface TabButtonProps {
 	selected: boolean;
 	onClick: () => void;
-	children: React.ReactNode[];
+	children: React.ReactNode[] | React.ReactNode;
 }
 
 export const TabButton = ({ selected, onClick, children }: TabButtonProps) => {
