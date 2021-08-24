@@ -5,7 +5,7 @@ import { createMachine, interpret } from "xstate";
 import { AuthStateId, createAuthenticationSystem, machine } from "./auth-system";
 import { AuthenticationSystemError } from "./types";
 
-import type { AuthenticationSystemEvent, AuthenticationSystemInterpreter } from "./auth-system";
+import type { AuthEvent, AuthInterpreter } from "./auth-system";
 describe("sanity checks for the overall auth system", () => {
 	it("should have an id of 'authSystem'", () => {
 		expect(machine.id).toEqual("authSystem");
@@ -43,9 +43,9 @@ const VALID_USERNAME = "validuser@example.com";
 
 const USER_OBJECT = { description: "I represent the user object returned by the OAuth system" };
 
-function doSend(e: AuthenticationSystemEvent) {
+function doSend(e: AuthEvent) {
 	return {
-		exec: ({ send }: AuthenticationSystemInterpreter) => send(e),
+		exec: ({ send }: AuthInterpreter) => send(e),
 	} as any;
 }
 
@@ -62,7 +62,7 @@ describe("authentication test system using OTP (ignoring device security)", () =
 					THERE_IS_NO_SESSION: "submittingUsername",
 				},
 				meta: {
-					test: async (service: AuthenticationSystemInterpreter) => {
+					test: async (service: AuthInterpreter) => {
 						expect(service.state.matches(AuthStateId.awaitingSessionCheck));
 					},
 				},
@@ -73,7 +73,7 @@ describe("authentication test system using OTP (ignoring device security)", () =
 					BAD_USERNAME: "usernameError",
 				},
 				meta: {
-					test: async (service: AuthenticationSystemInterpreter) => {
+					test: async (service: AuthInterpreter) => {
 						expect(service.state.matches(AuthStateId.awaitingOtpUsername));
 					},
 				},
@@ -83,7 +83,7 @@ describe("authentication test system using OTP (ignoring device security)", () =
 					GOOD_USERNAME: "submittingOtp1",
 				},
 				meta: {
-					test: async (service: AuthenticationSystemInterpreter) => {
+					test: async (service: AuthInterpreter) => {
 						expect(service.state.matches(AuthStateId.awaitingOtpUsername));
 						expect(service.state.context.error).toBe("PASSWORD_RETRIES_EXCEEDED");
 					},
@@ -94,7 +94,7 @@ describe("authentication test system using OTP (ignoring device security)", () =
 					GOOD_USERNAME: "submittingOtp1",
 				},
 				meta: {
-					test: async (service: AuthenticationSystemInterpreter) => {
+					test: async (service: AuthInterpreter) => {
 						expect(service.state.matches(AuthStateId.awaitingOtpUsername));
 						expect(service.state.context.error).toBe("USERNAME_INVALID");
 					},
@@ -107,7 +107,7 @@ describe("authentication test system using OTP (ignoring device security)", () =
 					REENTER_USERNAME: "submittingUsername",
 				},
 				meta: {
-					test: async (service: AuthenticationSystemInterpreter) => {
+					test: async (service: AuthInterpreter) => {
 						expect(service.state.matches(AuthStateId.awaitingOtp));
 					},
 				},
@@ -117,7 +117,7 @@ describe("authentication test system using OTP (ignoring device security)", () =
 					BAD_OTP_2: "submittingOtp3",
 				},
 				meta: {
-					test: async (service: AuthenticationSystemInterpreter) => {
+					test: async (service: AuthInterpreter) => {
 						expect(service.state.matches(AuthStateId.awaitingOtp));
 						expect(service.state.context.error).toBe("PASSWORD_INVALID_2_RETRIES_REMAINING");
 					},
@@ -128,7 +128,7 @@ describe("authentication test system using OTP (ignoring device security)", () =
 					BAD_OTP_3: "submittingUsernameAfterTooManyRetries",
 				},
 				meta: {
-					test: async (service: AuthenticationSystemInterpreter) => {
+					test: async (service: AuthInterpreter) => {
 						expect(service.state.matches(AuthStateId.awaitingOtp));
 						expect(service.state.context.error).toBe("PASSWORD_INVALID_1_RETRIES_REMAINING");
 					},
@@ -139,7 +139,7 @@ describe("authentication test system using OTP (ignoring device security)", () =
 					CAN_I_LOG_OUT_PLEASE: "loggingOut",
 				},
 				meta: {
-					test: async (service: AuthenticationSystemInterpreter) => {
+					test: async (service: AuthInterpreter) => {
 						expect(service.state.matches(AuthStateId.authenticated));
 					},
 				},
@@ -151,7 +151,7 @@ describe("authentication test system using OTP (ignoring device security)", () =
 					ACTUALLY_NO_STAY_LOGGED_IN: "authenticated",
 				},
 				meta: {
-					test: async (service: AuthenticationSystemInterpreter) => {
+					test: async (service: AuthInterpreter) => {
 						expect(service.state.matches(AuthStateId.loggingOut));
 					},
 				},
@@ -211,7 +211,7 @@ describe("authentication test system using username and password (ignoring devic
 					THERE_IS_NO_SESSION: "submittingUsernameAndPassword",
 				},
 				meta: {
-					test: async (service: AuthenticationSystemInterpreter) => {
+					test: async (service: AuthInterpreter) => {
 						expect(service.state.matches(AuthStateId.awaitingSessionCheck));
 					},
 				},
@@ -224,7 +224,7 @@ describe("authentication test system using username and password (ignoring devic
 					FORGOT_PASSWORD: "forgotPasswordRequestANewOne",
 				},
 				meta: {
-					test: async (service: AuthenticationSystemInterpreter) => {
+					test: async (service: AuthInterpreter) => {
 						expect(service.state.matches(AuthStateId.awaitingUsernameAndPassword));
 					},
 				},
@@ -234,7 +234,7 @@ describe("authentication test system using username and password (ignoring devic
 					GOOD_LOGIN_ON_SECOND_ATTEMPT: "authenticated",
 				},
 				meta: {
-					test: async (service: AuthenticationSystemInterpreter) => {
+					test: async (service: AuthInterpreter) => {
 						expect(service.state.matches(AuthStateId.awaitingUsernameAndPassword));
 						expect(service.state.context.error).toBe(
 							"USERNAME_AND_PASSWORD_INVALID" as AuthenticationSystemError
@@ -248,7 +248,7 @@ describe("authentication test system using username and password (ignoring devic
 					ATTEMPT_TO_CHANGE_TEMPORARY_PASSWORD_FAILED: "submittingChangeTemporaryPasswordError",
 				},
 				meta: {
-					test: async (service: AuthenticationSystemInterpreter) => {
+					test: async (service: AuthInterpreter) => {
 						expect(service.state.matches(AuthStateId.awaitingForcedChangePassword));
 						expect(service.state.context.error).toBe(
 							"PASSWORD_CHANGE_REQUIRED" as AuthenticationSystemError
@@ -261,7 +261,7 @@ describe("authentication test system using username and password (ignoring devic
 					ATTEMPT_TO_CHANGE_TEMPORARY_PASSWORD_SUCCEEDED_ON_SECOND_ATTEMPT: "authenticated",
 				},
 				meta: {
-					test: async (service: AuthenticationSystemInterpreter) => {
+					test: async (service: AuthInterpreter) => {
 						expect(service.state.matches(AuthStateId.awaitingForcedChangePassword));
 						expect(service.state.context.error).toBe(
 							"PASSWORD_CHANGE_FAILURE" as AuthenticationSystemError
@@ -275,7 +275,7 @@ describe("authentication test system using username and password (ignoring devic
 					RESET_CODE_REQUEST_FAILURE: "forgotPasswordRequestANewOneError",
 				},
 				meta: {
-					test: async (service: AuthenticationSystemInterpreter) => {
+					test: async (service: AuthInterpreter) => {
 						expect(service.state.matches(AuthStateId.awaitingPasswordResetRequest));
 					},
 				},
@@ -285,7 +285,7 @@ describe("authentication test system using username and password (ignoring devic
 					RESET_CODE_REQUEST_SUCCESS_ON_SECOND_ATTEMPT: "forgotPasswordSubmitANewOne",
 				},
 				meta: {
-					test: async (service: AuthenticationSystemInterpreter) => {
+					test: async (service: AuthInterpreter) => {
 						expect(service.state.matches(AuthStateId.awaitingPasswordResetRequest));
 						expect(service.state.context.error).toBe(
 							"PASSWORD_RESET_REQUEST_FAILURE" as AuthenticationSystemError
@@ -299,7 +299,7 @@ describe("authentication test system using username and password (ignoring devic
 					RESET_CODE_AND_NEW_PASSWORD_ARE_NOT_FINE: "forgotPasswordSubmitANewOneError",
 				},
 				meta: {
-					test: async (service: AuthenticationSystemInterpreter) => {
+					test: async (service: AuthInterpreter) => {
 						expect(service.state.matches(AuthStateId.awaitingPasswordResetSubmission));
 					},
 				},
@@ -309,7 +309,7 @@ describe("authentication test system using username and password (ignoring devic
 					RESET_CODE_AND_NEW_PASSWORD_ARE_FINE_ON_SECOND_ATTEMPT: "authenticated",
 				},
 				meta: {
-					test: async (service: AuthenticationSystemInterpreter) => {
+					test: async (service: AuthInterpreter) => {
 						expect(service.state.matches(AuthStateId.awaitingPasswordResetSubmission));
 						/*
 						 * FIXME there is a test failure here. ATM, the way errors are
@@ -333,7 +333,7 @@ describe("authentication test system using username and password (ignoring devic
 					CANCEL_PASSWORD_CHANGE: "authenticated",
 				},
 				meta: {
-					test: async (service: AuthenticationSystemInterpreter) => {
+					test: async (service: AuthInterpreter) => {
 						expect(service.state.matches(AuthStateId.awaitingChangePassword));
 					},
 				},
@@ -344,7 +344,7 @@ describe("authentication test system using username and password (ignoring devic
 					CAN_I_CHANGE_MY_PASSWORD: "submitPasswordChange",
 				},
 				meta: {
-					test: async (service: AuthenticationSystemInterpreter) => {
+					test: async (service: AuthInterpreter) => {
 						expect(service.state.matches(AuthStateId.authenticated));
 					},
 				},
@@ -356,7 +356,7 @@ describe("authentication test system using username and password (ignoring devic
 					ACTUALLY_NO_STAY_LOGGED_IN: "authenticated",
 				},
 				meta: {
-					test: async (service: AuthenticationSystemInterpreter) => {
+					test: async (service: AuthInterpreter) => {
 						expect(service.state.matches(AuthStateId.loggingOut));
 					},
 				},
@@ -424,7 +424,7 @@ describe("authentication test system for PIN (ignoring login flow)", () => {
 			checkingSession: {
 				on: { THERE_IS_A_SESSION: "pinChecks" },
 				meta: {
-					test: async (service: AuthenticationSystemInterpreter) => {
+					test: async (service: AuthInterpreter) => {
 						expect(service.state.matches(AuthStateId.awaitingSessionCheck));
 					},
 				},
@@ -435,7 +435,7 @@ describe("authentication test system for PIN (ignoring login flow)", () => {
 					THERE_IS_NO_PIN_SET: "setANewPin",
 				},
 				meta: {
-					test: async (service: AuthenticationSystemInterpreter) => {
+					test: async (service: AuthInterpreter) => {
 						expect(service.state.matches(AuthStateId.pinChecks));
 					},
 				},
@@ -446,7 +446,7 @@ describe("authentication test system for PIN (ignoring login flow)", () => {
 					PIN_SUBMITTED_WAS_NOT_CORRECT: "incorrectCurrentPin",
 				},
 				meta: {
-					test: async (service: AuthenticationSystemInterpreter) => {
+					test: async (service: AuthInterpreter) => {
 						expect(service.state.matches(AuthStateId.awaitingCurrentPinInput));
 					},
 				},
@@ -456,7 +456,7 @@ describe("authentication test system for PIN (ignoring login flow)", () => {
 					PIN_SUBMITTED_WAS_CORRECT_ON_SECOND_ATTEMPT: "authenticated",
 				},
 				meta: {
-					test: async (service: AuthenticationSystemInterpreter) => {
+					test: async (service: AuthInterpreter) => {
 						expect(service.state.matches(AuthStateId.awaitingCurrentPinInput));
 						expect(service.state.context.error).toBe("PIN_INVALID" as AuthenticationSystemError);
 					},
@@ -468,7 +468,7 @@ describe("authentication test system for PIN (ignoring login flow)", () => {
 					NEW_PIN_IS_NOT_FINE: "errorSettingNewPin",
 				},
 				meta: {
-					test: async (service: AuthenticationSystemInterpreter) => {
+					test: async (service: AuthInterpreter) => {
 						expect(service.state.matches(AuthStateId.awaitingNewPinInput));
 					},
 				},
@@ -478,7 +478,7 @@ describe("authentication test system for PIN (ignoring login flow)", () => {
 					NEW_PIN_IS_FINE_ON_SECOND_ATTEMPT: "authenticated",
 				},
 				meta: {
-					test: async (service: AuthenticationSystemInterpreter) => {
+					test: async (service: AuthInterpreter) => {
 						expect(service.state.matches(AuthStateId.awaitingCurrentPinInput));
 						expect(service.state.context.error).toBe(
 							"NEW_PIN_INVALID" as AuthenticationSystemError
@@ -493,7 +493,7 @@ describe("authentication test system for PIN (ignoring login flow)", () => {
 					ACTUALLY_CANCEL_THAT_PIN_CHANGE_REQUEST: "authenticated",
 				},
 				meta: {
-					test: async (service: AuthenticationSystemInterpreter) => {
+					test: async (service: AuthInterpreter) => {
 						expect(service.state.matches(AuthStateId.awaitingChangePinInput));
 					},
 				},
@@ -503,7 +503,7 @@ describe("authentication test system for PIN (ignoring login flow)", () => {
 					PIN_CHANGE_SUCCEEDED_ON_SECOND_ATTEMPT: "authenticated",
 				},
 				meta: {
-					test: async (service: AuthenticationSystemInterpreter) => {
+					test: async (service: AuthInterpreter) => {
 						expect(service.state.matches(AuthStateId.awaitingChangePinInput));
 						expect(service.state.context.error).toBe(
 							"PIN_CHANGE_FAILURE" as AuthenticationSystemError
@@ -516,7 +516,7 @@ describe("authentication test system for PIN (ignoring login flow)", () => {
 					CHANGE_CURRENT_PIN_PLEASE: "changeCurrentPin",
 				},
 				meta: {
-					test: async (service: AuthenticationSystemInterpreter) => {
+					test: async (service: AuthInterpreter) => {
 						expect(service.state.matches(AuthStateId.authenticated));
 					},
 				},

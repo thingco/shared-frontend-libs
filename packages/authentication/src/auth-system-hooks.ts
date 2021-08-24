@@ -1,19 +1,19 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { useLogger } from "@thingco/logger";
 import { useSelector } from "@xstate/react";
 import { useCallback, useState } from "react";
 
-import { AuthenticationSystemContext, AuthenticationSystemState, AuthStateId } from "./auth-system";
+import { AuthContext, AuthState, AuthStateId } from "./auth-system";
 import { useAuthSystem } from "./AuthSystemProvider";
 
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 type ExposedStateId = Exclude<
 	AuthStateId,
 	AuthStateId.INTERNAL__deviceSecurityCheck | AuthStateId.INTERNAL__loginFlowCheck
 >;
 
 type ExposedStateSelectorMap = {
-	[K in `is${Capitalize<ExposedStateId>}`]: (state: AuthenticationSystemState) => boolean;
+	[K in `is${Capitalize<ExposedStateId>}`]: (state: AuthState) => boolean;
 };
 
 // prettier-ignore
@@ -34,10 +34,7 @@ const stateSelectors: ExposedStateSelectorMap = {
 	isAuthenticated: (state) => state.matches(AuthStateId.authenticated),
 };
 
-type ContextSelectorMap<T = AuthenticationSystemContext> = Record<
-	keyof T,
-	(state: T) => T[keyof T]
->;
+type ContextSelectorMap<T = AuthContext> = Record<keyof T, (state: T) => T[keyof T]>;
 
 const contextSelectors: ContextSelectorMap = {
 	error: (state) => state.error,

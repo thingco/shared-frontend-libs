@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { cleanup, renderHook } from "@testing-library/react-hooks";
 import { act } from "react-test-renderer";
 
-import { AuthenticationSystemEvent, AuthStateId, machine } from "./auth-system";
+import { AuthEvent, AuthStateId, machine } from "./auth-system";
 import * as AuthHook from "./auth-system-hooks";
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* ========================================================================= *\
  * 1. UTILITIES
  * 2. SETUP
@@ -50,10 +50,10 @@ const eventsForStates = Object.entries(machine.config.states!).reduce((eventMap,
  * c. be reset for a new hook test run
  */
 class EventRecorder {
-	event: AuthenticationSystemEvent | null = null;
+	event: AuthEvent | null = null;
 	eventStack = new Set();
 
-	log(event: AuthenticationSystemEvent) {
+	log(event: AuthEvent) {
 		this.eventStack.add(event.type);
 	}
 
@@ -97,7 +97,7 @@ jest.mock("@thingco/logger", () => ({
 
 jest.mock("./AuthSystemProvider", () => ({
 	useAuthSystem: jest.fn(() => ({
-		send: (event: AuthenticationSystemEvent) => eventSink.log(event),
+		send: (event: AuthEvent) => eventSink.log(event),
 	})),
 }));
 
@@ -117,9 +117,9 @@ type HookTestMap = {
 			runs?: number;
 			args: any[];
 			callback: jest.MockedFunction<(...args: any[]) => Promise<any>>;
-			expectedEvent: AuthenticationSystemEvent;
+			expectedEvent: AuthEvent;
 		}[];
-		additionalMethods?: { method: string; expectedEvent: AuthenticationSystemEvent }[];
+		additionalMethods?: { method: string; expectedEvent: AuthEvent }[];
 	};
 }[];
 

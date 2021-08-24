@@ -5,14 +5,10 @@ import React, { createContext, useContext } from "react";
 import { MSG__UNSCOPED_HOOK } from "./auth-system-utils";
 
 import type { ReactNode } from "react";
-import type {
-	AuthenticationSystemInterpreter,
-	AuthenticationSystemMachine,
-	AuthenticationSystemState,
-} from "./auth-system";
+import type { AuthInterpreter, AuthMachine, AuthState } from "./auth-system";
 
 const AuthSystemProviderContext = createContext<{
-	authenticator: AuthenticationSystemInterpreter;
+	authenticator: AuthInterpreter;
 } | null>(null);
 
 export type AuthenticationSystemProviderProps = {
@@ -20,7 +16,7 @@ export type AuthenticationSystemProviderProps = {
 	 * The finite state machine itself. This is passed in fully constructed: this allows for
 	 * any modifications to be made outside of the provider (for example, for config or for testing).
 	 */
-	authenticationSystem: AuthenticationSystemMachine;
+	authenticationSystem: AuthMachine;
 	children: ReactNode;
 	/**
 	 * Enables the `@xstate/inspect` visual diagram tool. This would be installed at point of use:
@@ -36,7 +32,7 @@ export type AuthenticationSystemProviderProps = {
 	 * 1. enables logging of everything that happens in the app, a la Redux logger
 	 * 2. enables pushing records of events/state to somewhere controlled during tests
 	 */
-	eventSink?: (state: AuthenticationSystemState) => void;
+	eventSink?: (state: AuthState) => void;
 };
 
 export function AuthenticationSystemProvider({
