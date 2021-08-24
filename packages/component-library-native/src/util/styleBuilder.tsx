@@ -24,8 +24,10 @@ export const variantToTheme = ({ component, styles }: variantProps): any[] => {
 	variants.map((v) => {
 		if (themeRef[v]) {
 			variantStyles.push(themeRef[v]);
-		} else if ((component === "text" || component === "label") && themeRef.text.fontSize[v]) {
-			variantStyles.push(themeRef?.text.fontSize[v]);
+		} else if ((component === "text" || component === "label") && themeRef?.fontSize[v]) {
+			variantStyles.push(themeRef?.fontSize[v]);
+		} else if ((component === "text" || component === "label") && themeRef?.text[v]) {
+			variantStyles.push(themeRef?.text[v]);
 		} else if (component === "text" && themeRef?.buttons[v]) {
 			variantStyles.push(themeRef?.buttons[v]);
 		} else if (themeWorkAround.colors[v]) {
