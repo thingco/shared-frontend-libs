@@ -42,11 +42,7 @@ export type IconType =
  * @param stroke
  * @param strokeWidth
  */
-function iconSelector(
-	iconType: IconType,
-	stroke: string,
-	strokeWidth: number
-): JSX.Element {
+function iconSelector(iconType: IconType, strokeWidth: number, stroke?: string): JSX.Element {
 	switch (iconType) {
 		case "info-circle":
 			return (
@@ -1010,7 +1006,7 @@ function iconSelector(
 interface LineIconProps {
 	iconType: IconType;
 	size: number | string;
-	stroke: string;
+	stroke?: string;
 	strokeWidth?: number;
 	style?: ViewStyle;
 }
@@ -1023,6 +1019,6 @@ export const LineIcon = ({
 	style = {},
 }: LineIconProps): JSX.Element => (
 	<View style={{ height: size, width: size, ...style }}>
-		{iconSelector(iconType as IconType, stroke, strokeWidth)}
+		{iconSelector(iconType as IconType, strokeWidth, stroke)}
 	</View>
 );

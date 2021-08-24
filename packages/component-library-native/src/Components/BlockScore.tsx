@@ -17,9 +17,9 @@ interface BlockScoreProps {
 	total?: number;
 	blockChange?: number;
 	from?: string;
-	sinceText: string;
-	noScoreText: string;
-	noChangeText: string;
+	sinceText?: string;
+	noScoreText?: string;
+	noChangeText?: string;
 }
 export const BlockScore = ({
 	score,
