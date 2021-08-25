@@ -2,7 +2,7 @@ export * from "./Buttons";
 export * from "./Containers";
 export * from "./Typography";
 export * from "./TextEntry";
-export * from "./CodeEntry";
+export * from "./CodeInput";
 export * from "./BlockScore";
 export * from "./BlockScoreSmall";
 export * from "./Carousel";
