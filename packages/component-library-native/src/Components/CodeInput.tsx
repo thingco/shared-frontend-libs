@@ -102,7 +102,7 @@ export const CodeInput = ({
 	};
 
 	return (
-		<View style={{ flex: 1 }}>
+		<>
 			<View
 				style={{
 					flexDirection: "row",
@@ -129,6 +129,6 @@ export const CodeInput = ({
 					opacity: 0,
 				}}
 			></TextInput>
-		</View>
+		</>
 	);
 };
