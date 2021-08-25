@@ -1,6 +1,11 @@
 import I18n from "i18n-js";
 import React from "react";
-import { ActivityIndicator, Dimensions, TouchableOpacity } from "react-native";
+import {
+	ActivityIndicator,
+	Dimensions,
+	TouchableOpacity,
+	GestureResponderEvent,
+} from "react-native";
 import { useTheme } from "../Provider/ThemeProvider";
 import { View } from "./Containers";
 import { Text } from "./Typography";
@@ -15,7 +20,7 @@ interface CarouselEventProps {
 	item: CarouselItem;
 	index: number;
 	height: number | string;
-	onPress: (arg: any) => void;
+	onPress: (e: GestureResponderEvent, index: number) => void;
 }
 
 interface CarouselEventEmptyProps {
@@ -90,7 +95,7 @@ export const CarouselEvent = ({ item, index, height, onPress }: CarouselEventPro
 					paddingTop: 18, // needed for shadow
 					paddingBottom: 18, // needed for shadow,
 				}}
-				onPress={(e) => onPress(e)}
+				onPress={(e) => onPress(e, index)}
 			>
 				<View variant={"card"} style={{ minHeight: height }}>
 					<View style={{ marginTop: 6, marginBottom: 6 }}>
@@ -130,7 +135,7 @@ export const CarouselEvent = ({ item, index, height, onPress }: CarouselEventPro
 					paddingTop: 18, // needed for shadow
 					paddingBottom: 18, // needed for shadow
 				}}
-				onPress={(e) => onPress(e)}
+				onPress={(e) => onPress(e, index)}
 			>
 				<View variant={"card"} style={{ minHeight: height }}>
 					<View style={{ flex: 1, display: "flex", flexDirection: "row" }}>
