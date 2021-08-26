@@ -7,11 +7,11 @@ import { MSG__UNSCOPED_HOOK } from "./auth-system-utils";
 import type { ReactNode } from "react";
 import type { AuthInterpreter, AuthMachine, AuthState } from "./auth-system";
 
-const AuthSystemProviderContext = createContext<{
+const AuthProviderContext = createContext<{
 	authenticator: AuthInterpreter;
 } | null>(null);
 
-export type AuthenticationSystemProviderProps = {
+export type AuthProviderProps = {
 	/**
 	 * The finite state machine itself. This is passed in fully constructed: this allows for
 	 * any modifications to be made outside of the provider (for example, for config or for testing).
@@ -35,12 +35,12 @@ export type AuthenticationSystemProviderProps = {
 	eventSink?: (state: AuthState) => void;
 };
 
-export function AuthenticationSystemProvider({
+export function AuthProvider({
 	authenticationSystem,
 	children,
 	useDevTools = false,
 	eventSink = undefined,
-}: AuthenticationSystemProviderProps) {
+}: AuthProviderProps) {
 	const authenticator = useInterpret(authenticationSystem, { devTools: useDevTools }, (state) => {
 		if (eventSink) {
 			if (state.changed) {
@@ -50,14 +50,14 @@ export function AuthenticationSystemProvider({
 	});
 
 	return (
-		<AuthSystemProviderContext.Provider value={{ authenticator }}>
+		<AuthProviderContext.Provider value={{ authenticator }}>
 			{children}
-		</AuthSystemProviderContext.Provider>
+		</AuthProviderContext.Provider>
 	);
 }
 
-export function useAuthSystem() {
-	const ctx = useContext(AuthSystemProviderContext);
+export function useAuthInterpreter() {
+	const ctx = useContext(AuthProviderContext);
 	if (!ctx) throw new Error(MSG__UNSCOPED_HOOK("useAuthSystem"));
 	return ctx.authenticator;
 }

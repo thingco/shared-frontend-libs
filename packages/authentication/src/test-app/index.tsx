@@ -7,10 +7,12 @@ import { App } from "./App";
 
 Auth.configure({
 	region: "eu-west-1",
-	userPoolId: "eu-west-1_FrRYZGJO6",
-	userPoolWebClientId: "47jbuurvrfafht3em4dvv0qa4d",
+	userPoolId: "eu-west-1_ALKzWpcBv",
+	userPoolWebClientId: "141rcrvnpc2vktj9mbjrmok0l4",
 	authenticationFlowType: "CUSTOM_AUTH",
 });
+
+console.log(Auth.configure());
 
 inspect({
 	url: "https://statecharts.io/inspect",

@@ -1,14 +1,9 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createMachine, StateFrom } from "xstate";
 import { createModel } from "xstate/lib/model";
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { ContextFrom, EventFrom, InterpreterFrom } from "xstate";
-import type {
-	AuthenticationSystemConfig,
-	AuthenticationSystemError,
-	DeviceSecurityType,
-	LoginFlowType,
-} from "./types";
+import type { AuthConfig, AuthError, DeviceSecurityType, LoginFlowType } from "./types";
 
 /* ------------------------------------------------------------------------------------------------------ *\
  * CORE TYPES
@@ -67,7 +62,7 @@ export enum AuthStateId {
  * The context (internal state object) of the auth system FSM
  */
 type InternalAuthContext = {
-	error?: AuthenticationSystemError;
+	error?: AuthError;
 	loginFlowType: LoginFlowType;
 	deviceSecurityType: DeviceSecurityType;
 	username?: string;
@@ -138,7 +133,7 @@ type InternalAuthTypeState =
 	| { value: AuthStateId.awaitingOtpUsername; context: InternalAuthContext }
 	| { value: AuthStateId.awaitingOtp; context: InternalAuthContext & { user: any; username: string } }
 	| { value: AuthStateId.awaitingUsernameAndPassword; context: InternalAuthContext }
-	| {	value: AuthStateId.awaitingForcedChangePassword; context: InternalAuthContext & { user: any; username: string; error: AuthenticationSystemError } }
+	| {	value: AuthStateId.awaitingForcedChangePassword; context: InternalAuthContext & { user: any; username: string; error: AuthError } }
 	| { value: AuthStateId.awaitingChangePassword; context: InternalAuthContext & { username: string } }
 	| { value: AuthStateId.awaitingPasswordResetRequest; context: InternalAuthContext }
 	| { value: AuthStateId.awaitingPasswordResetSubmission; context: InternalAuthContext & { username: string } }
@@ -189,7 +184,7 @@ const implementations = {
 		}),
 		assignUser: model.assign((_, e) => {
 			if (e.type === "USERNAME_VALID" || e.type === "USERNAME_AND_PASSWORD_VALID" || e.type === "USERNAME_AND_PASSWORD_VALID_PASSWORD_CHANGE_REQUIRED") {
-				return { username: e.username };
+				return { user: e.user };
 			}
 			return {};
 		}),
@@ -452,6 +447,10 @@ export type AuthInterpreter = InterpreterFrom<AuthMachine>;
  */
 export type AuthState = StateFrom<AuthMachine>;
 
+/**
+ * The model for the machine. This is then used to infer types and provides much better inference than
+ * using the AuthMachine-based types directly for Context and for Events.
+ */
 type AuthModel = typeof model;
 
 /**
@@ -472,10 +471,9 @@ export type AuthEvent = EventFrom<AuthModel>;
  * @param config - the build-time config to be passed into the machine prior to instantiation.
  * @returns - the configured auth system
  */
-
 export function createAuthenticationSystem({
 	loginFlowType = "OTP",
 	deviceSecurityType = "NONE",
-}: AuthenticationSystemConfig = {}): AuthMachine {
+}: AuthConfig = {}): AuthMachine {
 	return machine.withContext({ loginFlowType, deviceSecurityType });
 }

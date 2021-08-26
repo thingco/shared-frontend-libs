@@ -2,7 +2,7 @@ export type DeviceSecurityType = "PIN" | "BIOMETRIC" | "NONE";
 
 export type LoginFlowType = "OTP" | "USERNAME_PASSWORD";
 
-export type AuthenticationSystemError =
+export type AuthError =
 	| "USERNAME_INVALID"
 	| "PASSWORD_CHANGE_FAILURE"
 	| "PASSWORD_CHANGE_REQUIRED"
@@ -20,7 +20,7 @@ export type AuthenticationSystemError =
 	| "LOG_OUT_FAILURE"
 	| null;
 
-export type AuthenticationSystemConfig = {
+export type AuthConfig = {
 	loginFlowType?: LoginFlowType;
 	deviceSecurityType?: DeviceSecurityType;
 };

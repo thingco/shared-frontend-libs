@@ -1,10 +1,10 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createModel } from "@xstate/test";
 import { createMachine, interpret } from "xstate";
 
 import { AuthStateId, createAuthenticationSystem, machine } from "./auth-system";
-import { AuthenticationSystemError } from "./types";
+import { AuthError } from "./types";
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { AuthEvent, AuthInterpreter } from "./auth-system";
 describe("sanity checks for the overall auth system", () => {
 	it("should have an id of 'authSystem'", () => {
@@ -109,6 +109,8 @@ describe("authentication test system using OTP (ignoring device security)", () =
 				meta: {
 					test: async (service: AuthInterpreter) => {
 						expect(service.state.matches(AuthStateId.awaitingOtp));
+						expect(service.state.context.username).toBe(VALID_USERNAME);
+						expect(service.state.context.user).toBe(USER_OBJECT);
 					},
 				},
 			},
@@ -120,6 +122,8 @@ describe("authentication test system using OTP (ignoring device security)", () =
 					test: async (service: AuthInterpreter) => {
 						expect(service.state.matches(AuthStateId.awaitingOtp));
 						expect(service.state.context.error).toBe("PASSWORD_INVALID_2_RETRIES_REMAINING");
+						expect(service.state.context.username).toBe(VALID_USERNAME);
+						expect(service.state.context.user).toBe(USER_OBJECT);
 					},
 				},
 			},
@@ -131,6 +135,8 @@ describe("authentication test system using OTP (ignoring device security)", () =
 					test: async (service: AuthInterpreter) => {
 						expect(service.state.matches(AuthStateId.awaitingOtp));
 						expect(service.state.context.error).toBe("PASSWORD_INVALID_1_RETRIES_REMAINING");
+						expect(service.state.context.username).toBe(VALID_USERNAME);
+						expect(service.state.context.user).toBe(USER_OBJECT);
 					},
 				},
 			},
@@ -236,9 +242,7 @@ describe("authentication test system using username and password (ignoring devic
 				meta: {
 					test: async (service: AuthInterpreter) => {
 						expect(service.state.matches(AuthStateId.awaitingUsernameAndPassword));
-						expect(service.state.context.error).toBe(
-							"USERNAME_AND_PASSWORD_INVALID" as AuthenticationSystemError
-						);
+						expect(service.state.context.error).toBe("USERNAME_AND_PASSWORD_INVALID" as AuthError);
 					},
 				},
 			},
@@ -250,9 +254,7 @@ describe("authentication test system using username and password (ignoring devic
 				meta: {
 					test: async (service: AuthInterpreter) => {
 						expect(service.state.matches(AuthStateId.awaitingForcedChangePassword));
-						expect(service.state.context.error).toBe(
-							"PASSWORD_CHANGE_REQUIRED" as AuthenticationSystemError
-						);
+						expect(service.state.context.error).toBe("PASSWORD_CHANGE_REQUIRED" as AuthError);
 					},
 				},
 			},
@@ -263,9 +265,7 @@ describe("authentication test system using username and password (ignoring devic
 				meta: {
 					test: async (service: AuthInterpreter) => {
 						expect(service.state.matches(AuthStateId.awaitingForcedChangePassword));
-						expect(service.state.context.error).toBe(
-							"PASSWORD_CHANGE_FAILURE" as AuthenticationSystemError
-						);
+						expect(service.state.context.error).toBe("PASSWORD_CHANGE_FAILURE" as AuthError);
 					},
 				},
 			},
@@ -287,9 +287,7 @@ describe("authentication test system using username and password (ignoring devic
 				meta: {
 					test: async (service: AuthInterpreter) => {
 						expect(service.state.matches(AuthStateId.awaitingPasswordResetRequest));
-						expect(service.state.context.error).toBe(
-							"PASSWORD_RESET_REQUEST_FAILURE" as AuthenticationSystemError
-						);
+						expect(service.state.context.error).toBe("PASSWORD_RESET_REQUEST_FAILURE" as AuthError);
 					},
 				},
 			},
@@ -458,7 +456,7 @@ describe("authentication test system for PIN (ignoring login flow)", () => {
 				meta: {
 					test: async (service: AuthInterpreter) => {
 						expect(service.state.matches(AuthStateId.awaitingCurrentPinInput));
-						expect(service.state.context.error).toBe("PIN_INVALID" as AuthenticationSystemError);
+						expect(service.state.context.error).toBe("PIN_INVALID" as AuthError);
 					},
 				},
 			},
@@ -480,9 +478,7 @@ describe("authentication test system for PIN (ignoring login flow)", () => {
 				meta: {
 					test: async (service: AuthInterpreter) => {
 						expect(service.state.matches(AuthStateId.awaitingCurrentPinInput));
-						expect(service.state.context.error).toBe(
-							"NEW_PIN_INVALID" as AuthenticationSystemError
-						);
+						expect(service.state.context.error).toBe("NEW_PIN_INVALID" as AuthError);
 					},
 				},
 			},
@@ -505,9 +501,7 @@ describe("authentication test system for PIN (ignoring login flow)", () => {
 				meta: {
 					test: async (service: AuthInterpreter) => {
 						expect(service.state.matches(AuthStateId.awaitingChangePinInput));
-						expect(service.state.context.error).toBe(
-							"PIN_CHANGE_FAILURE" as AuthenticationSystemError
-						);
+						expect(service.state.context.error).toBe("PIN_CHANGE_FAILURE" as AuthError);
 					},
 				},
 			},

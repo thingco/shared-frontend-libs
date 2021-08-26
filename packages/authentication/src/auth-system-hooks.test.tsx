@@ -96,7 +96,7 @@ jest.mock("@thingco/logger", () => ({
 }));
 
 jest.mock("./AuthSystemProvider", () => ({
-	useAuthSystem: jest.fn(() => ({
+	useAuthInterpreter: jest.fn(() => ({
 		send: (event: AuthEvent) => eventSink.log(event),
 	})),
 }));
@@ -164,7 +164,7 @@ const hookTestMap: HookTestMap = [
 			callbacks: [
 				{
 					args: [VALID_USERNAME],
-					callback: jest.fn(() => Promise.resolve(USER_OBJECT)),
+					callback: jest.fn((_username) => Promise.resolve(USER_OBJECT)),
 					expectedEvent: {
 						type: "USERNAME_VALID",
 						username: VALID_USERNAME,
@@ -173,7 +173,7 @@ const hookTestMap: HookTestMap = [
 				},
 				{
 					args: [INVALID_USERNAME],
-					callback: jest.fn(() => Promise.reject()),
+					callback: jest.fn((_username) => Promise.reject()),
 					expectedEvent: { type: "USERNAME_INVALID", error: "USERNAME_INVALID" },
 				},
 			],
@@ -186,18 +186,18 @@ const hookTestMap: HookTestMap = [
 			callbacks: [
 				{
 					args: [VALID_CODE],
-					callback: jest.fn(() => Promise.resolve(USER_OBJECT)),
+					callback: jest.fn((_user, _password) => Promise.resolve(USER_OBJECT)),
 					expectedEvent: { type: "OTP_VALID" },
 				},
 				{
 					args: [INVALID_CODE],
-					callback: jest.fn(() => Promise.reject()),
+					callback: jest.fn((_user, _password) => Promise.reject()),
 					expectedEvent: { type: "OTP_INVALID", error: "PASSWORD_INVALID_2_RETRIES_REMAINING" },
 				},
 				{
 					runs: 3,
 					args: [INVALID_CODE],
-					callback: jest.fn(() => Promise.reject()),
+					callback: jest.fn((_user, _password) => Promise.reject()),
 					expectedEvent: {
 						type: "OTP_INVALID_RETRIES_EXCEEDED",
 						error: "PASSWORD_RETRIES_EXCEEDED",
@@ -214,7 +214,7 @@ const hookTestMap: HookTestMap = [
 			callbacks: [
 				{
 					args: [VALID_USERNAME, VALID_PASSWORD],
-					callback: jest.fn(() => Promise.resolve(USER_OBJECT)),
+					callback: jest.fn((_username, _password) => Promise.resolve(USER_OBJECT)),
 					expectedEvent: {
 						type: "USERNAME_AND_PASSWORD_VALID",
 						username: VALID_USERNAME,
@@ -223,7 +223,9 @@ const hookTestMap: HookTestMap = [
 				},
 				{
 					args: [VALID_USERNAME, TEMPORARY_PASSWORD],
-					callback: jest.fn(() => Promise.resolve({ NEW_PASSWORD_REQUIRED: true, ...USER_OBJECT })),
+					callback: jest.fn((_username, _password) =>
+						Promise.resolve({ NEW_PASSWORD_REQUIRED: true, ...USER_OBJECT })
+					),
 					expectedEvent: {
 						type: "USERNAME_AND_PASSWORD_VALID_PASSWORD_CHANGE_REQUIRED",
 						user: { NEW_PASSWORD_REQUIRED: true, ...USER_OBJECT },
@@ -233,7 +235,7 @@ const hookTestMap: HookTestMap = [
 				},
 				{
 					args: [INVALID_USERNAME, INVALID_PASSWORD],
-					callback: jest.fn(() => Promise.reject()),
+					callback: jest.fn((_username, _password) => Promise.reject()),
 					expectedEvent: {
 						type: "USERNAME_AND_PASSWORD_INVALID",
 						error: "USERNAME_AND_PASSWORD_INVALID",
@@ -252,12 +254,12 @@ const hookTestMap: HookTestMap = [
 			callbacks: [
 				{
 					args: [VALID_PASSWORD],
-					callback: jest.fn(() => Promise.resolve(USER_OBJECT)),
+					callback: jest.fn((_code, _password) => Promise.resolve(USER_OBJECT)),
 					expectedEvent: { type: "PASSWORD_CHANGE_SUCCESS" },
 				},
 				{
 					args: [INVALID_PASSWORD],
-					callback: jest.fn(() => Promise.reject()),
+					callback: jest.fn((_code, _password) => Promise.reject()),
 					expectedEvent: { type: "PASSWORD_CHANGE_FAILURE", error: "PASSWORD_CHANGE_FAILURE" },
 				},
 			],
