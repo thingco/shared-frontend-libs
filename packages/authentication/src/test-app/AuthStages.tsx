@@ -15,7 +15,7 @@ export const SessionCheck = () => {
 			<Form submitCb={checkSession}>
 				<Form.Elements disabled={!isActive || isLoading} error={error}>
 					<Form.Controls>
-						<Form.Submit label="Check Session" />
+						<Form.Submit label="Check Session" testid="sessionCheckSubmit" />
 					</Form.Controls>
 				</Form.Elements>
 			</Form>
@@ -41,9 +41,10 @@ export const OtpUsernameInput = () => {
 						label="Enter an email address"
 						value={username}
 						valueSetter={setUsername}
+						testid="otpUsernameInput"
 					/>
 					<Form.Controls>
-						<Form.Submit label="Submit username" />
+						<Form.Submit label="Submit username" testid="otpUsernameSubmit" />
 					</Form.Controls>
 				</Form.Elements>
 			</Form>
@@ -72,9 +73,10 @@ export const OtpInput = () => {
 						label="Enter the OTP you have been sent:"
 						value={otp}
 						valueSetter={setOtp}
+						testid="otpInput"
 					/>
 					<Form.Controls>
-						<Form.Submit label="Submit OTP" />
+						<Form.Submit label="Submit OTP" testid="otpSubmit" />
 					</Form.Controls>
 				</Form.Elements>
 			</Form>
@@ -129,7 +131,7 @@ export const CheckPin = () => {
 			<Form submitCb={checkForExistingPin}>
 				<Form.Elements disabled={!isActive || isLoading} error={error}>
 					<Form.Controls>
-						<Form.Submit label="Check for an existing PIN" />
+						<Form.Submit label="Check for an existing PIN" testid="checkPinSubmit" />
 					</Form.Controls>
 				</Form.Elements>
 			</Form>
@@ -155,9 +157,10 @@ export const CurrentPinInput = () => {
 						label="Enter your current pin:"
 						value={pin}
 						valueSetter={setPin}
+						testid="currentPinInput"
 					/>
 					<Form.Controls>
-						<Form.Submit label="Submit PIN" />
+						<Form.Submit label="Submit PIN" testid="currentPinSubmit" />
 					</Form.Controls>
 				</Form.Elements>
 			</Form>
@@ -183,9 +186,10 @@ export const NewPinInput = () => {
 						label="Enter a new PIN:"
 						value={pin}
 						valueSetter={setPin}
+						testid="newPinInput"
 					/>
 					<Form.Controls>
-						<Form.Submit label="Submit new PIN" />
+						<Form.Submit label="Submit new PIN" testid="newPinSubmit" />
 					</Form.Controls>
 				</Form.Elements>
 			</Form>
@@ -213,6 +217,7 @@ export const ChangePinInput = () => {
 						label="Enter your current PIN:"
 						value={oldPin}
 						valueSetter={setOldPin}
+						testid="oldPinInput"
 					/>
 					<Form.InputGroup
 						error={error}
@@ -222,10 +227,15 @@ export const ChangePinInput = () => {
 						label="Enter your new PIN:"
 						value={newPin}
 						valueSetter={setNewPin}
+						testid="newPinSubmit"
 					/>
 					<Form.Controls>
-						<Form.SecondaryAction label="Cancel PIN change!" actionCallback={cancelChangePin} />
-						<Form.Submit label="Change your PIN" />
+						<Form.SecondaryAction
+							label="Cancel PIN change!"
+							actionCallback={cancelChangePin}
+							testid="newPinCancel"
+						/>
+						<Form.Submit label="Change your PIN" testid="newPinSubmit" />
 					</Form.Controls>
 				</Form.Elements>
 			</Form>
@@ -241,14 +251,14 @@ export const Authenticated = () => {
 			<Form submitCb={requestLogOut}>
 				<Form.Elements disabled={!isActive}>
 					<Form.Controls>
-						<Form.Submit label="I want to log out!" />
+						<Form.Submit label="I want to log out!" testid="authenticatedLogOutSubmit" />
 					</Form.Controls>
 				</Form.Elements>
 			</Form>
 			<Form submitCb={requestPinChange}>
 				<Form.Elements disabled={!isActive}>
 					<Form.Controls>
-						<Form.Submit label="I want to change my PIN!" />
+						<Form.Submit label="I want to change my PIN!" testid="authenticatedPinChangeSubmit" />
 					</Form.Controls>
 				</Form.Elements>
 			</Form>
@@ -266,8 +276,12 @@ export const LoggingOut = () => {
 			<Form submitCb={logOut}>
 				<Form.Elements disabled={!isActive || isLoading} error={error}>
 					<Form.Controls>
-						<Form.SecondaryAction label="Cancel logout!" actionCallback={cancelLogOut} />
-						<Form.Submit label="I really do want to log out!" />
+						<Form.SecondaryAction
+							label="Cancel logout!"
+							actionCallback={cancelLogOut}
+							testid="loggingOutCancel"
+						/>
+						<Form.Submit label="I really do want to log out!" testid="loggingOutSubmit" />
 					</Form.Controls>
 				</Form.Elements>
 			</Form>

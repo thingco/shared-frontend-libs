@@ -3,8 +3,11 @@ import { useLogger } from "@thingco/logger";
 import { useSelector } from "@xstate/react";
 import { useCallback, useEffect, useState } from "react";
 
-import { AuthContext, AuthState, AuthStateId } from "./auth-system";
+import { AuthStateId } from "./auth-system";
 import { useAuthInterpreter } from "./AuthSystemProvider";
+
+import type { AuthContext, AuthState } from "./auth-system";
+import type * as AuthCb from "./auth-system-hook-callbacks";
 
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 type ExposedStateId = Exclude<
@@ -44,12 +47,7 @@ const contextSelectors: ContextSelectorMap = {
 	username: (state) => state.context.username,
 };
 
-/**
- * Check for an active session. Failure of request === no session.
- */
-type CheckSessionCb = () => Promise<any>;
-
-export function useAwaitingSessionCheck(cb: CheckSessionCb) {
+export function useAwaitingSessionCheck(cb: AuthCb.CheckSessionCb) {
 	const authenticator = useAuthInterpreter();
 	const error = useSelector(authenticator, contextSelectors.error);
 	const isActive = useSelector(authenticator, stateSelectors.isAwaitingSessionCheck!);
@@ -83,13 +81,7 @@ export function useAwaitingSessionCheck(cb: CheckSessionCb) {
 	};
 }
 
-/**
- * Validate a username when using OTP flow. Success will return a user object, failure
- * means no username found.
- */
-type ValidateOtpUsernameCb<User> = (username: string) => Promise<User>;
-
-export function useAwaitingOtpUsername<User = any>(cb: ValidateOtpUsernameCb<User>) {
+export function useAwaitingOtpUsername<User = any>(cb: AuthCb.ValidateOtpUsernameCb<User>) {
 	const authenticator = useAuthInterpreter();
 	const error = useSelector(authenticator, contextSelectors.error);
 	const isActive = useSelector(authenticator, stateSelectors.isAwaitingOtpUsername!);
@@ -127,14 +119,7 @@ export function useAwaitingOtpUsername<User = any>(cb: ValidateOtpUsernameCb<Use
 	};
 }
 
-/**
- * Validate an OTP. Success will return a user object. The user may attempt to enter the
- * OTP a configured number of times (default is three) times; on final failure, they will
- * be bumped back to username input.
- */
-type ValidateOtpCb<User> = (user: User, password: string) => Promise<User>;
-
-export function useAwaitingOtp<User = any>(cb: ValidateOtpCb<User>) {
+export function useAwaitingOtp<User = any>(cb: AuthCb.ValidateOtpCb<User>) {
 	const authenticator = useAuthInterpreter();
 	const error = useSelector(authenticator, contextSelectors.error);
 	const isActive = useSelector(authenticator, stateSelectors.isAwaitingOtp!);
@@ -157,13 +142,14 @@ export function useAwaitingOtp<User = any>(cb: ValidateOtpCb<User>) {
 				authenticator.send({ type: "OTP_VALID" });
 			} catch (err) {
 				logger.log(err);
-				if (currentAttempts === 3) {
+				if (currentAttempts >= 3) {
 					logger.warn(err);
 					logger.info("OTP retries exceeded");
 					authenticator.send({
 						type: "OTP_INVALID_RETRIES_EXCEEDED",
 						error: "PASSWORD_RETRIES_EXCEEDED",
 					});
+					setAttemptsMade(0);
 				} else {
 					logger.warn(err);
 					logger.info(`OTP invalid, ${3 - currentAttempts} tries remaining`);
@@ -171,9 +157,9 @@ export function useAwaitingOtp<User = any>(cb: ValidateOtpCb<User>) {
 						type: "OTP_INVALID",
 						error: `PASSWORD_INVALID_${3 - currentAttempts}_RETRIES_REMAINING`,
 					});
+					setAttemptsMade(currentAttempts);
 				}
 			} finally {
-				setAttemptsMade(currentAttempts);
 				setIsLoading(false);
 			}
 		},
@@ -193,14 +179,6 @@ export function useAwaitingOtp<User = any>(cb: ValidateOtpCb<User>) {
 }
 
 /**
- * Validate a username and password together. Success will return a user object, failure
- * means one or both is wrong. The call may also succeed with a return value specifying
- * that the user must change their password: success of this is important, as the user
- * object can be passed to the next stage of authentication.
- */
-type ValidateUsernameAndPasswordCb<User> = (username: string, password: string) => Promise<User>;
-
-/**
  * TODO: extract info from user object. This, for Cognito, will be the `challengeName`
  * getter property on the returned user object.
  */
@@ -209,7 +187,7 @@ function newPasswordIsRequired<User = any>(user: User) {
 }
 
 export function useAwaitingUsernameAndPassword<User = any>(
-	cb: ValidateUsernameAndPasswordCb<User>
+	cb: AuthCb.ValidateUsernameAndPasswordCb<User>
 ) {
 	const authenticator = useAuthInterpreter();
 	const error = useSelector(authenticator, contextSelectors.error);
@@ -262,15 +240,8 @@ export function useAwaitingUsernameAndPassword<User = any>(
 	};
 }
 
-/**
- * Validate a new password. The user has already submitted a valid password, but the backend systems
- * require that this be changed: the standard reason would be that a temporary password has been
- * sent out.
- */
-type ValidateForceChangePasswordCb<User> = (user: User, password: string) => Promise<User>;
-
 export function useAwaitingForcedChangePassword<User = any>(
-	cb: ValidateForceChangePasswordCb<User>
+	cb: AuthCb.ValidateForceChangePasswordCb<User>
 ) {
 	const authenticator = useAuthInterpreter();
 	const error = useSelector(authenticator, contextSelectors.error);
@@ -307,18 +278,12 @@ export function useAwaitingForcedChangePassword<User = any>(
 }
 
 /**
- * Given a username, request a new password for that user. Failure means the call failed,
- * success will trigger the system to send out a reset code to the user's email address.
- */
-type RequestNewPasswordCb = (username: string) => Promise<any>;
-
-/**
  * To request a new password, a user must submit their username. At this point, the username
  * is not stored anywhere, so the screen just needs to accept that. On success, the username
  * will be stored, to be passed onto the next request (submitting a new password + the confirmation
  * code they have been sent).
  */
-export function useAwaitingPasswordResetRequest(cb: RequestNewPasswordCb) {
+export function useAwaitingPasswordResetRequest(cb: AuthCb.RequestNewPasswordCb) {
 	const authenticator = useAuthInterpreter();
 	const error = useSelector(authenticator, contextSelectors.error);
 	const isActive = useSelector(authenticator, stateSelectors.isAwaitingPasswordResetRequest!);
@@ -353,13 +318,7 @@ export function useAwaitingPasswordResetRequest(cb: RequestNewPasswordCb) {
 	};
 }
 
-/**
- * Submit a new password following a request to reset the current one. The user will
- * have been sent a code after making the reset request, so need to enter that + the new password.
- */
-type SubmitNewPasswordCb = (username: string, code: string, newPassword: string) => Promise<any>;
-
-export function useAwaitingPasswordResetSubmission(cb: SubmitNewPasswordCb) {
+export function useAwaitingPasswordResetSubmission(cb: AuthCb.SubmitNewPasswordCb) {
 	const authenticator = useAuthInterpreter();
 	const error = useSelector(authenticator, contextSelectors.error);
 	const isActive = useSelector(authenticator, stateSelectors.isAwaitingPasswordResetSubmission!);
@@ -394,16 +353,7 @@ export function useAwaitingPasswordResetSubmission(cb: SubmitNewPasswordCb) {
 	};
 }
 
-/**
- * Submit a change password request. For an implemetation, see the Amplify docs here:
- * https://docs.amplify.aws/lib/auth/manageusers/q/platform/js/#change-password
- *
- * The actual `changePassword` function requires the CognitoUser object as the first
- * argument, but because changing password can only occur when a user is logged in, then
- * the CognitoUser object is available by use `Auth.currentAuthenticatedUser`
- */
-type ChangePasswordCb = (oldPassword: string, newPassword: string) => Promise<any>;
-export function useAwaitingChangePassword(cb: ChangePasswordCb) {
+export function useAwaitingChangePassword(cb: AuthCb.ChangePasswordCb) {
 	const authenticator = useAuthInterpreter();
 	const error = useSelector(authenticator, contextSelectors.error);
 	const isActive = useSelector(authenticator, stateSelectors.isAwaitingChangePassword!);
@@ -441,17 +391,11 @@ export function useAwaitingChangePassword(cb: ChangePasswordCb) {
 }
 
 /**
- * Check that, in the secure async storage being used, there is a value stored under
- * whatever is being used for the PIN key.
- */
-type CheckForExistingPinCb = () => Promise<any>;
-
-/**
  * Given the `CheckForExistingPin` callback, the stage should test for existence
  * of a pin. From this, can infer whether the system should move the user to
  * inputting their current PIN or creating a new one.
  */
-export function usePinChecks(cb: CheckForExistingPinCb) {
+export function usePinChecks(cb: AuthCb.CheckForExistingPinCb) {
 	const authenticator = useAuthInterpreter();
 	const error = useSelector(authenticator, contextSelectors.error);
 	const isActive = useSelector(authenticator, stateSelectors.isPinChecks!);
@@ -486,9 +430,7 @@ export function usePinChecks(cb: CheckForExistingPinCb) {
 	};
 }
 
-type ValidatePinCb = (pin: string) => Promise<any>;
-
-export function useAwaitingCurrentPinInput(cb: ValidatePinCb) {
+export function useAwaitingCurrentPinInput(cb: AuthCb.ValidatePinCb) {
 	const authenticator = useAuthInterpreter();
 	const error = useSelector(authenticator, contextSelectors.error);
 	const isActive = useSelector(authenticator, stateSelectors.isAwaitingCurrentPinInput!);
@@ -526,9 +468,7 @@ export function useAwaitingCurrentPinInput(cb: ValidatePinCb) {
 	};
 }
 
-type SetNewPinCb = (pin: string) => Promise<any>;
-
-export function useAwaitingNewPinInput(cb: SetNewPinCb) {
+export function useAwaitingNewPinInput(cb: AuthCb.SetNewPinCb) {
 	const authenticator = useAuthInterpreter();
 	const error = useSelector(authenticator, contextSelectors.error);
 	const isActive = useSelector(authenticator, stateSelectors.isAwaitingNewPinInput!);
@@ -566,9 +506,7 @@ export function useAwaitingNewPinInput(cb: SetNewPinCb) {
 	};
 }
 
-type ChangePinCb = (oldPin: string, newPin: string) => Promise<any>;
-
-export function useAwaitingChangePinInput(cb: ChangePinCb) {
+export function useAwaitingChangePinInput(cb: AuthCb.ChangePinCb) {
 	const authenticator = useAuthInterpreter();
 	const error = useSelector(authenticator, contextSelectors.error);
 	const isActive = useSelector(authenticator, stateSelectors.isAwaitingChangePinInput!);
@@ -609,11 +547,7 @@ export function useAwaitingChangePinInput(cb: ChangePinCb) {
 	};
 }
 
-/**
- * Submit a log out request. This shouldn't fail, but we handle the errors just in case.
- */
-type LogoutCb = () => Promise<any>;
-export function useLoggingOut(cb: LogoutCb) {
+export function useLoggingOut(cb: AuthCb.LogoutCb) {
 	const authenticator = useAuthInterpreter();
 	const error = useSelector(authenticator, contextSelectors.error);
 	const isActive = useSelector(authenticator, stateSelectors.isLoggingOut!);

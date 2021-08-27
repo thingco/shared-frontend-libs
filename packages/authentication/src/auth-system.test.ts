@@ -1,11 +1,22 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createModel } from "@xstate/test";
 import { createMachine, interpret } from "xstate";
 
 import { AuthStateId, createAuthenticationSystem, machine } from "./auth-system";
 import { AuthError } from "./types";
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { AuthEvent, AuthInterpreter } from "./auth-system";
+
+/* ========================================================================= *\
+ * 1. SANITY CHECKS
+ * 2. UTILITIES
+ * 3. TESTS
+\* ========================================================================= */
+
+/* ------------------------------------------------------------------------- *\
+ * 1. SANITY CHECKS
+\* ------------------------------------------------------------------------- */
+
 describe("sanity checks for the overall auth system", () => {
 	it("should have an id of 'authSystem'", () => {
 		expect(machine.id).toEqual("authSystem");
@@ -28,26 +39,27 @@ describe("sanity checks for the overall auth system", () => {
 	});
 });
 
+/* ------------------------------------------------------------------------- *\
+ * 2. UTILITIES
+\* ------------------------------------------------------------------------- */
+
 const VALID_USERNAME = "validuser@example.com";
-// const INVALID_USERNAME = "invaliduser@example.com";
-
-// const VALID_CODE = "123456";
-// const INVALID_CODE = "654321";
-// const ANOTHER_VALID_CODE = "123456";
-// const ANOTHER_INVALID_CODE = "654321";
-
-// const VALID_PASSWORD = "validpassword";
-// const ANOTHER_VALID_PASSWORD = "anothervalidpassword";
-// const INVALID_PASSWORD = "invalidpassword";
-// const TEMPORARY_PASSWORD = "temporarypassword";
-
 const USER_OBJECT = { description: "I represent the user object returned by the OAuth system" };
 
+/**
+ * XState's `test` package requires defining a test model (System Under Test), then providing
+ * a mapping of events in the SUT to events in the actual model. Make this less onerous, this
+ * usitlity function just requires the actual event to be sent passed in:
+ */
 function doSend(e: AuthEvent) {
 	return {
 		exec: ({ send }: AuthInterpreter) => send(e),
 	} as any;
 }
+
+/* ------------------------------------------------------------------------- *\
+ * 3. TESTS
+\* ------------------------------------------------------------------------- */
 
 describe("authentication test system using OTP (ignoring device security)", () => {
 	const subject = createAuthenticationSystem({ loginFlowType: "OTP", deviceSecurityType: "NONE" });

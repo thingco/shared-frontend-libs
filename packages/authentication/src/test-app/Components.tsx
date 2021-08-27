@@ -22,20 +22,27 @@ const FormControls = ({ children }: { children: React.ReactNode }) => (
 	<div className="form-controls">{children}</div>
 );
 
-const FormSubmit = ({ label }: { label: string }) => (
-	<button className="button button--primary" type="submit">
+const FormSubmit = ({ label, testid }: { label: string; testid: string }) => (
+	<button className="button button--primary" type="submit" data-testid={testid}>
 		{label}
 	</button>
 );
 
 const FormSecondaryAction = ({
-	label,
 	actionCallback,
+	label,
+	testid,
 }: {
-	label: string;
 	actionCallback: () => void;
+	label: string;
+	testid: string;
 }) => (
-	<button className="button button--secondary" type="button" onClick={() => actionCallback()}>
+	<button
+		className="button button--secondary"
+		type="button"
+		onClick={() => actionCallback()}
+		data-testid={testid}
+	>
 		{label}
 	</button>
 );
@@ -46,6 +53,7 @@ const InputGroup = ({
 	inputType,
 	isActive,
 	label,
+	testid,
 	value,
 	valueSetter,
 }: {
@@ -54,6 +62,7 @@ const InputGroup = ({
 	inputType: string;
 	isActive: boolean;
 	label: string;
+	testid: string;
 	value: string;
 	valueSetter: (v: string) => void;
 }) => (
@@ -71,8 +80,13 @@ const InputGroup = ({
 			value={value}
 			onChange={(e) => valueSetter(e.target.value)}
 			required={true}
+			data-testid={`${testid}_input`}
 		/>
-		{error && isActive && <p className="input-group__error">{error}</p>}
+		{error && isActive && (
+			<p className="input-group__error" data-testid={`${testid}_error`}>
+				{error}
+			</p>
+		)}
 	</div>
 );
 

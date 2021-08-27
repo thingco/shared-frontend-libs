@@ -2,8 +2,6 @@
 import { useInterpret } from "@xstate/react";
 import React, { createContext, useContext } from "react";
 
-import { MSG__UNSCOPED_HOOK } from "./auth-system-utils";
-
 import type { ReactNode } from "react";
 import type { AuthInterpreter, AuthMachine, AuthState } from "./auth-system";
 
@@ -58,6 +56,9 @@ export function AuthProvider({
 
 export function useAuthInterpreter() {
 	const ctx = useContext(AuthProviderContext);
-	if (!ctx) throw new Error(MSG__UNSCOPED_HOOK("useAuthSystem"));
+	if (!ctx)
+		throw new Error(
+			"`useAuthInterpreter` can only be used in a component tree beneath the `AuthProvider` component"
+		);
 	return ctx.authenticator;
 }
