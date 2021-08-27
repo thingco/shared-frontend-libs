@@ -2,7 +2,7 @@
 import { createModel } from "@xstate/test";
 import { createMachine, interpret } from "xstate";
 
-import { authSystemModel, createAuthSystem } from "../auth-system";
+import { authSystemModel, createAuthSystem } from "../authentication-system";
 import { VALID_PASSWORD, VALID_USERNAME } from "./mock-inputs";
 import { createMockOTPService } from "./mock-otp-service";
 

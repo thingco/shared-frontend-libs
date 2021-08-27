@@ -1,4 +1,4 @@
-import { authSystem, AuthSystemContext, AuthSystemEvents } from "./auth-system";
+import { authSystem, AuthSystemContext, AuthSystemEvents } from "./authentication-system";
 
 import type { State, StateValue, Subscription } from "xstate";
 
