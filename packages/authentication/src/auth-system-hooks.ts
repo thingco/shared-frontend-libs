@@ -33,6 +33,7 @@ const stateSelectors: ExposedStateSelectorMap = {
 	isAwaitingCurrentPinInput: (state) => state.matches(AuthStateId.awaitingCurrentPinInput),
 	isAwaitingNewPinInput: (state) => state.matches(AuthStateId.awaitingNewPinInput),
 	isAwaitingChangePinInput: (state) => state.matches(AuthStateId.awaitingChangePinInput),
+	isResettingPin: (state) => state.matches(AuthStateId.resettingPin),
 	isLoggingOut: (state) => state.matches(AuthStateId.loggingOut),
 	isAuthenticated: (state) => state.matches(AuthStateId.authenticated),
 };
@@ -460,11 +461,54 @@ export function useAwaitingCurrentPinInput(cb: AuthCb.ValidatePinCb) {
 		[authenticator, isActive]
 	);
 
+	const requestPinReset = () => authenticator.send({ type: "REQUEST_PIN_RESET" });
+
 	return {
 		error,
 		isActive,
 		isLoading,
 		validatePin,
+		requestPinReset,
+	};
+}
+
+export function useResettingPin(cb: AuthCb.LogoutCb) {
+	const authenticator = useAuthInterpreter();
+	const error = useSelector(authenticator, contextSelectors.error);
+	const isActive = useSelector(authenticator, stateSelectors.isResettingPin!);
+	const logger = useLogger();
+
+	const [isLoading, setIsLoading] = useState(false);
+
+	const resetPin = useCallback(async () => {
+		// prettier-ignore
+		logger.info("Resetting PIN. This will log the user out and wipe the current pin. This call should always succeed: if it hasn't then there is an underlying issue with the system.");
+		setIsLoading(true);
+
+		try {
+			const res = await cb();
+			logger.log(res);
+			logger.info("Pin reset, logged out!");
+			authenticator.send({ type: "PIN_RESET_SUCCESS" });
+		} catch (err) {
+			logger.error(err);
+			logger.error(
+				"There has been an issue logging out. This should not have occured, so this indicates a serious underlying issue with the system."
+			);
+			authenticator.send({ type: "PIN_RESET_FAILURE", error: "PIN_RESET_FAILURE" });
+		} finally {
+			setIsLoading(false);
+		}
+	}, [authenticator, error, isActive, isLoading]);
+
+	const cancelResetPin = () => authenticator.send({ type: "CANCEL_PIN_RESET" });
+
+	return {
+		error,
+		isActive,
+		isLoading,
+		resetPin,
+		cancelResetPin,
 	};
 }
 

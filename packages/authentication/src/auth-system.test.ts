@@ -432,10 +432,20 @@ describe("authentication test system for PIN (ignoring login flow)", () => {
 		initial: "checkingSession",
 		states: {
 			checkingSession: {
-				on: { THERE_IS_A_SESSION: "pinChecks" },
+				on: {
+					THERE_IS_A_SESSION: "pinChecks",
+					THERE_IS_NO_SESSION: "otpFlowStart",
+				},
 				meta: {
 					test: async (service: AuthInterpreter) => {
 						expect(service.state.matches(AuthStateId.awaitingSessionCheck));
+					},
+				},
+			},
+			otpFlowStart: {
+				meta: {
+					test: async (service: AuthInterpreter) => {
+						expect(service.state.matches(AuthStateId.awaitingOtpUsername));
 					},
 				},
 			},
@@ -454,10 +464,34 @@ describe("authentication test system for PIN (ignoring login flow)", () => {
 				on: {
 					PIN_SUBMITTED_WAS_CORRECT: "authenticated",
 					PIN_SUBMITTED_WAS_NOT_CORRECT: "incorrectCurrentPin",
+					I_FORGOT_MY_PIN: "resetPin",
 				},
 				meta: {
 					test: async (service: AuthInterpreter) => {
 						expect(service.state.matches(AuthStateId.awaitingCurrentPinInput));
+					},
+				},
+			},
+			resetPin: {
+				on: {
+					RESET_OF_PIN_SUCCEEDED: "checkingSession",
+					RESET_OF_PIN_FAILED: "resetPinError",
+					NO_ACTUALLY_CANCEL_THAT_RESET_REQUEST: "submitCurrentPin",
+				},
+				meta: {
+					test: async (service: AuthInterpreter) => {
+						expect(service.state.matches(AuthStateId.resettingPin));
+					},
+				},
+			},
+			resetPinError: {
+				on: {
+					SECOND_RESET_ATTEMPT_SUCCEEDED: "checkingSession",
+				},
+				meta: {
+					test: async (service: AuthInterpreter) => {
+						expect(service.state.matches(AuthStateId.resettingPin));
+						expect(service.state.context.error).toBe("PIN_RESET_FAILURE" as AuthError);
 					},
 				},
 			},
@@ -532,11 +566,17 @@ describe("authentication test system for PIN (ignoring login flow)", () => {
 
 	const model = createModel(machine).withEvents({
 		THERE_IS_A_SESSION: doSend({ type: "SESSION_PRESENT" }),
+		THERE_IS_NO_SESSION: doSend({ type: "SESSION_NOT_PRESENT" }),
 		THERE_IS_A_PIN_SET: doSend({ type: "PIN_IS_SET_UP" }),
 		THERE_IS_NO_PIN_SET: doSend({ type: "PIN_IS_NOT_SET_UP" }),
 		PIN_SUBMITTED_WAS_CORRECT: doSend({ type: "PIN_VALID" }),
 		PIN_SUBMITTED_WAS_NOT_CORRECT: doSend({ type: "PIN_INVALID", error: "PIN_INVALID" }),
 		PIN_SUBMITTED_WAS_CORRECT_ON_SECOND_ATTEMPT: doSend({ type: "PIN_VALID" }),
+		I_FORGOT_MY_PIN: doSend({ type: "REQUEST_PIN_RESET" }),
+		RESET_OF_PIN_SUCCEEDED: doSend({ type: "PIN_RESET_SUCCESS" }),
+		SECOND_RESET_ATTEMPT_SUCCEEDED: doSend({ type: "PIN_RESET_SUCCESS" }),
+		RESET_OF_PIN_FAILED: doSend({ type: "PIN_RESET_FAILURE", error: "PIN_RESET_FAILURE" }),
+		NO_ACTUALLY_CANCEL_THAT_RESET_REQUEST: doSend({ type: "CANCEL_PIN_RESET" }),
 		NEW_PIN_IS_FINE: doSend({ type: "NEW_PIN_VALID" }),
 		NEW_PIN_IS_NOT_FINE: doSend({ type: "NEW_PIN_INVALID", error: "NEW_PIN_INVALID" }),
 		NEW_PIN_IS_FINE_ON_SECOND_ATTEMPT: doSend({ type: "NEW_PIN_VALID" }),

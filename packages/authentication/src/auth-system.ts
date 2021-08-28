@@ -52,6 +52,7 @@ export enum AuthStateId {
 	INTERNAL__deviceSecurityCheck = "INTERNAL__deviceSecurityCheck",
 	pinChecks = "pinChecks",
 	awaitingCurrentPinInput = "awaitingCurrentPinInput",
+	resettingPin = "resettingPin",
 	awaitingNewPinInput = "awaitingNewPinInput",
 	awaitingChangePinInput = "awaitingChangePinInput",
 	loggingOut = "loggingOut",
@@ -122,6 +123,10 @@ type InternalAuthEvent =
 	// REVIEW: WHY did it fail?
 	| { type: "PIN_CHANGE_FAILURE"; error: "PIN_CHANGE_FAILURE" }
 	| { type: "CANCEL_PIN_CHANGE" }
+	| { type: "REQUEST_PIN_RESET" }
+	| { type: "PIN_RESET_SUCCESS" }
+	| { type: "PIN_RESET_FAILURE"; error: "PIN_RESET_FAILURE" }
+	| { type: "CANCEL_PIN_RESET" }
 	| { type: "REQUEST_PIN_CHANGE" };
 
 /**
@@ -139,6 +144,7 @@ type InternalAuthTypeState =
 	| { value: AuthStateId.awaitingPasswordResetSubmission; context: InternalAuthContext & { username: string } }
 	| { value: AuthStateId.pinChecks; context: InternalAuthContext & { username?: string } }
 	| { value: AuthStateId.awaitingCurrentPinInput; context: InternalAuthContext & { username?: string } }
+	| { value: AuthStateId.resettingPin; context: InternalAuthContext }
 	| { value: AuthStateId.awaitingNewPinInput; context: InternalAuthContext & { username?: string } }
 	| { value: AuthStateId.awaitingChangePinInput; context: InternalAuthContext & { username?: string } }
 	| { value: AuthStateId.loggingOut; context: InternalAuthContext & { username?: string; } }
@@ -361,8 +367,26 @@ export const machine = createMachine<
 					target: undefined,
 					actions: ["assignError"]
 				},
-				// TODO forgotten pin needs to completely log the user out
-				// FORGOTTEN_PIN: .....
+				REQUEST_PIN_RESET: {
+					target: AuthStateId.resettingPin,
+					actions: ["clearError"]
+				}
+			}
+		},
+		[AuthStateId.resettingPin]: {
+			on: {
+				PIN_RESET_SUCCESS: {
+					target: AuthStateId.awaitingSessionCheck,
+					actions: ["clearError"],
+				},
+				PIN_RESET_FAILURE: {
+					target: undefined,
+					actions: ["assignError"],
+				},
+				CANCEL_PIN_RESET: {
+					target: AuthStateId.awaitingCurrentPinInput,
+					actions: ["clearError"],
+				},
 			}
 		},
 		[AuthStateId.awaitingNewPinInput]: {

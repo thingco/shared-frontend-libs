@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { cleanup, renderHook } from "@testing-library/react-hooks";
 
 import { AuthEvent, AuthStateId, machine } from "./auth-system";
 import * as AuthHook from "./auth-system-hooks";
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* ========================================================================= *\
  * 1. UTILITIES
  * 2. SETUP
@@ -355,6 +355,30 @@ const hookTestMap: HookTestMap = [
 					callback: jest.fn(() => Promise.reject()),
 					expectedEvent: { type: "PIN_INVALID", error: "PIN_INVALID" },
 				},
+			],
+			additionalMethods: [
+				{ method: "requestPinReset", expectedEvent: { type: "REQUEST_PIN_RESET" } },
+			],
+		},
+	},
+	{
+		stateId: AuthStateId.resettingPin,
+		hookSpec: {
+			primaryMethod: "resetPin",
+			callbacks: [
+				{
+					args: [],
+					callback: jest.fn(() => Promise.resolve()),
+					expectedEvent: { type: "PIN_RESET_SUCCESS" },
+				},
+				{
+					args: [],
+					callback: jest.fn(() => Promise.reject()),
+					expectedEvent: { type: "PIN_RESET_FAILURE", error: "PIN_RESET_FAILURE" },
+				},
+			],
+			additionalMethods: [
+				{ method: "cancelResetPin", expectedEvent: { type: "CANCEL_PIN_RESET" } },
 			],
 		},
 	},
