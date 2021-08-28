@@ -15,6 +15,14 @@ type ExposedStateId = Exclude<
 	AuthStateId.INTERNAL__deviceSecurityCheck | AuthStateId.INTERNAL__loginFlowCheck
 >;
 
+type AuthenticatedStateId = Extract<
+	AuthStateId,
+	| AuthStateId.authenticated
+	| AuthStateId.loggingOut
+	| AuthStateId.awaitingChangePassword
+	| AuthStateId.awaitingChangePinInput
+>;
+
 type ExposedStateSelectorMap = {
 	[K in `is${Capitalize<ExposedStateId>}`]: (state: AuthState) => boolean;
 };
@@ -36,6 +44,15 @@ const stateSelectors: ExposedStateSelectorMap = {
 	isResettingPin: (state) => state.matches(AuthStateId.resettingPin),
 	isLoggingOut: (state) => state.matches(AuthStateId.loggingOut),
 	isAuthenticated: (state) => state.matches(AuthStateId.authenticated),
+};
+
+const isInStateAccessibleWhileAuthenticated = (state: AuthState): boolean => {
+	return (
+		state.matches<AuthenticatedStateId>(AuthStateId.authenticated) ||
+		state.matches<AuthenticatedStateId>(AuthStateId.awaitingChangePinInput) ||
+		state.matches<AuthenticatedStateId>(AuthStateId.awaitingChangePassword) ||
+		state.matches<AuthenticatedStateId>(AuthStateId.loggingOut)
+	);
 };
 
 type ContextSelectorMap<S = AuthState, C = AuthContext> = Record<keyof C, (state: S) => C[keyof C]>;
@@ -634,6 +651,7 @@ export function useLoggingOut(cb: AuthCb.LogoutCb) {
 export function useAuthenticated() {
 	const authenticator = useAuthInterpreter();
 	const isActive = useSelector(authenticator, stateSelectors.isAuthenticated!);
+	const isAuthenticated = useSelector(authenticator, isInStateAccessibleWhileAuthenticated);
 	const logger = useLogger();
 
 	useEffect(() => {
@@ -648,6 +666,7 @@ export function useAuthenticated() {
 
 	return {
 		isActive,
+		isAuthenticated,
 		requestLogOut,
 		requestPasswordChange,
 		requestPinChange,
