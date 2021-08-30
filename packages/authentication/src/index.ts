@@ -1,41 +1,36 @@
 import {
 	useAuthenticated,
-	useAwaitingChangePassword,
-	useAwaitingChangePinInput,
-	useAwaitingCurrentPinInput,
-	useAwaitingForcedChangePassword,
-	useAwaitingNewPinInput,
-	useAwaitingOtp,
-	useAwaitingOtpUsername,
-	useAwaitingPasswordResetRequest,
-	useAwaitingPasswordResetSubmission,
-	useAwaitingSessionCheck,
-	useAwaitingUsernameAndPassword,
+	useChangingPassword,
+	useChangingPin,
+	useCheckingForPin,
+	useCheckingForSession,
 	useLoggingOut,
-	usePinChecks,
+	useRequestingPasswordReset,
 	useResettingPin,
+	useSubmittingCurrentPin,
+	useSubmittingForceChangePassword,
+	useSubmittingNewPin,
+	useSubmittingOtp,
+	useSubmittingOtpUsername,
+	useSubmittingPasswordReset,
+	useSubmittingUsernameAndPassword,
 } from "./auth-system-hooks";
 
 export const AuthStage = {
-	useAwaitingCurrentPinInput,
-	useAwaitingForcedChangePassword,
-	useAwaitingNewPinInput,
-	useAwaitingOtp,
-	useAwaitingOtpUsername,
-	useAwaitingPasswordResetRequest,
-	useAwaitingPasswordResetSubmission,
-	useAwaitingSessionCheck,
-	useAwaitingUsernameAndPassword,
-	usePinChecks,
+	useSubmittingCurrentPin,
+	useSubmittingForceChangePassword,
+	useSubmittingNewPin,
+	useSubmittingOtp,
+	useSubmittingOtpUsername,
+	useRequestingPasswordReset,
+	useSubmittingPasswordReset,
+	useCheckingForSession,
+	useSubmittingUsernameAndPassword,
+	useCheckingForPin,
 	useResettingPin,
 };
 
-export const Auth = {
-	useAuthenticated,
-	useAwaitingChangePassword,
-	useAwaitingChangePinInput,
-	useLoggingOut,
-};
+export { useAuthenticated, useChangingPassword, useChangingPin, useLoggingOut };
 
 export { AuthProvider } from "./AuthSystemProvider";
 export { createAuthenticationSystem } from "./auth-system";

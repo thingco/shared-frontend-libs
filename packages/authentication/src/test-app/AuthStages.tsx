@@ -5,8 +5,8 @@ import React from "react";
 import { AuthStage } from "..";
 import { Form } from "./Components";
 
-export const SessionCheck = () => {
-	const { isActive, isLoading, checkSession, error } = AuthStage.useAwaitingSessionCheck(() =>
+export const CheckingForSession = () => {
+	const { isActive, isLoading, checkSession, error } = AuthStage.useCheckingForSession(() =>
 		Auth.currentSession()
 	);
 
@@ -15,7 +15,7 @@ export const SessionCheck = () => {
 			<Form submitCb={checkSession}>
 				<Form.Elements disabled={!isActive || isLoading} error={error}>
 					<Form.Controls>
-						<Form.Submit label="Check Session" testid="sessionCheckSubmit" />
+						<Form.Submit label="Check Session" testid="CheckingForSessionSubmit" />
 					</Form.Controls>
 				</Form.Elements>
 			</Form>
@@ -24,7 +24,7 @@ export const SessionCheck = () => {
 };
 
 export const OtpUsernameInput = () => {
-	const { error, isActive, isLoading, validateUsername } = AuthStage.useAwaitingOtpUsername(
+	const { error, isActive, isLoading, validateUsername } = AuthStage.useSubmittingOtpUsername(
 		(username: string) => Auth.signIn(username)
 	);
 	const [username, setUsername] = React.useState("");
@@ -53,7 +53,7 @@ export const OtpUsernameInput = () => {
 };
 
 export const OtpInput = () => {
-	const { error, isActive, isLoading, validateOtp } = AuthStage.useAwaitingOtp(
+	const { error, isActive, isLoading, validateOtp } = AuthStage.useSubmittingOtp(
 		async (user, password) => {
 			await Auth.sendCustomChallengeAnswer(user, password);
 			return Auth.currentAuthenticatedUser();
@@ -122,7 +122,7 @@ const LocalPinService = {
 };
 
 export const CheckPin = () => {
-	const { error, isActive, isLoading, checkForExistingPin } = AuthStage.usePinChecks(() =>
+	const { error, isActive, isLoading, checkForExistingPin } = AuthStage.useCheckingForPin(() =>
 		LocalPinService.hasPinSet()
 	);
 
@@ -140,7 +140,7 @@ export const CheckPin = () => {
 };
 
 export const CurrentPinInput = () => {
-	const { error, isActive, isLoading, validatePin } = AuthStage.useAwaitingCurrentPinInput((pin) =>
+	const { error, isActive, isLoading, validatePin } = AuthStage.useSubmittingCurrentPin((pin) =>
 		LocalPinService.checkPin(pin)
 	);
 	const [pin, setPin] = React.useState("");
@@ -169,7 +169,7 @@ export const CurrentPinInput = () => {
 };
 
 export const NewPinInput = () => {
-	const { error, isActive, isLoading, setNewPin } = AuthStage.useAwaitingNewPinInput((pin) =>
+	const { error, isActive, isLoading, setNewPin } = AuthStage.useSubmittingNewPin((pin) =>
 		LocalPinService.setPin(pin)
 	);
 	const [pin, setPin] = React.useState("");
@@ -198,10 +198,9 @@ export const NewPinInput = () => {
 };
 
 export const ChangePinInput = () => {
-	const { error, isActive, isLoading, changePin, cancelChangePin } =
-		AuthStage.useAwaitingChangePinInput((oldPin, newPin) =>
-			LocalPinService.changePin(oldPin, newPin)
-		);
+	const { error, isActive, isLoading, changePin, cancelChangePin } = AuthStage.useChangingPin(
+		(oldPin, newPin) => LocalPinService.changePin(oldPin, newPin)
+	);
 	const [oldPin, setOldPin] = React.useState("");
 	const [newPin, setNewPin] = React.useState("");
 
@@ -251,14 +250,14 @@ export const Authenticated = () => {
 			<Form submitCb={requestLogOut}>
 				<Form.Elements disabled={!isActive}>
 					<Form.Controls>
-						<Form.Submit label="I want to log out!" testid="authenticatedLogOutSubmit" />
+						<Form.Submit label="I want to log out!" testid="AuthenticatedLogOutSubmit" />
 					</Form.Controls>
 				</Form.Elements>
 			</Form>
 			<Form submitCb={requestPinChange}>
 				<Form.Elements disabled={!isActive}>
 					<Form.Controls>
-						<Form.Submit label="I want to change my PIN!" testid="authenticatedPinChangeSubmit" />
+						<Form.Submit label="I want to change my PIN!" testid="AuthenticatedPinChangeSubmit" />
 					</Form.Controls>
 				</Form.Elements>
 			</Form>
@@ -279,9 +278,9 @@ export const LoggingOut = () => {
 						<Form.SecondaryAction
 							label="Cancel logout!"
 							actionCallback={cancelLogOut}
-							testid="loggingOutCancel"
+							testid="LoggingOutCancel"
 						/>
-						<Form.Submit label="I really do want to log out!" testid="loggingOutSubmit" />
+						<Form.Submit label="I really do want to log out!" testid="LoggingOutSubmit" />
 					</Form.Controls>
 				</Form.Elements>
 			</Form>

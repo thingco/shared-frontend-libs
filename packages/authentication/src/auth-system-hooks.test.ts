@@ -1,9 +1,9 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { cleanup, renderHook } from "@testing-library/react-hooks";
 
 import { AuthEvent, AuthStateId, machine } from "./auth-system";
 import * as AuthHook from "./auth-system-hooks";
 
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* ========================================================================= *\
@@ -24,8 +24,8 @@ import * as AuthHook from "./auth-system-hooks";
  *
  * @example
  * ```
- * > stateIdToHookName("awaitingSessionCheck")
- * "useAwaitingSessionCheck"
+ * > stateIdToHookName("CheckingForSession")
+ * "useCheckingForSession"
  * ```
  */
 function stateIdToHookName(stateId: AuthStateId) {
@@ -139,7 +139,7 @@ const USER_OBJECT = { description: "I represent the user object returned by the 
 
 const hookTestMap: HookTestMap = [
 	{
-		stateId: AuthStateId.awaitingSessionCheck,
+		stateId: AuthStateId.CheckingForSession,
 		hookSpec: {
 			primaryMethod: "checkSession",
 			callbacks: [
@@ -157,7 +157,7 @@ const hookTestMap: HookTestMap = [
 		},
 	},
 	{
-		stateId: AuthStateId.awaitingOtpUsername,
+		stateId: AuthStateId.SubmittingOtpUsername,
 		hookSpec: {
 			primaryMethod: "validateUsername",
 			callbacks: [
@@ -179,7 +179,7 @@ const hookTestMap: HookTestMap = [
 		},
 	},
 	{
-		stateId: AuthStateId.awaitingOtp,
+		stateId: AuthStateId.SubmittingOtp,
 		hookSpec: {
 			primaryMethod: "validateOtp",
 			callbacks: [
@@ -207,7 +207,7 @@ const hookTestMap: HookTestMap = [
 		},
 	},
 	{
-		stateId: AuthStateId.awaitingUsernameAndPassword,
+		stateId: AuthStateId.SubmittingUsernameAndPassword,
 		hookSpec: {
 			primaryMethod: "validateUsernameAndPassword",
 			callbacks: [
@@ -245,7 +245,7 @@ const hookTestMap: HookTestMap = [
 		},
 	},
 	{
-		stateId: AuthStateId.awaitingForcedChangePassword,
+		stateId: AuthStateId.SubmittingForceChangePassword,
 		hookSpec: {
 			primaryMethod: "validateNewPassword",
 			callbacks: [
@@ -263,7 +263,7 @@ const hookTestMap: HookTestMap = [
 		},
 	},
 	{
-		stateId: AuthStateId.awaitingPasswordResetRequest,
+		stateId: AuthStateId.RequestingPasswordReset,
 		hookSpec: {
 			primaryMethod: "requestNewPassword",
 			callbacks: [
@@ -284,7 +284,7 @@ const hookTestMap: HookTestMap = [
 		},
 	},
 	{
-		stateId: AuthStateId.awaitingPasswordResetSubmission,
+		stateId: AuthStateId.SubmittingPasswordReset,
 		hookSpec: {
 			primaryMethod: "submitNewPassword",
 			callbacks: [
@@ -302,7 +302,7 @@ const hookTestMap: HookTestMap = [
 		},
 	},
 	{
-		stateId: AuthStateId.awaitingChangePassword,
+		stateId: AuthStateId.ChangingPassword,
 		hookSpec: {
 			primaryMethod: "submitNewPassword",
 			callbacks: [
@@ -323,7 +323,7 @@ const hookTestMap: HookTestMap = [
 		},
 	},
 	{
-		stateId: AuthStateId.pinChecks,
+		stateId: AuthStateId.CheckingForPin,
 		hookSpec: {
 			primaryMethod: "checkForExistingPin",
 			callbacks: [
@@ -341,7 +341,7 @@ const hookTestMap: HookTestMap = [
 		},
 	},
 	{
-		stateId: AuthStateId.awaitingCurrentPinInput,
+		stateId: AuthStateId.SubmittingCurrentPin,
 		hookSpec: {
 			primaryMethod: "validatePin",
 			callbacks: [
@@ -362,7 +362,7 @@ const hookTestMap: HookTestMap = [
 		},
 	},
 	{
-		stateId: AuthStateId.resettingPin,
+		stateId: AuthStateId.ResettingPin,
 		hookSpec: {
 			primaryMethod: "resetPin",
 			callbacks: [
@@ -383,7 +383,7 @@ const hookTestMap: HookTestMap = [
 		},
 	},
 	{
-		stateId: AuthStateId.awaitingNewPinInput,
+		stateId: AuthStateId.SubmittingNewPin,
 		hookSpec: {
 			primaryMethod: "setNewPin",
 			callbacks: [
@@ -401,7 +401,7 @@ const hookTestMap: HookTestMap = [
 		},
 	},
 	{
-		stateId: AuthStateId.awaitingChangePinInput,
+		stateId: AuthStateId.ChangingPin,
 		hookSpec: {
 			primaryMethod: "changePin",
 			callbacks: [
@@ -422,7 +422,7 @@ const hookTestMap: HookTestMap = [
 		},
 	},
 	{
-		stateId: AuthStateId.loggingOut,
+		stateId: AuthStateId.LoggingOut,
 		hookSpec: {
 			primaryMethod: "logOut",
 			callbacks: [
@@ -441,7 +441,7 @@ const hookTestMap: HookTestMap = [
 		},
 	},
 	{
-		stateId: AuthStateId.authenticated,
+		stateId: AuthStateId.Authenticated,
 		hookSpec: {
 			additionalMethods: [
 				{ method: "requestLogOut", expectedEvent: { type: "REQUEST_LOG_OUT" } },
