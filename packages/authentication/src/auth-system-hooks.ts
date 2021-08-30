@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { useLogger } from "@thingco/logger";
 import { useSelector } from "@xstate/react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 
 import { AuthStateId } from "./auth-system";
 import { useAuthInterpreter } from "./AuthSystemProvider";
@@ -9,12 +10,27 @@ import { useAuthInterpreter } from "./AuthSystemProvider";
 import type { AuthContext, AuthState } from "./auth-system";
 import type * as AuthCb from "./auth-system-hook-callbacks";
 
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
+/* ========================================================================= *\
+ * 1. UTILITY TYPES
+ * 2. TYPED SELECTORS
+ * 3. AUTH STAGE HOOKS
+ * 4. AUTHORISED HOOKS
+\* ========================================================================= */
+
+/* ========================================================================= *\
+ * 1. UTILITY TYPES
+ *
+ * These are used internally to tighten the typings for states and state
+ * selectors
+\* ========================================================================= */
+
+/** Filter on the state ID enum to remove states internal to the FSM */
 type ExposedStateId = Exclude<
 	AuthStateId,
 	AuthStateId.INTERNAL__deviceSecurityCheck | AuthStateId.INTERNAL__loginFlowCheck
 >;
 
+/** Filter on the state ID enum to extract states only useful when a user is authenticated. */
 type AuthenticatedStateId = Extract<
 	AuthStateId,
 	| AuthStateId.authenticated
@@ -23,10 +39,27 @@ type AuthenticatedStateId = Extract<
 	| AuthStateId.awaitingChangePinInput
 >;
 
+/* ========================================================================= *\
+ * 2. TYPED SELECTORS
+ *
+ * To acess the state of the authentication FSM, selectors are being used
+ * instead of just exposing all the state all the time via the provider.
+ * This gives performance benefits -- it means components using the hooks
+ * will only rerender when a selector value changes, which is important
+ * for React Native in particular.
+ * 
+ * See https://xstate.js.org/docs/recipes/react.html#global-state-react-context
+\* ========================================================================= */
+
+/**
+ * Mapped type to build out the object containing state selector functions.
+ * It should ensure TS will error if any state exposed to users has been omitted.
+ */
 type ExposedStateSelectorMap = {
 	[K in `is${Capitalize<ExposedStateId>}`]: (state: AuthState) => boolean;
 };
 
+/** Map of every state exposed to users -> match function for that state (_ie_ `true` if in state) */
 // prettier-ignore
 const stateSelectors: ExposedStateSelectorMap = {
 	isAwaitingSessionCheck: (state) => state.matches(AuthStateId.awaitingSessionCheck),
@@ -46,6 +79,7 @@ const stateSelectors: ExposedStateSelectorMap = {
 	isAuthenticated: (state) => state.matches(AuthStateId.authenticated),
 };
 
+/** Selector specifically for states only useful when a user is authenticated. */
 const isInStateAccessibleWhileAuthenticated = (state: AuthState): boolean => {
 	return (
 		state.matches<AuthenticatedStateId>(AuthStateId.authenticated) ||
@@ -55,8 +89,14 @@ const isInStateAccessibleWhileAuthenticated = (state: AuthState): boolean => {
 	);
 };
 
+/**
+ * Mapped type to build out the object containing context value access functions.
+ * It should ensure that TS will error if a context value has been omitted or a
+ * nonexistant key has been used.
+ */
 type ContextSelectorMap<S = AuthState, C = AuthContext> = Record<keyof C, (state: S) => C[keyof C]>;
 
+/** Map of every context value as a selector function. */
 const contextSelectors: ContextSelectorMap = {
 	error: (state) => state.context.error,
 	loginFlowType: (state) => state.context.loginFlowType,
@@ -65,6 +105,14 @@ const contextSelectors: ContextSelectorMap = {
 	username: (state) => state.context.username,
 };
 
+/* ========================================================================= *\
+ * 3. AUTH STAGE HOOKS
+ *
+ * These hooks cover all stages of the authentication process where a user
+ * is **not** authenticated. They all follow a common pattern, taking a
+ * callback of a specified shape which is then executed by the hook, allowing
+ * us to specify exactly when events will be sent into the FSM system.
+\* ========================================================================= */
 export function useAwaitingSessionCheck(cb: AuthCb.CheckSessionCb) {
 	const authenticator = useAuthInterpreter();
 	const error = useSelector(authenticator, contextSelectors.error);
@@ -371,43 +419,6 @@ export function useAwaitingPasswordResetSubmission(cb: AuthCb.SubmitNewPasswordC
 	};
 }
 
-export function useAwaitingChangePassword(cb: AuthCb.ChangePasswordCb) {
-	const authenticator = useAuthInterpreter();
-	const error = useSelector(authenticator, contextSelectors.error);
-	const isActive = useSelector(authenticator, stateSelectors.isAwaitingChangePassword!);
-	const logger = useLogger();
-
-	const [isLoading, setIsLoading] = useState(false);
-
-	const submitNewPassword = useCallback(
-		async (oldPassword: string, newPassword: string) => {
-			setIsLoading(true);
-
-			try {
-				const res = await cb(oldPassword, newPassword);
-				logger.log(res);
-				authenticator.send({ type: "PASSWORD_CHANGE_SUCCESS" });
-			} catch (err) {
-				logger.log(err);
-				authenticator.send({ type: "PASSWORD_CHANGE_FAILURE", error: "PASSWORD_CHANGE_FAILURE" });
-			} finally {
-				setIsLoading(false);
-			}
-		},
-		[authenticator, isActive]
-	);
-
-	const cancelChangePassword = () => authenticator.send({ type: "CANCEL_PASSWORD_CHANGE" });
-
-	return {
-		error,
-		isActive,
-		isLoading,
-		submitNewPassword,
-		cancelChangePassword,
-	};
-}
-
 /**
  * Given the `CheckForExistingPin` callback, the stage should test for existence
  * of a pin. From this, can infer whether the system should move the user to
@@ -567,6 +578,75 @@ export function useAwaitingNewPinInput(cb: AuthCb.SetNewPinCb) {
 	};
 }
 
+/* ========================================================================= *\
+ * 4. AUTHORISED HOOKS
+ *
+ * These hooks cover all stages of the authentication process where a user
+ * **is** authenticated (or, in the case of `isAuthenticated`, one or the other).
+ * 
+ * Bar the core `isAuthenticated` hook, these still follow the common pattern,
+ * with a callback of a specified shape which is then executed by the hook, allowing
+ * us to specify exactly when events will be sent into the FSM system.
+ * 
+ * However, withing the application, these are likely to be tied into the
+ * navigation far more than the auth stage hooks.
+\* ========================================================================= */
+
+export function useAuthenticated() {
+	const authenticator = useAuthInterpreter();
+	const isActive = useSelector(authenticator, stateSelectors.isAuthenticated!);
+	const isAuthenticated = useSelector(authenticator, isInStateAccessibleWhileAuthenticated);
+
+	const requestLogOut = () => authenticator.send({ type: "REQUEST_LOG_OUT" });
+	const requestPasswordChange = () => authenticator.send({ type: "REQUEST_PASSWORD_CHANGE" });
+	const requestPinChange = () => authenticator.send({ type: "REQUEST_PIN_CHANGE" });
+
+	return {
+		isActive,
+		isAuthenticated,
+		requestLogOut,
+		requestPasswordChange,
+		requestPinChange,
+	};
+}
+
+export function useAwaitingChangePassword(cb: AuthCb.ChangePasswordCb) {
+	const authenticator = useAuthInterpreter();
+	const error = useSelector(authenticator, contextSelectors.error);
+	const isActive = useSelector(authenticator, stateSelectors.isAwaitingChangePassword!);
+	const logger = useLogger();
+
+	const [isLoading, setIsLoading] = useState(false);
+
+	const submitNewPassword = useCallback(
+		async (oldPassword: string, newPassword: string) => {
+			setIsLoading(true);
+
+			try {
+				const res = await cb(oldPassword, newPassword);
+				logger.log(res);
+				authenticator.send({ type: "PASSWORD_CHANGE_SUCCESS" });
+			} catch (err) {
+				logger.log(err);
+				authenticator.send({ type: "PASSWORD_CHANGE_FAILURE", error: "PASSWORD_CHANGE_FAILURE" });
+			} finally {
+				setIsLoading(false);
+			}
+		},
+		[authenticator, isActive]
+	);
+
+	const cancelChangePassword = () => authenticator.send({ type: "CANCEL_PASSWORD_CHANGE" });
+
+	return {
+		error,
+		isActive,
+		isLoading,
+		submitNewPassword,
+		cancelChangePassword,
+	};
+}
+
 export function useAwaitingChangePinInput(cb: AuthCb.ChangePinCb) {
 	const authenticator = useAuthInterpreter();
 	const error = useSelector(authenticator, contextSelectors.error);
@@ -645,30 +725,5 @@ export function useLoggingOut(cb: AuthCb.LogoutCb) {
 		isLoading,
 		logOut,
 		cancelLogOut,
-	};
-}
-
-export function useAuthenticated() {
-	const authenticator = useAuthInterpreter();
-	const isActive = useSelector(authenticator, stateSelectors.isAuthenticated!);
-	const isAuthenticated = useSelector(authenticator, isInStateAccessibleWhileAuthenticated);
-	const logger = useLogger();
-
-	useEffect(() => {
-		if (isActive) {
-			logger.log("Success, authenticated!");
-		}
-	}, [isActive]);
-
-	const requestLogOut = () => authenticator.send({ type: "REQUEST_LOG_OUT" });
-	const requestPasswordChange = () => authenticator.send({ type: "REQUEST_PASSWORD_CHANGE" });
-	const requestPinChange = () => authenticator.send({ type: "REQUEST_PIN_CHANGE" });
-
-	return {
-		isActive,
-		isAuthenticated,
-		requestLogOut,
-		requestPasswordChange,
-		requestPinChange,
 	};
 }
