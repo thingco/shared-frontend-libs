@@ -403,6 +403,14 @@ export const machine = createMachine<
 		},
 		[AuthStateId.ChangingPin]: {
 			on: {
+        PIN_VALID: {
+					target: undefined,
+					actions: ["clearError"],
+				},
+				PIN_INVALID: {
+					target: undefined,
+					actions: ["assignError"]
+				},
 				PIN_CHANGE_SUCCESS: {
 					target:AuthStateId.Authenticated,
 					actions: ["clearError"],

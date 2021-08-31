@@ -647,22 +647,47 @@ export function useChangingPassword(cb: AuthCb.ChangePasswordCb) {
 	};
 }
 
-export function useChangingPin(cb: AuthCb.ChangePinCb) {
+export function useChangingPin(cb: AuthCb.ChangePinCb, validatecb: AuthCb.ValidatePinCb) {
 	const authenticator = useAuthInterpreter();
 	const error = useSelector(authenticator, contextSelectors.error);
 	const isActive = useSelector(authenticator, stateSelectors.isChangingPin!);
 	const logger = useLogger();
 
 	const [isLoading, setIsLoading] = useState(false);
+	const [currentPinValid, setCurrentPinValid] = useState(false);
+
+	const validatePin = useCallback(
+		async (pin: string) => {
+			setIsLoading(true);
+			// prettier-ignore
+			logger.info("Initiating a check against the existing PIN. If the check resolves, user passes authentication.");
+
+			try {
+				const res = await validatecb(pin);
+				logger.log(res);
+				logger.info("PIN validated");
+				setCurrentPinValid(true);
+				authenticator.send({ type: "PIN_VALID" });
+			} catch (err) {
+				logger.warn(err);
+				logger.warn("PIN validation failed");
+				setCurrentPinValid(false);
+				authenticator.send({ type: "PIN_INVALID", error: "PIN_INVALID" });
+			} finally {
+				setIsLoading(false);
+			}
+		},
+		[authenticator, isActive]
+	);
 
 	const changePin = useCallback(
-		async (oldPin: string, newPin: string) => {
+		async (newPin: string) => {
 			setIsLoading(true);
 			// prettier-ignore
 			logger.info("Attempting to change the current PIN. If the check resolves, attempts was successful and they may return to the Authenticated state.");
 
 			try {
-				const res = await cb(oldPin, newPin);
+				const res = await cb(newPin);
 				logger.log(res);
 				logger.log("PIN change succeeded");
 				authenticator.send({ type: "PIN_CHANGE_SUCCESS" });
@@ -683,6 +708,8 @@ export function useChangingPin(cb: AuthCb.ChangePinCb) {
 		error,
 		isActive,
 		isLoading,
+		currentPinValid,
+		validatePin,
 		changePin,
 		cancelChangePin,
 	};
