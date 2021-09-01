@@ -678,11 +678,15 @@ export function useValidatingPin(cb: AuthCb.ValidatePinCb) {
 		[authenticator, isActive]
 	);
 
+	// Need a way to back out of change pin stage
+	const cancelChangePin = () => authenticator.send({ type: "CANCEL_PIN_CHANGE" });
+
 	return {
 		error,
 		isActive,
 		isLoading,
 		validatePin,
+		cancelChangePin,
 	};
 }
 

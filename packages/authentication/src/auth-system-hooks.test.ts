@@ -414,6 +414,9 @@ const hookTestMap: HookTestMap = [
 					expectedEvent: { type: "PIN_INVALID", error: "PIN_INVALID" },
 				},
 			],
+			additionalMethods: [
+				{ method: "cancelChangePin", expectedEvent: { type: "CANCEL_PIN_CHANGE" } },
+			],
 		},
 	},
 	{
