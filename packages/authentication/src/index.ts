@@ -36,6 +36,8 @@ export const AuthStage = {
 	useSubmittingUsernameAndPassword,
 };
 
+export { useAuthenticated, useChangingPassword, useChangingPin, useLoggingOut };
+
 export { AuthProvider } from "./AuthSystemProvider";
 export { createAuthenticationSystem } from "./auth-system";
 
