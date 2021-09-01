@@ -2,7 +2,7 @@ import { useLogger } from "@thingco/logger";
 import { useSelector } from "@xstate/react";
 import { useCallback, useState } from "react";
 
-import { AuthStateId } from "./auth-system";
+import { AuthStateId, AuthStateId } from "./auth-system";
 import { useAuthInterpreter } from "./AuthSystemProvider";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -73,6 +73,7 @@ const stateSelectors: ExposedStateSelectorMap = {
 	isCheckingForPin: (state) => state.matches(AuthStateId.CheckingForPin),
 	isSubmittingCurrentPin: (state) => state.matches(AuthStateId.SubmittingCurrentPin),
 	isSubmittingNewPin: (state) => state.matches(AuthStateId.SubmittingNewPin),
+  isValidatingPin: (state) => state.matches(AuthStateId.ValidatingPin),
 	isChangingPin: (state) => state.matches(AuthStateId.ChangingPin),
 	isResettingPin: (state) => state.matches(AuthStateId.ResettingPin),
 	isLoggingOut: (state) => state.matches(AuthStateId.LoggingOut),
@@ -647,14 +648,13 @@ export function useChangingPassword(cb: AuthCb.ChangePasswordCb) {
 	};
 }
 
-export function useChangingPin(cb: AuthCb.ChangePinCb, validatecb: AuthCb.ValidatePinCb) {
+export function useValidatingPin(cb: AuthCb.ValidatePinCb) {
 	const authenticator = useAuthInterpreter();
 	const error = useSelector(authenticator, contextSelectors.error);
-	const isActive = useSelector(authenticator, stateSelectors.isChangingPin!);
+	const isActive = useSelector(authenticator, stateSelectors.isSubmittingCurrentPin!);
 	const logger = useLogger();
 
 	const [isLoading, setIsLoading] = useState(false);
-	const [currentPinValid, setCurrentPinValid] = useState(false);
 
 	const validatePin = useCallback(
 		async (pin: string) => {
@@ -663,15 +663,13 @@ export function useChangingPin(cb: AuthCb.ChangePinCb, validatecb: AuthCb.Valida
 			logger.info("Initiating a check against the existing PIN. If the check resolves, user passes authentication.");
 
 			try {
-				const res = await validatecb(pin);
+				const res = await cb(pin);
 				logger.log(res);
 				logger.info("PIN validated");
-				setCurrentPinValid(true);
 				authenticator.send({ type: "PIN_VALID" });
 			} catch (err) {
 				logger.warn(err);
 				logger.warn("PIN validation failed");
-				setCurrentPinValid(false);
 				authenticator.send({ type: "PIN_INVALID", error: "PIN_INVALID" });
 			} finally {
 				setIsLoading(false);
@@ -679,6 +677,22 @@ export function useChangingPin(cb: AuthCb.ChangePinCb, validatecb: AuthCb.Valida
 		},
 		[authenticator, isActive]
 	);
+
+	return {
+		error,
+		isActive,
+		isLoading,
+		validatePin,
+	};
+}
+
+export function useChangingPin(cb: AuthCb.ChangePinCb) {
+	const authenticator = useAuthInterpreter();
+	const error = useSelector(authenticator, contextSelectors.error);
+	const isActive = useSelector(authenticator, stateSelectors.isChangingPin!);
+	const logger = useLogger();
+
+	const [isLoading, setIsLoading] = useState(false);
 
 	const changePin = useCallback(
 		async (newPin: string) => {
@@ -708,8 +722,6 @@ export function useChangingPin(cb: AuthCb.ChangePinCb, validatecb: AuthCb.Valida
 		error,
 		isActive,
 		isLoading,
-		currentPinValid,
-		validatePin,
 		changePin,
 		cancelChangePin,
 	};
