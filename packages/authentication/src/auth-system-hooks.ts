@@ -36,6 +36,7 @@ type AuthenticatedStateId = Extract<
 	| AuthStateId.Authenticated
 	| AuthStateId.LoggingOut
 	| AuthStateId.ChangingPassword
+	| AuthStateId.ValidatingPin
 	| AuthStateId.ChangingPin
 >;
 
@@ -84,6 +85,7 @@ const stateSelectors: ExposedStateSelectorMap = {
 const isInStateAccessibleWhileAuthenticated = (state: AuthState): boolean => {
 	return (
 		state.matches<AuthenticatedStateId>(AuthStateId.Authenticated) ||
+		state.matches<AuthenticatedStateId>(AuthStateId.ValidatingPin) ||
 		state.matches<AuthenticatedStateId>(AuthStateId.ChangingPin) ||
 		state.matches<AuthenticatedStateId>(AuthStateId.ChangingPassword) ||
 		state.matches<AuthenticatedStateId>(AuthStateId.LoggingOut)
