@@ -2,7 +2,7 @@ import { useLogger } from "@thingco/logger";
 import { useSelector } from "@xstate/react";
 import { useCallback, useState } from "react";
 
-import { AuthStateId, AuthStateId } from "./auth-system";
+import { AuthStateId } from "./auth-system";
 import { useAuthInterpreter } from "./AuthSystemProvider";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -651,7 +651,7 @@ export function useChangingPassword(cb: AuthCb.ChangePasswordCb) {
 export function useValidatingPin(cb: AuthCb.ValidatePinCb) {
 	const authenticator = useAuthInterpreter();
 	const error = useSelector(authenticator, contextSelectors.error);
-	const isActive = useSelector(authenticator, stateSelectors.isSubmittingCurrentPin!);
+	const isActive = useSelector(authenticator, stateSelectors.isValidatingPin!);
 	const logger = useLogger();
 
 	const [isLoading, setIsLoading] = useState(false);

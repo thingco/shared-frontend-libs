@@ -71,7 +71,7 @@ const MockCb = {
 	checkForExistingPinCb: jest.fn(),
 	validatePinCb: jest.fn((pin: string) => pin === VALID_CODE ? Promise.resolve() : Promise.reject()),
 	setNewPinCb: jest.fn((pin: string) => pin === VALID_CODE ? Promise.resolve() : Promise.reject()),
-	changePinCb: jest.fn((oldPin: string, newPin: string) => oldPin === VALID_CODE && newPin === ANOTHER_VALID_CODE ? Promise.resolve() : Promise.reject()),
+	changePinCb: jest.fn((newPin: string) => newPin === VALID_CODE ? Promise.resolve() : Promise.reject()),
 	logOutCb: jest.fn(),
 }
 

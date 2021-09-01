@@ -211,7 +211,7 @@ export const ValidatePinInput = () => {
 						id="currentPin"
 						inputType="text"
 						isActive={isActive}
-						label="Enter your current pin:"
+						label="Confirm your current pin:"
 						value={pin}
 						valueSetter={setPin}
 						testid="currentPinInput"
@@ -229,23 +229,12 @@ export const ChangePinInput = () => {
 	const { error, isActive, isLoading, changePin, cancelChangePin } = AuthStage.useChangingPin(
 		(newPin) => LocalPinService.changePin(newPin)
 	);
-	const [oldPin, setOldPin] = React.useState("");
 	const [newPin, setNewPin] = React.useState("");
 
 	return (
 		<section className={classnames("auth-stage", { "auth-stage--active": isActive })}>
-			<Form submitCb={changePin} cbParams={[oldPin, newPin]}>
+			<Form submitCb={changePin} cbParams={[newPin]}>
 				<Form.Elements disabled={!isActive || isLoading} error={error}>
-					<Form.InputGroup
-						error={error}
-						id="oldPinToChange"
-						inputType="text"
-						isActive={isActive}
-						label="Enter your current PIN:"
-						value={oldPin}
-						valueSetter={setOldPin}
-						testid="oldPinInput"
-					/>
 					<Form.InputGroup
 						error={error}
 						id="newPinToSet"
