@@ -528,6 +528,18 @@ describe("authentication test system for PIN (ignoring login flow)", () => {
 					},
 				},
 			},
+			validatePin: {
+				on: {
+					PIN_SUBMITTED_WAS_CORRECT: "changeCurrentPin",
+					PIN_SUBMITTED_WAS_NOT_CORRECT: "incorrectCurrentPin",
+					ACTUALLY_CANCEL_THAT_PIN_CHANGE_REQUEST: "Authenticated",
+				},
+				meta: {
+					test: async (service: AuthInterpreter) => {
+						expect(service.state.matches(AuthStateId.ValidatingPin));
+					},
+				},
+			},
 			changeCurrentPin: {
 				on: {
 					PIN_CHANGE_SUCCEEDED: "Authenticated",
@@ -553,7 +565,7 @@ describe("authentication test system for PIN (ignoring login flow)", () => {
 			},
 			Authenticated: {
 				on: {
-					CHANGE_CURRENT_PIN_PLEASE: "changeCurrentPin",
+					CHANGE_CURRENT_PIN_PLEASE: "validatePin",
 				},
 				meta: {
 					test: async (service: AuthInterpreter) => {
