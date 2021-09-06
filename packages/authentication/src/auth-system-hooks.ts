@@ -692,7 +692,7 @@ export function useValidatingPin(cb: AuthCb.ValidatePinCb) {
 	};
 }
 
-export function useChangingPin(cb: AuthCb.ChangePinCb) {
+export function useChangingPin(cb: AuthCb.SetNewPinCb) {
 	const authenticator = useAuthInterpreter();
 	const error = useSelector(authenticator, contextSelectors.error);
 	const isActive = useSelector(authenticator, stateSelectors.isChangingPin!);
@@ -704,7 +704,7 @@ export function useChangingPin(cb: AuthCb.ChangePinCb) {
 		async (newPin: string) => {
 			setIsLoading(true);
 			// prettier-ignore
-			logger.info("Attempting to change the current PIN. If the check resolves, attempts was successful and they may return to the Authenticated state.");
+			logger.info("Attempting to change the current PIN. If the check resolves, the attempt was successful and they may return to the Authenticated state.");
 
 			try {
 				const res = await cb(newPin);

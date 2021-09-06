@@ -72,16 +72,9 @@ export type CheckForExistingPinCb = () => Promise<any>;
 export type ValidatePinCb = (pin: string) => Promise<any>;
 
 /**
- * Set a brand-new PIN. This to be used when there is not already a PIN set; the `ChangePinCb` is
- * used if an existing PIN needs changing.
+ * Set a brand-new PIN.
  */
 export type SetNewPinCb = (pin: string) => Promise<any>;
-
-/**
- * Change an existing PIN. This to be used when there is already a PIN set; the `SetNewPinCb` is
- * for adding a brand-new PIN.
- */
-export type ChangePinCb = (newPin: string) => Promise<any>;
 
 /**
  * Submit a log out request. This shouldn't fail, but we handle the errors just in case.
