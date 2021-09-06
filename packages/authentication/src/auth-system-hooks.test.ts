@@ -127,8 +127,6 @@ const INVALID_USERNAME = "invaliduser@example.com";
 
 const VALID_CODE = "123456";
 const INVALID_CODE = "654321";
-const ANOTHER_VALID_CODE = "123456";
-const ANOTHER_INVALID_CODE = "654321";
 
 const VALID_PASSWORD = "validpassword";
 const ANOTHER_VALID_PASSWORD = "anothervalidpassword";
@@ -401,17 +399,38 @@ const hookTestMap: HookTestMap = [
 		},
 	},
 	{
+		stateId: AuthStateId.ValidatingPin,
+		hookSpec: {
+			primaryMethod: "validatePin",
+			callbacks: [
+				{
+					args: [VALID_CODE],
+					callback: jest.fn(() => Promise.resolve()),
+					expectedEvent: { type: "PIN_VALID" },
+				},
+				{
+					args: [INVALID_CODE],
+					callback: jest.fn(() => Promise.reject()),
+					expectedEvent: { type: "PIN_INVALID", error: "PIN_INVALID" },
+				},
+			],
+			additionalMethods: [
+				{ method: "cancelChangePin", expectedEvent: { type: "CANCEL_PIN_CHANGE" } },
+			],
+		},
+	},
+	{
 		stateId: AuthStateId.ChangingPin,
 		hookSpec: {
 			primaryMethod: "changePin",
 			callbacks: [
 				{
-					args: [VALID_CODE, ANOTHER_VALID_CODE],
+					args: [VALID_CODE],
 					callback: jest.fn(() => Promise.resolve()),
 					expectedEvent: { type: "PIN_CHANGE_SUCCESS" },
 				},
 				{
-					args: [INVALID_CODE, ANOTHER_INVALID_CODE],
+					args: [INVALID_CODE],
 					callback: jest.fn(() => Promise.reject()),
 					expectedEvent: { type: "PIN_CHANGE_FAILURE", error: "PIN_CHANGE_FAILURE" },
 				},

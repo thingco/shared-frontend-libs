@@ -22,6 +22,7 @@ export const App = () => (
 			<AuthStage.CheckPin />
 			<AuthStage.CurrentPinInput />
 			<AuthStage.NewPinInput />
+			<AuthStage.ValidatePinInput />
 			<AuthStage.ChangePinInput />
 		</article>
 	</AuthProvider>

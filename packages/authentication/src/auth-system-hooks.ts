@@ -36,6 +36,7 @@ type AuthenticatedStateId = Extract<
 	| AuthStateId.Authenticated
 	| AuthStateId.LoggingOut
 	| AuthStateId.ChangingPassword
+	| AuthStateId.ValidatingPin
 	| AuthStateId.ChangingPin
 >;
 
@@ -73,6 +74,7 @@ const stateSelectors: ExposedStateSelectorMap = {
 	isCheckingForPin: (state) => state.matches(AuthStateId.CheckingForPin),
 	isSubmittingCurrentPin: (state) => state.matches(AuthStateId.SubmittingCurrentPin),
 	isSubmittingNewPin: (state) => state.matches(AuthStateId.SubmittingNewPin),
+  isValidatingPin: (state) => state.matches(AuthStateId.ValidatingPin),
 	isChangingPin: (state) => state.matches(AuthStateId.ChangingPin),
 	isResettingPin: (state) => state.matches(AuthStateId.ResettingPin),
 	isLoggingOut: (state) => state.matches(AuthStateId.LoggingOut),
@@ -83,6 +85,7 @@ const stateSelectors: ExposedStateSelectorMap = {
 const isInStateAccessibleWhileAuthenticated = (state: AuthState): boolean => {
 	return (
 		state.matches<AuthenticatedStateId>(AuthStateId.Authenticated) ||
+		state.matches<AuthenticatedStateId>(AuthStateId.ValidatingPin) ||
 		state.matches<AuthenticatedStateId>(AuthStateId.ChangingPin) ||
 		state.matches<AuthenticatedStateId>(AuthStateId.ChangingPassword) ||
 		state.matches<AuthenticatedStateId>(AuthStateId.LoggingOut)
@@ -647,6 +650,48 @@ export function useChangingPassword(cb: AuthCb.ChangePasswordCb) {
 	};
 }
 
+export function useValidatingPin(cb: AuthCb.ValidatePinCb) {
+	const authenticator = useAuthInterpreter();
+	const error = useSelector(authenticator, contextSelectors.error);
+	const isActive = useSelector(authenticator, stateSelectors.isValidatingPin!);
+	const logger = useLogger();
+
+	const [isLoading, setIsLoading] = useState(false);
+
+	const validatePin = useCallback(
+		async (pin: string) => {
+			setIsLoading(true);
+			// prettier-ignore
+			logger.info("Initiating a check against the existing PIN. If the check resolves, user passes authentication.");
+
+			try {
+				const res = await cb(pin);
+				logger.log(res);
+				logger.info("PIN validated");
+				authenticator.send({ type: "PIN_VALID" });
+			} catch (err) {
+				logger.warn(err);
+				logger.warn("PIN validation failed");
+				authenticator.send({ type: "PIN_INVALID", error: "PIN_INVALID" });
+			} finally {
+				setIsLoading(false);
+			}
+		},
+		[authenticator, isActive]
+	);
+
+	// Need a way to back out of change pin stage
+	const cancelChangePin = () => authenticator.send({ type: "CANCEL_PIN_CHANGE" });
+
+	return {
+		error,
+		isActive,
+		isLoading,
+		validatePin,
+		cancelChangePin,
+	};
+}
+
 export function useChangingPin(cb: AuthCb.ChangePinCb) {
 	const authenticator = useAuthInterpreter();
 	const error = useSelector(authenticator, contextSelectors.error);
@@ -656,13 +701,13 @@ export function useChangingPin(cb: AuthCb.ChangePinCb) {
 	const [isLoading, setIsLoading] = useState(false);
 
 	const changePin = useCallback(
-		async (oldPin: string, newPin: string) => {
+		async (newPin: string) => {
 			setIsLoading(true);
 			// prettier-ignore
 			logger.info("Attempting to change the current PIN. If the check resolves, attempts was successful and they may return to the Authenticated state.");
 
 			try {
-				const res = await cb(oldPin, newPin);
+				const res = await cb(newPin);
 				logger.log(res);
 				logger.log("PIN change succeeded");
 				authenticator.send({ type: "PIN_CHANGE_SUCCESS" });

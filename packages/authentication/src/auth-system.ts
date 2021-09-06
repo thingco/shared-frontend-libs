@@ -54,6 +54,7 @@ export enum AuthStateId {
 	SubmittingCurrentPin = "SubmittingCurrentPin",
 	ResettingPin = "ResettingPin",
 	SubmittingNewPin = "SubmittingNewPin",
+	ValidatingPin = "ValidatingPin",
 	ChangingPin = "ChangingPin",
 	LoggingOut = "LoggingOut",
 	Authenticated = "Authenticated",
@@ -146,6 +147,7 @@ type InternalAuthTypeState =
 	| { value: AuthStateId.SubmittingCurrentPin; context: InternalAuthContext & { username?: string } }
 	| { value: AuthStateId.ResettingPin; context: InternalAuthContext }
 	| { value: AuthStateId.SubmittingNewPin; context: InternalAuthContext & { username?: string } }
+  | { value: AuthStateId.ValidatingPin; context: InternalAuthContext & { username?: string } }
 	| { value: AuthStateId.ChangingPin; context: InternalAuthContext & { username?: string } }
 	| { value: AuthStateId.LoggingOut; context: InternalAuthContext & { username?: string; } }
 	| { value: AuthStateId.Authenticated; context: InternalAuthContext & { username?: string; } };
@@ -401,6 +403,18 @@ export const machine = createMachine<
 				},
 			}	
 		},
+    [AuthStateId.ValidatingPin]: {
+			on: {
+				PIN_VALID: {
+					target: AuthStateId.ChangingPin,
+					actions: ["clearError"],
+				},
+				PIN_INVALID: {
+					target: undefined,
+					actions: ["assignError"]
+				}
+			}
+		},
 		[AuthStateId.ChangingPin]: {
 			on: {
 				PIN_CHANGE_SUCCESS: {
@@ -431,7 +445,7 @@ export const machine = createMachine<
 			entry: ["clearError"],
 			on: {
 				REQUEST_LOG_OUT: AuthStateId.LoggingOut,
-				REQUEST_PIN_CHANGE: AuthStateId.ChangingPin,
+				REQUEST_PIN_CHANGE: AuthStateId.ValidatingPin,
 				REQUEST_PASSWORD_CHANGE: AuthStateId.ChangingPassword,
 			}
 		},

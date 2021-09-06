@@ -103,11 +103,10 @@ const LocalPinService = {
 			return Promise.reject();
 		}
 	},
-	async changePin(oldPin: string, newPin: string) {
-		const storedPin = window.localStorage.getItem(PIN_KEY);
-		if (storedPin === oldPin) {
+	async changePin(newPin: string) {
+		try {
 			return await LocalPinService.setPin(newPin);
-		} else {
+		} catch {
 			return Promise.reject();
 		}
 	},
@@ -197,27 +196,45 @@ export const NewPinInput = () => {
 	);
 };
 
+export const ValidatePinInput = () => {
+	const { error, isActive, isLoading, validatePin } = AuthStage.useValidatingPin((pin) =>
+		LocalPinService.checkPin(pin)
+	);
+	const [pin, setPin] = React.useState("");
+
+	return (
+		<section className={classnames("auth-stage", { "auth-stage--active": isActive })}>
+			<Form submitCb={validatePin} cbParams={[pin]}>
+				<Form.Elements disabled={!isActive || isLoading} error={error}>
+					<Form.InputGroup
+						error={error}
+						id="currentPin"
+						inputType="text"
+						isActive={isActive}
+						label="Confirm your current pin:"
+						value={pin}
+						valueSetter={setPin}
+						testid="currentPinInput"
+					/>
+					<Form.Controls>
+						<Form.Submit label="Submit PIN" testid="currentPinSubmit" />
+					</Form.Controls>
+				</Form.Elements>
+			</Form>
+		</section>
+	);
+};
+
 export const ChangePinInput = () => {
 	const { error, isActive, isLoading, changePin, cancelChangePin } = AuthStage.useChangingPin(
-		(oldPin, newPin) => LocalPinService.changePin(oldPin, newPin)
+		(newPin) => LocalPinService.changePin(newPin)
 	);
-	const [oldPin, setOldPin] = React.useState("");
 	const [newPin, setNewPin] = React.useState("");
 
 	return (
 		<section className={classnames("auth-stage", { "auth-stage--active": isActive })}>
-			<Form submitCb={changePin} cbParams={[oldPin, newPin]}>
+			<Form submitCb={changePin} cbParams={[newPin]}>
 				<Form.Elements disabled={!isActive || isLoading} error={error}>
-					<Form.InputGroup
-						error={error}
-						id="oldPinToChange"
-						inputType="text"
-						isActive={isActive}
-						label="Enter your current PIN:"
-						value={oldPin}
-						valueSetter={setOldPin}
-						testid="oldPinInput"
-					/>
 					<Form.InputGroup
 						error={error}
 						id="newPinToSet"
