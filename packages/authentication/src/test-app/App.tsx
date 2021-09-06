@@ -14,7 +14,7 @@ export const App = () => (
 			<header className="app-section__header">
 				<h2>Auth flow</h2>
 			</header>
-			<AuthStage.SessionCheck />
+			<AuthStage.CheckingForSession />
 			<AuthStage.OtpUsernameInput />
 			<AuthStage.OtpInput />
 			<AuthStage.Authenticated />
@@ -22,6 +22,7 @@ export const App = () => (
 			<AuthStage.CheckPin />
 			<AuthStage.CurrentPinInput />
 			<AuthStage.NewPinInput />
+			<AuthStage.ValidatePinInput />
 			<AuthStage.ChangePinInput />
 		</article>
 	</AuthProvider>

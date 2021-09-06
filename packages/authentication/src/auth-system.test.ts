@@ -1,10 +1,10 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createModel } from "@xstate/test";
 import { createMachine, interpret } from "xstate";
 
 import { AuthStateId, createAuthenticationSystem, machine } from "./auth-system";
 import { AuthError } from "./types";
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { AuthEvent, AuthInterpreter } from "./auth-system";
 
 /* ========================================================================= *\
@@ -34,8 +34,8 @@ describe("sanity checks for the overall auth system", () => {
 		expect(statesDefinedInMachine).toEqual(expect.arrayContaining(statesDefinedInEnum));
 	});
 
-	it("should start in an initial state of 'awaitingSessionCheck'", () => {
-		expect(machine.initial).toEqual(AuthStateId.awaitingSessionCheck);
+	it("should start in an initial state of 'CheckingForSession'", () => {
+		expect(machine.initial).toEqual(AuthStateId.CheckingForSession);
 	});
 });
 
@@ -70,12 +70,12 @@ describe("authentication test system using OTP (ignoring device security)", () =
 		states: {
 			checkingSession: {
 				on: {
-					THERE_IS_A_SESSION: "authenticated",
+					THERE_IS_A_SESSION: "Authenticated",
 					THERE_IS_NO_SESSION: "submittingUsername",
 				},
 				meta: {
 					test: async (service: AuthInterpreter) => {
-						expect(service.state.matches(AuthStateId.awaitingSessionCheck));
+						expect(service.state.matches(AuthStateId.CheckingForSession));
 					},
 				},
 			},
@@ -86,7 +86,7 @@ describe("authentication test system using OTP (ignoring device security)", () =
 				},
 				meta: {
 					test: async (service: AuthInterpreter) => {
-						expect(service.state.matches(AuthStateId.awaitingOtpUsername));
+						expect(service.state.matches(AuthStateId.SubmittingOtpUsername));
 					},
 				},
 			},
@@ -96,7 +96,7 @@ describe("authentication test system using OTP (ignoring device security)", () =
 				},
 				meta: {
 					test: async (service: AuthInterpreter) => {
-						expect(service.state.matches(AuthStateId.awaitingOtpUsername));
+						expect(service.state.matches(AuthStateId.SubmittingOtpUsername));
 						expect(service.state.context.error).toBe("PASSWORD_RETRIES_EXCEEDED");
 					},
 				},
@@ -107,20 +107,20 @@ describe("authentication test system using OTP (ignoring device security)", () =
 				},
 				meta: {
 					test: async (service: AuthInterpreter) => {
-						expect(service.state.matches(AuthStateId.awaitingOtpUsername));
+						expect(service.state.matches(AuthStateId.SubmittingOtpUsername));
 						expect(service.state.context.error).toBe("USERNAME_INVALID");
 					},
 				},
 			},
 			submittingOtp1: {
 				on: {
-					GOOD_OTP: "authenticated",
+					GOOD_OTP: "Authenticated",
 					BAD_OTP_1: "submittingOtp2",
 					REENTER_USERNAME: "submittingUsername",
 				},
 				meta: {
 					test: async (service: AuthInterpreter) => {
-						expect(service.state.matches(AuthStateId.awaitingOtp));
+						expect(service.state.matches(AuthStateId.SubmittingOtp));
 						expect(service.state.context.username).toBe(VALID_USERNAME);
 						expect(service.state.context.user).toBe(USER_OBJECT);
 					},
@@ -132,7 +132,7 @@ describe("authentication test system using OTP (ignoring device security)", () =
 				},
 				meta: {
 					test: async (service: AuthInterpreter) => {
-						expect(service.state.matches(AuthStateId.awaitingOtp));
+						expect(service.state.matches(AuthStateId.SubmittingOtp));
 						expect(service.state.context.error).toBe("PASSWORD_INVALID_2_RETRIES_REMAINING");
 						expect(service.state.context.username).toBe(VALID_USERNAME);
 						expect(service.state.context.user).toBe(USER_OBJECT);
@@ -145,32 +145,32 @@ describe("authentication test system using OTP (ignoring device security)", () =
 				},
 				meta: {
 					test: async (service: AuthInterpreter) => {
-						expect(service.state.matches(AuthStateId.awaitingOtp));
+						expect(service.state.matches(AuthStateId.SubmittingOtp));
 						expect(service.state.context.error).toBe("PASSWORD_INVALID_1_RETRIES_REMAINING");
 						expect(service.state.context.username).toBe(VALID_USERNAME);
 						expect(service.state.context.user).toBe(USER_OBJECT);
 					},
 				},
 			},
-			authenticated: {
+			Authenticated: {
 				on: {
-					CAN_I_LOG_OUT_PLEASE: "loggingOut",
+					CAN_I_LOG_OUT_PLEASE: "LoggingOut",
 				},
 				meta: {
 					test: async (service: AuthInterpreter) => {
-						expect(service.state.matches(AuthStateId.authenticated));
+						expect(service.state.matches(AuthStateId.Authenticated));
 					},
 				},
 			},
-			loggingOut: {
+			LoggingOut: {
 				on: {
 					LOG_OUT_WORKED: "checkingSession",
-					LOG_OUT_FAILED: "authenticated",
-					ACTUALLY_NO_STAY_LOGGED_IN: "authenticated",
+					LOG_OUT_FAILED: "Authenticated",
+					ACTUALLY_NO_STAY_LOGGED_IN: "Authenticated",
 				},
 				meta: {
 					test: async (service: AuthInterpreter) => {
-						expect(service.state.matches(AuthStateId.loggingOut));
+						expect(service.state.matches(AuthStateId.LoggingOut));
 					},
 				},
 			},
@@ -225,58 +225,58 @@ describe("authentication test system using username and password (ignoring devic
 		states: {
 			checkingSession: {
 				on: {
-					THERE_IS_A_SESSION: "authenticated",
+					THERE_IS_A_SESSION: "Authenticated",
 					THERE_IS_NO_SESSION: "submittingUsernameAndPassword",
 				},
 				meta: {
 					test: async (service: AuthInterpreter) => {
-						expect(service.state.matches(AuthStateId.awaitingSessionCheck));
+						expect(service.state.matches(AuthStateId.CheckingForSession));
 					},
 				},
 			},
 			submittingUsernameAndPassword: {
 				on: {
-					GOOD_LOGIN: "authenticated",
+					GOOD_LOGIN: "Authenticated",
 					GOOD_LOGIN_BUT_YOU_HAVE_A_TEMPORARY_PASSWORD: "submittingChangeTemporaryPassword",
 					BAD_LOGIN: "usernameAndPasswordError",
 					FORGOT_PASSWORD: "forgotPasswordRequestANewOne",
 				},
 				meta: {
 					test: async (service: AuthInterpreter) => {
-						expect(service.state.matches(AuthStateId.awaitingUsernameAndPassword));
+						expect(service.state.matches(AuthStateId.SubmittingUsernameAndPassword));
 					},
 				},
 			},
 			usernameAndPasswordError: {
 				on: {
-					GOOD_LOGIN_ON_SECOND_ATTEMPT: "authenticated",
+					GOOD_LOGIN_ON_SECOND_ATTEMPT: "Authenticated",
 				},
 				meta: {
 					test: async (service: AuthInterpreter) => {
-						expect(service.state.matches(AuthStateId.awaitingUsernameAndPassword));
+						expect(service.state.matches(AuthStateId.SubmittingUsernameAndPassword));
 						expect(service.state.context.error).toBe("USERNAME_AND_PASSWORD_INVALID" as AuthError);
 					},
 				},
 			},
 			submittingChangeTemporaryPassword: {
 				on: {
-					ATTEMPT_TO_CHANGE_TEMPORARY_PASSWORD_SUCCEEDED: "authenticated",
+					ATTEMPT_TO_CHANGE_TEMPORARY_PASSWORD_SUCCEEDED: "Authenticated",
 					ATTEMPT_TO_CHANGE_TEMPORARY_PASSWORD_FAILED: "submittingChangeTemporaryPasswordError",
 				},
 				meta: {
 					test: async (service: AuthInterpreter) => {
-						expect(service.state.matches(AuthStateId.awaitingForcedChangePassword));
+						expect(service.state.matches(AuthStateId.SubmittingForceChangePassword));
 						expect(service.state.context.error).toBe("PASSWORD_CHANGE_REQUIRED" as AuthError);
 					},
 				},
 			},
 			submittingChangeTemporaryPasswordError: {
 				on: {
-					ATTEMPT_TO_CHANGE_TEMPORARY_PASSWORD_SUCCEEDED_ON_SECOND_ATTEMPT: "authenticated",
+					ATTEMPT_TO_CHANGE_TEMPORARY_PASSWORD_SUCCEEDED_ON_SECOND_ATTEMPT: "Authenticated",
 				},
 				meta: {
 					test: async (service: AuthInterpreter) => {
-						expect(service.state.matches(AuthStateId.awaitingForcedChangePassword));
+						expect(service.state.matches(AuthStateId.SubmittingForceChangePassword));
 						expect(service.state.context.error).toBe("PASSWORD_CHANGE_FAILURE" as AuthError);
 					},
 				},
@@ -288,7 +288,7 @@ describe("authentication test system using username and password (ignoring devic
 				},
 				meta: {
 					test: async (service: AuthInterpreter) => {
-						expect(service.state.matches(AuthStateId.awaitingPasswordResetRequest));
+						expect(service.state.matches(AuthStateId.RequestingPasswordReset));
 					},
 				},
 			},
@@ -298,29 +298,29 @@ describe("authentication test system using username and password (ignoring devic
 				},
 				meta: {
 					test: async (service: AuthInterpreter) => {
-						expect(service.state.matches(AuthStateId.awaitingPasswordResetRequest));
+						expect(service.state.matches(AuthStateId.RequestingPasswordReset));
 						expect(service.state.context.error).toBe("PASSWORD_RESET_REQUEST_FAILURE" as AuthError);
 					},
 				},
 			},
 			forgotPasswordSubmitANewOne: {
 				on: {
-					RESET_CODE_AND_NEW_PASSWORD_ARE_FINE: "authenticated",
+					RESET_CODE_AND_NEW_PASSWORD_ARE_FINE: "Authenticated",
 					RESET_CODE_AND_NEW_PASSWORD_ARE_NOT_FINE: "forgotPasswordSubmitANewOneError",
 				},
 				meta: {
 					test: async (service: AuthInterpreter) => {
-						expect(service.state.matches(AuthStateId.awaitingPasswordResetSubmission));
+						expect(service.state.matches(AuthStateId.SubmittingPasswordReset));
 					},
 				},
 			},
 			forgotPasswordSubmitANewOneError: {
 				on: {
-					RESET_CODE_AND_NEW_PASSWORD_ARE_FINE_ON_SECOND_ATTEMPT: "authenticated",
+					RESET_CODE_AND_NEW_PASSWORD_ARE_FINE_ON_SECOND_ATTEMPT: "Authenticated",
 				},
 				meta: {
 					test: async (service: AuthInterpreter) => {
-						expect(service.state.matches(AuthStateId.awaitingPasswordResetSubmission));
+						expect(service.state.matches(AuthStateId.SubmittingPasswordReset));
 						/*
 						 * FIXME there is a test failure here. ATM, the way errors are
 						 * assigned and cleared causes this part to flip back and forth between
@@ -339,35 +339,35 @@ describe("authentication test system using username and password (ignoring devic
 			},
 			submitPasswordChange: {
 				on: {
-					PASSWORD_CHANGE_IS_FINE: "authenticated",
-					CANCEL_PASSWORD_CHANGE: "authenticated",
+					PASSWORD_CHANGE_IS_FINE: "Authenticated",
+					CANCEL_PASSWORD_CHANGE: "Authenticated",
 				},
 				meta: {
 					test: async (service: AuthInterpreter) => {
-						expect(service.state.matches(AuthStateId.awaitingChangePassword));
+						expect(service.state.matches(AuthStateId.ChangingPassword));
 					},
 				},
 			},
-			authenticated: {
+			Authenticated: {
 				on: {
-					CAN_I_LOG_OUT_PLEASE: "loggingOut",
+					CAN_I_LOG_OUT_PLEASE: "LoggingOut",
 					CAN_I_CHANGE_MY_PASSWORD: "submitPasswordChange",
 				},
 				meta: {
 					test: async (service: AuthInterpreter) => {
-						expect(service.state.matches(AuthStateId.authenticated));
+						expect(service.state.matches(AuthStateId.Authenticated));
 					},
 				},
 			},
-			loggingOut: {
+			LoggingOut: {
 				on: {
 					LOG_OUT_WORKED: "checkingSession",
-					LOG_OUT_FAILED: "authenticated",
-					ACTUALLY_NO_STAY_LOGGED_IN: "authenticated",
+					LOG_OUT_FAILED: "Authenticated",
+					ACTUALLY_NO_STAY_LOGGED_IN: "Authenticated",
 				},
 				meta: {
 					test: async (service: AuthInterpreter) => {
-						expect(service.state.matches(AuthStateId.loggingOut));
+						expect(service.state.matches(AuthStateId.LoggingOut));
 					},
 				},
 			},
@@ -432,98 +432,144 @@ describe("authentication test system for PIN (ignoring login flow)", () => {
 		initial: "checkingSession",
 		states: {
 			checkingSession: {
-				on: { THERE_IS_A_SESSION: "pinChecks" },
+				on: {
+					THERE_IS_A_SESSION: "CheckingForPin",
+					THERE_IS_NO_SESSION: "otpFlowStart",
+				},
 				meta: {
 					test: async (service: AuthInterpreter) => {
-						expect(service.state.matches(AuthStateId.awaitingSessionCheck));
+						expect(service.state.matches(AuthStateId.CheckingForSession));
 					},
 				},
 			},
-			pinChecks: {
+			otpFlowStart: {
+				meta: {
+					test: async (service: AuthInterpreter) => {
+						expect(service.state.matches(AuthStateId.SubmittingOtpUsername));
+					},
+				},
+			},
+			CheckingForPin: {
 				on: {
 					THERE_IS_A_PIN_SET: "submitCurrentPin",
 					THERE_IS_NO_PIN_SET: "setANewPin",
 				},
 				meta: {
 					test: async (service: AuthInterpreter) => {
-						expect(service.state.matches(AuthStateId.pinChecks));
+						expect(service.state.matches(AuthStateId.CheckingForPin));
 					},
 				},
 			},
 			submitCurrentPin: {
 				on: {
-					PIN_SUBMITTED_WAS_CORRECT: "authenticated",
+					PIN_SUBMITTED_WAS_CORRECT: "Authenticated",
 					PIN_SUBMITTED_WAS_NOT_CORRECT: "incorrectCurrentPin",
+					I_FORGOT_MY_PIN: "resetPin",
 				},
 				meta: {
 					test: async (service: AuthInterpreter) => {
-						expect(service.state.matches(AuthStateId.awaitingCurrentPinInput));
+						expect(service.state.matches(AuthStateId.SubmittingCurrentPin));
+					},
+				},
+			},
+			resetPin: {
+				on: {
+					RESET_OF_PIN_SUCCEEDED: "checkingSession",
+					RESET_OF_PIN_FAILED: "resetPinError",
+					NO_ACTUALLY_CANCEL_THAT_RESET_REQUEST: "submitCurrentPin",
+				},
+				meta: {
+					test: async (service: AuthInterpreter) => {
+						expect(service.state.matches(AuthStateId.ResettingPin));
+					},
+				},
+			},
+			resetPinError: {
+				on: {
+					SECOND_RESET_ATTEMPT_SUCCEEDED: "checkingSession",
+				},
+				meta: {
+					test: async (service: AuthInterpreter) => {
+						expect(service.state.matches(AuthStateId.ResettingPin));
+						expect(service.state.context.error).toBe("PIN_RESET_FAILURE" as AuthError);
 					},
 				},
 			},
 			incorrectCurrentPin: {
 				on: {
-					PIN_SUBMITTED_WAS_CORRECT_ON_SECOND_ATTEMPT: "authenticated",
+					PIN_SUBMITTED_WAS_CORRECT_ON_SECOND_ATTEMPT: "Authenticated",
 				},
 				meta: {
 					test: async (service: AuthInterpreter) => {
-						expect(service.state.matches(AuthStateId.awaitingCurrentPinInput));
+						expect(service.state.matches(AuthStateId.SubmittingCurrentPin));
 						expect(service.state.context.error).toBe("PIN_INVALID" as AuthError);
 					},
 				},
 			},
 			setANewPin: {
 				on: {
-					NEW_PIN_IS_FINE: "authenticated",
+					NEW_PIN_IS_FINE: "Authenticated",
 					NEW_PIN_IS_NOT_FINE: "errorSettingNewPin",
 				},
 				meta: {
 					test: async (service: AuthInterpreter) => {
-						expect(service.state.matches(AuthStateId.awaitingNewPinInput));
+						expect(service.state.matches(AuthStateId.SubmittingNewPin));
 					},
 				},
 			},
 			errorSettingNewPin: {
 				on: {
-					NEW_PIN_IS_FINE_ON_SECOND_ATTEMPT: "authenticated",
+					NEW_PIN_IS_FINE_ON_SECOND_ATTEMPT: "Authenticated",
 				},
 				meta: {
 					test: async (service: AuthInterpreter) => {
-						expect(service.state.matches(AuthStateId.awaitingCurrentPinInput));
+						expect(service.state.matches(AuthStateId.SubmittingCurrentPin));
 						expect(service.state.context.error).toBe("NEW_PIN_INVALID" as AuthError);
+					},
+				},
+			},
+			validatePin: {
+				on: {
+					PIN_SUBMITTED_WAS_CORRECT: "changeCurrentPin",
+					PIN_SUBMITTED_WAS_NOT_CORRECT: "incorrectCurrentPin",
+					ACTUALLY_CANCEL_THAT_PIN_CHANGE_REQUEST: "Authenticated",
+				},
+				meta: {
+					test: async (service: AuthInterpreter) => {
+						expect(service.state.matches(AuthStateId.ValidatingPin));
 					},
 				},
 			},
 			changeCurrentPin: {
 				on: {
-					PIN_CHANGE_SUCCEEDED: "authenticated",
+					PIN_CHANGE_SUCCEEDED: "Authenticated",
 					PIN_CHANGE_FAILED: "errorChangingCurrentPin",
-					ACTUALLY_CANCEL_THAT_PIN_CHANGE_REQUEST: "authenticated",
+					ACTUALLY_CANCEL_THAT_PIN_CHANGE_REQUEST: "Authenticated",
 				},
 				meta: {
 					test: async (service: AuthInterpreter) => {
-						expect(service.state.matches(AuthStateId.awaitingChangePinInput));
+						expect(service.state.matches(AuthStateId.ChangingPin));
 					},
 				},
 			},
 			errorChangingCurrentPin: {
 				on: {
-					PIN_CHANGE_SUCCEEDED_ON_SECOND_ATTEMPT: "authenticated",
+					PIN_CHANGE_SUCCEEDED_ON_SECOND_ATTEMPT: "Authenticated",
 				},
 				meta: {
 					test: async (service: AuthInterpreter) => {
-						expect(service.state.matches(AuthStateId.awaitingChangePinInput));
+						expect(service.state.matches(AuthStateId.ChangingPin));
 						expect(service.state.context.error).toBe("PIN_CHANGE_FAILURE" as AuthError);
 					},
 				},
 			},
-			authenticated: {
+			Authenticated: {
 				on: {
-					CHANGE_CURRENT_PIN_PLEASE: "changeCurrentPin",
+					CHANGE_CURRENT_PIN_PLEASE: "validatePin",
 				},
 				meta: {
 					test: async (service: AuthInterpreter) => {
-						expect(service.state.matches(AuthStateId.authenticated));
+						expect(service.state.matches(AuthStateId.Authenticated));
 					},
 				},
 			},
@@ -532,11 +578,17 @@ describe("authentication test system for PIN (ignoring login flow)", () => {
 
 	const model = createModel(machine).withEvents({
 		THERE_IS_A_SESSION: doSend({ type: "SESSION_PRESENT" }),
+		THERE_IS_NO_SESSION: doSend({ type: "SESSION_NOT_PRESENT" }),
 		THERE_IS_A_PIN_SET: doSend({ type: "PIN_IS_SET_UP" }),
 		THERE_IS_NO_PIN_SET: doSend({ type: "PIN_IS_NOT_SET_UP" }),
 		PIN_SUBMITTED_WAS_CORRECT: doSend({ type: "PIN_VALID" }),
 		PIN_SUBMITTED_WAS_NOT_CORRECT: doSend({ type: "PIN_INVALID", error: "PIN_INVALID" }),
 		PIN_SUBMITTED_WAS_CORRECT_ON_SECOND_ATTEMPT: doSend({ type: "PIN_VALID" }),
+		I_FORGOT_MY_PIN: doSend({ type: "REQUEST_PIN_RESET" }),
+		RESET_OF_PIN_SUCCEEDED: doSend({ type: "PIN_RESET_SUCCESS" }),
+		SECOND_RESET_ATTEMPT_SUCCEEDED: doSend({ type: "PIN_RESET_SUCCESS" }),
+		RESET_OF_PIN_FAILED: doSend({ type: "PIN_RESET_FAILURE", error: "PIN_RESET_FAILURE" }),
+		NO_ACTUALLY_CANCEL_THAT_RESET_REQUEST: doSend({ type: "CANCEL_PIN_RESET" }),
 		NEW_PIN_IS_FINE: doSend({ type: "NEW_PIN_VALID" }),
 		NEW_PIN_IS_NOT_FINE: doSend({ type: "NEW_PIN_INVALID", error: "NEW_PIN_INVALID" }),
 		NEW_PIN_IS_FINE_ON_SECOND_ATTEMPT: doSend({ type: "NEW_PIN_VALID" }),

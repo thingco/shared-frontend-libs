@@ -81,7 +81,7 @@ export type SetNewPinCb = (pin: string) => Promise<any>;
  * Change an existing PIN. This to be used when there is already a PIN set; the `SetNewPinCb` is
  * for adding a brand-new PIN.
  */
-export type ChangePinCb = (oldPin: string, newPin: string) => Promise<any>;
+export type ChangePinCb = (newPin: string) => Promise<any>;
 
 /**
  * Submit a log out request. This shouldn't fail, but we handle the errors just in case.

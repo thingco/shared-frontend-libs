@@ -1,44 +1,105 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useLogger } from "@thingco/logger";
 import { useSelector } from "@xstate/react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 
 import { AuthStateId } from "./auth-system";
 import { useAuthInterpreter } from "./AuthSystemProvider";
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import type { AuthContext, AuthState } from "./auth-system";
 import type * as AuthCb from "./auth-system-hook-callbacks";
 
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
+/* ========================================================================= *\
+ * 1. UTILITY TYPES
+ * 2. TYPED SELECTORS
+ * 3. AUTH STAGE HOOKS
+ * 4. AUTHORISED HOOKS
+\* ========================================================================= */
+
+/* ========================================================================= *\
+ * 1. UTILITY TYPES
+ *
+ * These are used internally to tighten the typings for states and state
+ * selectors
+\* ========================================================================= */
+
+/** Filter on the state ID enum to remove states internal to the FSM */
 type ExposedStateId = Exclude<
 	AuthStateId,
 	AuthStateId.INTERNAL__deviceSecurityCheck | AuthStateId.INTERNAL__loginFlowCheck
 >;
 
+/** Filter on the state ID enum to extract states only useful when a user is Authenticated. */
+type AuthenticatedStateId = Extract<
+	AuthStateId,
+	| AuthStateId.Authenticated
+	| AuthStateId.LoggingOut
+	| AuthStateId.ChangingPassword
+	| AuthStateId.ValidatingPin
+	| AuthStateId.ChangingPin
+>;
+
+/* ========================================================================= *\
+ * 2. TYPED SELECTORS
+ *
+ * To acess the state of the authentication FSM, selectors are being used
+ * instead of just exposing all the state all the time via the provider.
+ * This gives performance benefits -- it means components using the hooks
+ * will only rerender when a selector value changes, which is important
+ * for React Native in particular.
+ * 
+ * See https://xstate.js.org/docs/recipes/react.html#global-state-react-context
+\* ========================================================================= */
+
+/**
+ * Mapped type to build out the object containing state selector functions.
+ * It should ensure TS will error if any state exposed to users has been omitted.
+ */
 type ExposedStateSelectorMap = {
 	[K in `is${Capitalize<ExposedStateId>}`]: (state: AuthState) => boolean;
 };
 
+/** Map of every state exposed to users -> match function for that state (_ie_ `true` if in state) */
 // prettier-ignore
 const stateSelectors: ExposedStateSelectorMap = {
-	isAwaitingSessionCheck: (state) => state.matches(AuthStateId.awaitingSessionCheck),
-	isAwaitingOtpUsername: (state) => state.matches(AuthStateId.awaitingOtpUsername),
-	isAwaitingOtp: (state) => state.matches(AuthStateId.awaitingOtp),
-	isAwaitingUsernameAndPassword: (state) => state.matches(AuthStateId.awaitingUsernameAndPassword),
-	isAwaitingForcedChangePassword: (state) => state.matches(AuthStateId.awaitingForcedChangePassword),
-	isAwaitingChangePassword: (state) => state.matches(AuthStateId.awaitingChangePassword),
-	isAwaitingPasswordResetRequest: (state) => state.matches(AuthStateId.awaitingPasswordResetRequest),
-	isAwaitingPasswordResetSubmission: (state) => state.matches(AuthStateId.awaitingPasswordResetSubmission),
-	isPinChecks: (state) => state.matches(AuthStateId.pinChecks),
-	isAwaitingCurrentPinInput: (state) => state.matches(AuthStateId.awaitingCurrentPinInput),
-	isAwaitingNewPinInput: (state) => state.matches(AuthStateId.awaitingNewPinInput),
-	isAwaitingChangePinInput: (state) => state.matches(AuthStateId.awaitingChangePinInput),
-	isLoggingOut: (state) => state.matches(AuthStateId.loggingOut),
-	isAuthenticated: (state) => state.matches(AuthStateId.authenticated),
+	isCheckingForSession: (state) => state.matches(AuthStateId.CheckingForSession),
+	isSubmittingOtpUsername: (state) => state.matches(AuthStateId.SubmittingOtpUsername),
+	isSubmittingOtp: (state) => state.matches(AuthStateId.SubmittingOtp),
+	isSubmittingUsernameAndPassword: (state) => state.matches(AuthStateId.SubmittingUsernameAndPassword),
+	isSubmittingForceChangePassword: (state) => state.matches(AuthStateId.SubmittingForceChangePassword),
+	isChangingPassword: (state) => state.matches(AuthStateId.ChangingPassword),
+	isRequestingPasswordReset: (state) => state.matches(AuthStateId.RequestingPasswordReset),
+	isSubmittingPasswordReset: (state) => state.matches(AuthStateId.SubmittingPasswordReset),
+	isCheckingForPin: (state) => state.matches(AuthStateId.CheckingForPin),
+	isSubmittingCurrentPin: (state) => state.matches(AuthStateId.SubmittingCurrentPin),
+	isSubmittingNewPin: (state) => state.matches(AuthStateId.SubmittingNewPin),
+  isValidatingPin: (state) => state.matches(AuthStateId.ValidatingPin),
+	isChangingPin: (state) => state.matches(AuthStateId.ChangingPin),
+	isResettingPin: (state) => state.matches(AuthStateId.ResettingPin),
+	isLoggingOut: (state) => state.matches(AuthStateId.LoggingOut),
+	isAuthenticated: (state) => state.matches(AuthStateId.Authenticated),
 };
 
+/** Selector specifically for states only useful when a user is Authenticated. */
+const isInStateAccessibleWhileAuthenticated = (state: AuthState): boolean => {
+	return (
+		state.matches<AuthenticatedStateId>(AuthStateId.Authenticated) ||
+		state.matches<AuthenticatedStateId>(AuthStateId.ValidatingPin) ||
+		state.matches<AuthenticatedStateId>(AuthStateId.ChangingPin) ||
+		state.matches<AuthenticatedStateId>(AuthStateId.ChangingPassword) ||
+		state.matches<AuthenticatedStateId>(AuthStateId.LoggingOut)
+	);
+};
+
+/**
+ * Mapped type to build out the object containing context value access functions.
+ * It should ensure that TS will error if a context value has been omitted or a
+ * nonexistant key has been used.
+ */
 type ContextSelectorMap<S = AuthState, C = AuthContext> = Record<keyof C, (state: S) => C[keyof C]>;
 
+/** Map of every context value as a selector function. */
 const contextSelectors: ContextSelectorMap = {
 	error: (state) => state.context.error,
 	loginFlowType: (state) => state.context.loginFlowType,
@@ -47,10 +108,18 @@ const contextSelectors: ContextSelectorMap = {
 	username: (state) => state.context.username,
 };
 
-export function useAwaitingSessionCheck(cb: AuthCb.CheckSessionCb) {
+/* ========================================================================= *\
+ * 3. AUTH STAGE HOOKS
+ *
+ * These hooks cover all stages of the authentication process where a user
+ * is **not** Authenticated. They all follow a common pattern, taking a
+ * callback of a specified shape which is then executed by the hook, allowing
+ * us to specify exactly when events will be sent into the FSM system.
+\* ========================================================================= */
+export function useCheckingForSession(cb: AuthCb.CheckSessionCb) {
 	const authenticator = useAuthInterpreter();
 	const error = useSelector(authenticator, contextSelectors.error);
-	const isActive = useSelector(authenticator, stateSelectors.isAwaitingSessionCheck!);
+	const isActive = useSelector(authenticator, stateSelectors.isCheckingForSession!);
 	const logger = useLogger();
 
 	const [isLoading, setIsLoading] = useState(false);
@@ -81,10 +150,10 @@ export function useAwaitingSessionCheck(cb: AuthCb.CheckSessionCb) {
 	};
 }
 
-export function useAwaitingOtpUsername<User = any>(cb: AuthCb.ValidateOtpUsernameCb<User>) {
+export function useSubmittingOtpUsername<User = any>(cb: AuthCb.ValidateOtpUsernameCb<User>) {
 	const authenticator = useAuthInterpreter();
 	const error = useSelector(authenticator, contextSelectors.error);
-	const isActive = useSelector(authenticator, stateSelectors.isAwaitingOtpUsername!);
+	const isActive = useSelector(authenticator, stateSelectors.isSubmittingOtpUsername!);
 	const logger = useLogger();
 
 	const [isLoading, setIsLoading] = useState(false);
@@ -119,10 +188,10 @@ export function useAwaitingOtpUsername<User = any>(cb: AuthCb.ValidateOtpUsernam
 	};
 }
 
-export function useAwaitingOtp<User = any>(cb: AuthCb.ValidateOtpCb<User>) {
+export function useSubmittingOtp<User = any>(cb: AuthCb.ValidateOtpCb<User>) {
 	const authenticator = useAuthInterpreter();
 	const error = useSelector(authenticator, contextSelectors.error);
-	const isActive = useSelector(authenticator, stateSelectors.isAwaitingOtp!);
+	const isActive = useSelector(authenticator, stateSelectors.isSubmittingOtp!);
 	const currentUserData = useSelector(authenticator, contextSelectors.user);
 	const logger = useLogger();
 
@@ -186,12 +255,12 @@ function newPasswordIsRequired<User = any>(user: User) {
 	return "NEW_PASSWORD_REQUIRED" in user;
 }
 
-export function useAwaitingUsernameAndPassword<User = any>(
+export function useSubmittingUsernameAndPassword<User = any>(
 	cb: AuthCb.ValidateUsernameAndPasswordCb<User>
 ) {
 	const authenticator = useAuthInterpreter();
 	const error = useSelector(authenticator, contextSelectors.error);
-	const isActive = useSelector(authenticator, stateSelectors.isAwaitingUsernameAndPassword!);
+	const isActive = useSelector(authenticator, stateSelectors.isSubmittingUsernameAndPassword!);
 	const logger = useLogger();
 
 	const [isLoading, setIsLoading] = useState(false);
@@ -240,12 +309,12 @@ export function useAwaitingUsernameAndPassword<User = any>(
 	};
 }
 
-export function useAwaitingForcedChangePassword<User = any>(
+export function useSubmittingForceChangePassword<User = any>(
 	cb: AuthCb.ValidateForceChangePasswordCb<User>
 ) {
 	const authenticator = useAuthInterpreter();
 	const error = useSelector(authenticator, contextSelectors.error);
-	const isActive = useSelector(authenticator, stateSelectors.isAwaitingForcedChangePassword!);
+	const isActive = useSelector(authenticator, stateSelectors.isSubmittingForceChangePassword!);
 	const currentUserData = useSelector(authenticator, contextSelectors.user);
 	const logger = useLogger();
 
@@ -283,10 +352,10 @@ export function useAwaitingForcedChangePassword<User = any>(
  * will be stored, to be passed onto the next request (submitting a new password + the confirmation
  * code they have been sent).
  */
-export function useAwaitingPasswordResetRequest(cb: AuthCb.RequestNewPasswordCb) {
+export function useRequestingPasswordReset(cb: AuthCb.RequestNewPasswordCb) {
 	const authenticator = useAuthInterpreter();
 	const error = useSelector(authenticator, contextSelectors.error);
-	const isActive = useSelector(authenticator, stateSelectors.isAwaitingPasswordResetRequest!);
+	const isActive = useSelector(authenticator, stateSelectors.isRequestingPasswordReset!);
 	const username = useSelector(authenticator, contextSelectors.username);
 	const logger = useLogger();
 
@@ -318,10 +387,10 @@ export function useAwaitingPasswordResetRequest(cb: AuthCb.RequestNewPasswordCb)
 	};
 }
 
-export function useAwaitingPasswordResetSubmission(cb: AuthCb.SubmitNewPasswordCb) {
+export function useSubmittingPasswordReset(cb: AuthCb.SubmitNewPasswordCb) {
 	const authenticator = useAuthInterpreter();
 	const error = useSelector(authenticator, contextSelectors.error);
-	const isActive = useSelector(authenticator, stateSelectors.isAwaitingPasswordResetSubmission!);
+	const isActive = useSelector(authenticator, stateSelectors.isSubmittingPasswordReset!);
 	const username = useSelector(authenticator, contextSelectors.username);
 	const logger = useLogger();
 
@@ -353,10 +422,201 @@ export function useAwaitingPasswordResetSubmission(cb: AuthCb.SubmitNewPasswordC
 	};
 }
 
-export function useAwaitingChangePassword(cb: AuthCb.ChangePasswordCb) {
+/**
+ * Given the `CheckForExistingPin` callback, the stage should test for existence
+ * of a pin. From this, can infer whether the system should move the user to
+ * inputting their current PIN or creating a new one.
+ */
+export function useCheckingForPin(cb: AuthCb.CheckForExistingPinCb) {
 	const authenticator = useAuthInterpreter();
 	const error = useSelector(authenticator, contextSelectors.error);
-	const isActive = useSelector(authenticator, stateSelectors.isAwaitingChangePassword!);
+	const isActive = useSelector(authenticator, stateSelectors.isCheckingForPin!);
+	const logger = useLogger();
+
+	const [isLoading, setIsLoading] = useState(false);
+
+	const checkForExistingPin = useCallback(async () => {
+		setIsLoading(true);
+		// prettier-ignore
+		logger.info("Initiating a check for an existing PIN. If the check resolves, user has a pin to validate. If not, they will need to create one.");
+
+		try {
+			const res = await cb();
+			logger.log(res);
+			logger.info("There is a PIN already stored on the device.");
+			authenticator.send({ type: "PIN_IS_SET_UP" });
+		} catch (err) {
+			logger.warn(err);
+			logger.info("There is no PIN stored on this device.");
+			authenticator.send({ type: "PIN_IS_NOT_SET_UP" });
+		} finally {
+			setIsLoading(false);
+		}
+	}, [authenticator, isActive]);
+
+	return {
+		error,
+		isActive,
+		isLoading,
+		checkForExistingPin,
+	};
+}
+
+export function useSubmittingCurrentPin(cb: AuthCb.ValidatePinCb) {
+	const authenticator = useAuthInterpreter();
+	const error = useSelector(authenticator, contextSelectors.error);
+	const isActive = useSelector(authenticator, stateSelectors.isSubmittingCurrentPin!);
+	const logger = useLogger();
+
+	const [isLoading, setIsLoading] = useState(false);
+
+	const validatePin = useCallback(
+		async (pin: string) => {
+			setIsLoading(true);
+			// prettier-ignore
+			logger.info("Initiating a check against the existing PIN. If the check resolves, user passes authentication.");
+
+			try {
+				const res = await cb(pin);
+				logger.log(res);
+				logger.info("PIN validated");
+				authenticator.send({ type: "PIN_VALID" });
+			} catch (err) {
+				logger.warn(err);
+				logger.warn("PIN validation failed");
+				authenticator.send({ type: "PIN_INVALID", error: "PIN_INVALID" });
+			} finally {
+				setIsLoading(false);
+			}
+		},
+		[authenticator, isActive]
+	);
+
+	const requestPinReset = () => authenticator.send({ type: "REQUEST_PIN_RESET" });
+
+	return {
+		error,
+		isActive,
+		isLoading,
+		validatePin,
+		requestPinReset,
+	};
+}
+
+export function useResettingPin(cb: AuthCb.LogoutCb) {
+	const authenticator = useAuthInterpreter();
+	const error = useSelector(authenticator, contextSelectors.error);
+	const isActive = useSelector(authenticator, stateSelectors.isResettingPin!);
+	const logger = useLogger();
+
+	const [isLoading, setIsLoading] = useState(false);
+
+	const resetPin = useCallback(async () => {
+		// prettier-ignore
+		logger.info("Resetting PIN. This will log the user out and wipe the current pin. This call should always succeed: if it hasn't then there is an underlying issue with the system.");
+		setIsLoading(true);
+
+		try {
+			const res = await cb();
+			logger.log(res);
+			logger.info("Pin reset, logged out!");
+			authenticator.send({ type: "PIN_RESET_SUCCESS" });
+		} catch (err) {
+			logger.error(err);
+			logger.error(
+				"There has been an issue logging out. This should not have occured, so this indicates a serious underlying issue with the system."
+			);
+			authenticator.send({ type: "PIN_RESET_FAILURE", error: "PIN_RESET_FAILURE" });
+		} finally {
+			setIsLoading(false);
+		}
+	}, [authenticator, error, isActive, isLoading]);
+
+	const cancelResetPin = () => authenticator.send({ type: "CANCEL_PIN_RESET" });
+
+	return {
+		error,
+		isActive,
+		isLoading,
+		resetPin,
+		cancelResetPin,
+	};
+}
+
+export function useSubmittingNewPin(cb: AuthCb.SetNewPinCb) {
+	const authenticator = useAuthInterpreter();
+	const error = useSelector(authenticator, contextSelectors.error);
+	const isActive = useSelector(authenticator, stateSelectors.isSubmittingNewPin!);
+	const logger = useLogger();
+
+	const [isLoading, setIsLoading] = useState(false);
+
+	const setNewPin = useCallback(
+		async (pin: string) => {
+			setIsLoading(true);
+			// prettier-ignore
+			logger.info("Attempting to set a new PIN. If the check resolves, attempts was successful and they are now Authenticated. If it fails there may be a problem with saving to storage.");
+
+			try {
+				const res = await cb(pin);
+				logger.log(res);
+				logger.info("New PIN successfully set.");
+				authenticator.send({ type: "NEW_PIN_VALID" });
+			} catch (err) {
+				logger.warn(err);
+				logger.warn("Set PIN action failed.");
+				authenticator.send({ type: "NEW_PIN_INVALID", error: "NEW_PIN_INVALID" });
+			} finally {
+				setIsLoading(false);
+			}
+		},
+		[authenticator, isActive]
+	);
+
+	return {
+		error,
+		isActive,
+		isLoading,
+		setNewPin,
+	};
+}
+
+/* ========================================================================= *\
+ * 4. AUTHORISED HOOKS
+ *
+ * These hooks cover all stages of the authentication process where a user
+ * **is** Authenticated (or, in the case of `isAuthenticated`, one or the other).
+ * 
+ * Bar the core `isAuthenticated` hook, these still follow the common pattern,
+ * with a callback of a specified shape which is then executed by the hook, allowing
+ * us to specify exactly when events will be sent into the FSM system.
+ * 
+ * However, withing the application, these are likely to be tied into the
+ * navigation far more than the auth stage hooks.
+\* ========================================================================= */
+
+export function useAuthenticated() {
+	const authenticator = useAuthInterpreter();
+	const isActive = useSelector(authenticator, stateSelectors.isAuthenticated!);
+	const isAuthenticated = useSelector(authenticator, isInStateAccessibleWhileAuthenticated);
+
+	const requestLogOut = () => authenticator.send({ type: "REQUEST_LOG_OUT" });
+	const requestPasswordChange = () => authenticator.send({ type: "REQUEST_PASSWORD_CHANGE" });
+	const requestPinChange = () => authenticator.send({ type: "REQUEST_PIN_CHANGE" });
+
+	return {
+		isActive,
+		isAuthenticated,
+		requestLogOut,
+		requestPasswordChange,
+		requestPinChange,
+	};
+}
+
+export function useChangingPassword(cb: AuthCb.ChangePasswordCb) {
+	const authenticator = useAuthInterpreter();
+	const error = useSelector(authenticator, contextSelectors.error);
+	const isActive = useSelector(authenticator, stateSelectors.isChangingPassword!);
 	const logger = useLogger();
 
 	const [isLoading, setIsLoading] = useState(false);
@@ -390,50 +650,10 @@ export function useAwaitingChangePassword(cb: AuthCb.ChangePasswordCb) {
 	};
 }
 
-/**
- * Given the `CheckForExistingPin` callback, the stage should test for existence
- * of a pin. From this, can infer whether the system should move the user to
- * inputting their current PIN or creating a new one.
- */
-export function usePinChecks(cb: AuthCb.CheckForExistingPinCb) {
+export function useValidatingPin(cb: AuthCb.ValidatePinCb) {
 	const authenticator = useAuthInterpreter();
 	const error = useSelector(authenticator, contextSelectors.error);
-	const isActive = useSelector(authenticator, stateSelectors.isPinChecks!);
-	const logger = useLogger();
-
-	const [isLoading, setIsLoading] = useState(false);
-
-	const checkForExistingPin = useCallback(async () => {
-		setIsLoading(true);
-		// prettier-ignore
-		logger.info("Initiating a check for an existing PIN. If the check resolves, user has a pin to validate. If not, they will need to create one.");
-
-		try {
-			const res = await cb();
-			logger.log(res);
-			logger.info("There is a PIN already stored on the device.");
-			authenticator.send({ type: "PIN_IS_SET_UP" });
-		} catch (err) {
-			logger.warn(err);
-			logger.info("There is no PIN stored on this device.");
-			authenticator.send({ type: "PIN_IS_NOT_SET_UP" });
-		} finally {
-			setIsLoading(false);
-		}
-	}, [authenticator, isActive]);
-
-	return {
-		error,
-		isActive,
-		isLoading,
-		checkForExistingPin,
-	};
-}
-
-export function useAwaitingCurrentPinInput(cb: AuthCb.ValidatePinCb) {
-	const authenticator = useAuthInterpreter();
-	const error = useSelector(authenticator, contextSelectors.error);
-	const isActive = useSelector(authenticator, stateSelectors.isAwaitingCurrentPinInput!);
+	const isActive = useSelector(authenticator, stateSelectors.isValidatingPin!);
 	const logger = useLogger();
 
 	const [isLoading, setIsLoading] = useState(false);
@@ -460,68 +680,34 @@ export function useAwaitingCurrentPinInput(cb: AuthCb.ValidatePinCb) {
 		[authenticator, isActive]
 	);
 
+	// Need a way to back out of change pin stage
+	const cancelChangePin = () => authenticator.send({ type: "CANCEL_PIN_CHANGE" });
+
 	return {
 		error,
 		isActive,
 		isLoading,
 		validatePin,
+		cancelChangePin,
 	};
 }
 
-export function useAwaitingNewPinInput(cb: AuthCb.SetNewPinCb) {
+export function useChangingPin(cb: AuthCb.ChangePinCb) {
 	const authenticator = useAuthInterpreter();
 	const error = useSelector(authenticator, contextSelectors.error);
-	const isActive = useSelector(authenticator, stateSelectors.isAwaitingNewPinInput!);
-	const logger = useLogger();
-
-	const [isLoading, setIsLoading] = useState(false);
-
-	const setNewPin = useCallback(
-		async (pin: string) => {
-			setIsLoading(true);
-			// prettier-ignore
-			logger.info("Attempting to set a new PIN. If the check resolves, attempts was successful and they are now authenticated. If it fails there may be a problem with saving to storage.");
-
-			try {
-				const res = await cb(pin);
-				logger.log(res);
-				logger.info("New PIN successfully set.");
-				authenticator.send({ type: "NEW_PIN_VALID" });
-			} catch (err) {
-				logger.warn(err);
-				logger.warn("Set PIN action failed.");
-				authenticator.send({ type: "NEW_PIN_INVALID", error: "NEW_PIN_INVALID" });
-			} finally {
-				setIsLoading(false);
-			}
-		},
-		[authenticator, isActive]
-	);
-
-	return {
-		error,
-		isActive,
-		isLoading,
-		setNewPin,
-	};
-}
-
-export function useAwaitingChangePinInput(cb: AuthCb.ChangePinCb) {
-	const authenticator = useAuthInterpreter();
-	const error = useSelector(authenticator, contextSelectors.error);
-	const isActive = useSelector(authenticator, stateSelectors.isAwaitingChangePinInput!);
+	const isActive = useSelector(authenticator, stateSelectors.isChangingPin!);
 	const logger = useLogger();
 
 	const [isLoading, setIsLoading] = useState(false);
 
 	const changePin = useCallback(
-		async (oldPin: string, newPin: string) => {
+		async (newPin: string) => {
 			setIsLoading(true);
 			// prettier-ignore
-			logger.info("Attempting to change the current PIN. If the check resolves, attempts was successful and they may return to the authenticated state.");
+			logger.info("Attempting to change the current PIN. If the check resolves, attempts was successful and they may return to the Authenticated state.");
 
 			try {
-				const res = await cb(oldPin, newPin);
+				const res = await cb(newPin);
 				logger.log(res);
 				logger.log("PIN change succeeded");
 				authenticator.send({ type: "PIN_CHANGE_SUCCESS" });
@@ -584,28 +770,5 @@ export function useLoggingOut(cb: AuthCb.LogoutCb) {
 		isLoading,
 		logOut,
 		cancelLogOut,
-	};
-}
-
-export function useAuthenticated() {
-	const authenticator = useAuthInterpreter();
-	const isActive = useSelector(authenticator, stateSelectors.isAuthenticated!);
-	const logger = useLogger();
-
-	useEffect(() => {
-		if (isActive) {
-			logger.log("Success, authenticated!");
-		}
-	}, [isActive]);
-
-	const requestLogOut = () => authenticator.send({ type: "REQUEST_LOG_OUT" });
-	const requestPasswordChange = () => authenticator.send({ type: "REQUEST_PASSWORD_CHANGE" });
-	const requestPinChange = () => authenticator.send({ type: "REQUEST_PIN_CHANGE" });
-
-	return {
-		isActive,
-		requestLogOut,
-		requestPasswordChange,
-		requestPinChange,
 	};
 }

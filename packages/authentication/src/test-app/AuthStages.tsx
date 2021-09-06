@@ -5,8 +5,8 @@ import React from "react";
 import { AuthStage } from "..";
 import { Form } from "./Components";
 
-export const SessionCheck = () => {
-	const { isActive, isLoading, checkSession, error } = AuthStage.useAwaitingSessionCheck(() =>
+export const CheckingForSession = () => {
+	const { isActive, isLoading, checkSession, error } = AuthStage.useCheckingForSession(() =>
 		Auth.currentSession()
 	);
 
@@ -15,7 +15,7 @@ export const SessionCheck = () => {
 			<Form submitCb={checkSession}>
 				<Form.Elements disabled={!isActive || isLoading} error={error}>
 					<Form.Controls>
-						<Form.Submit label="Check Session" testid="sessionCheckSubmit" />
+						<Form.Submit label="Check Session" testid="CheckingForSessionSubmit" />
 					</Form.Controls>
 				</Form.Elements>
 			</Form>
@@ -24,7 +24,7 @@ export const SessionCheck = () => {
 };
 
 export const OtpUsernameInput = () => {
-	const { error, isActive, isLoading, validateUsername } = AuthStage.useAwaitingOtpUsername(
+	const { error, isActive, isLoading, validateUsername } = AuthStage.useSubmittingOtpUsername(
 		(username: string) => Auth.signIn(username)
 	);
 	const [username, setUsername] = React.useState("");
@@ -53,7 +53,7 @@ export const OtpUsernameInput = () => {
 };
 
 export const OtpInput = () => {
-	const { error, isActive, isLoading, validateOtp } = AuthStage.useAwaitingOtp(
+	const { error, isActive, isLoading, validateOtp } = AuthStage.useSubmittingOtp(
 		async (user, password) => {
 			await Auth.sendCustomChallengeAnswer(user, password);
 			return Auth.currentAuthenticatedUser();
@@ -103,11 +103,10 @@ const LocalPinService = {
 			return Promise.reject();
 		}
 	},
-	async changePin(oldPin: string, newPin: string) {
-		const storedPin = window.localStorage.getItem(PIN_KEY);
-		if (storedPin === oldPin) {
+	async changePin(newPin: string) {
+		try {
 			return await LocalPinService.setPin(newPin);
-		} else {
+		} catch {
 			return Promise.reject();
 		}
 	},
@@ -122,7 +121,7 @@ const LocalPinService = {
 };
 
 export const CheckPin = () => {
-	const { error, isActive, isLoading, checkForExistingPin } = AuthStage.usePinChecks(() =>
+	const { error, isActive, isLoading, checkForExistingPin } = AuthStage.useCheckingForPin(() =>
 		LocalPinService.hasPinSet()
 	);
 
@@ -140,7 +139,7 @@ export const CheckPin = () => {
 };
 
 export const CurrentPinInput = () => {
-	const { error, isActive, isLoading, validatePin } = AuthStage.useAwaitingCurrentPinInput((pin) =>
+	const { error, isActive, isLoading, validatePin } = AuthStage.useSubmittingCurrentPin((pin) =>
 		LocalPinService.checkPin(pin)
 	);
 	const [pin, setPin] = React.useState("");
@@ -169,7 +168,7 @@ export const CurrentPinInput = () => {
 };
 
 export const NewPinInput = () => {
-	const { error, isActive, isLoading, setNewPin } = AuthStage.useAwaitingNewPinInput((pin) =>
+	const { error, isActive, isLoading, setNewPin } = AuthStage.useSubmittingNewPin((pin) =>
 		LocalPinService.setPin(pin)
 	);
 	const [pin, setPin] = React.useState("");
@@ -197,28 +196,45 @@ export const NewPinInput = () => {
 	);
 };
 
+export const ValidatePinInput = () => {
+	const { error, isActive, isLoading, validatePin } = AuthStage.useValidatingPin((pin) =>
+		LocalPinService.checkPin(pin)
+	);
+	const [pin, setPin] = React.useState("");
+
+	return (
+		<section className={classnames("auth-stage", { "auth-stage--active": isActive })}>
+			<Form submitCb={validatePin} cbParams={[pin]}>
+				<Form.Elements disabled={!isActive || isLoading} error={error}>
+					<Form.InputGroup
+						error={error}
+						id="currentPin"
+						inputType="text"
+						isActive={isActive}
+						label="Confirm your current pin:"
+						value={pin}
+						valueSetter={setPin}
+						testid="currentPinInput"
+					/>
+					<Form.Controls>
+						<Form.Submit label="Submit PIN" testid="currentPinSubmit" />
+					</Form.Controls>
+				</Form.Elements>
+			</Form>
+		</section>
+	);
+};
+
 export const ChangePinInput = () => {
-	const { error, isActive, isLoading, changePin, cancelChangePin } =
-		AuthStage.useAwaitingChangePinInput((oldPin, newPin) =>
-			LocalPinService.changePin(oldPin, newPin)
-		);
-	const [oldPin, setOldPin] = React.useState("");
+	const { error, isActive, isLoading, changePin, cancelChangePin } = AuthStage.useChangingPin(
+		(newPin) => LocalPinService.changePin(newPin)
+	);
 	const [newPin, setNewPin] = React.useState("");
 
 	return (
 		<section className={classnames("auth-stage", { "auth-stage--active": isActive })}>
-			<Form submitCb={changePin} cbParams={[oldPin, newPin]}>
+			<Form submitCb={changePin} cbParams={[newPin]}>
 				<Form.Elements disabled={!isActive || isLoading} error={error}>
-					<Form.InputGroup
-						error={error}
-						id="oldPinToChange"
-						inputType="text"
-						isActive={isActive}
-						label="Enter your current PIN:"
-						value={oldPin}
-						valueSetter={setOldPin}
-						testid="oldPinInput"
-					/>
 					<Form.InputGroup
 						error={error}
 						id="newPinToSet"
@@ -251,14 +267,14 @@ export const Authenticated = () => {
 			<Form submitCb={requestLogOut}>
 				<Form.Elements disabled={!isActive}>
 					<Form.Controls>
-						<Form.Submit label="I want to log out!" testid="authenticatedLogOutSubmit" />
+						<Form.Submit label="I want to log out!" testid="AuthenticatedLogOutSubmit" />
 					</Form.Controls>
 				</Form.Elements>
 			</Form>
 			<Form submitCb={requestPinChange}>
 				<Form.Elements disabled={!isActive}>
 					<Form.Controls>
-						<Form.Submit label="I want to change my PIN!" testid="authenticatedPinChangeSubmit" />
+						<Form.Submit label="I want to change my PIN!" testid="AuthenticatedPinChangeSubmit" />
 					</Form.Controls>
 				</Form.Elements>
 			</Form>
@@ -279,9 +295,9 @@ export const LoggingOut = () => {
 						<Form.SecondaryAction
 							label="Cancel logout!"
 							actionCallback={cancelLogOut}
-							testid="loggingOutCancel"
+							testid="LoggingOutCancel"
 						/>
-						<Form.Submit label="I really do want to log out!" testid="loggingOutSubmit" />
+						<Form.Submit label="I really do want to log out!" testid="LoggingOutSubmit" />
 					</Form.Controls>
 				</Form.Elements>
 			</Form>
