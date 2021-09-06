@@ -40,23 +40,24 @@ import type { AuthConfig, AuthError, DeviceSecurityType, LoginFlowType } from ".
  * The available states of the auth system FSM
  */
 export enum AuthStateId {
-	awaitingSessionCheck = "awaitingSessionCheck",
+	CheckingForSession = "CheckingForSession",
 	INTERNAL__loginFlowCheck = "INTERNAL__loginFlowCheck",
-	awaitingOtpUsername = "awaitingOtpUsername",
-	awaitingOtp = "awaitingOtp",
-	awaitingUsernameAndPassword = "awaitingUsernameAndPassword",
-	awaitingForcedChangePassword = "awaitingForcedChangePassword",
-	awaitingChangePassword = "awaitingChangePassword",
-	awaitingPasswordResetRequest = "awaitingPasswordResetRequest",
-	awaitingPasswordResetSubmission = "awaitingPasswordResetSubmission",
+	SubmittingOtpUsername = "SubmittingOtpUsername",
+	SubmittingOtp = "SubmittingOtp",
+	SubmittingUsernameAndPassword = "SubmittingUsernameAndPassword",
+	SubmittingForceChangePassword = "SubmittingForceChangePassword",
+	ChangingPassword = "ChangingPassword",
+	RequestingPasswordReset = "RequestingPasswordReset",
+	SubmittingPasswordReset = "SubmittingPasswordReset",
 	INTERNAL__deviceSecurityCheck = "INTERNAL__deviceSecurityCheck",
-	pinChecks = "pinChecks",
-	awaitingCurrentPinInput = "awaitingCurrentPinInput",
-	resettingPin = "resettingPin",
-	awaitingNewPinInput = "awaitingNewPinInput",
-	awaitingChangePinInput = "awaitingChangePinInput",
-	loggingOut = "loggingOut",
-	authenticated = "authenticated",
+	CheckingForPin = "CheckingForPin",
+	SubmittingCurrentPin = "SubmittingCurrentPin",
+	ResettingPin = "ResettingPin",
+	SubmittingNewPin = "SubmittingNewPin",
+	ValidatingPin = "ValidatingPin",
+	ChangingPin = "ChangingPin",
+	LoggingOut = "LoggingOut",
+	Authenticated = "Authenticated",
 }
 
 /**
@@ -134,21 +135,22 @@ type InternalAuthEvent =
  */
 // prettier-ignore
 type InternalAuthTypeState =
-	| { value: AuthStateId.awaitingSessionCheck; context: InternalAuthContext }
-	| { value: AuthStateId.awaitingOtpUsername; context: InternalAuthContext }
-	| { value: AuthStateId.awaitingOtp; context: InternalAuthContext & { user: any; username: string } }
-	| { value: AuthStateId.awaitingUsernameAndPassword; context: InternalAuthContext }
-	| {	value: AuthStateId.awaitingForcedChangePassword; context: InternalAuthContext & { user: any; username: string; error: AuthError } }
-	| { value: AuthStateId.awaitingChangePassword; context: InternalAuthContext & { username: string } }
-	| { value: AuthStateId.awaitingPasswordResetRequest; context: InternalAuthContext }
-	| { value: AuthStateId.awaitingPasswordResetSubmission; context: InternalAuthContext & { username: string } }
-	| { value: AuthStateId.pinChecks; context: InternalAuthContext & { username?: string } }
-	| { value: AuthStateId.awaitingCurrentPinInput; context: InternalAuthContext & { username?: string } }
-	| { value: AuthStateId.resettingPin; context: InternalAuthContext }
-	| { value: AuthStateId.awaitingNewPinInput; context: InternalAuthContext & { username?: string } }
-	| { value: AuthStateId.awaitingChangePinInput; context: InternalAuthContext & { username?: string } }
-	| { value: AuthStateId.loggingOut; context: InternalAuthContext & { username?: string; } }
-	| { value: AuthStateId.authenticated; context: InternalAuthContext & { username?: string; } };
+	| { value: AuthStateId.CheckingForSession; context: InternalAuthContext }
+	| { value: AuthStateId.SubmittingOtpUsername; context: InternalAuthContext }
+	| { value: AuthStateId.SubmittingOtp; context: InternalAuthContext & { user: any; username: string } }
+	| { value: AuthStateId.SubmittingUsernameAndPassword; context: InternalAuthContext }
+	| {	value: AuthStateId.SubmittingForceChangePassword; context: InternalAuthContext & { user: any; username: string; error: AuthError } }
+	| { value: AuthStateId.ChangingPassword; context: InternalAuthContext & { username: string } }
+	| { value: AuthStateId.RequestingPasswordReset; context: InternalAuthContext }
+	| { value: AuthStateId.SubmittingPasswordReset; context: InternalAuthContext & { username: string } }
+	| { value: AuthStateId.CheckingForPin; context: InternalAuthContext & { username?: string } }
+	| { value: AuthStateId.SubmittingCurrentPin; context: InternalAuthContext & { username?: string } }
+	| { value: AuthStateId.ResettingPin; context: InternalAuthContext }
+	| { value: AuthStateId.SubmittingNewPin; context: InternalAuthContext & { username?: string } }
+  | { value: AuthStateId.ValidatingPin; context: InternalAuthContext & { username?: string } }
+	| { value: AuthStateId.ChangingPin; context: InternalAuthContext & { username?: string } }
+	| { value: AuthStateId.LoggingOut; context: InternalAuthContext & { username?: string; } }
+	| { value: AuthStateId.Authenticated; context: InternalAuthContext & { username?: string; } };
 
 /* ------------------------------------------------------------------------------------------------------ *\
  * SYSTEM MODEL/FSM
@@ -220,11 +222,11 @@ export const machine = createMachine<
 >(
 	{
 		id: "authSystem",
-		initial: AuthStateId.awaitingSessionCheck,
+		initial: AuthStateId.CheckingForSession,
 		context: model.initialContext,
 		// prettier-ignore
 		states: {
-		[AuthStateId.awaitingSessionCheck]: {
+		[AuthStateId.CheckingForSession]: {
 			on: {
 				SESSION_PRESENT: AuthStateId.INTERNAL__deviceSecurityCheck,
 				SESSION_NOT_PRESENT: AuthStateId.INTERNAL__loginFlowCheck,
@@ -233,14 +235,14 @@ export const machine = createMachine<
 		[AuthStateId.INTERNAL__loginFlowCheck]: {
 			entry: ["clearError"],
 			always: [
-				{ cond: "isOtpLoginFlow", target: AuthStateId.awaitingOtpUsername },
-				{ cond: "isUsernamePasswordLoginFlow", target: AuthStateId.awaitingUsernameAndPassword },
+				{ cond: "isOtpLoginFlow", target: AuthStateId.SubmittingOtpUsername },
+				{ cond: "isUsernamePasswordLoginFlow", target: AuthStateId.SubmittingUsernameAndPassword },
 			],
 		},
-		[AuthStateId.awaitingOtpUsername]: {
+		[AuthStateId.SubmittingOtpUsername]: {
 			on: {
 				USERNAME_VALID: {
-					target: AuthStateId.awaitingOtp,
+					target: AuthStateId.SubmittingOtp,
 					actions: ["assignUser", "assignUsername", "clearError"],
 				},
 				USERNAME_INVALID: {
@@ -249,28 +251,28 @@ export const machine = createMachine<
 				}
 			},
 		},
-		[AuthStateId.awaitingOtp]: {
+		[AuthStateId.SubmittingOtp]: {
 			on: {
 				OTP_VALID: {
 					target: AuthStateId.INTERNAL__deviceSecurityCheck,
 					actions: ["clearError"],
 				},
 				OTP_INVALID: {
-					target: AuthStateId.awaitingOtp,
+					target: AuthStateId.SubmittingOtp,
 					actions: ["assignError"]
 				},
 				OTP_INVALID_RETRIES_EXCEEDED: {
-					target: AuthStateId.awaitingOtpUsername,
+					target: AuthStateId.SubmittingOtpUsername,
 					actions: ["assignError"]
 				},
 				GO_BACK: {
-					target: AuthStateId.awaitingOtpUsername,
+					target: AuthStateId.SubmittingOtpUsername,
 					// Going to start again, so don't want these hanging around:
 					actions: ["clearError", "clearUser", "clearUsername"],
 				}
 			},
 		},
-		[AuthStateId.awaitingUsernameAndPassword]: {
+		[AuthStateId.SubmittingUsernameAndPassword]: {
 			on: {
 				USERNAME_AND_PASSWORD_VALID: {
 					target: AuthStateId.INTERNAL__deviceSecurityCheck,
@@ -279,7 +281,7 @@ export const machine = createMachine<
 					actions: ["clearError"],
 				},
 				USERNAME_AND_PASSWORD_VALID_PASSWORD_CHANGE_REQUIRED: {
-					target: AuthStateId.awaitingForcedChangePassword,
+					target: AuthStateId.SubmittingForceChangePassword,
 					actions: ["assignError", "assignUser", "assignUsername"],
 				},
 				USERNAME_AND_PASSWORD_INVALID: {
@@ -287,12 +289,12 @@ export const machine = createMachine<
 					actions: ["assignError"]
 				},
 				FORGOTTEN_PASSWORD: {
-					target: AuthStateId.awaitingPasswordResetRequest,
+					target: AuthStateId.RequestingPasswordReset,
 					actions: ["clearError"],
 				},
 			}
 		},
-		[AuthStateId.awaitingForcedChangePassword]: {
+		[AuthStateId.SubmittingForceChangePassword]: {
 			on: {
 				PASSWORD_CHANGE_SUCCESS: {
 					target: AuthStateId.INTERNAL__deviceSecurityCheck,
@@ -304,19 +306,19 @@ export const machine = createMachine<
 				},
 			}
 		},
-		[AuthStateId.awaitingPasswordResetRequest]: {
+		[AuthStateId.RequestingPasswordReset]: {
 			on: {
 				PASSWORD_RESET_REQUEST_SUCCESS: {
-					target: AuthStateId.awaitingPasswordResetSubmission,
+					target: AuthStateId.SubmittingPasswordReset,
 					actions: ["clearError", "assignUsername"],
 				},
 				PASSWORD_RESET_REQUEST_FAILURE: {
-					target: AuthStateId.awaitingUsernameAndPassword,
+					target: AuthStateId.SubmittingUsernameAndPassword,
 					actions: ["assignError"]
 				},
 			}
 		},
-		[AuthStateId.awaitingPasswordResetSubmission]: {
+		[AuthStateId.SubmittingPasswordReset]: {
 			on: {
 				PASSWORD_RESET_SUCCESS: {
 					target: AuthStateId.INTERNAL__deviceSecurityCheck,
@@ -329,10 +331,10 @@ export const machine = createMachine<
 				},
 			}
 		},
-		[AuthStateId.awaitingChangePassword]: {
+		[AuthStateId.ChangingPassword]: {
 			on: {
 				PASSWORD_CHANGE_SUCCESS: {
-					target: AuthStateId.authenticated,
+					target: AuthStateId.Authenticated,
 					actions: ["clearError"],
 				},
 				// TODO will get stuck here, need to figure out how best to handle this:
@@ -340,27 +342,27 @@ export const machine = createMachine<
 					target: undefined,
 					actions: ["assignError"]
 				},
-				CANCEL_PASSWORD_CHANGE: AuthStateId.authenticated,
+				CANCEL_PASSWORD_CHANGE: AuthStateId.Authenticated,
 			}
 		},
 		[AuthStateId.INTERNAL__deviceSecurityCheck]: {
 			entry: ["clearError"],
 			always: [
-				{ cond: "isDeviceSecurityTypeNone", target: AuthStateId.authenticated },
-				{ cond: "isDeviceSecurityTypePin", target: AuthStateId.pinChecks },
-				// { cond: "isDeviceSecurityTypeBiometric", target: AuthStateId.authenticated },
+				{ cond: "isDeviceSecurityTypeNone", target: AuthStateId.Authenticated },
+				{ cond: "isDeviceSecurityTypePin", target: AuthStateId.CheckingForPin },
+				// { cond: "isDeviceSecurityTypeBiometric", target: AuthStateId.Authenticated },
 			],	
 		},
-		[AuthStateId.pinChecks]: {
+		[AuthStateId.CheckingForPin]: {
 			on: {
-				PIN_IS_SET_UP: AuthStateId.awaitingCurrentPinInput,
-				PIN_IS_NOT_SET_UP: AuthStateId.awaitingNewPinInput,
+				PIN_IS_SET_UP: AuthStateId.SubmittingCurrentPin,
+				PIN_IS_NOT_SET_UP: AuthStateId.SubmittingNewPin,
 			}
 		},
-		[AuthStateId.awaitingCurrentPinInput]: {
+		[AuthStateId.SubmittingCurrentPin]: {
 			on: {
 				PIN_VALID: {
-					target: AuthStateId.authenticated,
+					target: AuthStateId.Authenticated,
 					actions: ["clearError"],
 				},
 				PIN_INVALID: {
@@ -368,15 +370,15 @@ export const machine = createMachine<
 					actions: ["assignError"]
 				},
 				REQUEST_PIN_RESET: {
-					target: AuthStateId.resettingPin,
+					target: AuthStateId.ResettingPin,
 					actions: ["clearError"]
 				}
 			}
 		},
-		[AuthStateId.resettingPin]: {
+		[AuthStateId.ResettingPin]: {
 			on: {
 				PIN_RESET_SUCCESS: {
-					target: AuthStateId.awaitingSessionCheck,
+					target: AuthStateId.CheckingForSession,
 					actions: ["clearError"],
 				},
 				PIN_RESET_FAILURE: {
@@ -384,15 +386,15 @@ export const machine = createMachine<
 					actions: ["assignError"],
 				},
 				CANCEL_PIN_RESET: {
-					target: AuthStateId.awaitingCurrentPinInput,
+					target: AuthStateId.SubmittingCurrentPin,
 					actions: ["clearError"],
 				},
 			}
 		},
-		[AuthStateId.awaitingNewPinInput]: {
+		[AuthStateId.SubmittingNewPin]: {
 			on: {
 				NEW_PIN_VALID: {
-					target: AuthStateId.authenticated,
+					target: AuthStateId.Authenticated,
 					actions: ["clearError"],
 				},
 				NEW_PIN_INVALID: {
@@ -401,10 +403,22 @@ export const machine = createMachine<
 				},
 			}	
 		},
-		[AuthStateId.awaitingChangePinInput]: {
+    [AuthStateId.ValidatingPin]: {
+			on: {
+				PIN_VALID: {
+					target: AuthStateId.ChangingPin,
+					actions: ["clearError"],
+				},
+				PIN_INVALID: {
+					target: undefined,
+					actions: ["assignError"]
+				}
+			}
+		},
+		[AuthStateId.ChangingPin]: {
 			on: {
 				PIN_CHANGE_SUCCESS: {
-					target:AuthStateId.authenticated,
+					target:AuthStateId.Authenticated,
 					actions: ["clearError"],
 				},
 				PIN_CHANGE_FAILURE: {
@@ -412,27 +426,27 @@ export const machine = createMachine<
 					actions: ["assignError"]
 				},
 				CANCEL_PIN_CHANGE: {
-					target: AuthStateId.authenticated,
+					target: AuthStateId.Authenticated,
 					actions: ["clearError"]
 				}
 			}
 		},
-		[AuthStateId.loggingOut]: {
+		[AuthStateId.LoggingOut]: {
 			on: {
-				LOG_OUT_SUCCESS: AuthStateId.awaitingSessionCheck,
+				LOG_OUT_SUCCESS: AuthStateId.CheckingForSession,
 				LOG_OUT_FAILURE: {
 					target: undefined,
 					actions: ["assignError"]
 				},
-				CANCEL_LOG_OUT: AuthStateId.authenticated
+				CANCEL_LOG_OUT: AuthStateId.Authenticated
 			}
 		},
-		[AuthStateId.authenticated]: {
+		[AuthStateId.Authenticated]: {
 			entry: ["clearError"],
 			on: {
-				REQUEST_LOG_OUT: AuthStateId.loggingOut,
-				REQUEST_PIN_CHANGE: AuthStateId.awaitingChangePinInput,
-				REQUEST_PASSWORD_CHANGE: AuthStateId.awaitingChangePassword,
+				REQUEST_LOG_OUT: AuthStateId.LoggingOut,
+				REQUEST_PIN_CHANGE: AuthStateId.ValidatingPin,
+				REQUEST_PASSWORD_CHANGE: AuthStateId.ChangingPassword,
 			}
 		},
 	},
