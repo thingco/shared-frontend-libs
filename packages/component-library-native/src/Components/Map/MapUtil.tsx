@@ -59,7 +59,6 @@ export function getMapRegion({
 	const deltaY = (max.longitude - min.longitude) * mod;
 
 	const latMod = max.latitude - min.latitude;
-	console.log(latMod / 10);
 
 	return {
 		latitude: mid.latitude - latMod / 3,

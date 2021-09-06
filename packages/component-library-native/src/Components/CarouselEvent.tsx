@@ -121,7 +121,7 @@ export const CarouselEvent = ({ item, index, height, onPress }: CarouselEventPro
 		);
 	} else {
 		event = (
-			<Text variant={"base greyscale_600"} style={{ fontStyle: "italic" }}>
+			<Text variant={"base greyscale600"} style={{ fontStyle: "italic" }}>
 				{item.location} at {item.time}
 			</Text>
 		);
