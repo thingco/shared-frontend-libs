@@ -1,8 +1,7 @@
-import React, { Ref } from "react";
-import MapView, { LatLng, MAP_TYPES, Marker, Polyline, UrlTile } from "react-native-maps";
-import { generate } from "shortid";
-
 import { View } from "../Containers";
+import React, { Ref } from "react";
+import MapView, { LatLng, MAP_TYPES, Marker, Polyline } from "react-native-maps";
+import { generate } from "shortid";
 import { calculateBounds, getMapRegion } from "./MapUtil";
 import { IconPin } from "./MarkerIcons";
 
@@ -97,7 +96,7 @@ export const MapWithPolyline = React.forwardRef(
 					<MapView
 						ref={mapRef}
 						provider="google"
-						mapType={MAP_TYPES.NONE}
+						mapType={MAP_TYPES.STANDARD}
 						style={{ width: width, height: height }}
 						initialRegion={initialRegion}
 						onMapReady={mapSnap}
@@ -120,10 +119,10 @@ export const MapWithPolyline = React.forwardRef(
 							strokeWidth={3}
 							lineDashPattern={[1]}
 						/>
-						<UrlTile
+						{/* <UrlTile
 							urlTemplate="https://api.mapbox.com/styles/v1/mapbox/streets-v9/tiles/{z}/{x}/{y}?access_token=pk.eyJ1Ijoib25pb24yayIsImEiOiJjajhvNjByM3oxaG4xMzJwZnJuYm0wY29vIn0.Kv09k5al4fgS0ago-j7Vaw" //"http://c.tile.stamen.com/watercolor/{z}/{x}/{y}.jpg"
 							zIndex={0}
-						/>
+						/> */}
 						{!useSnapshot && eventMarkers}
 						{!useSnapshot && markerPos && (
 							<Marker

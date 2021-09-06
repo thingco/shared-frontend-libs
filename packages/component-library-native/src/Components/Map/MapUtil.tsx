@@ -45,6 +45,8 @@ export function getMapRegion({
 	max,
 	min,
 	mid,
+	height,
+	width,
 }: {
 	max: LatLng;
 	min: LatLng;
@@ -52,11 +54,15 @@ export function getMapRegion({
 	height: number;
 	width: number;
 }) {
-	const deltaX = (max.latitude - min.latitude) * 2.5;
-	const deltaY = (max.longitude - min.longitude) * 2.5;
+	const mod = height / width;
+	const deltaX = (max.latitude - min.latitude) * mod;
+	const deltaY = (max.longitude - min.longitude) * mod;
+
+	const latMod = max.latitude - min.latitude;
+	console.log(latMod / 10);
 
 	return {
-		latitude: mid.latitude,
+		latitude: mid.latitude - latMod / 3,
 		longitude: mid.longitude,
 		latitudeDelta: deltaX,
 		longitudeDelta: deltaY,
