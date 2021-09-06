@@ -102,6 +102,7 @@ type ContextSelectorMap<S = AuthState, C = AuthContext> = Record<keyof C, (state
 /** Map of every context value as a selector function. */
 const contextSelectors: ContextSelectorMap = {
 	error: (state) => state.context.error,
+	validationError: (state) => state.context.validationError,
 	loginFlowType: (state) => state.context.loginFlowType,
 	deviceSecurityType: (state) => state.context.loginFlowType,
 	user: (state) => state.context.user,

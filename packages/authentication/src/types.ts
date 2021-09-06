@@ -21,7 +21,10 @@ export type AuthError =
 	| "LOG_OUT_FAILURE"
 	| null;
 
+export type AuthValidationError = `VALIDATION_ERROR_${string}`;
+
 export type AuthConfig = {
 	loginFlowType?: LoginFlowType;
 	deviceSecurityType?: DeviceSecurityType;
+	allowedOtpAttempts?: number;
 };

@@ -3,7 +3,13 @@ import { createModel } from "xstate/lib/model";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { ContextFrom, EventFrom, InterpreterFrom } from "xstate";
-import type { AuthConfig, AuthError, DeviceSecurityType, LoginFlowType } from "./types";
+import type {
+	AuthConfig,
+	AuthError,
+	AuthValidationError,
+	DeviceSecurityType,
+	LoginFlowType,
+} from "./types";
 
 /* ------------------------------------------------------------------------------------------------------ *\
  * CORE TYPES
@@ -65,6 +71,7 @@ export enum AuthStateId {
  */
 type InternalAuthContext = {
 	error?: AuthError;
+	validationError?: AuthValidationError[];
 	loginFlowType: LoginFlowType;
 	deviceSecurityType: DeviceSecurityType;
 	username?: string;
