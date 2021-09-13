@@ -3046,7 +3046,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@thingco/graphviz-web@workspace:packages/graphviz-web":
+"@thingco/graphviz-web@workspace:*, @thingco/graphviz-web@workspace:packages/graphviz-web":
   version: 0.0.0-use.local
   resolution: "@thingco/graphviz-web@workspace:packages/graphviz-web"
   dependencies:
@@ -3138,6 +3138,8 @@ __metadata:
     "@aws-amplify/auth": ^4.2.1
     "@aws-amplify/core": ^4.2.3
     "@thingco/auth-flows": "workspace:*"
+    "@thingco/graphviz": "workspace:*"
+    "@thingco/graphviz-web": "workspace:*"
     "@thingco/unit-formatter": "workspace:*"
     "@thingco/user-preferences": "workspace:*"
     "@thingco/user-preferences-store-web": "workspace:*"
@@ -13217,6 +13219,7 @@ resolve@~1.19.0:
   version: 0.0.0-use.local
   resolution: "shared-frontend-libs@workspace:."
   dependencies:
+    "@thingco/graphviz": "workspace:packages/graphviz"
     "@types/eslint": ^7.28.0
     "@types/eslint-plugin-prettier": ^3.1.0
     "@types/node": ^16.6.2

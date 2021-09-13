@@ -26,6 +26,8 @@
 		"@aws-amplify/auth": "^4.2.1",
 		"@aws-amplify/core": "^4.2.3",
 		"@thingco/auth-flows": "workspace:*",
+		"@thingco/graphviz": "workspace:*",
+		"@thingco/graphviz-web": "workspace:*",
 		"@thingco/unit-formatter": "workspace:*",
 		"@thingco/user-preferences": "workspace:*",
 		"@thingco/user-preferences-store-web": "workspace:*",

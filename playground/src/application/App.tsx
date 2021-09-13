@@ -1,6 +1,7 @@
 import React from "react";
 
 import { AuthStuff } from "./AuthStuff";
+import { SensorGraph } from "./SensorGraph";
 import { UserPrefStuff } from "./UserPrefStuff";
 
 // import { GraphStuff } from "./_GraphStuff.text";
@@ -16,8 +17,9 @@ export const App = (): JSX.Element => (
 			gap: "1rem",
 		}}
 	>
+		<SensorGraph />
 		{/* <GraphStuff /> */}
-		<AuthStuff />
-		<UserPrefStuff />
+		{/* <AuthStuff />
+		<UserPrefStuff /> */}
 	</div>
 );
