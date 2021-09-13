@@ -1,11 +1,11 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { cleanup, renderHook } from "@testing-library/react-hooks";
 
 import { AuthEvent, AuthStateId, machine } from "./auth-system";
 import * as AuthHook from "./auth-system-hooks";
 
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* ========================================================================= *\
  * 1. UTILITIES
  * 2. SETUP
@@ -220,10 +220,10 @@ const hookTestMap: HookTestMap = [
 				},
 				{
 					args: [VALID_USERNAME, TEMPORARY_PASSWORD],
-					callback: jest.fn(() => Promise.resolve({ NEW_PASSWORD_REQUIRED: true, ...USER_OBJECT })),
+					callback: jest.fn(() => Promise.resolve([ "NEW_PASSWORD_REQUIRED", USER_OBJECT ])),
 					expectedEvent: {
 						type: "USERNAME_AND_PASSWORD_VALID_PASSWORD_CHANGE_REQUIRED",
-						user: { NEW_PASSWORD_REQUIRED: true, ...USER_OBJECT },
+						user: USER_OBJECT,
 						username: VALID_USERNAME,
 						error: "PASSWORD_CHANGE_REQUIRED",
 					},
@@ -279,6 +279,7 @@ const hookTestMap: HookTestMap = [
 					},
 				},
 			],
+			additionalMethods: [{ method: "cancelResetPasswordRequest", expectedEvent: { type: "GO_BACK" }}],
 		},
 	},
 	{

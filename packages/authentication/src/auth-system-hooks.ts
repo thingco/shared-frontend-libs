@@ -1,116 +1,60 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { useLogger } from "@thingco/logger";
 import { useSelector } from "@xstate/react";
 import { useCallback, useState } from "react";
 
-import { AuthStateId } from "./auth-system";
 import { useAuthInterpreter } from "./AuthSystemProvider";
+import {
+	stateSelectors,
+	isInStateAccessibleWhileAuthenticated,
+	contextSelectors,
+} from "./auth-system-selectors";
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
-import type { AuthContext, AuthState } from "./auth-system";
 import type * as AuthCb from "./auth-system-hook-callbacks";
 
 /* ========================================================================= *\
- * 1. UTILITY TYPES
- * 2. TYPED SELECTORS
- * 3. AUTH STAGE HOOKS
- * 4. AUTHORISED HOOKS
-\* ========================================================================= */
-
-/* ========================================================================= *\
- * 1. UTILITY TYPES
- *
- * These are used internally to tighten the typings for states and state
- * selectors
-\* ========================================================================= */
-
-/** Filter on the state ID enum to remove states internal to the FSM */
-type ExposedStateId = Exclude<
-	AuthStateId,
-	AuthStateId.INTERNAL__deviceSecurityCheck | AuthStateId.INTERNAL__loginFlowCheck
->;
-
-/** Filter on the state ID enum to extract states only useful when a user is Authenticated. */
-type AuthenticatedStateId = Extract<
-	AuthStateId,
-	| AuthStateId.Authenticated
-	| AuthStateId.LoggingOut
-	| AuthStateId.ChangingPassword
-	| AuthStateId.ValidatingPin
-	| AuthStateId.ChangingPin
->;
-
-/* ========================================================================= *\
- * 2. TYPED SELECTORS
- *
- * To acess the state of the authentication FSM, selectors are being used
- * instead of just exposing all the state all the time via the provider.
- * This gives performance benefits -- it means components using the hooks
- * will only rerender when a selector value changes, which is important
- * for React Native in particular.
  * 
- * See https://xstate.js.org/docs/recipes/react.html#global-state-react-context
+ * 1. INPUT VALIDATION
+ * 2. AUTH STAGE HOOKS
+ * 3. AUTHORISED HOOKS
 \* ========================================================================= */
 
-/**
- * Mapped type to build out the object containing state selector functions.
- * It should ensure TS will error if any state exposed to users has been omitted.
- */
-type ExposedStateSelectorMap = {
-	[K in `is${Capitalize<ExposedStateId>}`]: (state: AuthState) => boolean;
+/* ========================================================================= *\
+ * 1. INPUT VALIDATION
+ *
+ * If the hook accepts an array of input value validators, these need to be
+ * applied prior to *any* of the actual callback logic executing, *i.e.* the
+ * function needs ot return early, populating the `validationErrors` state
+\* ========================================================================= */
+
+export type InputValidationPattern = {
+	pattern: RegExp;
+	failureMessage: string;
+};
+type InputValidationsMap = {
+	[inputKey: string]: InputValidationPattern[];
 };
 
-/** Map of every state exposed to users -> match function for that state (_ie_ `true` if in state) */
-// prettier-ignore
-const stateSelectors: ExposedStateSelectorMap = {
-	isCheckingForSession: (state) => state.matches(AuthStateId.CheckingForSession),
-	isSubmittingOtpUsername: (state) => state.matches(AuthStateId.SubmittingOtpUsername),
-	isSubmittingOtp: (state) => state.matches(AuthStateId.SubmittingOtp),
-	isSubmittingUsernameAndPassword: (state) => state.matches(AuthStateId.SubmittingUsernameAndPassword),
-	isSubmittingForceChangePassword: (state) => state.matches(AuthStateId.SubmittingForceChangePassword),
-	isChangingPassword: (state) => state.matches(AuthStateId.ChangingPassword),
-	isRequestingPasswordReset: (state) => state.matches(AuthStateId.RequestingPasswordReset),
-	isSubmittingPasswordReset: (state) => state.matches(AuthStateId.SubmittingPasswordReset),
-	isCheckingForPin: (state) => state.matches(AuthStateId.CheckingForPin),
-	isSubmittingCurrentPin: (state) => state.matches(AuthStateId.SubmittingCurrentPin),
-	isSubmittingNewPin: (state) => state.matches(AuthStateId.SubmittingNewPin),
-  isValidatingPin: (state) => state.matches(AuthStateId.ValidatingPin),
-	isChangingPin: (state) => state.matches(AuthStateId.ChangingPin),
-	isResettingPin: (state) => state.matches(AuthStateId.ResettingPin),
-	isLoggingOut: (state) => state.matches(AuthStateId.LoggingOut),
-	isAuthenticated: (state) => state.matches(AuthStateId.Authenticated),
-};
+function validateInputs(
+	inputValidations: InputValidationsMap,
+	inputValues: {
+		[inputKey in keyof InputValidationsMap]: string;
+	}
+): { [inputKey in keyof InputValidationsMap]: string[] } {
+	return Object.fromEntries(
+		Object.entries(inputValues).map(([k, v]) => {
+			const failedValidations = inputValidations[k]
+				.filter(({ pattern }) => !pattern.test(v))
+				.map(({ failureMessage }) => failureMessage);
 
-/** Selector specifically for states only useful when a user is Authenticated. */
-const isInStateAccessibleWhileAuthenticated = (state: AuthState): boolean => {
-	return (
-		state.matches<AuthenticatedStateId>(AuthStateId.Authenticated) ||
-		state.matches<AuthenticatedStateId>(AuthStateId.ValidatingPin) ||
-		state.matches<AuthenticatedStateId>(AuthStateId.ChangingPin) ||
-		state.matches<AuthenticatedStateId>(AuthStateId.ChangingPassword) ||
-		state.matches<AuthenticatedStateId>(AuthStateId.LoggingOut)
+			return [k, failedValidations];
+		})
 	);
-};
-
-/**
- * Mapped type to build out the object containing context value access functions.
- * It should ensure that TS will error if a context value has been omitted or a
- * nonexistant key has been used.
- */
-type ContextSelectorMap<S = AuthState, C = AuthContext> = Record<keyof C, (state: S) => C[keyof C]>;
-
-/** Map of every context value as a selector function. */
-const contextSelectors: ContextSelectorMap = {
-	error: (state) => state.context.error,
-	validationError: (state) => state.context.validationError,
-	loginFlowType: (state) => state.context.loginFlowType,
-	deviceSecurityType: (state) => state.context.loginFlowType,
-	user: (state) => state.context.user,
-	username: (state) => state.context.username,
-};
+}
 
 /* ========================================================================= *\
- * 3. AUTH STAGE HOOKS
+ * 2. AUTH STAGE HOOKS
  *
  * These hooks cover all stages of the authentication process where a user
  * is **not** Authenticated. They all follow a common pattern, taking a
@@ -151,31 +95,45 @@ export function useCheckingForSession(cb: AuthCb.CheckSessionCb) {
 	};
 }
 
-export function useSubmittingOtpUsername<User = any>(cb: AuthCb.ValidateOtpUsernameCb<User>) {
+export function useSubmittingOtpUsername<User = any>(
+	cb: AuthCb.ValidateOtpUsernameCb<User>,
+	validators: { username: InputValidationPattern[] } = { username: [] }
+) {
 	const authenticator = useAuthInterpreter();
 	const error = useSelector(authenticator, contextSelectors.error);
 	const isActive = useSelector(authenticator, stateSelectors.isSubmittingOtpUsername!);
 	const logger = useLogger();
 
+	const [validationErrors, setValidationErrors] = useState<{ username: string[] }>({
+		username: [],
+	});
 	const [isLoading, setIsLoading] = useState(false);
 
 	const validateUsername = useCallback(
 		async (username: string) => {
-			setIsLoading(true);
-			// prettier-ignore
-			logger.info("OTP username validation initiated: if it resolves, the system will send out an OTP and user can move to the OTP input stage. If not, something is wrong with the username.");
+			const validationErrors = validateInputs(validators, { username });
+			if (validationErrors.username.length > 0) {
+				setValidationErrors(
+					validationErrors as { [inputKey in keyof typeof validators]: string[] }
+				);
+				return;
+			} else {
+				setIsLoading(true);
+				// prettier-ignore
+				logger.info("OTP username validation initiated: if it resolves, the system will send out an OTP and user can move to the OTP input stage. If not, something is wrong with the username.");
 
-			try {
-				const user = await cb(username);
-				logger.log(user);
-				logger.info("OTP username valid");
-				authenticator.send({ type: "USERNAME_VALID", username, user });
-			} catch (err) {
-				logger.log(err);
-				logger.info("OTP username invalid");
-				authenticator.send({ type: "USERNAME_INVALID", error: "USERNAME_INVALID" });
-			} finally {
-				setIsLoading(false);
+				try {
+					const user = await cb(username);
+					logger.log(user);
+					logger.info("OTP username valid");
+					authenticator.send({ type: "USERNAME_VALID", username, user });
+				} catch (err) {
+					logger.log(err);
+					logger.info("OTP username invalid");
+					authenticator.send({ type: "USERNAME_INVALID", error: "USERNAME_INVALID" });
+				} finally {
+					setIsLoading(false);
+				}
 			}
 		},
 		[authenticator, error, isActive, isLoading]
@@ -186,51 +144,66 @@ export function useSubmittingOtpUsername<User = any>(cb: AuthCb.ValidateOtpUsern
 		isActive,
 		isLoading,
 		validateUsername,
+		validationErrors,
 	};
 }
 
-export function useSubmittingOtp<User = any>(cb: AuthCb.ValidateOtpCb<User>) {
+export function useSubmittingOtp<User = any>(
+	cb: AuthCb.ValidateOtpCb<User>,
+	validators: { password: InputValidationPattern[] } = { password: [] }
+) {
 	const authenticator = useAuthInterpreter();
 	const error = useSelector(authenticator, contextSelectors.error);
 	const isActive = useSelector(authenticator, stateSelectors.isSubmittingOtp!);
 	const currentUserData = useSelector(authenticator, contextSelectors.user);
 	const logger = useLogger();
 
+	const [validationErrors, setValidationErrors] = useState<{ password: string[] }>({
+		password: [],
+	});
 	const [attemptsMade, setAttemptsMade] = useState(0);
 	const [isLoading, setIsLoading] = useState(false);
 
 	const validateOtp = useCallback(
 		async (password) => {
-			setIsLoading(true);
-			const currentAttempts = attemptsMade + 1;
-			// prettier-ignore
-			logger.info(`OTP validation initiated (attempt ${attemptsMade + 1}): if successful, this stage of authentication is passed. If not, ${attemptsMade + 1 === 3 ? "system will require username input again" : "system will allow a retry"}.`);
+			const validationErrors = validateInputs(validators, { password });
+			if (validationErrors.password.length > 0) {
+				setValidationErrors(
+					validationErrors as { [inputKey in keyof typeof validators]: string[] }
+				);
+				return;
+			} else {
+				setIsLoading(true);
+				const currentAttempts = attemptsMade + 1;
+				// prettier-ignore
+				logger.info(`OTP validation initiated (attempt ${attemptsMade + 1}): if successful, this stage of authentication is passed. If not, ${attemptsMade + 1 === 3 ? "system will require username input again" : "system will allow a retry"}.`);
 
-			try {
-				const user = await cb(currentUserData, password);
-				logger.log(user);
-				authenticator.send({ type: "OTP_VALID" });
-			} catch (err) {
-				logger.log(err);
-				if (currentAttempts >= 3) {
-					logger.warn(err);
-					logger.info("OTP retries exceeded");
-					authenticator.send({
-						type: "OTP_INVALID_RETRIES_EXCEEDED",
-						error: "PASSWORD_RETRIES_EXCEEDED",
-					});
-					setAttemptsMade(0);
-				} else {
-					logger.warn(err);
-					logger.info(`OTP invalid, ${3 - currentAttempts} tries remaining`);
-					authenticator.send({
-						type: "OTP_INVALID",
-						error: `PASSWORD_INVALID_${3 - currentAttempts}_RETRIES_REMAINING`,
-					});
-					setAttemptsMade(currentAttempts);
+				try {
+					const user = await cb(currentUserData, password);
+					logger.log(user);
+					authenticator.send({ type: "OTP_VALID" });
+				} catch (err) {
+					logger.log(err);
+					if (currentAttempts >= 3) {
+						logger.warn(err);
+						logger.info("OTP retries exceeded");
+						authenticator.send({
+							type: "OTP_INVALID_RETRIES_EXCEEDED",
+							error: "PASSWORD_RETRIES_EXCEEDED",
+						});
+						setAttemptsMade(0);
+					} else {
+						logger.warn(err);
+						logger.info(`OTP invalid, ${3 - currentAttempts} tries remaining`);
+						authenticator.send({
+							type: "OTP_INVALID",
+							error: `PASSWORD_INVALID_${3 - currentAttempts}_RETRIES_REMAINING`,
+						});
+						setAttemptsMade(currentAttempts);
+					}
+				} finally {
+					setIsLoading(false);
 				}
-			} finally {
-				setIsLoading(false);
 			}
 		},
 		[attemptsMade, authenticator, currentUserData, error, isActive, isLoading]
@@ -244,54 +217,64 @@ export function useSubmittingOtp<User = any>(cb: AuthCb.ValidateOtpCb<User>) {
 		isLoading,
 		attemptsMade,
 		validateOtp,
+		validationErrors,
 		goBack,
 	};
 }
 
-/**
- * TODO: extract info from user object. This, for Cognito, will be the `challengeName`
- * getter property on the returned user object.
- */
-function newPasswordIsRequired<User = any>(user: User) {
-	return "NEW_PASSWORD_REQUIRED" in user;
-}
 
 export function useSubmittingUsernameAndPassword<User = any>(
-	cb: AuthCb.ValidateUsernameAndPasswordCb<User>
+	cb: AuthCb.ValidateUsernameAndPasswordCb<User>,
+	validators: {
+		username: InputValidationPattern[];
+		password: InputValidationPattern[];
+	} = { username: [], password: [] }
 ) {
 	const authenticator = useAuthInterpreter();
 	const error = useSelector(authenticator, contextSelectors.error);
 	const isActive = useSelector(authenticator, stateSelectors.isSubmittingUsernameAndPassword!);
 	const logger = useLogger();
 
+	const [validationErrors, setValidationErrors] = useState<{
+		username: string[];
+		password: string[];
+	}>({ username: [], password: [] });
 	const [isLoading, setIsLoading] = useState(false);
 
 	const validateUsernameAndPassword = useCallback(
 		async (username, password) => {
-			setIsLoading(true);
+			const validationErrors = validateInputs(validators, { username, password });
+			if (validationErrors.username.length > 0 || validationErrors.password.length > 0) {
+				setValidationErrors(
+					validationErrors as { [inputKey in keyof typeof validators]: string[] }
+				);
+				return;
+			} else {
+				setIsLoading(true);
 
-			try {
-				const user = await cb(username, password);
-				logger.log(user);
-				if (newPasswordIsRequired(user)) {
+				try {
+					const resp = await cb(username, password);
+					logger.log(resp);
+					if (Array.isArray(resp) && resp[0] === "NEW_PASSWORD_REQUIRED") {
+						authenticator.send({
+							type: "USERNAME_AND_PASSWORD_VALID_PASSWORD_CHANGE_REQUIRED",
+							user: resp[1],
+							username,
+							error: "PASSWORD_CHANGE_REQUIRED",
+						});
+					} else {
+						authenticator.send({ type: "USERNAME_AND_PASSWORD_VALID", user: resp, username });
+					}
+				} catch (err) {
+					logger.log(err);
+					// REVIEW check errors here to see if can tell if username or password are individually invalid:
 					authenticator.send({
-						type: "USERNAME_AND_PASSWORD_VALID_PASSWORD_CHANGE_REQUIRED",
-						user,
-						username,
-						error: "PASSWORD_CHANGE_REQUIRED",
+						type: "USERNAME_AND_PASSWORD_INVALID",
+						error: "USERNAME_AND_PASSWORD_INVALID",
 					});
-				} else {
-					authenticator.send({ type: "USERNAME_AND_PASSWORD_VALID", user, username });
+				} finally {
+					setIsLoading(false);
 				}
-			} catch (err) {
-				logger.log(err);
-				// REVIEW check errors here to see if can tell if username or password are individually invalid:
-				authenticator.send({
-					type: "USERNAME_AND_PASSWORD_INVALID",
-					error: "USERNAME_AND_PASSWORD_INVALID",
-				});
-			} finally {
-				setIsLoading(false);
 			}
 		},
 		[authenticator, isActive]
@@ -306,12 +289,14 @@ export function useSubmittingUsernameAndPassword<User = any>(
 		isActive,
 		isLoading,
 		validateUsernameAndPassword,
+		validationErrors,
 		forgottenPassword,
 	};
 }
 
 export function useSubmittingForceChangePassword<User = any>(
-	cb: AuthCb.ValidateForceChangePasswordCb<User>
+	cb: AuthCb.ValidateForceChangePasswordCb<User>,
+	validators: { password: InputValidationPattern[] } = { password: [] }
 ) {
 	const authenticator = useAuthInterpreter();
 	const error = useSelector(authenticator, contextSelectors.error);
@@ -319,21 +304,32 @@ export function useSubmittingForceChangePassword<User = any>(
 	const currentUserData = useSelector(authenticator, contextSelectors.user);
 	const logger = useLogger();
 
+	const [validationErrors, setValidationErrors] = useState<{ password: string[] }>({
+		password: [],
+	});
 	const [isLoading, setIsLoading] = useState(false);
 
 	const validateNewPassword = useCallback(
 		async (password) => {
-			setIsLoading(true);
+			const validationErrors = validateInputs(validators, { password });
+			if (validationErrors.password.length > 0) {
+				setValidationErrors(
+					validationErrors as { [inputKey in keyof typeof validators]: string[] }
+				);
+				return;
+			} else {
+				setIsLoading(true);
 
-			try {
-				const user = await cb(currentUserData, password);
-				logger.log(user);
-				authenticator.send({ type: "PASSWORD_CHANGE_SUCCESS" });
-			} catch (err) {
-				logger.log(err);
-				authenticator.send({ type: "PASSWORD_CHANGE_FAILURE", error: "PASSWORD_CHANGE_FAILURE" });
-			} finally {
-				setIsLoading(false);
+				try {
+					const user = await cb(currentUserData, password);
+					logger.log(user);
+					authenticator.send({ type: "PASSWORD_CHANGE_SUCCESS" });
+				} catch (err) {
+					logger.log(err);
+					authenticator.send({ type: "PASSWORD_CHANGE_FAILURE", error: "PASSWORD_CHANGE_FAILURE" });
+				} finally {
+					setIsLoading(false);
+				}
 			}
 		},
 		[authenticator, isActive]
@@ -344,6 +340,7 @@ export function useSubmittingForceChangePassword<User = any>(
 		isActive,
 		isLoading,
 		validateNewPassword,
+		validationErrors,
 	};
 }
 
@@ -357,12 +354,11 @@ export function useRequestingPasswordReset(cb: AuthCb.RequestNewPasswordCb) {
 	const authenticator = useAuthInterpreter();
 	const error = useSelector(authenticator, contextSelectors.error);
 	const isActive = useSelector(authenticator, stateSelectors.isRequestingPasswordReset!);
-	const username = useSelector(authenticator, contextSelectors.username);
 	const logger = useLogger();
 
 	const [isLoading, setIsLoading] = useState(false);
 
-	const requestNewPassword = useCallback(async () => {
+	const requestNewPassword = useCallback(async (username) => {
 		setIsLoading(true);
 
 		try {
@@ -380,36 +376,57 @@ export function useRequestingPasswordReset(cb: AuthCb.RequestNewPasswordCb) {
 		}
 	}, [authenticator, isActive]);
 
+	const cancelResetPasswordRequest = () => authenticator.send({ type: "GO_BACK" });
+
 	return {
 		error,
 		isActive,
 		isLoading,
+		cancelResetPasswordRequest,
 		requestNewPassword,
 	};
 }
 
-export function useSubmittingPasswordReset(cb: AuthCb.SubmitNewPasswordCb) {
+export function useSubmittingPasswordReset(
+	cb: AuthCb.SubmitNewPasswordCb,
+	validators: { code: InputValidationPattern[]; newPassword: InputValidationPattern[] } = {
+		code: [],
+		newPassword: [],
+	}
+) {
 	const authenticator = useAuthInterpreter();
 	const error = useSelector(authenticator, contextSelectors.error);
 	const isActive = useSelector(authenticator, stateSelectors.isSubmittingPasswordReset!);
 	const username = useSelector(authenticator, contextSelectors.username);
 	const logger = useLogger();
 
+	const [validationErrors, setValidationErrors] = useState<{
+		code: string[];
+		newPassword: string[];
+	}>({ code: [], newPassword: [] });
 	const [isLoading, setIsLoading] = useState(false);
 
 	const submitNewPassword = useCallback(
 		async (code: string, newPassword: string) => {
-			setIsLoading(true);
+			const validationErrors = validateInputs(validators, { code, newPassword });
+			if (validationErrors.code.length > 0 || validationErrors.newPassword.length > 0) {
+				setValidationErrors(
+					validationErrors as { [inputKey in keyof typeof validators]: string[] }
+				);
+				return;
+			} else {
+				setIsLoading(true);
 
-			try {
-				const res = await cb(username, code, newPassword);
-				logger.log(res);
-				authenticator.send({ type: "PASSWORD_RESET_SUCCESS" });
-			} catch (err) {
-				logger.log(err);
-				authenticator.send({ type: "PASSWORD_RESET_FAILURE", error: "PASSWORD_RESET_FAILURE" });
-			} finally {
-				setIsLoading(false);
+				try {
+					const res = await cb(username, code, newPassword);
+					logger.log(res);
+					authenticator.send({ type: "PASSWORD_RESET_SUCCESS" });
+				} catch (err) {
+					logger.log(err);
+					authenticator.send({ type: "PASSWORD_RESET_FAILURE", error: "PASSWORD_RESET_FAILURE" });
+				} finally {
+					setIsLoading(false);
+				}
 			}
 		},
 		[authenticator, isActive]
@@ -420,6 +437,7 @@ export function useSubmittingPasswordReset(cb: AuthCb.SubmitNewPasswordCb) {
 		isActive,
 		isLoading,
 		submitNewPassword,
+		validationErrors,
 	};
 }
 
@@ -463,31 +481,43 @@ export function useCheckingForPin(cb: AuthCb.CheckForExistingPinCb) {
 	};
 }
 
-export function useSubmittingCurrentPin(cb: AuthCb.ValidatePinCb) {
+export function useSubmittingCurrentPin(
+	cb: AuthCb.ValidatePinCb,
+	validators: { pin: InputValidationPattern[] } = { pin: [] }
+) {
 	const authenticator = useAuthInterpreter();
 	const error = useSelector(authenticator, contextSelectors.error);
 	const isActive = useSelector(authenticator, stateSelectors.isSubmittingCurrentPin!);
 	const logger = useLogger();
 
+	const [validationErrors, setValidationErrors] = useState<{ pin: string[] }>({ pin: [] });
 	const [isLoading, setIsLoading] = useState(false);
 
 	const validatePin = useCallback(
 		async (pin: string) => {
-			setIsLoading(true);
-			// prettier-ignore
-			logger.info("Initiating a check against the existing PIN. If the check resolves, user passes authentication.");
+			const validationErrors = validateInputs(validators, { pin });
+			if (validationErrors.pin.length > 0) {
+				setValidationErrors(
+					validationErrors as { [inputKey in keyof typeof validators]: string[] }
+				);
+				return;
+			} else {
+				setIsLoading(true);
+				// prettier-ignore
+				logger.info("Initiating a check against the existing PIN. If the check resolves, user passes authentication.");
 
-			try {
-				const res = await cb(pin);
-				logger.log(res);
-				logger.info("PIN validated");
-				authenticator.send({ type: "PIN_VALID" });
-			} catch (err) {
-				logger.warn(err);
-				logger.warn("PIN validation failed");
-				authenticator.send({ type: "PIN_INVALID", error: "PIN_INVALID" });
-			} finally {
-				setIsLoading(false);
+				try {
+					const res = await cb(pin);
+					logger.log(res);
+					logger.info("PIN validated");
+					authenticator.send({ type: "PIN_VALID" });
+				} catch (err) {
+					logger.warn(err);
+					logger.warn("PIN validation failed");
+					authenticator.send({ type: "PIN_INVALID", error: "PIN_INVALID" });
+				} finally {
+					setIsLoading(false);
+				}
 			}
 		},
 		[authenticator, isActive]
@@ -500,6 +530,7 @@ export function useSubmittingCurrentPin(cb: AuthCb.ValidatePinCb) {
 		isActive,
 		isLoading,
 		validatePin,
+		validationErrors,
 		requestPinReset,
 	};
 }
@@ -544,31 +575,43 @@ export function useResettingPin(cb: AuthCb.LogoutCb) {
 	};
 }
 
-export function useSubmittingNewPin(cb: AuthCb.SetNewPinCb) {
+export function useSubmittingNewPin(
+	cb: AuthCb.SetNewPinCb,
+	validators: { pin: InputValidationPattern[] } = { pin: [] }
+) {
 	const authenticator = useAuthInterpreter();
 	const error = useSelector(authenticator, contextSelectors.error);
 	const isActive = useSelector(authenticator, stateSelectors.isSubmittingNewPin!);
 	const logger = useLogger();
 
+	const [validationErrors, setValidationErrors] = useState<{ pin: string[] }>({ pin: [] });
 	const [isLoading, setIsLoading] = useState(false);
 
 	const setNewPin = useCallback(
 		async (pin: string) => {
-			setIsLoading(true);
-			// prettier-ignore
-			logger.info("Attempting to set a new PIN. If the check resolves, attempts was successful and they are now Authenticated. If it fails there may be a problem with saving to storage.");
+			const validationErrors = validateInputs(validators, { pin });
+			if (validationErrors.pin.length > 0) {
+				setValidationErrors(
+					validationErrors as { [inputKey in keyof typeof validators]: string[] }
+				);
+				return;
+			} else {
+				setIsLoading(true);
+				// prettier-ignore
+				logger.info("Attempting to set a new PIN. If the check resolves, attempts was successful and they are now Authenticated. If it fails there may be a problem with saving to storage.");
 
-			try {
-				const res = await cb(pin);
-				logger.log(res);
-				logger.info("New PIN successfully set.");
-				authenticator.send({ type: "NEW_PIN_VALID" });
-			} catch (err) {
-				logger.warn(err);
-				logger.warn("Set PIN action failed.");
-				authenticator.send({ type: "NEW_PIN_INVALID", error: "NEW_PIN_INVALID" });
-			} finally {
-				setIsLoading(false);
+				try {
+					const res = await cb(pin);
+					logger.log(res);
+					logger.info("New PIN successfully set.");
+					authenticator.send({ type: "NEW_PIN_VALID" });
+				} catch (err) {
+					logger.warn(err);
+					logger.warn("Set PIN action failed.");
+					authenticator.send({ type: "NEW_PIN_INVALID", error: "NEW_PIN_INVALID" });
+				} finally {
+					setIsLoading(false);
+				}
 			}
 		},
 		[authenticator, isActive]
@@ -579,11 +622,12 @@ export function useSubmittingNewPin(cb: AuthCb.SetNewPinCb) {
 		isActive,
 		isLoading,
 		setNewPin,
+		validationErrors,
 	};
 }
 
 /* ========================================================================= *\
- * 4. AUTHORISED HOOKS
+ * 3. AUTHORISED HOOKS
  *
  * These hooks cover all stages of the authentication process where a user
  * **is** Authenticated (or, in the case of `isAuthenticated`, one or the other).
@@ -614,27 +658,45 @@ export function useAuthenticated() {
 	};
 }
 
-export function useChangingPassword(cb: AuthCb.ChangePasswordCb) {
+export function useChangingPassword(
+	cb: AuthCb.ChangePasswordCb,
+	validators: {
+		oldPassword: InputValidationPattern[];
+		newPassword: InputValidationPattern[];
+	} = { oldPassword: [], newPassword: [] }
+) {
 	const authenticator = useAuthInterpreter();
 	const error = useSelector(authenticator, contextSelectors.error);
 	const isActive = useSelector(authenticator, stateSelectors.isChangingPassword!);
 	const logger = useLogger();
 
+	const [validationErrors, setValidationErrors] = useState<{
+		oldPassword: string[];
+		newPassword: string[];
+	}>({ oldPassword: [], newPassword: [] });
 	const [isLoading, setIsLoading] = useState(false);
 
 	const submitNewPassword = useCallback(
 		async (oldPassword: string, newPassword: string) => {
-			setIsLoading(true);
+			const validationErrors = validateInputs(validators, { oldPassword, newPassword });
+			if (validationErrors.oldPassword.length > 0 || validationErrors.newPassword.length > 0) {
+				setValidationErrors(
+					validationErrors as { [inputKey in keyof typeof validators]: string[] }
+				);
+				return;
+			} else {
+				setIsLoading(true);
 
-			try {
-				const res = await cb(oldPassword, newPassword);
-				logger.log(res);
-				authenticator.send({ type: "PASSWORD_CHANGE_SUCCESS" });
-			} catch (err) {
-				logger.log(err);
-				authenticator.send({ type: "PASSWORD_CHANGE_FAILURE", error: "PASSWORD_CHANGE_FAILURE" });
-			} finally {
-				setIsLoading(false);
+				try {
+					const res = await cb(oldPassword, newPassword);
+					logger.log(res);
+					authenticator.send({ type: "PASSWORD_CHANGE_SUCCESS" });
+				} catch (err) {
+					logger.log(err);
+					authenticator.send({ type: "PASSWORD_CHANGE_FAILURE", error: "PASSWORD_CHANGE_FAILURE" });
+				} finally {
+					setIsLoading(false);
+				}
 			}
 		},
 		[authenticator, isActive]
@@ -648,34 +710,47 @@ export function useChangingPassword(cb: AuthCb.ChangePasswordCb) {
 		isLoading,
 		submitNewPassword,
 		cancelChangePassword,
+		validationErrors,
 	};
 }
 
-export function useValidatingPin(cb: AuthCb.ValidatePinCb) {
+export function useValidatingPin(
+	cb: AuthCb.ValidatePinCb,
+	validators: { pin: InputValidationPattern[] } = { pin: [] }
+) {
 	const authenticator = useAuthInterpreter();
 	const error = useSelector(authenticator, contextSelectors.error);
 	const isActive = useSelector(authenticator, stateSelectors.isValidatingPin!);
 	const logger = useLogger();
 
+	const [validationErrors, setValidationErrors] = useState<{ pin: string[] }>({ pin: [] });
 	const [isLoading, setIsLoading] = useState(false);
 
 	const validatePin = useCallback(
 		async (pin: string) => {
-			setIsLoading(true);
-			// prettier-ignore
-			logger.info("Initiating a check against the existing PIN. If the check resolves, user passes authentication.");
+			const validationErrors = validateInputs(validators, { pin });
+			if (validationErrors.pin.length > 0) {
+				setValidationErrors(
+					validationErrors as { [inputKey in keyof typeof validators]: string[] }
+				);
+				return;
+			} else {
+				setIsLoading(true);
+				// prettier-ignore
+				logger.info("Initiating a check against the existing PIN. If the check resolves, user passes authentication.");
 
-			try {
-				const res = await cb(pin);
-				logger.log(res);
-				logger.info("PIN validated");
-				authenticator.send({ type: "PIN_VALID" });
-			} catch (err) {
-				logger.warn(err);
-				logger.warn("PIN validation failed");
-				authenticator.send({ type: "PIN_INVALID", error: "PIN_INVALID" });
-			} finally {
-				setIsLoading(false);
+				try {
+					const res = await cb(pin);
+					logger.log(res);
+					logger.info("PIN validated");
+					authenticator.send({ type: "PIN_VALID" });
+				} catch (err) {
+					logger.warn(err);
+					logger.warn("PIN validation failed");
+					authenticator.send({ type: "PIN_INVALID", error: "PIN_INVALID" });
+				} finally {
+					setIsLoading(false);
+				}
 			}
 		},
 		[authenticator, isActive]
@@ -689,35 +764,48 @@ export function useValidatingPin(cb: AuthCb.ValidatePinCb) {
 		isActive,
 		isLoading,
 		validatePin,
+		validationErrors,
 		cancelChangePin,
 	};
 }
 
-export function useChangingPin(cb: AuthCb.SetNewPinCb) {
+export function useChangingPin(
+	cb: AuthCb.SetNewPinCb,
+	validators: { newPin: InputValidationPattern[] } = { newPin: [] }
+) {
 	const authenticator = useAuthInterpreter();
 	const error = useSelector(authenticator, contextSelectors.error);
 	const isActive = useSelector(authenticator, stateSelectors.isChangingPin!);
 	const logger = useLogger();
 
+	const [validationErrors, setValidationErrors] = useState<{ newPin: string[] }>({ newPin: [] });
 	const [isLoading, setIsLoading] = useState(false);
 
 	const changePin = useCallback(
 		async (newPin: string) => {
-			setIsLoading(true);
-			// prettier-ignore
-			logger.info("Attempting to change the current PIN. If the check resolves, the attempt was successful and they may return to the Authenticated state.");
+			const validationErrors = validateInputs(validators, { newPin });
+			if (validationErrors.newPin.length > 0) {
+				setValidationErrors(
+					validationErrors as { [inputKey in keyof typeof validators]: string[] }
+				);
+				return;
+			} else {
+				setIsLoading(true);
+				// prettier-ignore
+				logger.info("Attempting to change the current PIN. If the check resolves, the attempt was successful and they may return to the Authenticated state.");
 
-			try {
-				const res = await cb(newPin);
-				logger.log(res);
-				logger.log("PIN change succeeded");
-				authenticator.send({ type: "PIN_CHANGE_SUCCESS" });
-			} catch (err) {
-				logger.warn(err);
-				logger.warn("PIN change failed");
-				authenticator.send({ type: "PIN_CHANGE_FAILURE", error: "PIN_CHANGE_FAILURE" });
-			} finally {
-				setIsLoading(false);
+				try {
+					const res = await cb(newPin);
+					logger.log(res);
+					logger.log("PIN change succeeded");
+					authenticator.send({ type: "PIN_CHANGE_SUCCESS" });
+				} catch (err) {
+					logger.warn(err);
+					logger.warn("PIN change failed");
+					authenticator.send({ type: "PIN_CHANGE_FAILURE", error: "PIN_CHANGE_FAILURE" });
+				} finally {
+					setIsLoading(false);
+				}
 			}
 		},
 		[authenticator, isActive]
@@ -731,6 +819,7 @@ export function useChangingPin(cb: AuthCb.SetNewPinCb) {
 		isLoading,
 		changePin,
 		cancelChangePin,
+		validationErrors,
 	};
 }
 

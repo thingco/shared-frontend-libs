@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/ban-types */
-import { useInterpret } from "@xstate/react";
+import { useInterpret, useSelector } from "@xstate/react";
 import React, { createContext, useContext } from "react";
 
 import type { ReactNode } from "react";
-import type { AuthInterpreter, AuthMachine, AuthState } from "./auth-system";
+import { AuthInterpreter, AuthMachine, AuthState } from "./auth-system";
+import { contextSelectors, currentStateSelector } from "./auth-system-selectors";
 
 const AuthProviderContext = createContext<{
 	authenticator: AuthInterpreter;
@@ -61,4 +62,26 @@ export function useAuthInterpreter() {
 			"`useAuthInterpreter` can only be used in a component tree beneath the `AuthProvider` component"
 		);
 	return ctx.authenticator;
+}
+
+/**
+ * Gives access to specific context values that may be required in-app (whether
+ * the auth is configured for OTP, or the current state value, for example).
+ *
+ * This is not designed for use within any of the stage-specific hooks, it is
+ * a utility for use in components in-app. For example profile screens, to show/hide
+ * menu items depending upon whther the operations they trigger are actually
+ * available.
+ */
+export function useAuthProvider() {
+	const authSystem = useAuthInterpreter();
+	const currentState = useSelector(authSystem, currentStateSelector);
+	const loginFlowType = useSelector(authSystem, contextSelectors.loginFlowType);
+	const deviceSecurityType = useSelector(authSystem, contextSelectors.deviceSecurityType);
+
+	return {
+		currentState,
+		loginFlowType,
+		deviceSecurityType,
+	};
 }

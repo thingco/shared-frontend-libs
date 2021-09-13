@@ -25,7 +25,7 @@ export type ValidateOtpCb<User> = (user: User, password: string) => Promise<User
 export type ValidateUsernameAndPasswordCb<User> = (
 	username: string,
 	password: string
-) => Promise<User>;
+) => Promise<User> | Promise<["NEW_PASSWORD_REQUIRED", User]>;
 
 /**
  * Validate a new password. The user has already submitted a valid password, but the backend systems
@@ -84,3 +84,17 @@ export type SetNewPinCb = (pin: string) => Promise<any>;
  * the callback.
  */
 export type LogoutCb = () => Promise<any>;
+
+export type AuthSystemHookCb<User> =
+	| CheckSessionCb
+	| ValidateOtpUsernameCb<User>
+	| ValidateOtpCb<User>
+	| ValidateUsernameAndPasswordCb<User>
+	| ValidateForceChangePasswordCb<User>
+	| RequestNewPasswordCb
+	| SubmitNewPasswordCb
+	| ChangePasswordCb
+	| CheckForExistingPinCb
+	| ValidatePinCb
+	| SetNewPinCb
+	| LogoutCb;
