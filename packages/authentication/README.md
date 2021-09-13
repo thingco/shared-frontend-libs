@@ -2,38 +2,53 @@
 
 ## Overview
 
-> NOTE this is just the PR for the branch that contains this ATM, turn this into a REAME
+Hook-based authentication system for @thingco apps. Built on top the FSM library [XState](https://xstate.js.org). 
 
-- [ ] model tests for pin flow
-- [ ] naming in auth system: change the extremely verbose `AuthenticationSystemFoo` to `AuthFoo`, as it is extremely onerous to type
-- [ ] naming of internal typings of events in auth system (`TEvent`) and the inferred typing of events (from `EventsFrom<typeof model>`), latter use above convention (`AuthEvent`), use better naming for internal types
-- [ ] Errors: currently there is a union type of errors. Ideally would be something like `AuthError<"ERROR_NAME">` and I'd get inference, but that's not going to happen so change this to an enum to stop accidentally writing the wrong error code when the codes are similar.
-- [ ] Errors: once in enum, make the naming better -- currently a lot of them are just the name of the type, which would be fine (could just use `error: true|false` in the context) except that the incorrect OTP error (which includes the number of remaining tries and has to be dynamic, using a template literal type) messes up everything (and assumption would be the remaining tries would also need to be active for the reset password code as well).
-- [ ] Several events have a REVIEW flag on them, where I want to see if we can be more specific about the type of error. This would help to _a_ indicate better what the auth system should do and _b_ allow for more informative errors for end users.
+## Prerequisites
 
-So
+External peer dependencies are `react`, `xstate` and `@xstate/react`. Internal (as in thingco internal) peer dependencies are `@thingco/logger`.
 
-- Add a new package (`@thingco/authentication`) to prevent stepping on the existing package.
-- This has a much simpler system: no async requests, very little config for the provider. The system simply says which state the user is in, and the user sends messages to change the state.
-- This has a much more complex React implmentation: each state has a corresponding hook. That hook accepts a callback function. That hook exposes:
-  1.  a function to make use of the callback and send appropriate messages
-  2.  an `isLoading` flag for when the callback is processing
-  3.  an `isActive` flag to say whether the state is actually currently active
-  4.  an `error`, which is either null or one of AuthenticationSystemError string literal types
-  5.  optionally, other callbacks that allow for extra messages to be sent (request a new password, or go back to previous state)
-- The hooks are tested to ensure that each exposed state has a corresponding hook, and that each hook can send all events specified for that state in the system.
-- The system is tested using model tests to ensure that a path to every state exists if the expected messages are sent, and that the system context contains the correct values at any one time.
+## Installation and setup
 
-So:
+In your React app, install the peer dependencies:
 
-- external peer dependencies are `react`, `xstate` and `@xstate/react`
-- internal (as in thingco internal) peer dependencies are `@thingco/logger`
-- exports are
-  1. the `createAuthenticationSystem` constructor function, which accepts a config object specifying the `loginFlowType` ("OTP" or "USERNAME_PASSWORD") and the `deviceSecurityType` ("NONE", "PIN" or "BIOMETRIC", though the latter has no implementations and probably needs to be dropped for now)
-  2. the `AuthenticationSystemProvider`, which accepts the result of `createAuthenticationSystem` as a prop.
-  3. a hook for each state, _eg_ `useAwaitingOtpInput`
+```
+yarn add xstate @xstate/react
+```
 
-The library does _not_ know anything about how the callbacks work, only what shape the functions are to be. So for example
+Then from the shared libraries:
+
+```
+yarn add @thingco/authentication @thingco/logger
+```
+
+And you will need the auth library being used:
+
+```
+yarn add @aws-amplify/auth
+```
+
+Configure the auth library as directed in the Amplify documentation. Then set up @thingco/authentication. At the entry point of the app:
+
+```tsx
+import { createAuthenticationSystem, AuthProvider } from @thingco/authentication;
+
+
+const authSystem = createAuthenticationSystem({
+	loginFlowType: "OTP" // this can be "OTP" or "USERNAME_PASSWORD", pull in value from app config
+	deviceSecurityType: "PIN" // this can be "NONE" or "PIN", pull in value from app config
+});
+
+const MyApp = ({ children}: { children: React.ReactNode }) => (
+	<AuthProvider authenticationSystem={authSystem}>
+	  {children}
+	</AuthProvider>
+);
+```
+
+Now you have access to a set of hooks, one for each possible state in the authentication process. Build out a component for each one you are using and use the hook relating to it to access `isActive` and `isLoading` flags, submission methods, errors, validationErrors and any additional methods (`forgottenPassword`, for example).
+
+Each hook accepts a callback function, which in the production app will be either one of the Amplify `Auth` methods or, for PIN flows, a method taken from a wrapper around secure storage layer. The library does _not_ know anything about how the callbacks work, only what shape the functions are to be. So for example
 
 ```
 import { Auth } from "@aws-amplify/auth";
@@ -60,3 +75,21 @@ const AwaitingOtpUsernameInput = () => {
   );
 };
 ```
+
+## Developing
+
+There is a fully-functional test application within the library: to run it, build:
+
+```
+yarn workspace @thingco/logger build
+yarn workspace @thingco/authentication build
+```
+
+Then run it:
+
+```
+yarn workspace @thingco/authentication watch
+```
+
+It will build the code and serve it at localhost:3000.
+
