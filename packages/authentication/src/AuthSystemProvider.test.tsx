@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-empty-function */
 import React, { useState } from "react";
 import { createModel } from "@xstate/test";
 import { render } from "@testing-library/react";
@@ -422,8 +423,10 @@ function NewPassword() {
 	);
 }
 
-function CheckForPin () {
-	const { error, isActive, isLoading, checkForExistingPin } = useCheckingForPin(MockCb.checkForExistingPinCb);
+function CheckForPin() {
+	const { error, isActive, isLoading, checkForExistingPin } = useCheckingForPin(
+		MockCb.checkForExistingPinCb
+	);
 
 	return (
 		<section>
@@ -440,9 +443,10 @@ function CheckForPin () {
 	);
 }
 
-function Pin () {
-	const { error, isActive, isLoading, validationErrors, validatePin, requestPinReset } = useSubmittingCurrentPin(MockCb.validatePinCb);
-  const [pin, setPin] = useState("");
+function Pin() {
+	const { error, isActive, isLoading, validationErrors, validatePin, requestPinReset } =
+		useSubmittingCurrentPin(MockCb.validatePinCb);
+	const [pin, setPin] = useState("");
 
 	return (
 		<section>
@@ -467,7 +471,7 @@ function Pin () {
 	);
 }
 
-function ResetPin () {
+function ResetPin() {
 	const { error, isActive, isLoading, resetPin } = useResettingPin(MockCb.logOutCb);
 
 	return (
@@ -485,9 +489,11 @@ function ResetPin () {
 	);
 }
 
-function NewPin () {
-	const { error, isActive, isLoading, validationErrors, setNewPin } = useSubmittingNewPin(MockCb.setNewPinCb);
-  const [pin, setPin] = useState("");
+function NewPin() {
+	const { error, isActive, isLoading, validationErrors, setNewPin } = useSubmittingNewPin(
+		MockCb.setNewPinCb
+	);
+	const [pin, setPin] = useState("");
 
 	return (
 		<section>
@@ -510,8 +516,6 @@ function NewPin () {
 		</section>
 	);
 }
-
-
 
 function Authenticated() {
 	const { isActive, requestLogOut, requestPasswordChange, requestPinChange } = useAuthenticated();
