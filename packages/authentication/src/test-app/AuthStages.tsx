@@ -52,6 +52,127 @@ export const OtpUsernameInput = () => {
 	);
 };
 
+export const UsernamePasswordInput = () => {
+	const { error, isActive, isLoading, validateUsernameAndPassword, forgottenPassword } =
+		AuthStage.useSubmittingUsernameAndPassword((username: string, password: string) =>
+			Auth.signIn(username, password)
+		);
+	const [username, setUsername] = React.useState("");
+	const [password, setPassword] = React.useState("");
+
+	return (
+		<section className={classnames("auth-stage", { "auth-stage--active": isActive })}>
+			<Form submitCb={validateUsernameAndPassword} cbParams={[username]}>
+				<Form.Elements disabled={!isActive || isLoading} error={error}>
+					<Form.InputGroup
+						error={error}
+						id="username"
+						inputType="email"
+						isActive={isActive}
+						label="Enter an email address"
+						value={username}
+						valueSetter={setUsername}
+						testid="usernameInput"
+					/>
+					<Form.InputGroup
+						error={error}
+						id="password"
+						inputType="password"
+						isActive={isActive}
+						label="Enter password"
+						value={password}
+						valueSetter={setPassword}
+						testid="passwordInput"
+					/>
+					<Form.Controls>
+						<Form.SecondaryAction
+							label="Forgotten Password"
+							actionCallback={forgottenPassword}
+							testid="forgottenPassword"
+						/>
+						<Form.Submit label="Log in" testid="usernamePasswordSubmit" />
+					</Form.Controls>
+				</Form.Elements>
+			</Form>
+		</section>
+	);
+};
+
+export const ResetPasswordUsernameInput = () => {
+	const { error, isActive, isLoading, cancelResetPasswordRequest, requestNewPassword } =
+		AuthStage.useRequestingPasswordReset((username: string) => Auth.forgotPassword(username));
+	const [username, setUsername] = React.useState("");
+
+	return (
+		<section className={classnames("auth-stage", { "auth-stage--active": isActive })}>
+			<Form submitCb={requestNewPassword} cbParams={[username]}>
+				<Form.Elements disabled={!isActive || isLoading} error={error}>
+					<Form.InputGroup
+						error={error}
+						id="username"
+						inputType="email"
+						isActive={isActive}
+						label="Enter an email address"
+						value={username}
+						valueSetter={setUsername}
+						testid="resetPasswordUsernameInput"
+					/>
+					<Form.Controls>
+						<Form.SecondaryAction
+							label="Cancel"
+							actionCallback={cancelResetPasswordRequest}
+							testid="cancelResetPassword"
+						/>
+						<Form.Submit label="Submit" testid="resetPasswordSubmit" />
+					</Form.Controls>
+				</Form.Elements>
+			</Form>
+		</section>
+	);
+};
+
+export const ResetPasswordOtpPasswordInput = () => {
+	const { error, isActive, isLoading, submitNewPassword } = AuthStage.useSubmittingPasswordReset(
+		async (username, code, password) => {
+			Auth.forgotPasswordSubmit(username, code, password);
+		}
+	);
+	const [otp, setOtp] = React.useState("");
+	const [password, setPassword] = React.useState("");
+
+	return (
+		<section className={classnames("auth-stage", { "auth-stage--active": isActive })}>
+			<Form submitCb={submitNewPassword} cbParams={[otp, password]}>
+				<Form.Elements disabled={!isActive || isLoading} error={error}>
+					<Form.InputGroup
+						error={error}
+						id="otp"
+						inputType="text"
+						isActive={isActive}
+						label="Enter the OTP you have been sent:"
+						value={otp}
+						valueSetter={setOtp}
+						testid="resetPasswordOtpInput"
+					/>
+					<Form.InputGroup
+						error={error}
+						id="password"
+						inputType="password"
+						isActive={isActive}
+						label="Enter New password"
+						value={password}
+						valueSetter={setPassword}
+						testid="resetPasswordOtpPasswordInput"
+					/>
+					<Form.Controls>
+						<Form.Submit label="Change Password" testid="resetPasswordOtpSubmit" />
+					</Form.Controls>
+				</Form.Elements>
+			</Form>
+		</section>
+	);
+};
+
 export const OtpInput = () => {
 	const { error, isActive, isLoading, validateOtp } = AuthStage.useSubmittingOtp(
 		async (user, password) => {

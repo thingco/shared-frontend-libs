@@ -3,8 +3,10 @@ import React from "react";
 import { AuthProvider, createAuthenticationSystem } from "..";
 import * as AuthStage from "./AuthStages";
 
+const loginFlowType: "OTP" | "USERNAME_PASSWORD" = "USERNAME_PASSWORD";
+
 const authenticationSystem = createAuthenticationSystem({
-	loginFlowType: "OTP",
+	loginFlowType: loginFlowType,
 	deviceSecurityType: "PIN",
 });
 
@@ -15,8 +17,19 @@ export const App = () => (
 				<h2>Auth flow</h2>
 			</header>
 			<AuthStage.CheckingForSession />
-			<AuthStage.OtpUsernameInput />
-			<AuthStage.OtpInput />
+			{/* @ts-expect-error hardcoded variable */}
+			{loginFlowType === "OTP" ? (
+				<>
+					<AuthStage.OtpUsernameInput />
+					<AuthStage.OtpInput />
+				</>
+			) : (
+				<>
+					<AuthStage.UsernamePasswordInput />
+					<AuthStage.ResetPasswordUsernameInput />
+					<AuthStage.ResetPasswordOtpPasswordInput />
+				</>
+			)}
 			<AuthStage.Authenticated />
 			<AuthStage.LoggingOut />
 			<AuthStage.CheckPin />
