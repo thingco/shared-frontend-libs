@@ -222,7 +222,6 @@ export function useSubmittingOtp<User = any>(
 	};
 }
 
-
 export function useSubmittingUsernameAndPassword<User = any>(
 	cb: AuthCb.ValidateUsernameAndPasswordCb<User>,
 	validators: {
@@ -350,31 +349,48 @@ export function useSubmittingForceChangePassword<User = any>(
  * will be stored, to be passed onto the next request (submitting a new password + the confirmation
  * code they have been sent).
  */
-export function useRequestingPasswordReset(cb: AuthCb.RequestNewPasswordCb) {
+export function useRequestingPasswordReset(
+	cb: AuthCb.RequestNewPasswordCb,
+	validators: { username: InputValidationPattern[] } = { username: [] }
+) {
 	const authenticator = useAuthInterpreter();
 	const error = useSelector(authenticator, contextSelectors.error);
 	const isActive = useSelector(authenticator, stateSelectors.isRequestingPasswordReset!);
 	const logger = useLogger();
 
+	const [validationErrors, setValidationErrors] = useState<{ username: string[] }>({
+		username: [],
+	});
 	const [isLoading, setIsLoading] = useState(false);
 
-	const requestNewPassword = useCallback(async (username) => {
-		setIsLoading(true);
+	const requestNewPassword = useCallback(
+		async (username) => {
+			const validationErrors = validateInputs(validators, { username });
+			if (validationErrors.username.length > 0) {
+				setValidationErrors(
+					validationErrors as { [inputKey in keyof typeof validators]: string[] }
+				);
+				return;
+			} else {
+				setIsLoading(true);
 
-		try {
-			const res = await cb(username);
-			logger.log(res);
-			authenticator.send({ type: "PASSWORD_RESET_REQUEST_SUCCESS", username });
-		} catch (err) {
-			logger.log(err);
-			authenticator.send({
-				type: "PASSWORD_RESET_REQUEST_FAILURE",
-				error: "PASSWORD_RESET_REQUEST_FAILURE",
-			});
-		} finally {
-			setIsLoading(false);
-		}
-	}, [authenticator, isActive]);
+				try {
+					const res = await cb(username);
+					logger.log(res);
+					authenticator.send({ type: "PASSWORD_RESET_REQUEST_SUCCESS", username });
+				} catch (err) {
+					logger.log(err);
+					authenticator.send({
+						type: "PASSWORD_RESET_REQUEST_FAILURE",
+						error: "PASSWORD_RESET_REQUEST_FAILURE",
+					});
+				} finally {
+					setIsLoading(false);
+				}
+			}
+		},
+		[authenticator, isActive]
+	);
 
 	const cancelResetPasswordRequest = () => authenticator.send({ type: "GO_BACK" });
 
@@ -384,6 +400,7 @@ export function useRequestingPasswordReset(cb: AuthCb.RequestNewPasswordCb) {
 		isLoading,
 		cancelResetPasswordRequest,
 		requestNewPassword,
+		validationErrors,
 	};
 }
 

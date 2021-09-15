@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import React, { useState } from "react";
 import { createModel } from "@xstate/test";
-import { render } from "@testing-library/react";
+import { fireEvent, render, within } from "@testing-library/react";
 import { createMachine } from "xstate";
 
 import { AuthStateId, createAuthenticationSystem } from "./auth-system";
@@ -21,6 +21,7 @@ import {
 	useAuthenticated,
 } from "./auth-system-hooks";
 
+import type { RenderResult } from "@testing-library/react";
 import type { ReactNode } from "react";
 import type { AuthEvent, AuthInterpreter } from "./auth-system";
 import { AuthProvider, useAuthProvider } from "./AuthSystemProvider";
@@ -48,7 +49,7 @@ function doSend(e: AuthEvent) {
 }
 
 /* ------------------------------------------------------------------------- *\
- * 2. SETUP
+ * 2. SEUP
 \* ------------------------------------------------------------------------- */
 
 const VALID_USERNAME = "validuser@example.com";
@@ -201,19 +202,19 @@ const AuthStageTestReporter = ({
 	isLoading: boolean;
 	stageId: AuthStateId;
 }) => (
-	<>
-		<p>Stage: {stageId}</p>
+	<header title={stageId}>
+		<p aria-label={stageId}>Stage: {stageId}</p>
 		<p>Active: {isActive.toString()}</p>
 		<p>Loading: {isLoading.toString()}</p>
 		<p>Error: {errorMsg || "n/a"}</p>
-	</>
+	</header>
 );
 
 const AuthOverallTestReporter = () => {
 	const { currentState, loginFlowType, deviceSecurityType } = useAuthProvider();
 
 	return (
-		<header>
+		<header role="banner">
 			<p>Current stage: {currentState}</p>
 			<p>Current login flow: {loginFlowType}</p>
 			<p>Current device security: {deviceSecurityType}</p>
@@ -368,9 +369,9 @@ function ForceChangePassword() {
 }
 
 function RequestNewPassword() {
-	const { error, isActive, isLoading, requestNewPassword } = useRequestingPasswordReset(
-		MockCb.requestNewPasswordCb
-	);
+	const { error, isActive, isLoading, requestNewPassword, validationErrors } =
+		useRequestingPasswordReset(MockCb.requestNewPasswordCb);
+	const [username, setUsername] = useState("");
 
 	return (
 		<section>
@@ -381,6 +382,13 @@ function RequestNewPassword() {
 				errorMsg={error}
 			/>
 			<Form submitCb={requestNewPassword}>
+				<Form.InputGroup
+					id="username"
+					label="Enter your Usename"
+					validationErrors={validationErrors["username"]}
+					value={username}
+					valueSetter={setUsername}
+				/>
 				<Form.Submit label="Request a new password" />
 			</Form>
 		</section>
@@ -573,13 +581,153 @@ describe("authentication test system using OTP and no device security", () => {
 
 	const machine = createMachine({
 		id: "otpNoPin",
-		initial: "checkingSession",
+		initial: "CheckingSession",
 		states: {
-			checkingSession: {},
+			CheckingSession: {
+				on: {
+					THERE_IS_A_SESSION: "Authenticated",
+					THERE_IS_NO_SESSION: "SubmittingUsername",
+				},
+				meta: {
+					test: async (screen: RenderResult) => {
+						// The overall reporter (prints machine context values to screen):
+						const authSystemReporter = screen.getByRole("banner");
+						expect(
+							within(authSystemReporter).getByText("Current stage: CheckingForSession")
+						).toBeDefined();
+						// NOTE: Only need to check these once, they should stay constant
+						//       throughout the test as they're read-only values:
+						expect(within(authSystemReporter).getByText("Current login flow: OTP")).toBeDefined();
+						expect(
+							within(authSystemReporter).getByText("Current device security: NONE")
+						).toBeDefined();
+
+						// The reporter for this stage (prints hook state values):
+						const stageReporter = screen.getByTitle("CheckingForSession");
+						expect(stageReporter).toBeDefined();
+						expect(within(stageReporter).getByText("Active: true")).toBeDefined();
+						expect(within(stageReporter).getByText("Error: n/a")).toBeDefined();
+					},
+				},
+			},
+			SubmittingUsername: {
+				on: {
+					GOOD_USERNAME: "SubmittingOtp1",
+					BAD_USERNAME: "UsernameError",
+				},
+				meta: {
+					test: async (screen: RenderResult) => {
+						// The overall reporter (prints machine context values to screen):
+						const authSystemReporter = screen.getByRole("banner");
+						expect(
+							within(authSystemReporter).getByText("Current stage: SubmittingOtpUsername")
+						).toBeDefined();
+
+						// The reporter for this stage (prints hook state values):
+						const stageReporter = screen.getByTitle("SubmittingOtpUsername");
+						expect(stageReporter).toBeDefined();
+						expect(within(stageReporter).getByText("Active: true")).toBeDefined();
+						expect(within(stageReporter).getByText("Error: n/a")).toBeDefined();
+					},
+				},
+			},
+			SubmittingUsernameAfterTooManyRetries: {
+				on: {
+					GOOD_USERNAME: "SubmittingOtp1",
+				},
+				meta: {
+					test: async (screen: RenderResult) => {
+						// The overall reporter (prints machine context values to screen):
+						const authSystemReporter = screen.getByRole("banner");
+						expect(
+							within(authSystemReporter).getByText("Current stage: SubmittingOtp")
+						).toBeDefined();
+
+						// The reporter for this stage (prints hook state values):
+						const stageReporter = screen.getByTitle("SubmittingOtp");
+						expect(stageReporter).toBeDefined();
+						expect(within(stageReporter).getByText("Active: true")).toBeDefined();
+						expect(within(stageReporter).getByText("Error: n/a")).toBeDefined();
+					},
+				},
+			},
+			UsernameError: {
+				on: {
+					GOOD_USERNAME: "SubmittingOtp1",
+				},
+				meta: {
+					test: async (service: RenderResult) => {
+						console.log(service);
+					},
+				},
+			},
+			SubmittingOtp1: {
+				on: {
+					GOOD_OTP: "Authenticated",
+					BAD_OTP_1: "SubmittingOtp2",
+					REENTER_USERNAME: "SubmittingUsername",
+				},
+				meta: {
+					test: async (service: RenderResult) => {
+						console.log(service);
+					},
+				},
+			},
+			SubmittingOtp2: {
+				on: {
+					BAD_OTP_2: "SubmittingOtp3",
+				},
+				meta: {
+					test: async (service: RenderResult) => {
+						console.log(service);
+					},
+				},
+			},
+			SubmittingOtp3: {
+				on: {
+					BAD_OTP_3: "SubmittingUsernameAfterTooManyRetries",
+				},
+				meta: {
+					test: async (service: RenderResult) => {
+						console.log(service);
+					},
+				},
+			},
+			Authenticated: {
+				on: {
+					CAN_I_LOG_OUT_PLEASE: "LoggingOut",
+				},
+				meta: {
+					test: async (service: RenderResult) => {
+						console.log(service);
+					},
+				},
+			},
+			LoggingOut: {
+				on: {
+					LOG_OUT_WORKED: "CheckingSession",
+					LOG_OUT_FAILED: "Authenticated",
+					ACTUALLY_NO_STAY_LOGGED_IN: "Authenticated",
+				},
+				meta: {
+					test: async (service: RenderResult) => {
+						console.log(service);
+					},
+				},
+			},
 		},
 	});
 
-	const model = createModel(machine).withEvents({});
+	const model = createModel<RenderResult>(machine).withEvents({
+		THERE_IS_A_SESSION: async (screen: RenderResult) => {
+			fireEvent.click(await screen.findByText("Check for a session"));
+		},
+		THERE_IS_NO_SESSION: async (screen: RenderResult) => {
+			MockCb.checkSessionCb.mockRejectedValueOnce(null);
+			fireEvent.click(await screen.findByText("Check for session"));
+			MockCb.checkSessionCb.mockReset();
+		},
+	});
 
 	const testPlans = model.getSimplePathPlans();
 
@@ -587,12 +735,12 @@ describe("authentication test system using OTP and no device security", () => {
 		describe(`authentication test system ${plan.description}`, () => {
 			plan.paths.forEach((path) => {
 				it(path.description, async () => {
-					const service = render(
+					const screen = render(
 						<AuthProvider authenticationSystem={subject}>
 							<TestApp />
 						</AuthProvider>
 					);
-					await path.test(service);
+					await path.test(screen);
 				});
 			});
 		});
