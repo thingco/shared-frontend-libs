@@ -44,7 +44,7 @@ type AuthenticatedStateId = Extract<
  * This gives performance benefits -- it means components using the hooks
  * will only rerender when a selector value changes, which is important
  * for React Native in particular.
- * 
+ *
  * See https://xstate.js.org/docs/recipes/react.html#global-state-react-context
 \* ========================================================================= */
 
@@ -108,7 +108,7 @@ type ContextSelectorMap<S = AuthState, C = AuthContext> = Record<keyof C, (state
 export const contextSelectors: ContextSelectorMap = {
 	error: (state) => state.context.error,
 	loginFlowType: (state) => state.context.loginFlowType,
-	deviceSecurityType: (state) => state.context.loginFlowType,
+	deviceSecurityType: (state) => state.context.deviceSecurityType,
 	user: (state) => state.context.user,
 	username: (state) => state.context.username,
 };

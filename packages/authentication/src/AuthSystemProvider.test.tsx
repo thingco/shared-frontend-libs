@@ -37,19 +37,8 @@ import { AuthProvider, useAuthProvider } from "./AuthSystemProvider";
  * 1. UTILITIES
 \* ------------------------------------------------------------------------- */
 
-/**
- * XState's `test` package requires defining a test model (System Under Test), then providing
- * a mapping of events in the SUT to events in the actual model. Make this less onerous, this
- * usitlity function just requires the actual event to be sent passed in:
- */
-function doSend(e: AuthEvent) {
-	return {
-		exec: ({ send }: AuthInterpreter) => send(e),
-	} as any;
-}
-
 /* ------------------------------------------------------------------------- *\
- * 2. SEUP
+ * 2. SETUP
 \* ------------------------------------------------------------------------- */
 
 const VALID_USERNAME = "validuser@example.com";
@@ -203,7 +192,7 @@ const AuthStageTestReporter = ({
 	stageId: AuthStateId;
 }) => (
 	<header title={stageId}>
-		<p aria-label={stageId}>Stage: {stageId}</p>
+		<p>Stage: {stageId}</p>
 		<p>Active: {isActive.toString()}</p>
 		<p>Loading: {isLoading.toString()}</p>
 		<p>Error: {errorMsg || "n/a"}</p>
@@ -214,7 +203,7 @@ const AuthOverallTestReporter = () => {
 	const { currentState, loginFlowType, deviceSecurityType } = useAuthProvider();
 
 	return (
-		<header role="banner">
+		<header title="Auth system reporter">
 			<p>Current stage: {currentState}</p>
 			<p>Current login flow: {loginFlowType}</p>
 			<p>Current device security: {deviceSecurityType}</p>
@@ -591,7 +580,7 @@ describe("authentication test system using OTP and no device security", () => {
 				meta: {
 					test: async (screen: RenderResult) => {
 						// The overall reporter (prints machine context values to screen):
-						const authSystemReporter = screen.getByRole("banner");
+						const authSystemReporter = screen.getByTitle("Auth system reporter");
 						expect(
 							within(authSystemReporter).getByText("Current stage: CheckingForSession")
 						).toBeDefined();
@@ -618,7 +607,7 @@ describe("authentication test system using OTP and no device security", () => {
 				meta: {
 					test: async (screen: RenderResult) => {
 						// The overall reporter (prints machine context values to screen):
-						const authSystemReporter = screen.getByRole("banner");
+						const authSystemReporter = screen.getByTitle("Auth system reporter");
 						expect(
 							within(authSystemReporter).getByText("Current stage: SubmittingOtpUsername")
 						).toBeDefined();
@@ -638,7 +627,51 @@ describe("authentication test system using OTP and no device security", () => {
 				meta: {
 					test: async (screen: RenderResult) => {
 						// The overall reporter (prints machine context values to screen):
-						const authSystemReporter = screen.getByRole("banner");
+						const authSystemReporter = screen.getByTitle("Auth system reporter");
+						expect(
+							within(authSystemReporter).getByText("Current stage: SubmittingOtpUsername")
+						).toBeDefined();
+
+						// The reporter for this stage (prints hook state values):
+						const stageReporter = screen.getByTitle("SubmittingOtpUsername");
+						expect(stageReporter).toBeDefined();
+						expect(within(stageReporter).getByText("Active: true")).toBeDefined();
+						expect(
+							within(stageReporter).getByText("Error: PASSWORD_RETRIES_EXCEEDED")
+						).toBeDefined();
+					},
+				},
+			},
+			UsernameError: {
+				on: {
+					GOOD_USERNAME: "SubmittingOtp1",
+				},
+				meta: {
+					test: async (screen: RenderResult) => {
+						// The overall reporter (prints machine context values to screen):
+						const authSystemReporter = screen.getByTitle("Auth system reporter");
+						expect(
+							within(authSystemReporter).getByText("Current stage: SubmittingOtpUsername")
+						).toBeDefined();
+
+						// The reporter for this stage (prints hook state values):
+						const stageReporter = screen.getByTitle("SubmittingOtpUsername");
+						expect(stageReporter).toBeDefined();
+						expect(within(stageReporter).getByText("Active: true")).toBeDefined();
+						expect(within(stageReporter).getByText("Error: INVALID_USERNAME")).toBeDefined();
+					},
+				},
+			},
+			SubmittingOtp1: {
+				on: {
+					GOOD_OTP: "Authenticated",
+					BAD_OTP_1: "SubmittingOtp2",
+					REENTER_USERNAME: "SubmittingUsername",
+				},
+				meta: {
+					test: async (screen: RenderResult) => {
+						// The overall reporter (prints machine context values to screen):
+						const authSystemReporter = screen.getByTitle("Auth system reporter");
 						expect(
 							within(authSystemReporter).getByText("Current stage: SubmittingOtp")
 						).toBeDefined();
@@ -651,35 +684,25 @@ describe("authentication test system using OTP and no device security", () => {
 					},
 				},
 			},
-			UsernameError: {
-				on: {
-					GOOD_USERNAME: "SubmittingOtp1",
-				},
-				meta: {
-					test: async (service: RenderResult) => {
-						console.log(service);
-					},
-				},
-			},
-			SubmittingOtp1: {
-				on: {
-					GOOD_OTP: "Authenticated",
-					BAD_OTP_1: "SubmittingOtp2",
-					REENTER_USERNAME: "SubmittingUsername",
-				},
-				meta: {
-					test: async (service: RenderResult) => {
-						console.log(service);
-					},
-				},
-			},
 			SubmittingOtp2: {
 				on: {
 					BAD_OTP_2: "SubmittingOtp3",
 				},
 				meta: {
-					test: async (service: RenderResult) => {
-						console.log(service);
+					test: async (screen: RenderResult) => {
+						// The overall reporter (prints machine context values to screen):
+						const authSystemReporter = screen.getByTitle("Auth system reporter");
+						expect(
+							within(authSystemReporter).getByText("Current stage: SubmittingOtp")
+						).toBeDefined();
+
+						// The reporter for this stage (prints hook state values):
+						const stageReporter = screen.getByTitle("SubmittingOtp");
+						expect(stageReporter).toBeDefined();
+						expect(within(stageReporter).getByText("Active: true")).toBeDefined();
+						expect(
+							within(stageReporter).getByText("Error: PASSWORD_INVALID_2_RETRIES_REMAINING")
+						).toBeDefined();
 					},
 				},
 			},
@@ -688,8 +711,20 @@ describe("authentication test system using OTP and no device security", () => {
 					BAD_OTP_3: "SubmittingUsernameAfterTooManyRetries",
 				},
 				meta: {
-					test: async (service: RenderResult) => {
-						console.log(service);
+					test: async (screen: RenderResult) => {
+						// The overall reporter (prints machine context values to screen):
+						const authSystemReporter = screen.getByTitle("Auth system reporter");
+						expect(
+							within(authSystemReporter).getByText("Current stage: SubmittingOtp")
+						).toBeDefined();
+
+						// The reporter for this stage (prints hook state values):
+						const stageReporter = screen.getByTitle("SubmittingOtp");
+						expect(stageReporter).toBeDefined();
+						expect(within(stageReporter).getByText("Active: true")).toBeDefined();
+						expect(
+							within(stageReporter).getByText("Error: PASSWORD_INVALID_1_RETRIES_REMAINING")
+						).toBeDefined();
 					},
 				},
 			},
@@ -727,6 +762,36 @@ describe("authentication test system using OTP and no device security", () => {
 			fireEvent.click(await screen.findByText("Check for session"));
 			MockCb.checkSessionCb.mockReset();
 		},
+		GOOD_USERNAME: async (screen) => {
+			const usernameInput = await screen.findByLabelText("Enter your email");
+			fireEvent.change(usernameInput, { target: { value: VALID_USERNAME } });
+			fireEvent.click(await screen.findByText("Submit username"));
+		},
+		BAD_USERNAME: async (screen) => {
+			const usernameInput = await screen.findByLabelText("Enter your email");
+			fireEvent.change(usernameInput, { target: { value: INVALID_USERNAME } });
+			fireEvent.click(await screen.findByText("Submit username"));
+		},
+		GOOD_OTP: async (screen) => {
+			const usernameInput = await screen.findByLabelText("Enter the OTP");
+			fireEvent.change(usernameInput, { target: { value: VALID_CODE } });
+			fireEvent.click(await screen.findByText("Submit OTP"));
+		},
+		BAD_OTP_1: async (screen) => {
+			const usernameInput = await screen.findByLabelText("Enter the OTP");
+			fireEvent.change(usernameInput, { target: { value: INVALID_CODE } });
+			fireEvent.click(await screen.findByText("Submit OTP"));
+		},
+		BAD_OTP_2: async (screen) => {
+			const usernameInput = await screen.findByLabelText("Enter the OTP");
+			fireEvent.change(usernameInput, { target: { value: ANOTHER_INVALID_CODE } });
+			fireEvent.click(await screen.findByText("Submit OTP"));
+		},
+		BAD_OTP_3: async (screen) => {
+			const usernameInput = await screen.findByLabelText("Enter the OTP");
+			fireEvent.change(usernameInput, { target: { value: INVALID_CODE } });
+			fireEvent.click(await screen.findByText("Submit OTP"));
+		},
 	});
 
 	const testPlans = model.getSimplePathPlans();
@@ -746,9 +811,9 @@ describe("authentication test system using OTP and no device security", () => {
 		});
 	});
 
-	//it("should have full coverage", () => {
-	//	return model.testCoverage();
-	//});
+	it("should have full coverage", () => {
+		return model.testCoverage();
+	});
 });
 
 describe("authentication test system using username and password and no device security", () => {
