@@ -67,6 +67,7 @@ export const stateSelectors: ExposedStateSelectorMap = {
 	isChangingPassword: (state) => state.matches(AuthStateId.ChangingPassword),
 	isRequestingPasswordReset: (state) => state.matches(AuthStateId.RequestingPasswordReset),
 	isSubmittingPasswordReset: (state) => state.matches(AuthStateId.SubmittingPasswordReset),
+  isPasswordChangedSuccess: (state) =>  state.matches(AuthStateId.PasswordChangedSuccess),
 	isCheckingForPin: (state) => state.matches(AuthStateId.CheckingForPin),
 	isSubmittingCurrentPin: (state) => state.matches(AuthStateId.SubmittingCurrentPin),
 	isSubmittingNewPin: (state) => state.matches(AuthStateId.SubmittingNewPin),
