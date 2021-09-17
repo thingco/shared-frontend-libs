@@ -28,6 +28,7 @@ export const App = () => (
 					<AuthStage.UsernamePasswordInput />
 					<AuthStage.ResetPasswordUsernameInput />
 					<AuthStage.ResetPasswordOtpPasswordInput />
+					<AuthStage.PasswordChangedSuccess />
 				</>
 			)}
 			<AuthStage.Authenticated />

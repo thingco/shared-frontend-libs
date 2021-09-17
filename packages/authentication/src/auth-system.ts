@@ -330,7 +330,7 @@ export const machine = createMachine<
 		[AuthStateId.SubmittingPasswordReset]: {
 			on: {
 				PASSWORD_RESET_SUCCESS: {
-					target: AuthStateId.INTERNAL__deviceSecurityCheck,
+					target: AuthStateId.PasswordChangedSuccess,
 					actions: ["clearError"],
 				},
 				// TODO will get stuck here, need to figure out how best to handle this:
@@ -343,7 +343,7 @@ export const machine = createMachine<
 		[AuthStateId.ChangingPassword]: {
 			on: {
 				PASSWORD_CHANGE_SUCCESS: {
-					target: AuthStateId.Authenticated,
+					target: AuthStateId.PasswordChangedSuccess,
 					actions: ["clearError"],
 				},
 				// TODO will get stuck here, need to figure out how best to handle this:
