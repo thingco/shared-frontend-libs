@@ -37,19 +37,8 @@ import { AuthProvider, useAuthProvider } from "./AuthSystemProvider";
  * 1. UTILITIES
 \* ------------------------------------------------------------------------- */
 
-/**
- * XState's `test` package requires defining a test model (System Under Test), then providing
- * a mapping of events in the SUT to events in the actual model. Make this less onerous, this
- * usitlity function just requires the actual event to be sent passed in:
- */
-function doSend(e: AuthEvent) {
-	return {
-		exec: ({ send }: AuthInterpreter) => send(e),
-	} as any;
-}
-
 /* ------------------------------------------------------------------------- *\
- * 2. SEUP
+ * 2. SETUP
 \* ------------------------------------------------------------------------- */
 
 const VALID_USERNAME = "validuser@example.com";
@@ -193,18 +182,15 @@ Form.Submit = FormSubmit;
 
 const AuthStageTestReporter = ({
 	errorMsg = "",
-	isActive,
 	isLoading,
 	stageId,
 }: {
 	errorMsg: string;
-	isActive: boolean;
 	isLoading: boolean;
 	stageId: AuthStateId;
 }) => (
 	<header title={stageId}>
-		<p aria-label={stageId}>Stage: {stageId}</p>
-		<p>Active: {isActive.toString()}</p>
+		<p>Stage: {stageId}</p>
 		<p>Loading: {isLoading.toString()}</p>
 		<p>Error: {errorMsg || "n/a"}</p>
 	</header>
@@ -214,7 +200,7 @@ const AuthOverallTestReporter = () => {
 	const { currentState, loginFlowType, deviceSecurityType } = useAuthProvider();
 
 	return (
-		<header role="banner">
+		<header title="Auth system reporter">
 			<p>Current stage: {currentState}</p>
 			<p>Current login flow: {loginFlowType}</p>
 			<p>Current device security: {deviceSecurityType}</p>
@@ -229,11 +215,10 @@ const AuthOverallTestReporter = () => {
 function CheckingForSession() {
 	const { error, isLoading, isActive, checkSession } = useCheckingForSession(MockCb.checkSessionCb);
 
-	return (
+	return isActive ? (
 		<section>
 			<AuthStageTestReporter
 				stageId={AuthStateId.CheckingForSession}
-				isActive={isActive}
 				isLoading={isLoading}
 				errorMsg={error}
 			/>
@@ -241,7 +226,7 @@ function CheckingForSession() {
 				<Form.Submit label="Check for a session" />
 			</Form>
 		</section>
-	);
+	) : null;
 }
 
 function OtpUsername() {
@@ -249,11 +234,10 @@ function OtpUsername() {
 		useSubmittingOtpUsername(MockCb.validateOtpUsernameCb);
 	const [email, setEmail] = useState("");
 
-	return (
+	return isActive ? (
 		<section>
 			<AuthStageTestReporter
 				stageId={AuthStateId.SubmittingOtpUsername}
-				isActive={isActive}
 				isLoading={isLoading}
 				errorMsg={error}
 			/>
@@ -268,7 +252,7 @@ function OtpUsername() {
 				<Form.Submit label="Submit username" />
 			</Form>
 		</section>
-	);
+	) : null;
 }
 
 function Otp() {
@@ -277,11 +261,10 @@ function Otp() {
 	);
 	const [password, setPassword] = useState("");
 
-	return (
+	return isActive ? (
 		<section>
 			<AuthStageTestReporter
 				stageId={AuthStateId.SubmittingOtp}
-				isActive={isActive}
 				isLoading={isLoading}
 				errorMsg={error}
 			/>
@@ -296,7 +279,7 @@ function Otp() {
 				<Form.Submit label="Submit OTP" />
 			</Form>
 		</section>
-	);
+	) : null;
 }
 
 function UsernameAndPassword() {
@@ -311,11 +294,10 @@ function UsernameAndPassword() {
 	const [username, setUsername] = useState("");
 	const [password, setPassword] = useState("");
 
-	return (
+	return isActive ? (
 		<section>
 			<AuthStageTestReporter
 				stageId={AuthStateId.SubmittingUsernameAndPassword}
-				isActive={isActive}
 				isLoading={isLoading}
 				errorMsg={error}
 			/>
@@ -338,7 +320,7 @@ function UsernameAndPassword() {
 				<Form.SecondaryAction actionCallback={forgottenPassword} label="Forgotten password" />
 			</Form>
 		</section>
-	);
+	) : null;
 }
 
 function ForceChangePassword() {
@@ -346,11 +328,10 @@ function ForceChangePassword() {
 		useSubmittingForceChangePassword(MockCb.validateForceChangePasswordCb);
 	const [password, setPassword] = useState("");
 
-	return (
+	return isActive ? (
 		<section>
 			<AuthStageTestReporter
 				stageId={AuthStateId.SubmittingForceChangePassword}
-				isActive={isActive}
 				isLoading={isLoading}
 				errorMsg={error}
 			/>
@@ -365,7 +346,7 @@ function ForceChangePassword() {
 				<Form.Submit label="Submit new password" />
 			</Form>
 		</section>
-	);
+	) : null;
 }
 
 function RequestNewPassword() {
@@ -373,11 +354,10 @@ function RequestNewPassword() {
 		useRequestingPasswordReset(MockCb.requestNewPasswordCb);
 	const [username, setUsername] = useState("");
 
-	return (
+	return isActive ? (
 		<section>
 			<AuthStageTestReporter
 				stageId={AuthStateId.RequestingPasswordReset}
-				isActive={isActive}
 				isLoading={isLoading}
 				errorMsg={error}
 			/>
@@ -392,7 +372,7 @@ function RequestNewPassword() {
 				<Form.Submit label="Request a new password" />
 			</Form>
 		</section>
-	);
+	) : null;
 }
 
 function NewPassword() {
@@ -402,11 +382,10 @@ function NewPassword() {
 	const [code, setCode] = useState("");
 	const [newPassword, setNewPassword] = useState("");
 
-	return (
+	return isActive ? (
 		<section>
 			<AuthStageTestReporter
 				stageId={AuthStateId.SubmittingPasswordReset}
-				isActive={isActive}
 				isLoading={isLoading}
 				errorMsg={error}
 			/>
@@ -428,7 +407,7 @@ function NewPassword() {
 				<Form.Submit label="Submit reset code and new password" />
 			</Form>
 		</section>
-	);
+	) : null;
 }
 
 function CheckForPin() {
@@ -436,11 +415,10 @@ function CheckForPin() {
 		MockCb.checkForExistingPinCb
 	);
 
-	return (
+	return isActive ? (
 		<section>
 			<AuthStageTestReporter
 				stageId={AuthStateId.CheckingForPin}
-				isActive={isActive}
 				isLoading={isLoading}
 				errorMsg={error}
 			/>
@@ -448,7 +426,7 @@ function CheckForPin() {
 				<Form.Submit label="Check for an existing PIN" />
 			</Form>
 		</section>
-	);
+	) : null;
 }
 
 function Pin() {
@@ -456,11 +434,10 @@ function Pin() {
 		useSubmittingCurrentPin(MockCb.validatePinCb);
 	const [pin, setPin] = useState("");
 
-	return (
+	return isActive ? (
 		<section>
 			<AuthStageTestReporter
 				stageId={AuthStateId.SubmittingCurrentPin}
-				isActive={isActive}
 				isLoading={isLoading}
 				errorMsg={error}
 			/>
@@ -476,17 +453,16 @@ function Pin() {
 				<Form.SecondaryAction label="Forgot PIN" actionCallback={requestPinReset} />
 			</Form>
 		</section>
-	);
+	) : null;
 }
 
 function ResetPin() {
 	const { error, isActive, isLoading, resetPin } = useResettingPin(MockCb.logOutCb);
 
-	return (
+	return isActive ? (
 		<section>
 			<AuthStageTestReporter
 				stageId={AuthStateId.ResettingPin}
-				isActive={isActive}
 				isLoading={isLoading}
 				errorMsg={error}
 			/>
@@ -494,7 +470,7 @@ function ResetPin() {
 				<Form.Submit label="Reset PIN" />
 			</Form>
 		</section>
-	);
+	) : null;
 }
 
 function NewPin() {
@@ -503,11 +479,10 @@ function NewPin() {
 	);
 	const [pin, setPin] = useState("");
 
-	return (
+	return isActive ? (
 		<section>
 			<AuthStageTestReporter
 				stageId={AuthStateId.SubmittingNewPin}
-				isActive={isActive}
 				isLoading={isLoading}
 				errorMsg={error}
 			/>
@@ -522,25 +497,20 @@ function NewPin() {
 				<Form.Submit label="Submit PIN" />
 			</Form>
 		</section>
-	);
+	) : null;
 }
 
 function Authenticated() {
 	const { isActive, requestLogOut, requestPasswordChange, requestPinChange } = useAuthenticated();
 
-	return (
+	return isActive ? (
 		<section>
-			<AuthStageTestReporter
-				stageId={AuthStateId.Authenticated}
-				errorMsg=""
-				isActive={isActive}
-				isLoading={false}
-			/>
+			<AuthStageTestReporter stageId={AuthStateId.Authenticated} errorMsg="" isLoading={false} />
 			<Form.SecondaryAction actionCallback={requestLogOut} label="Log out" />
 			<Form.SecondaryAction actionCallback={requestPinChange} label="Change PIN" />
 			<Form.SecondaryAction actionCallback={requestPasswordChange} label="Change password" />
 		</section>
-	);
+	) : null;
 }
 
 function LogOut() {}
@@ -591,7 +561,7 @@ describe("authentication test system using OTP and no device security", () => {
 				meta: {
 					test: async (screen: RenderResult) => {
 						// The overall reporter (prints machine context values to screen):
-						const authSystemReporter = screen.getByRole("banner");
+						const authSystemReporter = await screen.getByTitle("Auth system reporter");
 						expect(
 							within(authSystemReporter).getByText("Current stage: CheckingForSession")
 						).toBeDefined();
@@ -603,10 +573,9 @@ describe("authentication test system using OTP and no device security", () => {
 						).toBeDefined();
 
 						// The reporter for this stage (prints hook state values):
-						const stageReporter = screen.getByTitle("CheckingForSession");
+						const stageReporter = await screen.getByTitle("CheckingForSession");
 						expect(stageReporter).toBeDefined();
-						expect(within(stageReporter).getByText("Active: true")).toBeDefined();
-						expect(within(stageReporter).getByText("Error: n/a")).toBeDefined();
+						expect(within(stageReporter).getByText(/Error: n\/a/)).toBeDefined();
 					},
 				},
 			},
@@ -618,15 +587,15 @@ describe("authentication test system using OTP and no device security", () => {
 				meta: {
 					test: async (screen: RenderResult) => {
 						// The overall reporter (prints machine context values to screen):
-						const authSystemReporter = screen.getByRole("banner");
+						const authSystemReporter = await screen.getByTitle("Auth system reporter");
 						expect(
 							within(authSystemReporter).getByText("Current stage: SubmittingOtpUsername")
 						).toBeDefined();
 
 						// The reporter for this stage (prints hook state values):
-						const stageReporter = screen.getByTitle("SubmittingOtpUsername");
+						const stageReporter = await screen.getByTitle("SubmittingOtpUsername");
 						expect(stageReporter).toBeDefined();
-						expect(within(stageReporter).getByText("Active: true")).toBeDefined();
+
 						expect(within(stageReporter).getByText("Error: n/a")).toBeDefined();
 					},
 				},
@@ -638,16 +607,18 @@ describe("authentication test system using OTP and no device security", () => {
 				meta: {
 					test: async (screen: RenderResult) => {
 						// The overall reporter (prints machine context values to screen):
-						const authSystemReporter = screen.getByRole("banner");
+						const authSystemReporter = await screen.getByTitle("Auth system reporter");
 						expect(
-							within(authSystemReporter).getByText("Current stage: SubmittingOtp")
+							within(authSystemReporter).getByText("Current stage: SubmittingOtpUsername")
 						).toBeDefined();
 
 						// The reporter for this stage (prints hook state values):
-						const stageReporter = screen.getByTitle("SubmittingOtp");
+						const stageReporter = await screen.getByTitle("SubmittingOtpUsername");
 						expect(stageReporter).toBeDefined();
-						expect(within(stageReporter).getByText("Active: true")).toBeDefined();
-						expect(within(stageReporter).getByText("Error: n/a")).toBeDefined();
+
+						expect(
+							within(stageReporter).getByText("Error: PASSWORD_RETRIES_EXCEEDED")
+						).toBeDefined();
 					},
 				},
 			},
@@ -656,8 +627,18 @@ describe("authentication test system using OTP and no device security", () => {
 					GOOD_USERNAME: "SubmittingOtp1",
 				},
 				meta: {
-					test: async (service: RenderResult) => {
-						console.log(service);
+					test: async (screen: RenderResult) => {
+						// The overall reporter (prints machine context values to screen):
+						const authSystemReporter = await screen.getByTitle("Auth system reporter");
+						expect(
+							within(authSystemReporter).getByText("Current stage: SubmittingOtpUsername")
+						).toBeDefined();
+
+						// The reporter for this stage (prints hook state values):
+						const stageReporter = await screen.getByTitle("SubmittingOtpUsername");
+						expect(stageReporter).toBeDefined();
+
+						expect(within(stageReporter).getByText("Error: USERNAME_INVALID")).toBeDefined();
 					},
 				},
 			},
@@ -668,8 +649,18 @@ describe("authentication test system using OTP and no device security", () => {
 					REENTER_USERNAME: "SubmittingUsername",
 				},
 				meta: {
-					test: async (service: RenderResult) => {
-						console.log(service);
+					test: async (screen: RenderResult) => {
+						// The overall reporter (prints machine context values to screen):
+						const authSystemReporter = await screen.getByTitle("Auth system reporter");
+						expect(
+							within(authSystemReporter).getByText("Current stage: SubmittingOtp")
+						).toBeDefined();
+
+						// The reporter for this stage (prints hook state values):
+						const stageReporter = await screen.getByTitle("SubmittingOtp");
+						expect(stageReporter).toBeDefined();
+
+						expect(within(stageReporter).getByText("Error: n/a")).toBeDefined();
 					},
 				},
 			},
@@ -678,8 +669,20 @@ describe("authentication test system using OTP and no device security", () => {
 					BAD_OTP_2: "SubmittingOtp3",
 				},
 				meta: {
-					test: async (service: RenderResult) => {
-						console.log(service);
+					test: async (screen: RenderResult) => {
+						// The overall reporter (prints machine context values to screen):
+						const authSystemReporter = await screen.getByTitle("Auth system reporter");
+						expect(
+							within(authSystemReporter).getByText("Current stage: SubmittingOtp")
+						).toBeDefined();
+
+						// The reporter for this stage (prints hook state values):
+						const stageReporter = await screen.getByTitle("SubmittingOtp");
+						expect(stageReporter).toBeDefined();
+
+						expect(
+							within(stageReporter).getByText("Error: PASSWORD_INVALID_2_RETRIES_REMAINING")
+						).toBeDefined();
 					},
 				},
 			},
@@ -688,8 +691,20 @@ describe("authentication test system using OTP and no device security", () => {
 					BAD_OTP_3: "SubmittingUsernameAfterTooManyRetries",
 				},
 				meta: {
-					test: async (service: RenderResult) => {
-						console.log(service);
+					test: async (screen: RenderResult) => {
+						// The overall reporter (prints machine context values to screen):
+						const authSystemReporter = await screen.getByTitle("Auth system reporter");
+						expect(
+							within(authSystemReporter).getByText("Current stage: SubmittingOtp")
+						).toBeDefined();
+
+						// The reporter for this stage (prints hook state values):
+						const stageReporter = await screen.getByTitle("SubmittingOtp");
+						expect(stageReporter).toBeDefined();
+
+						expect(
+							within(stageReporter).getByText("Error: PASSWORD_INVALID_1_RETRIES_REMAINING")
+						).toBeDefined();
 					},
 				},
 			},
@@ -698,8 +713,18 @@ describe("authentication test system using OTP and no device security", () => {
 					CAN_I_LOG_OUT_PLEASE: "LoggingOut",
 				},
 				meta: {
-					test: async (service: RenderResult) => {
-						console.log(service);
+					test: async (screen: RenderResult) => {
+						// The overall reporter (prints machine context values to screen):
+						const authSystemReporter = await screen.getByTitle(/Auth system reporter/);
+						expect(
+							within(authSystemReporter).getByText(/Current stage: Authenticated/)
+						).toBeDefined();
+
+						// The reporter for this stage (prints hook state values):
+						const stageReporter = await screen.getByTitle(/Authenticated/);
+						expect(stageReporter).toBeDefined();
+
+						expect(within(stageReporter).getByText(/Error: n\/a/)).toBeDefined();
 					},
 				},
 			},
@@ -711,7 +736,7 @@ describe("authentication test system using OTP and no device security", () => {
 				},
 				meta: {
 					test: async (service: RenderResult) => {
-						console.log(service);
+						console.log("TODO: Authenticated state");
 					},
 				},
 			},
@@ -724,8 +749,38 @@ describe("authentication test system using OTP and no device security", () => {
 		},
 		THERE_IS_NO_SESSION: async (screen: RenderResult) => {
 			MockCb.checkSessionCb.mockRejectedValueOnce(null);
-			fireEvent.click(await screen.findByText("Check for session"));
+			fireEvent.click(await screen.findByText("Check for a session"));
 			MockCb.checkSessionCb.mockReset();
+		},
+		GOOD_USERNAME: async (screen) => {
+			const usernameInput = await screen.findByLabelText("Enter your email");
+			fireEvent.change(usernameInput, { target: { value: VALID_USERNAME } });
+			fireEvent.click(await screen.findByText("Submit username"));
+		},
+		BAD_USERNAME: async (screen) => {
+			const usernameInput = await screen.findByLabelText("Enter your email");
+			fireEvent.change(usernameInput, { target: { value: INVALID_USERNAME } });
+			fireEvent.click(await screen.findByText("Submit username"));
+		},
+		GOOD_OTP: async (screen) => {
+			const usernameInput = await screen.findByLabelText("Enter the OTP");
+			fireEvent.change(usernameInput, { target: { value: VALID_CODE } });
+			fireEvent.click(await screen.findByText("Submit OTP"));
+		},
+		BAD_OTP_1: async (screen) => {
+			const usernameInput = await screen.findByLabelText("Enter the OTP");
+			fireEvent.change(usernameInput, { target: { value: INVALID_CODE } });
+			fireEvent.click(await screen.findByText("Submit OTP"));
+		},
+		BAD_OTP_2: async (screen) => {
+			const usernameInput = await screen.findByLabelText("Enter the OTP");
+			fireEvent.change(usernameInput, { target: { value: ANOTHER_INVALID_CODE } });
+			fireEvent.click(await screen.findByText("Submit OTP"));
+		},
+		BAD_OTP_3: async (screen) => {
+			const usernameInput = await screen.findByLabelText("Enter the OTP");
+			fireEvent.change(usernameInput, { target: { value: INVALID_CODE } });
+			fireEvent.click(await screen.findByText("Submit OTP"));
 		},
 	});
 
@@ -746,9 +801,9 @@ describe("authentication test system using OTP and no device security", () => {
 		});
 	});
 
-	//it("should have full coverage", () => {
-	//	return model.testCoverage();
-	//});
+	it("should have full coverage", () => {
+		return model.testCoverage();
+	});
 });
 
 describe("authentication test system using username and password and no device security", () => {

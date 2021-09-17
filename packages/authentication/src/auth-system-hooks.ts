@@ -14,7 +14,7 @@ import {
 import type * as AuthCb from "./auth-system-hook-callbacks";
 
 /* ========================================================================= *\
- * 
+ *
  * 1. INPUT VALIDATION
  * 2. AUTH STAGE HOOKS
  * 3. AUTHORISED HOOKS
@@ -446,7 +446,7 @@ export function useSubmittingPasswordReset(
 				}
 			}
 		},
-		[authenticator, isActive]
+		[authenticator, isActive, username]
 	);
 
 	return {
@@ -662,11 +662,11 @@ export function useSubmittingNewPin(
  *
  * These hooks cover all stages of the authentication process where a user
  * **is** Authenticated (or, in the case of `isAuthenticated`, one or the other).
- * 
+ *
  * Bar the core `isAuthenticated` hook, these still follow the common pattern,
  * with a callback of a specified shape which is then executed by the hook, allowing
  * us to specify exactly when events will be sent into the FSM system.
- * 
+ *
  * However, withing the application, these are likely to be tied into the
  * navigation far more than the auth stage hooks.
 \* ========================================================================= */

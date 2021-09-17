@@ -5,13 +5,19 @@ import ReactDOM from "react-dom";
 
 import { App } from "./App";
 
+// Auth.configure({
+// 	region: "eu-west-1",
+// 	userPoolId: "eu-west-1_ALKzWpcBv",
+// 	userPoolWebClientId: "141rcrvnpc2vktj9mbjrmok0l4",
+// 	authenticationFlowType: "CUSTOM_AUTH",
+// });
+
 Auth.configure({
 	region: "eu-west-1",
 	userPoolId: "eu-west-1_ALKzWpcBv",
-	userPoolWebClientId: "141rcrvnpc2vktj9mbjrmok0l4",
-	authenticationFlowType: "CUSTOM_AUTH",
+	userPoolWebClientId: "6puatgps30nq9rf1f3aqoo84t5",
+	authenticationFlowType: "USER_PASSWORD_AUTH",
 });
-
 console.log(Auth.configure());
 
 inspect({
