@@ -1,3 +1,7 @@
+import { Dimensions } from "react-native";
+
+const width = Dimensions.get("window").width;
+
 export const colours = {
 	appBackground: "#003d52",
 	background: "#f5f6fa",
@@ -43,44 +47,44 @@ export type ThemeColour = Partial<typeof colours>;
 
 export const fontSizes = {
 	xxxsmall: {
-		fontSize: 8,
-		lineHeight: 12,
+		fontSize: width / 51.75,
+		lineHeight: width / 34.5,
 	},
 	xxsmall: {
-		fontSize: 10,
-		lineHeight: 12,
+		fontSize: width / 41.4,
+		lineHeight: width / 34.5,
 	},
 	xsmall: {
-		fontSize: 12,
-		lineHeight: 15,
+		fontSize: width / 34.5,
+		lineHeight: width / 27.5,
 	},
 	small: {
-		fontSize: 14,
-		lineHeight: 17,
+		fontSize: width / 29.5,
+		lineHeight: width / 24.35,
 	},
 	base: {
-		fontSize: 16,
-		lineHeight: 20,
+		fontSize: width / 25.875,
+		lineHeight: width / 20.7,
 	},
 	large: {
-		fontSize: 18,
-		lineHeight: 22,
+		fontSize: width / 23,
+		lineHeight: width / 18.8,
 	},
 	xlarge: {
-		fontSize: 20,
-		lineHeight: 25,
+		fontSize: width / 20.7,
+		lineHeight: width / 16.56,
 	},
 	xxlarge: {
-		fontSize: 22,
-		lineHeight: 27,
+		fontSize: width / 18.8,
+		lineHeight: width / 15.33,
 	},
 	xxxlarge: {
-		fontSize: 25,
-		lineHeight: 30,
+		fontSize: width / 16.56,
+		lineHeight: width / 13.8,
 	},
 	huge: {
-		fontSize: 28,
-		lineHeight: 35,
+		fontSize: width / 14.8,
+		lineHeight: width / 11.8,
 	},
 };
 
