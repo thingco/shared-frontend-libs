@@ -67,7 +67,7 @@ export const fontSizes = {
 		lineHeight: width / 20.7,
 	},
 	large: {
-		fontSize: width / 23,
+		fontSize: (width / 23) * 2,
 		lineHeight: width / 18.8,
 	},
 	xlarge: {
