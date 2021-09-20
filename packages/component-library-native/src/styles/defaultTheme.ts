@@ -47,44 +47,44 @@ export type ThemeColour = Partial<typeof colours>;
 
 export const fontSizes = {
 	xxxsmall: {
-		fontSize: width / 51.75,
-		lineHeight: width / 34.5,
+		fontSize: width / 50,
+		lineHeight: width / 40,
 	},
 	xxsmall: {
-		fontSize: width / 41.4,
-		lineHeight: width / 34.5,
+		fontSize: width / 40,
+		lineHeight: width / 32,
 	},
 	xsmall: {
-		fontSize: width / 34.5,
-		lineHeight: width / 27.5,
+		fontSize: width / 32,
+		lineHeight: width / 25.6,
 	},
 	small: {
-		fontSize: width / 29.5,
-		lineHeight: width / 24.35,
+		fontSize: width / 28,
+		lineHeight: width / 22.4,
 	},
 	base: {
-		fontSize: width / 25.875,
-		lineHeight: width / 20.7,
+		fontSize: width / 25,
+		lineHeight: width / 20,
 	},
 	large: {
-		fontSize: (width / 23) * 2,
-		lineHeight: width / 18.8,
+		fontSize: width / 22.5,
+		lineHeight: width / 18,
 	},
 	xlarge: {
-		fontSize: width / 20.7,
-		lineHeight: width / 16.56,
+		fontSize: width / 20,
+		lineHeight: width / 16,
 	},
 	xxlarge: {
-		fontSize: width / 18.8,
-		lineHeight: width / 15.33,
+		fontSize: width / 18,
+		lineHeight: width / 14.4,
 	},
 	xxxlarge: {
-		fontSize: width / 16.56,
-		lineHeight: width / 13.8,
+		fontSize: width / 16.5,
+		lineHeight: width / 13.2,
 	},
 	huge: {
-		fontSize: width / 14.8,
-		lineHeight: width / 11.8,
+		fontSize: width / 15,
+		lineHeight: width / 12,
 	},
 };
 
