@@ -450,12 +450,27 @@ export function useSubmittingPasswordReset(
 		[authenticator, isActive, username]
 	);
 
+	const cancelPasswordReset = () => authenticator.send({ type: "GO_BACK" });
+
 	return {
 		error,
 		isActive,
 		isLoading,
+		cancelPasswordReset,
 		submitNewPassword,
 		validationErrors,
+	};
+}
+
+export function usePasswordResetSuccess() {
+	const authenticator = useAuthInterpreter();
+	const isActive = useSelector(authenticator, stateSelectors.isPasswordResetSuccess);
+
+	const confirmPasswordReset = () => authenticator.send({ type: "CONFIRM_PASSWORD_RESET" });
+
+	return {
+		isActive,
+		confirmPasswordReset,
 	};
 }
 
@@ -463,13 +478,11 @@ export function usePasswordChangedSuccess() {
 	const authenticator = useAuthInterpreter();
 	const isActive = useSelector(authenticator, stateSelectors.isPasswordChangedSuccess);
 
-	const confirmPasswordReset = () => authenticator.send({ type: "CONFIRM_PASSWORD_RESET" });
 	const confirmPasswordChanged = () => authenticator.send({ type: "CONFIRM_PASSWORD_CHANGE" });
 
 	return {
 		isActive,
 		confirmPasswordChanged,
-		confirmPasswordReset,
 	};
 }
 

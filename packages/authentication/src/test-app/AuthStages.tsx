@@ -173,8 +173,8 @@ export const ResetPasswordOtpPasswordInput = () => {
 	);
 };
 
-export const PasswordChangedSuccess = () => {
-	const { isActive, confirmPasswordReset } = AuthStage.usePasswordChangedSuccess();
+export const PasswordResetSuccess = () => {
+	const { isActive, confirmPasswordReset } = AuthStage.usePasswordResetSuccess();
 
 	return (
 		<section className={classnames("auth-stage", { "auth-stage--active": isActive })}>
