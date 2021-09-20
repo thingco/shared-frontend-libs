@@ -34,6 +34,7 @@ type AuthenticatedStateId = Extract<
 	| AuthStateId.ChangingPassword
 	| AuthStateId.ValidatingPin
 	| AuthStateId.ChangingPin
+	| AuthStateId.PasswordChangedSuccess
 >;
 
 /* ========================================================================= *\
@@ -67,6 +68,7 @@ export const stateSelectors: ExposedStateSelectorMap = {
 	isChangingPassword: (state) => state.matches(AuthStateId.ChangingPassword),
 	isRequestingPasswordReset: (state) => state.matches(AuthStateId.RequestingPasswordReset),
 	isSubmittingPasswordReset: (state) => state.matches(AuthStateId.SubmittingPasswordReset),
+  isPasswordResetSuccess: (state) =>  state.matches(AuthStateId.PasswordResetSuccess),
   isPasswordChangedSuccess: (state) =>  state.matches(AuthStateId.PasswordChangedSuccess),
 	isCheckingForPin: (state) => state.matches(AuthStateId.CheckingForPin),
 	isSubmittingCurrentPin: (state) => state.matches(AuthStateId.SubmittingCurrentPin),
@@ -85,7 +87,8 @@ export const isInStateAccessibleWhileAuthenticated = (state: AuthState): boolean
 		state.matches<AuthenticatedStateId>(AuthStateId.ValidatingPin) ||
 		state.matches<AuthenticatedStateId>(AuthStateId.ChangingPin) ||
 		state.matches<AuthenticatedStateId>(AuthStateId.ChangingPassword) ||
-		state.matches<AuthenticatedStateId>(AuthStateId.LoggingOut)
+		state.matches<AuthenticatedStateId>(AuthStateId.LoggingOut) ||
+		state.matches<AuthenticatedStateId>(AuthStateId.PasswordChangedSuccess)
 	);
 };
 

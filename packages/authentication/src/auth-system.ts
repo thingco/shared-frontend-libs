@@ -59,6 +59,7 @@ export enum AuthStateId {
 	LoggingOut = "LoggingOut",
 	Authenticated = "Authenticated",
 	PasswordChangedSuccess = "PasswordChangedSuccess",
+	PasswordResetSuccess = "PasswordResetSuccess",
 }
 
 /**
@@ -148,6 +149,7 @@ type InternalAuthTypeState =
 	| { value: AuthStateId.RequestingPasswordReset; context: InternalAuthContext }
 	| { value: AuthStateId.SubmittingPasswordReset; context: InternalAuthContext & { username: string } }
   | { value: AuthStateId.PasswordChangedSuccess; context: InternalAuthContext }
+  | { value: AuthStateId.PasswordResetSuccess; context: InternalAuthContext & { username: string } }
 	| { value: AuthStateId.CheckingForPin; context: InternalAuthContext & { username?: string } }
 	| { value: AuthStateId.SubmittingCurrentPin; context: InternalAuthContext & { username?: string } }
 	| { value: AuthStateId.ResettingPin; context: InternalAuthContext }
@@ -330,7 +332,7 @@ export const machine = createMachine<
 		[AuthStateId.SubmittingPasswordReset]: {
 			on: {
 				PASSWORD_RESET_SUCCESS: {
-					target: AuthStateId.PasswordChangedSuccess,
+					target: AuthStateId.PasswordResetSuccess,
 					actions: ["clearError"],
 				},
 				// TODO will get stuck here, need to figure out how best to handle this:
@@ -354,12 +356,16 @@ export const machine = createMachine<
 				CANCEL_PASSWORD_CHANGE: AuthStateId.Authenticated,
 			}
 		},
-    [AuthStateId.PasswordChangedSuccess]: {
+    [AuthStateId.PasswordResetSuccess]: {
 			on: {
 				CONFIRM_PASSWORD_RESET: {
           target: AuthStateId.SubmittingUsernameAndPassword,
           actions: ["clearUsername"],
         },
+			}
+		},
+    [AuthStateId.PasswordChangedSuccess]: {
+			on: {
 				CONFIRM_PASSWORD_CHANGE: AuthStateId.Authenticated,
 			}
 		},
