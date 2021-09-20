@@ -77,13 +77,13 @@ export function useCheckingForSession(cb: AuthCb.CheckSessionCb) {
 			const res = await cb();
 			logger.info("Session present");
 			logger.log(res);
+			setIsLoading(false);
 			authenticator.send({ type: "SESSION_PRESENT" });
 		} catch (err) {
 			logger.info("No session present");
 			logger.warn(err);
-			authenticator.send({ type: "SESSION_NOT_PRESENT" });
-		} finally {
 			setIsLoading(false);
+			authenticator.send({ type: "SESSION_NOT_PRESENT" });
 		}
 	}, [authenticator, error, isActive, isLoading]);
 
@@ -126,13 +126,13 @@ export function useSubmittingOtpUsername<User = any>(
 					const user = await cb(username);
 					logger.log(user);
 					logger.info("OTP username valid");
+					setIsLoading(false);
 					authenticator.send({ type: "USERNAME_VALID", username, user });
 				} catch (err) {
 					logger.log(err);
 					logger.info("OTP username invalid");
-					authenticator.send({ type: "USERNAME_INVALID", error: "USERNAME_INVALID" });
-				} finally {
 					setIsLoading(false);
+					authenticator.send({ type: "USERNAME_INVALID", error: "USERNAME_INVALID" });
 				}
 			}
 		},
@@ -181,12 +181,14 @@ export function useSubmittingOtp<User = any>(
 				try {
 					const user = await cb(currentUserData, password);
 					logger.log(user);
+					setIsLoading(false);
 					authenticator.send({ type: "OTP_VALID" });
 				} catch (err) {
 					logger.log(err);
 					if (currentAttempts >= 3) {
 						logger.warn(err);
 						logger.info("OTP retries exceeded");
+						setIsLoading(false);
 						authenticator.send({
 							type: "OTP_INVALID_RETRIES_EXCEEDED",
 							error: "PASSWORD_RETRIES_EXCEEDED",
@@ -195,14 +197,13 @@ export function useSubmittingOtp<User = any>(
 					} else {
 						logger.warn(err);
 						logger.info(`OTP invalid, ${3 - currentAttempts} tries remaining`);
+						setIsLoading(false);
 						authenticator.send({
 							type: "OTP_INVALID",
 							error: `PASSWORD_INVALID_${3 - currentAttempts}_RETRIES_REMAINING`,
 						});
 						setAttemptsMade(currentAttempts);
 					}
-				} finally {
-					setIsLoading(false);
 				}
 			}
 		},
@@ -254,6 +255,7 @@ export function useSubmittingUsernameAndPassword<User = any>(
 				try {
 					const resp = await cb(username, password);
 					logger.log(resp);
+					setIsLoading(false);
 					if (Array.isArray(resp) && resp[0] === "NEW_PASSWORD_REQUIRED") {
 						authenticator.send({
 							type: "USERNAME_AND_PASSWORD_VALID_PASSWORD_CHANGE_REQUIRED",
@@ -266,13 +268,12 @@ export function useSubmittingUsernameAndPassword<User = any>(
 					}
 				} catch (err) {
 					logger.log(err);
+					setIsLoading(false);
 					// REVIEW check errors here to see if can tell if username or password are individually invalid:
 					authenticator.send({
 						type: "USERNAME_AND_PASSWORD_INVALID",
 						error: "USERNAME_AND_PASSWORD_INVALID",
 					});
-				} finally {
-					setIsLoading(false);
 				}
 			}
 		},
@@ -322,12 +323,12 @@ export function useSubmittingForceChangePassword<User = any>(
 				try {
 					const user = await cb(currentUserData, password);
 					logger.log(user);
+					setIsLoading(false);
 					authenticator.send({ type: "PASSWORD_CHANGE_SUCCESS" });
 				} catch (err) {
 					logger.log(err);
-					authenticator.send({ type: "PASSWORD_CHANGE_FAILURE", error: "PASSWORD_CHANGE_FAILURE" });
-				} finally {
 					setIsLoading(false);
+					authenticator.send({ type: "PASSWORD_CHANGE_FAILURE", error: "PASSWORD_CHANGE_FAILURE" });
 				}
 			}
 		},
@@ -377,15 +378,15 @@ export function useRequestingPasswordReset(
 				try {
 					const res = await cb(username);
 					logger.log(res);
+					setIsLoading(false);
 					authenticator.send({ type: "PASSWORD_RESET_REQUEST_SUCCESS", username });
 				} catch (err) {
 					logger.log(err);
+					setIsLoading(false);
 					authenticator.send({
 						type: "PASSWORD_RESET_REQUEST_FAILURE",
 						error: "PASSWORD_RESET_REQUEST_FAILURE",
 					});
-				} finally {
-					setIsLoading(false);
 				}
 			}
 		},
@@ -437,12 +438,12 @@ export function useSubmittingPasswordReset(
 				try {
 					const res = await cb(username, code, newPassword);
 					logger.log(res);
+					setIsLoading(false);
 					authenticator.send({ type: "PASSWORD_RESET_SUCCESS" });
 				} catch (err) {
 					logger.log(err);
-					authenticator.send({ type: "PASSWORD_RESET_FAILURE", error: "PASSWORD_RESET_FAILURE" });
-				} finally {
 					setIsLoading(false);
+					authenticator.send({ type: "PASSWORD_RESET_FAILURE", error: "PASSWORD_RESET_FAILURE" });
 				}
 			}
 		},
@@ -480,13 +481,13 @@ export function useCheckingForPin(cb: AuthCb.CheckForExistingPinCb) {
 			const res = await cb();
 			logger.log(res);
 			logger.info("There is a PIN already stored on the device.");
+			setIsLoading(false);
 			authenticator.send({ type: "PIN_IS_SET_UP" });
 		} catch (err) {
 			logger.warn(err);
 			logger.info("There is no PIN stored on this device.");
-			authenticator.send({ type: "PIN_IS_NOT_SET_UP" });
-		} finally {
 			setIsLoading(false);
+			authenticator.send({ type: "PIN_IS_NOT_SET_UP" });
 		}
 	}, [authenticator, isActive]);
 
@@ -527,13 +528,13 @@ export function useSubmittingCurrentPin(
 					const res = await cb(pin);
 					logger.log(res);
 					logger.info("PIN validated");
+					setIsLoading(false);
 					authenticator.send({ type: "PIN_VALID" });
 				} catch (err) {
 					logger.warn(err);
 					logger.warn("PIN validation failed");
-					authenticator.send({ type: "PIN_INVALID", error: "PIN_INVALID" });
-				} finally {
 					setIsLoading(false);
+					authenticator.send({ type: "PIN_INVALID", error: "PIN_INVALID" });
 				}
 			}
 		},
@@ -569,15 +570,15 @@ export function useResettingPin(cb: AuthCb.LogoutCb) {
 			const res = await cb();
 			logger.log(res);
 			logger.info("Pin reset, logged out!");
+			setIsLoading(false);
 			authenticator.send({ type: "PIN_RESET_SUCCESS" });
 		} catch (err) {
 			logger.error(err);
 			logger.error(
 				"There has been an issue logging out. This should not have occured, so this indicates a serious underlying issue with the system."
 			);
-			authenticator.send({ type: "PIN_RESET_FAILURE", error: "PIN_RESET_FAILURE" });
-		} finally {
 			setIsLoading(false);
+			authenticator.send({ type: "PIN_RESET_FAILURE", error: "PIN_RESET_FAILURE" });
 		}
 	}, [authenticator, error, isActive, isLoading]);
 
@@ -621,13 +622,13 @@ export function useSubmittingNewPin(
 					const res = await cb(pin);
 					logger.log(res);
 					logger.info("New PIN successfully set.");
+					setIsLoading(false);
 					authenticator.send({ type: "NEW_PIN_VALID" });
 				} catch (err) {
 					logger.warn(err);
 					logger.warn("Set PIN action failed.");
-					authenticator.send({ type: "NEW_PIN_INVALID", error: "NEW_PIN_INVALID" });
-				} finally {
 					setIsLoading(false);
+					authenticator.send({ type: "NEW_PIN_INVALID", error: "NEW_PIN_INVALID" });
 				}
 			}
 		},
@@ -707,12 +708,12 @@ export function useChangingPassword(
 				try {
 					const res = await cb(oldPassword, newPassword);
 					logger.log(res);
+					setIsLoading(false);
 					authenticator.send({ type: "PASSWORD_CHANGE_SUCCESS" });
 				} catch (err) {
 					logger.log(err);
-					authenticator.send({ type: "PASSWORD_CHANGE_FAILURE", error: "PASSWORD_CHANGE_FAILURE" });
-				} finally {
 					setIsLoading(false);
+					authenticator.send({ type: "PASSWORD_CHANGE_FAILURE", error: "PASSWORD_CHANGE_FAILURE" });
 				}
 			}
 		},
@@ -760,13 +761,13 @@ export function useValidatingPin(
 					const res = await cb(pin);
 					logger.log(res);
 					logger.info("PIN validated");
+					setIsLoading(false);
 					authenticator.send({ type: "PIN_VALID" });
 				} catch (err) {
 					logger.warn(err);
 					logger.warn("PIN validation failed");
-					authenticator.send({ type: "PIN_INVALID", error: "PIN_INVALID" });
-				} finally {
 					setIsLoading(false);
+					authenticator.send({ type: "PIN_INVALID", error: "PIN_INVALID" });
 				}
 			}
 		},
@@ -815,13 +816,13 @@ export function useChangingPin(
 					const res = await cb(newPin);
 					logger.log(res);
 					logger.log("PIN change succeeded");
+					setIsLoading(false);
 					authenticator.send({ type: "PIN_CHANGE_SUCCESS" });
 				} catch (err) {
 					logger.warn(err);
 					logger.warn("PIN change failed");
-					authenticator.send({ type: "PIN_CHANGE_FAILURE", error: "PIN_CHANGE_FAILURE" });
-				} finally {
 					setIsLoading(false);
+					authenticator.send({ type: "PIN_CHANGE_FAILURE", error: "PIN_CHANGE_FAILURE" });
 				}
 			}
 		},
@@ -857,15 +858,15 @@ export function useLoggingOut(cb: AuthCb.LogoutCb) {
 			const res = await cb();
 			logger.log(res);
 			logger.info("Logged out!");
+			setIsLoading(false);
 			authenticator.send({ type: "LOG_OUT_SUCCESS" });
 		} catch (err) {
 			logger.error(err);
 			logger.error(
 				"There has been an issue logging out. This should not have occured, so this indicates a serious underlying issue with the system."
 			);
-			authenticator.send({ type: "LOG_OUT_FAILURE", error: "LOG_OUT_FAILURE" });
-		} finally {
 			setIsLoading(false);
+			authenticator.send({ type: "LOG_OUT_FAILURE", error: "LOG_OUT_FAILURE" });
 		}
 	}, [authenticator, error, isActive, isLoading]);
 

@@ -2,7 +2,8 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import React, { useState } from "react";
 import { createModel } from "@xstate/test";
-import { fireEvent, render, within } from "@testing-library/react";
+import { cleanup, render, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { createMachine } from "xstate";
 
 import { AuthStateId, createAuthenticationSystem } from "./auth-system";
@@ -19,11 +20,11 @@ import {
 	useSubmittingCurrentPin,
 	useSubmittingUsernameAndPassword,
 	useAuthenticated,
+	useLoggingOut,
 } from "./auth-system-hooks";
 
 import type { RenderResult } from "@testing-library/react";
 import type { ReactNode } from "react";
-import type { AuthEvent, AuthInterpreter } from "./auth-system";
 import { AuthProvider, useAuthProvider } from "./AuthSystemProvider";
 
 /* ========================================================================= *\
@@ -37,6 +38,10 @@ import { AuthProvider, useAuthProvider } from "./AuthSystemProvider";
  * 1. UTILITIES
 \* ------------------------------------------------------------------------- */
 
+function sleep(ms: number) {
+	return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 /* ------------------------------------------------------------------------- *\
  * 2. SETUP
 \* ------------------------------------------------------------------------- */
@@ -46,26 +51,39 @@ const INVALID_USERNAME = "invaliduser@example.com";
 
 const VALID_CODE = "123456";
 const INVALID_CODE = "654321";
-const ANOTHER_VALID_CODE = "123456";
-const ANOTHER_INVALID_CODE = "654321";
 
 const VALID_PASSWORD = "validpassword";
 const ANOTHER_VALID_PASSWORD = "anothervalidpassword";
-const INVALID_PASSWORD = "invalidpassword";
-const TEMPORARY_PASSWORD = "temporarypassword";
+// const INVALID_PASSWORD = "invalidpassword";
+// const TEMPORARY_PASSWORD = "temporarypassword";
 
 const USER_OBJECT = { description: "I represent the user object returned by the OAuth system" };
 
 // prettier-ignore
 const MockCb = {
 	checkSessionCb: jest.fn(),
-	validateOtpUsernameCb: jest.fn((username) => username === VALID_USERNAME ? Promise.resolve(USER_OBJECT) : Promise.reject()),
-	validateOtpCb: jest.fn((_, otp) => otp === VALID_CODE ? Promise.resolve(USER_OBJECT) : Promise.reject() ),
-	validateUsernameAndPasswordCb: jest.fn((username, password) => {
+	validateOtpUsernameCb: jest.fn(async (username) => {
+		await sleep(10);
+		if (username === VALID_USERNAME) {
+			return Promise.resolve(USER_OBJECT);
+		} else {
+			return Promise.reject();
+		}
+	}),
+	validateOtpCb: jest.fn(async (_, otp) => {
+		await sleep(10);
+		if (otp === VALID_CODE) {
+			return Promise.resolve(USER_OBJECT);
+		} else {
+			return Promise.reject()
+		}
+	}),
+	validateUsernameAndPasswordCb: jest.fn(async (username, password) => {
+		await sleep(10);
 		if (username === VALID_USERNAME && password === VALID_PASSWORD) {
 			return Promise.resolve(USER_OBJECT);
 		} else if (username === VALID_USERNAME && password === VALID_CODE) {
-			return Promise.resolve({ ...USER_OBJECT, NEW_PASSWORD_REQUIRED: true });
+			return Promise.resolve(["NEW_PASSWORD_REQUIRED", USER_OBJECT]);
 		} else {
 			return Promise.reject();
 		}
@@ -241,7 +259,7 @@ function OtpUsername() {
 				isLoading={isLoading}
 				errorMsg={error}
 			/>
-			<Form submitCb={validateUsername}>
+			<Form submitCb={validateUsername} cbParams={[email]}>
 				<Form.InputGroup
 					id="otpUsername"
 					label="Enter your email"
@@ -256,7 +274,7 @@ function OtpUsername() {
 }
 
 function Otp() {
-	const { error, isLoading, isActive, validateOtp, validationErrors } = useSubmittingOtp(
+	const { error, isLoading, isActive, goBack, validateOtp, validationErrors } = useSubmittingOtp(
 		MockCb.validateOtpCb
 	);
 	const [password, setPassword] = useState("");
@@ -268,7 +286,7 @@ function Otp() {
 				isLoading={isLoading}
 				errorMsg={error}
 			/>
-			<Form submitCb={validateOtp}>
+			<Form submitCb={validateOtp} cbParams={[password]}>
 				<Form.InputGroup
 					id="otp"
 					label="Enter the OTP"
@@ -277,6 +295,7 @@ function Otp() {
 					valueSetter={setPassword}
 				/>
 				<Form.Submit label="Submit OTP" />
+				<Form.SecondaryAction actionCallback={goBack} label="Re-enter email" />
 			</Form>
 		</section>
 	) : null;
@@ -513,10 +532,26 @@ function Authenticated() {
 	) : null;
 }
 
-function LogOut() {}
-function ValidatePin() {}
-function ChangePin() {}
-function ChangePassword() {}
+function LogOut() {
+	const { error, isActive, isLoading, logOut, cancelLogOut } = useLoggingOut(MockCb.logOutCb);
+
+	return isActive ? (
+		<section>
+			<AuthStageTestReporter
+				stageId={AuthStateId.LoggingOut}
+				errorMsg={error}
+				isLoading={isLoading}
+			/>
+			<Form submitCb={logOut}>
+				<Form.Submit label="Confirm log out" />
+				<Form.SecondaryAction actionCallback={cancelLogOut} label="Cancel log out" />
+			</Form>
+		</section>
+	) : null;
+}
+// function ValidatePin() {}
+// function ChangePin() {}
+// function ChangePassword() {}
 
 /* ------------------------------------------------------------------------- *\
  * 3c. APPLICATION WRAPPER
@@ -524,7 +559,7 @@ function ChangePassword() {}
 
 function TestApp() {
 	return (
-		<>
+		<main>
 			<AuthOverallTestReporter />
 			<CheckingForSession />
 			<OtpUsername />
@@ -538,7 +573,8 @@ function TestApp() {
 			<ResetPin />
 			<NewPin />
 			<Authenticated />
-		</>
+			<LogOut />
+		</main>
 	);
 }
 
@@ -547,6 +583,11 @@ function TestApp() {
 \* ------------------------------------------------------------------------- */
 
 describe("authentication test system using OTP and no device security", () => {
+	afterEach(() => {
+		cleanup();
+		jest.clearAllMocks();
+	});
+
 	const subject = createAuthenticationSystem({ loginFlowType: "OTP", deviceSecurityType: "NONE" });
 
 	const machine = createMachine({
@@ -561,21 +602,14 @@ describe("authentication test system using OTP and no device security", () => {
 				meta: {
 					test: async (screen: RenderResult) => {
 						// The overall reporter (prints machine context values to screen):
-						const authSystemReporter = await screen.getByTitle("Auth system reporter");
-						expect(
-							within(authSystemReporter).getByText("Current stage: CheckingForSession")
-						).toBeDefined();
+						expect(await screen.findByText("Current stage: CheckingForSession")).toBeDefined();
 						// NOTE: Only need to check these once, they should stay constant
 						//       throughout the test as they're read-only values:
-						expect(within(authSystemReporter).getByText("Current login flow: OTP")).toBeDefined();
-						expect(
-							within(authSystemReporter).getByText("Current device security: NONE")
-						).toBeDefined();
+						expect(await screen.findByText("Current login flow: OTP")).toBeDefined();
+						expect(await screen.findByText("Current device security: NONE")).toBeDefined();
 
 						// The reporter for this stage (prints hook state values):
-						const stageReporter = await screen.getByTitle("CheckingForSession");
-						expect(stageReporter).toBeDefined();
-						expect(within(stageReporter).getByText(/Error: n\/a/)).toBeDefined();
+						expect(await screen.findByText("Error: n/a")).toBeDefined();
 					},
 				},
 			},
@@ -587,16 +621,9 @@ describe("authentication test system using OTP and no device security", () => {
 				meta: {
 					test: async (screen: RenderResult) => {
 						// The overall reporter (prints machine context values to screen):
-						const authSystemReporter = await screen.getByTitle("Auth system reporter");
-						expect(
-							within(authSystemReporter).getByText("Current stage: SubmittingOtpUsername")
-						).toBeDefined();
-
+						expect(await screen.findByText("Current stage: SubmittingOtpUsername")).toBeDefined();
 						// The reporter for this stage (prints hook state values):
-						const stageReporter = await screen.getByTitle("SubmittingOtpUsername");
-						expect(stageReporter).toBeDefined();
-
-						expect(within(stageReporter).getByText("Error: n/a")).toBeDefined();
+						expect(await screen.findByText("Error: n/a")).toBeDefined();
 					},
 				},
 			},
@@ -607,18 +634,9 @@ describe("authentication test system using OTP and no device security", () => {
 				meta: {
 					test: async (screen: RenderResult) => {
 						// The overall reporter (prints machine context values to screen):
-						const authSystemReporter = await screen.getByTitle("Auth system reporter");
-						expect(
-							within(authSystemReporter).getByText("Current stage: SubmittingOtpUsername")
-						).toBeDefined();
-
+						expect(await screen.findByText("Current stage: SubmittingOtpUsername")).toBeDefined();
 						// The reporter for this stage (prints hook state values):
-						const stageReporter = await screen.getByTitle("SubmittingOtpUsername");
-						expect(stageReporter).toBeDefined();
-
-						expect(
-							within(stageReporter).getByText("Error: PASSWORD_RETRIES_EXCEEDED")
-						).toBeDefined();
+						expect(await screen.findByText("Error: PASSWORD_RETRIES_EXCEEDED")).toBeDefined();
 					},
 				},
 			},
@@ -629,114 +647,86 @@ describe("authentication test system using OTP and no device security", () => {
 				meta: {
 					test: async (screen: RenderResult) => {
 						// The overall reporter (prints machine context values to screen):
-						const authSystemReporter = await screen.getByTitle("Auth system reporter");
-						expect(
-							within(authSystemReporter).getByText("Current stage: SubmittingOtpUsername")
-						).toBeDefined();
-
+						expect(await screen.findByText("Current stage: SubmittingOtpUsername")).toBeDefined();
 						// The reporter for this stage (prints hook state values):
-						const stageReporter = await screen.getByTitle("SubmittingOtpUsername");
-						expect(stageReporter).toBeDefined();
-
-						expect(within(stageReporter).getByText("Error: USERNAME_INVALID")).toBeDefined();
+						expect(await screen.findByText("Error: USERNAME_INVALID")).toBeDefined();
 					},
 				},
 			},
 			SubmittingOtp1: {
 				on: {
 					GOOD_OTP: "Authenticated",
-					BAD_OTP_1: "SubmittingOtp2",
+					BAD_OTP: "SubmittingOtp2",
 					REENTER_USERNAME: "SubmittingUsername",
 				},
 				meta: {
 					test: async (screen: RenderResult) => {
 						// The overall reporter (prints machine context values to screen):
-						const authSystemReporter = await screen.getByTitle("Auth system reporter");
-						expect(
-							within(authSystemReporter).getByText("Current stage: SubmittingOtp")
-						).toBeDefined();
-
+						expect(await screen.findByText("Current stage: SubmittingOtp")).toBeDefined();
 						// The reporter for this stage (prints hook state values):
-						const stageReporter = await screen.getByTitle("SubmittingOtp");
-						expect(stageReporter).toBeDefined();
-
-						expect(within(stageReporter).getByText("Error: n/a")).toBeDefined();
+						expect(await screen.findByText("Error: n/a")).toBeDefined();
 					},
 				},
 			},
 			SubmittingOtp2: {
 				on: {
-					BAD_OTP_2: "SubmittingOtp3",
+					GOOD_OTP: "Authenticated",
+					BAD_OTP: "SubmittingOtp3",
+					REENTER_USERNAME: "SubmittingUsername",
 				},
 				meta: {
 					test: async (screen: RenderResult) => {
 						// The overall reporter (prints machine context values to screen):
-						const authSystemReporter = await screen.getByTitle("Auth system reporter");
-						expect(
-							within(authSystemReporter).getByText("Current stage: SubmittingOtp")
-						).toBeDefined();
-
+						expect(await screen.findByText("Current stage: SubmittingOtp")).toBeDefined();
 						// The reporter for this stage (prints hook state values):
-						const stageReporter = await screen.getByTitle("SubmittingOtp");
-						expect(stageReporter).toBeDefined();
-
 						expect(
-							within(stageReporter).getByText("Error: PASSWORD_INVALID_2_RETRIES_REMAINING")
+							await screen.findByText("Error: PASSWORD_INVALID_2_RETRIES_REMAINING")
 						).toBeDefined();
 					},
 				},
 			},
 			SubmittingOtp3: {
 				on: {
-					BAD_OTP_3: "SubmittingUsernameAfterTooManyRetries",
+					GOOD_OTP: "Authenticated",
+					BAD_OTP: "SubmittingUsernameAfterTooManyRetries",
+					REENTER_USERNAME: "SubmittingUsername",
 				},
 				meta: {
 					test: async (screen: RenderResult) => {
 						// The overall reporter (prints machine context values to screen):
-						const authSystemReporter = await screen.getByTitle("Auth system reporter");
-						expect(
-							within(authSystemReporter).getByText("Current stage: SubmittingOtp")
-						).toBeDefined();
-
+						expect(await screen.findByText("Current stage: SubmittingOtp")).toBeDefined();
 						// The reporter for this stage (prints hook state values):
-						const stageReporter = await screen.getByTitle("SubmittingOtp");
-						expect(stageReporter).toBeDefined();
-
 						expect(
-							within(stageReporter).getByText("Error: PASSWORD_INVALID_1_RETRIES_REMAINING")
+							await screen.findByText("Error: PASSWORD_INVALID_1_RETRIES_REMAINING")
 						).toBeDefined();
 					},
 				},
 			},
 			Authenticated: {
 				on: {
-					CAN_I_LOG_OUT_PLEASE: "LoggingOut",
+					REQUEST_LOG_OUT: "LoggingOut",
 				},
 				meta: {
 					test: async (screen: RenderResult) => {
 						// The overall reporter (prints machine context values to screen):
-						const authSystemReporter = await screen.getByTitle(/Auth system reporter/);
-						expect(
-							within(authSystemReporter).getByText(/Current stage: Authenticated/)
-						).toBeDefined();
-
+						expect(await screen.findByText("Current stage: Authenticated")).toBeDefined();
 						// The reporter for this stage (prints hook state values):
-						const stageReporter = await screen.getByTitle(/Authenticated/);
-						expect(stageReporter).toBeDefined();
-
-						expect(within(stageReporter).getByText(/Error: n\/a/)).toBeDefined();
+						expect(await screen.findByText("Error: n/a")).toBeDefined();
 					},
 				},
 			},
 			LoggingOut: {
 				on: {
-					LOG_OUT_WORKED: "CheckingSession",
-					LOG_OUT_FAILED: "Authenticated",
-					ACTUALLY_NO_STAY_LOGGED_IN: "Authenticated",
+					GOOD_LOG_OUT: "CheckingSession",
+					// BAD_LOG_OUT: "Authenticated",
+					CANCEL_LOG_OUT: "Authenticated",
 				},
 				meta: {
-					test: async (service: RenderResult) => {
-						console.log("TODO: Authenticated state");
+					test: async (screen: RenderResult) => {
+						// The overall reporter (prints machine context values to screen):
+						expect(await screen.findByText("Current stage: LoggingOut")).toBeDefined();
+						// The reporter for this stage (prints hook state values):
+						expect(await screen.findByText("Error: n/a")).toBeDefined();
 					},
 				},
 			},
@@ -745,42 +735,83 @@ describe("authentication test system using OTP and no device security", () => {
 
 	const model = createModel<RenderResult>(machine).withEvents({
 		THERE_IS_A_SESSION: async (screen: RenderResult) => {
-			fireEvent.click(await screen.findByText("Check for a session"));
+			userEvent.click(await screen.findByText("Check for a session"));
+			await waitFor(() => expect(MockCb.checkSessionCb).toHaveBeenCalled());
+			// expect(await screen.findByText("Loading: true")).toBeDefined();
+			await screen.findByText("Loading: false");
 		},
 		THERE_IS_NO_SESSION: async (screen: RenderResult) => {
 			MockCb.checkSessionCb.mockRejectedValueOnce(null);
-			fireEvent.click(await screen.findByText("Check for a session"));
+			userEvent.click(await screen.findByText("Check for a session"));
+			await waitFor(() => expect(MockCb.checkSessionCb).toHaveBeenCalled());
 			MockCb.checkSessionCb.mockReset();
+			// expect(await screen.findByText("Loading: true")).toBeDefined();
+			await screen.findByText("Loading: false");
 		},
-		GOOD_USERNAME: async (screen) => {
-			const usernameInput = await screen.findByLabelText("Enter your email");
-			fireEvent.change(usernameInput, { target: { value: VALID_USERNAME } });
-			fireEvent.click(await screen.findByText("Submit username"));
+		GOOD_USERNAME: async (screen: RenderResult) => {
+			const input = await screen.findByLabelText("Enter your email");
+			userEvent.clear(input);
+			userEvent.type(input, VALID_USERNAME);
+			userEvent.click(await screen.findByText("Submit username"));
+			await waitFor(() =>
+				expect(MockCb.validateOtpUsernameCb).toHaveBeenCalledWith(VALID_USERNAME)
+			);
+			// expect(await screen.findByText("Loading: true")).toBeDefined();
+			await screen.findByText("Loading: false");
 		},
-		BAD_USERNAME: async (screen) => {
-			const usernameInput = await screen.findByLabelText("Enter your email");
-			fireEvent.change(usernameInput, { target: { value: INVALID_USERNAME } });
-			fireEvent.click(await screen.findByText("Submit username"));
+		BAD_USERNAME: async (screen: RenderResult) => {
+			const input = await screen.findByLabelText("Enter your email");
+			userEvent.clear(input);
+			userEvent.type(input, INVALID_USERNAME);
+			userEvent.click(await screen.findByText("Submit username"));
+			await waitFor(() =>
+				expect(MockCb.validateOtpUsernameCb).toHaveBeenCalledWith(INVALID_USERNAME)
+			);
+			// expect(await screen.findByText("Loading: true")).toBeDefined();
+			await screen.findByText("Loading: false");
 		},
-		GOOD_OTP: async (screen) => {
-			const usernameInput = await screen.findByLabelText("Enter the OTP");
-			fireEvent.change(usernameInput, { target: { value: VALID_CODE } });
-			fireEvent.click(await screen.findByText("Submit OTP"));
+		GOOD_OTP: async (screen: RenderResult) => {
+			const input = await screen.findByLabelText("Enter the OTP");
+			userEvent.clear(input);
+			userEvent.type(input, VALID_CODE);
+			userEvent.click(await screen.findByText("Submit OTP"));
+			await waitFor(() =>
+				expect(MockCb.validateOtpCb).toHaveBeenCalledWith(USER_OBJECT, VALID_CODE)
+			);
+			// expect(await screen.findByText("Loading: true")).toBeDefined();
+			await screen.findByText("Loading: false");
 		},
-		BAD_OTP_1: async (screen) => {
-			const usernameInput = await screen.findByLabelText("Enter the OTP");
-			fireEvent.change(usernameInput, { target: { value: INVALID_CODE } });
-			fireEvent.click(await screen.findByText("Submit OTP"));
+		BAD_OTP: async (screen: RenderResult) => {
+			const input = await screen.findByLabelText("Enter the OTP");
+			userEvent.clear(input);
+			userEvent.type(input, INVALID_CODE);
+			userEvent.click(await screen.findByText("Submit OTP"));
+			await waitFor(() =>
+				expect(MockCb.validateOtpCb).toHaveBeenCalledWith(USER_OBJECT, INVALID_CODE)
+			);
 		},
-		BAD_OTP_2: async (screen) => {
-			const usernameInput = await screen.findByLabelText("Enter the OTP");
-			fireEvent.change(usernameInput, { target: { value: ANOTHER_INVALID_CODE } });
-			fireEvent.click(await screen.findByText("Submit OTP"));
+		REENTER_USERNAME: async (screen: RenderResult) => {
+			userEvent.click(await screen.findByText("Re-enter email"));
 		},
-		BAD_OTP_3: async (screen) => {
-			const usernameInput = await screen.findByLabelText("Enter the OTP");
-			fireEvent.change(usernameInput, { target: { value: INVALID_CODE } });
-			fireEvent.click(await screen.findByText("Submit OTP"));
+		REQUEST_LOG_OUT: async (screen: RenderResult) => {
+			userEvent.click(await screen.findByText("Log out"));
+		},
+		CANCEL_LOG_OUT: async (screen: RenderResult) => {
+			userEvent.click(await screen.findByText("Cancel log out"));
+		},
+		GOOD_LOG_OUT: async (screen: RenderResult) => {
+			userEvent.click(await screen.findByText("Confirm log out"));
+			await waitFor(() => expect(MockCb.logOutCb).toHaveBeenCalled());
+			// expect(await screen.findByText("Loading: true")).toBeDefined();
+			await screen.findByText("Loading: false");
+		},
+		BAD_LOG_OUT: async (screen: RenderResult) => {
+			MockCb.logOutCb.mockRejectedValueOnce(null);
+			userEvent.click(await screen.findByText("Confirm log out"));
+			await waitFor(() => expect(MockCb.logOutCb).toHaveBeenCalled());
+			MockCb.logOutCb.mockReset();
+			// expect(await screen.findByText("Loading: true")).toBeDefined();
+			await screen.findByText("Loading: false");
 		},
 	});
 

@@ -31,18 +31,11 @@ const FormSubmit = ({ label, testid }: { label: string; testid: string }) => (
 const FormSecondaryAction = ({
 	actionCallback,
 	label,
-	testid,
 }: {
 	actionCallback: () => void;
 	label: string;
-	testid: string;
 }) => (
-	<button
-		className="button button--secondary"
-		type="button"
-		onClick={() => actionCallback()}
-		data-testid={testid}
-	>
+	<button className="button button--secondary" type="button" onClick={() => actionCallback()}>
 		{label}
 	</button>
 );
@@ -53,7 +46,7 @@ const InputGroup = ({
 	inputType,
 	isActive,
 	label,
-	testid,
+	validationErrors,
 	value,
 	valueSetter,
 }: {
@@ -62,7 +55,7 @@ const InputGroup = ({
 	inputType: string;
 	isActive: boolean;
 	label: string;
-	testid: string;
+	validationErrors: string[];
 	value: string;
 	valueSetter: (v: string) => void;
 }) => (
@@ -80,15 +73,18 @@ const InputGroup = ({
 			value={value}
 			onChange={(e) => valueSetter(e.target.value)}
 			required={true}
-			data-testid={`${testid}_input`}
 		/>
-		{error && isActive && (
-			<p className="input-group__error" data-testid={`${testid}_error`}>
-				{error}
-			</p>
-		)}
+		<ul>
+			{validationErrors.map((err) => (
+				<li key={err} className="input-group__validation-error">
+					{err}
+				</li>
+			))}
+		</ul>
 	</div>
 );
+
+const FormError = ({ error }: { error: null | string }) => <p className="form__error">{error}</p>;
 
 const Form = ({
 	children,
@@ -111,6 +107,7 @@ const Form = ({
 );
 
 Form.Elements = FormElements;
+Form.Error = FormError;
 Form.Controls = FormControls;
 Form.Submit = FormSubmit;
 Form.SecondaryAction = FormSecondaryAction;

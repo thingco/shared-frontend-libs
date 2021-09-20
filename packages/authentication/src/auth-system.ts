@@ -12,7 +12,7 @@ import type { AuthConfig, AuthError, DeviceSecurityType, LoginFlowType } from ".
  * Currently, XState's type inference is slightly flakey. This is for very valid reasons -- it is extremely
  * difficult to do well, so look at the issues in the XState repo + the newer version they are working on
  * + some solutions people have come up with to fix them.
- * 
+ *
  * The main fix is to use the `createModel` function to build out the context and events, and that
  * in turn provides much better typings. HOWEVER, what is then lost is
  *
@@ -21,16 +21,16 @@ import type { AuthConfig, AuthError, DeviceSecurityType, LoginFlowType } from ".
  * b. events as objects -- instead the model forces you to define event creatorf functions, which are OK but now
  *    inferring the events sometimes comes back with a big nested set of generic functions instead of
  *    a plain object, which is, again, often useless and a pain to deal with (and the errors are horrible).
- * 
+ *
  * To deal with this and provide a *relatively* constrained set of types that provide inference for the
  * system, I've defined:
- * 
+ *
  * 1. The state names/ids as an enum. This doesn't really provide type safety, but does ensure that they
  *    can't be mis-typed in the IDE by a developer.
  * 2. The context as an interface, rather than inferring it directly from the model, and
  * 3. The events as a union type rather than using the event creator functions, and
  * 4. Type states (see https://xstate.js.org/docs/guides/typescript.html#typestates)
- * 
+ *
  * Only the state names/ids are exported for use by other modules in the library -- they are needed
  * everywhere. However, they should not ever be visible to the end-user, as the React hooks that form
  * the core part of the library handle the current state.
@@ -258,7 +258,7 @@ export const machine = createMachine<
 					actions: ["clearError"],
 				},
 				OTP_INVALID: {
-					target: AuthStateId.SubmittingOtp,
+					target: undefined,
 					actions: ["assignError"]
 				},
 				OTP_INVALID_RETRIES_EXCEEDED: {
@@ -355,7 +355,7 @@ export const machine = createMachine<
 				{ cond: "isDeviceSecurityTypeNone", target: AuthStateId.Authenticated },
 				{ cond: "isDeviceSecurityTypePin", target: AuthStateId.CheckingForPin },
 				// { cond: "isDeviceSecurityTypeBiometric", target: AuthStateId.Authenticated },
-			],	
+			],
 		},
 		[AuthStateId.CheckingForPin]: {
 			on: {
@@ -405,7 +405,7 @@ export const machine = createMachine<
 					target: undefined,
 					actions: ["assignError"]
 				},
-			}	
+			}
 		},
     [AuthStateId.ValidatingPin]: {
 			on: {
