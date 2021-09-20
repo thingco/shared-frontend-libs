@@ -26,6 +26,7 @@ import {
 import type { RenderResult } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { AuthProvider, useAuthProvider } from "./AuthSystemProvider";
+import { AuthError } from "./types";
 
 /* ========================================================================= *\
  * 1. UTILITIES
@@ -53,9 +54,10 @@ const VALID_CODE = "123456";
 const INVALID_CODE = "654321";
 
 const VALID_PASSWORD = "validpassword";
+const OLD_PASSWORD = "oldpassword";
 const ANOTHER_VALID_PASSWORD = "anothervalidpassword";
-// const INVALID_PASSWORD = "invalidpassword";
-// const TEMPORARY_PASSWORD = "temporarypassword";
+const INVALID_PASSWORD = "invalidpassword";
+const TEMPORARY_PASSWORD = "temporarypassword";
 
 const USER_OBJECT = { description: "I represent the user object returned by the OAuth system" };
 
@@ -82,14 +84,27 @@ const MockCb = {
 		await sleep(10);
 		if (username === VALID_USERNAME && password === VALID_PASSWORD) {
 			return Promise.resolve(USER_OBJECT);
-		} else if (username === VALID_USERNAME && password === VALID_CODE) {
+		} else if (username === VALID_USERNAME && password === OLD_PASSWORD) {
 			return Promise.resolve(["NEW_PASSWORD_REQUIRED", USER_OBJECT]);
 		} else {
 			return Promise.reject();
 		}
 	}),
-	validateForceChangePasswordCb: jest.fn((_, password) => password === VALID_PASSWORD ? Promise.resolve() : Promise.reject()),
-	requestNewPasswordCb: jest.fn((username) => username === VALID_USERNAME ? Promise.resolve() : Promise.reject()),
+	validateForceChangePasswordCb: jest.fn(async (_, password) => {
+		await sleep(10);
+		if (password === VALID_PASSWORD) {
+			return Promise.resolve();
+		} else {
+			return Promise.reject();
+		}
+	}),
+	requestNewPasswordCb: jest.fn(async (username) => {
+		if (username === VALID_USERNAME) {
+			return Promise.resolve();
+		} else {
+			return Promise.reject();
+		}
+	}),
 	submitNewPasswordCb: jest.fn((code, newPassword) => code === VALID_CODE && newPassword === VALID_PASSWORD ? Promise.resolve() : Promise.reject()),
 	changePasswordCb: jest.fn((oldPassword, newPassword) => oldPassword === VALID_PASSWORD && newPassword === ANOTHER_VALID_PASSWORD ? Promise.resolve() : Promise.reject()),
 	checkForExistingPinCb: jest.fn(),
@@ -320,7 +335,7 @@ function UsernameAndPassword() {
 				isLoading={isLoading}
 				errorMsg={error}
 			/>
-			<Form submitCb={validateUsernameAndPassword}>
+			<Form submitCb={validateUsernameAndPassword} cbParams={[username, password]}>
 				<Form.InputGroup
 					id="username"
 					label="Enter your username"
@@ -354,7 +369,7 @@ function ForceChangePassword() {
 				isLoading={isLoading}
 				errorMsg={error}
 			/>
-			<Form submitCb={validateNewPassword}>
+			<Form submitCb={validateNewPassword} cbParams={[password]}>
 				<Form.InputGroup
 					id="password"
 					label="Enter your password"
@@ -369,8 +384,14 @@ function ForceChangePassword() {
 }
 
 function RequestNewPassword() {
-	const { error, isActive, isLoading, requestNewPassword, validationErrors } =
-		useRequestingPasswordReset(MockCb.requestNewPasswordCb);
+	const {
+		error,
+		isActive,
+		isLoading,
+		cancelResetPasswordRequest,
+		requestNewPassword,
+		validationErrors,
+	} = useRequestingPasswordReset(MockCb.requestNewPasswordCb);
 	const [username, setUsername] = useState("");
 
 	return isActive ? (
@@ -380,7 +401,7 @@ function RequestNewPassword() {
 				isLoading={isLoading}
 				errorMsg={error}
 			/>
-			<Form submitCb={requestNewPassword}>
+			<Form submitCb={requestNewPassword} cbParams={[username]}>
 				<Form.InputGroup
 					id="username"
 					label="Enter your Usename"
@@ -389,6 +410,10 @@ function RequestNewPassword() {
 					valueSetter={setUsername}
 				/>
 				<Form.Submit label="Request a new password" />
+				<Form.SecondaryAction
+					label="Cancel password reset"
+					actionCallback={cancelResetPasswordRequest}
+				/>
 			</Form>
 		</section>
 	) : null;
@@ -408,7 +433,7 @@ function NewPassword() {
 				isLoading={isLoading}
 				errorMsg={error}
 			/>
-			<Form submitCb={submitNewPassword}>
+			<Form submitCb={submitNewPassword} cbParams={[code, newPassword]}>
 				<Form.InputGroup
 					id="resetCode"
 					label="Enter the reset code you have been sent"
@@ -792,6 +817,386 @@ describe("authentication test system using OTP and no device security", () => {
 		},
 		REENTER_USERNAME: async (screen: RenderResult) => {
 			userEvent.click(await screen.findByText("Re-enter email"));
+		},
+		REQUEST_LOG_OUT: async (screen: RenderResult) => {
+			userEvent.click(await screen.findByText("Log out"));
+		},
+		CANCEL_LOG_OUT: async (screen: RenderResult) => {
+			userEvent.click(await screen.findByText("Cancel log out"));
+		},
+		GOOD_LOG_OUT: async (screen: RenderResult) => {
+			userEvent.click(await screen.findByText("Confirm log out"));
+			await waitFor(() => expect(MockCb.logOutCb).toHaveBeenCalled());
+			// expect(await screen.findByText("Loading: true")).toBeDefined();
+			await screen.findByText("Loading: false");
+		},
+		BAD_LOG_OUT: async (screen: RenderResult) => {
+			MockCb.logOutCb.mockRejectedValueOnce(null);
+			userEvent.click(await screen.findByText("Confirm log out"));
+			await waitFor(() => expect(MockCb.logOutCb).toHaveBeenCalled());
+			MockCb.logOutCb.mockReset();
+			// expect(await screen.findByText("Loading: true")).toBeDefined();
+			await screen.findByText("Loading: false");
+		},
+	});
+
+	const testPlans = model.getSimplePathPlans();
+
+	testPlans.forEach((plan) => {
+		describe(`authentication test system ${plan.description}`, () => {
+			plan.paths.forEach((path) => {
+				it(path.description, async () => {
+					const screen = render(
+						<AuthProvider authenticationSystem={subject}>
+							<TestApp />
+						</AuthProvider>
+					);
+					await path.test(screen);
+				});
+			});
+		});
+	});
+
+	it("should have full coverage", () => {
+		return model.testCoverage();
+	});
+});
+
+describe("authentication test system using username password and no device security", () => {
+	afterEach(() => {
+		cleanup();
+		jest.clearAllMocks();
+	});
+
+	const subject = createAuthenticationSystem({
+		loginFlowType: "USERNAME_PASSWORD",
+		deviceSecurityType: "NONE",
+	});
+
+	const machine = createMachine({
+		id: "userenamePasswordNoPin",
+		initial: "CheckingSession",
+		states: {
+			CheckingSession: {
+				on: {
+					THERE_IS_A_SESSION: "Authenticated",
+					THERE_IS_NO_SESSION: "SubmittingUsernameAndPassword",
+				},
+				meta: {
+					test: async (screen: RenderResult) => {
+						// The overall reporter (prints machine context values to screen):
+						expect(await screen.findByText("Current stage: CheckingForSession")).toBeDefined();
+						// NOTE: Only need to check these once, they should stay constant
+						//       throughout the test as they're read-only values:
+						expect(await screen.findByText("Current login flow: USERNAME_PASSWORD")).toBeDefined();
+						expect(await screen.findByText("Current device security: NONE")).toBeDefined();
+
+						// The reporter for this stage (prints hook state values):
+						expect(await screen.findByText("Error: n/a")).toBeDefined();
+					},
+				},
+			},
+			SubmittingUsernameAndPassword: {
+				on: {
+					GOOD_USERNAME_AND_PASSWORD: "Authenticated",
+					FORCE_PASSWORD_RESET_REQUIRED: "SubmittingForceResetPassword",
+					BAD_USERNAME_AND_PASSWORD: "UsernameOrPasswordError",
+					FORGOT_PASSWORD: "RequestingNewPassword",
+				},
+				meta: {
+					test: async (screen: RenderResult) => {
+						// The overall reporter (prints machine context values to screen):
+						expect(
+							await screen.findByText("Current stage: SubmittingUsernameAndPassword")
+						).toBeDefined();
+						// The reporter for this stage (prints hook state values):
+						expect(await screen.findByText("Error: n/a")).toBeDefined();
+					},
+				},
+			},
+			UsernameOrPasswordError: {
+				on: {
+					GOOD_USERNAME_AND_PASSWORD: "Authenticated",
+				},
+				meta: {
+					test: async (screen: RenderResult) => {
+						// The overall reporter (prints machine context values to screen):
+						expect(
+							await screen.findByText("Current stage: SubmittingUsernameAndPassword")
+						).toBeDefined();
+						// The reporter for this stage (prints hook state values):
+						expect(await screen.findByText("Error: USERNAME_AND_PASSWORD_INVALID")).toBeDefined();
+					},
+				},
+			},
+			SubmittingForceResetPassword: {
+				on: {
+					GOOD_FORCE_RESET_PASSWORD: "Authenticated",
+					BAD_FORCE_RESET_PASSWORD: "SubmittingForceResetPasswordError",
+				},
+				meta: {
+					test: async (screen: RenderResult) => {
+						// The overall reporter (prints machine context values to screen):
+						expect(
+							await screen.findByText(`Current stage: ${AuthStateId.SubmittingForceChangePassword}`)
+						).toBeDefined();
+						// The reporter for this stage (prints hook state values):
+						expect(
+							await screen.findByText(`Error: ${"PASSWORD_CHANGE_REQUIRED" as AuthError}`)
+						).toBeDefined();
+					},
+				},
+			},
+			SubmittingForceResetPasswordError: {
+				on: {
+					GOOD_FORCE_RESET_PASSWORD: "Authenticated",
+				},
+				meta: {
+					test: async (screen: RenderResult) => {
+						// The overall reporter (prints machine context values to screen):
+						expect(
+							await screen.findByText(`Current stage: ${AuthStateId.SubmittingForceChangePassword}`)
+						).toBeDefined();
+						// The reporter for this stage (prints hook state values):
+						expect(
+							await screen.findByText(`Error: ${"PASSWORD_CHANGE_FAILURE" as AuthError}`)
+						).toBeDefined();
+					},
+				},
+			},
+			RequestingNewPassword: {
+				on: {
+					PASSWORD_RESET_REQUEST_SUCCESS: "SubmittingNewPassword",
+					PASSWORD_RESET_REQUEST_FAILURE: "RequestingNewPasswordError",
+					CANCEL_PASSWORD_RESET: "SubmittingUsernameAndPassword",
+				},
+				meta: {
+					test: async (screen: RenderResult) => {
+						// The overall reporter (prints machine context values to screen):
+						expect(await screen.findByText("Current stage: RequestingPasswordReset")).toBeDefined();
+						// The reporter for this stage (prints hook state values):
+						expect(await screen.findByText("Error: n/a")).toBeDefined();
+					},
+				},
+			},
+			RequestingNewPasswordError: {
+				on: {
+					PASSWORD_RESET_REQUEST_SUCCESS: "SubmittingNewPassword",
+				},
+				meta: {
+					test: async (screen: RenderResult) => {
+						// The overall reporter (prints machine context values to screen):
+						expect(await screen.findByText("Current stage: RequestingPasswordReset")).toBeDefined();
+						// The reporter for this stage (prints hook state values):
+						expect(await screen.findByText("Error: PASSWORD_RESET_REQUEST_FAILURE")).toBeDefined();
+					},
+				},
+			},
+			SubmittingNewPassword: {
+				on: {
+					PASSWORD_CHANGE_SUCCESS: "CheckingSession",
+					PASSWORD_CHANGE_FAILURE: "SubmittingNewPasswordError",
+				},
+				meta: {
+					test: async (screen: RenderResult) => {
+						// The overall reporter (prints machine context values to screen):
+						expect(await screen.findByText("Current stage: SubmittingPasswordReset")).toBeDefined();
+						// The reporter for this stage (prints hook state values):
+						expect(await screen.findByText("Error: n/a")).toBeDefined();
+					},
+				},
+			},
+			SubmittingNewPasswordError: {
+				on: {
+					PASSWORD_CHANGE_SUCCESS: "CheckingSession",
+				},
+				meta: {
+					test: async (screen: RenderResult) => {
+						// The overall reporter (prints machine context values to screen):
+						expect(await screen.findByText("Current stage: SubmittingPasswordReset")).toBeDefined();
+						// The reporter for this stage (prints hook state values):
+						expect(await screen.findByText("Error: PASSWORD_CHANGE_FAILURE")).toBeDefined();
+					},
+				},
+			},
+			Authenticated: {
+				on: {
+					REQUEST_LOG_OUT: "LoggingOut",
+				},
+				meta: {
+					test: async (screen: RenderResult) => {
+						// The overall reporter (prints machine context values to screen):
+						expect(await screen.findByText("Current stage: Authenticated")).toBeDefined();
+						// The reporter for this stage (prints hook state values):
+						expect(await screen.findByText("Error: n/a")).toBeDefined();
+					},
+				},
+			},
+			LoggingOut: {
+				on: {
+					GOOD_LOG_OUT: "CheckingSession",
+					// BAD_LOG_OUT: "Authenticated",
+					CANCEL_LOG_OUT: "Authenticated",
+				},
+				meta: {
+					test: async (screen: RenderResult) => {
+						// The overall reporter (prints machine context values to screen):
+						expect(await screen.findByText("Current stage: LoggingOut")).toBeDefined();
+						// The reporter for this stage (prints hook state values):
+						expect(await screen.findByText("Error: n/a")).toBeDefined();
+					},
+				},
+			},
+		},
+	});
+
+	const model = createModel<RenderResult>(machine).withEvents({
+		THERE_IS_A_SESSION: async (screen: RenderResult) => {
+			userEvent.click(await screen.findByText("Check for a session"));
+			await waitFor(() => expect(MockCb.checkSessionCb).toHaveBeenCalled());
+			// expect(await screen.findByText("Loading: true")).toBeDefined();
+			await screen.findByText("Loading: false");
+		},
+		THERE_IS_NO_SESSION: async (screen: RenderResult) => {
+			MockCb.checkSessionCb.mockRejectedValueOnce(null);
+			userEvent.click(await screen.findByText("Check for a session"));
+			await waitFor(() => expect(MockCb.checkSessionCb).toHaveBeenCalled());
+			MockCb.checkSessionCb.mockReset();
+			// expect(await screen.findByText("Loading: true")).toBeDefined();
+			await screen.findByText("Loading: false");
+		},
+		GOOD_USERNAME_AND_PASSWORD: async (screen: RenderResult) => {
+			const usernameinput = await screen.findByLabelText("Enter your username");
+			const passwordinput = await screen.findByLabelText("Enter your password");
+			userEvent.clear(usernameinput);
+			userEvent.clear(passwordinput);
+			userEvent.type(usernameinput, VALID_USERNAME);
+			userEvent.type(passwordinput, VALID_PASSWORD);
+			userEvent.click(await screen.findByText("Submit username and password"));
+			await waitFor(() =>
+				expect(MockCb.validateUsernameAndPasswordCb).toHaveBeenCalledWith(
+					VALID_USERNAME,
+					VALID_PASSWORD
+				)
+			);
+			// expect(await screen.findByText("Loading: true")).toBeDefined();
+			await screen.findByText("Loading: false");
+		},
+		BAD_USERNAME_AND_PASSWORD: async (screen: RenderResult) => {
+			const usernameinput = await screen.findByLabelText("Enter your username");
+			const passwordinput = await screen.findByLabelText("Enter your password");
+			userEvent.clear(usernameinput);
+			userEvent.clear(passwordinput);
+			userEvent.type(usernameinput, INVALID_USERNAME);
+			userEvent.type(passwordinput, INVALID_PASSWORD);
+			userEvent.click(await screen.findByText("Submit username and password"));
+			await waitFor(() =>
+				expect(MockCb.validateUsernameAndPasswordCb).toHaveBeenCalledWith(
+					INVALID_USERNAME,
+					INVALID_PASSWORD
+				)
+			);
+			// expect(await screen.findByText("Loading: true")).toBeDefined();
+			await screen.findByText("Loading: false");
+		},
+		FORCE_PASSWORD_RESET_REQUIRED: async (screen: RenderResult) => {
+			const usernameinput = await screen.findByLabelText("Enter your username");
+			const passwordinput = await screen.findByLabelText("Enter your password");
+			userEvent.clear(usernameinput);
+			userEvent.clear(passwordinput);
+			userEvent.type(usernameinput, VALID_USERNAME);
+			userEvent.type(passwordinput, OLD_PASSWORD);
+			userEvent.click(await screen.findByText("Submit username and password"));
+			await waitFor(() =>
+				expect(MockCb.validateUsernameAndPasswordCb).toHaveBeenCalledWith(
+					VALID_USERNAME,
+					OLD_PASSWORD
+				)
+			);
+			// expect(await screen.findByText("Loading: true")).toBeDefined();
+			await screen.findByText("Loading: false");
+		},
+		GOOD_FORCE_RESET_PASSWORD: async (screen: RenderResult) => {
+			const input = await screen.findByLabelText("Enter your password");
+			userEvent.clear(input);
+			userEvent.type(input, VALID_PASSWORD);
+			userEvent.click(await screen.findByText("Submit new password"));
+			await waitFor(() =>
+				expect(MockCb.validateForceChangePasswordCb).toHaveBeenCalledWith(
+					USER_OBJECT,
+					VALID_PASSWORD
+				)
+			);
+			// expect(await screen.findByText("Loading: true")).toBeDefined();
+			await screen.findByText("Loading: false");
+		},
+		BAD_FORCE_RESET_PASSWORD: async (screen: RenderResult) => {
+			const input = await screen.findByLabelText("Enter your password");
+			userEvent.clear(input);
+			userEvent.type(input, INVALID_PASSWORD);
+			userEvent.click(await screen.findByText("Submit new password"));
+			await waitFor(() =>
+				expect(MockCb.validateForceChangePasswordCb).toHaveBeenCalledWith(
+					USER_OBJECT,
+					INVALID_PASSWORD
+				)
+			);
+			// expect(await screen.findByText("Loading: true")).toBeDefined();
+			await screen.findByText("Loading: false");
+		},
+		FORGOT_PASSWORD: async (screen: RenderResult) => {
+			userEvent.click(await screen.findByText("Forgotten password"));
+		},
+		PASSWORD_RESET_REQUEST_SUCCESS: async (screen: RenderResult) => {
+			const input = await screen.findByLabelText("Enter your username");
+			userEvent.clear(input);
+			userEvent.type(input, VALID_USERNAME);
+			userEvent.click(await screen.findByText("Request a new password"));
+			await waitFor(() => expect(MockCb.requestNewPasswordCb).toHaveBeenCalledWith(VALID_USERNAME));
+			// expect(await screen.findByText("Loading: true")).toBeDefined();
+			await screen.findByText("Loading: false");
+		},
+		PASSWORD_RESET_REQUEST_FAILURE: async (screen: RenderResult) => {
+			const input = await screen.findByLabelText("Enter your username");
+			userEvent.clear(input);
+			userEvent.type(input, INVALID_USERNAME);
+			userEvent.click(await screen.findByText("Request a new password"));
+			await waitFor(() =>
+				expect(MockCb.requestNewPasswordCb).toHaveBeenCalledWith(INVALID_USERNAME)
+			);
+			// expect(await screen.findByText("Loading: true")).toBeDefined();
+			await screen.findByText("Loading: false");
+		},
+		CANCEL_PASSWORD_RESET: async (screen: RenderResult) => {
+			userEvent.click(await screen.findByText("Cancel password reset"));
+		},
+		PASSWORD_CHANGE_SUCCESS: async (screen: RenderResult) => {
+			const codeinput = await screen.findByLabelText("Enter the reset code you have been sent");
+			const passwordinput = await screen.findByLabelText("Enter your new password");
+			userEvent.clear(codeinput);
+			userEvent.clear(passwordinput);
+			userEvent.type(codeinput, VALID_CODE);
+			userEvent.type(passwordinput, VALID_PASSWORD);
+			userEvent.click(await screen.findByText("Submit reset code and new password"));
+			await waitFor(() =>
+				expect(MockCb.submitNewPasswordCb).toHaveBeenCalledWith(VALID_CODE, VALID_PASSWORD)
+			);
+			// expect(await screen.findByText("Loading: true")).toBeDefined();
+			await screen.findByText("Loading: false");
+		},
+		PASSWORD_CHANGE_FAILURE: async (screen: RenderResult) => {
+			const codeinput = await screen.findByLabelText("Enter the reset code you have been sent");
+			const passwordinput = await screen.findByLabelText("Enter your new password");
+			userEvent.clear(codeinput);
+			userEvent.clear(passwordinput);
+			userEvent.type(codeinput, INVALID_CODE);
+			userEvent.type(passwordinput, INVALID_PASSWORD);
+			userEvent.click(await screen.findByText("Submit reset code and new password"));
+			await waitFor(() =>
+				expect(MockCb.submitNewPasswordCb).toHaveBeenCalledWith(INVALID_CODE, INVALID_PASSWORD)
+			);
+			// expect(await screen.findByText("Loading: true")).toBeDefined();
+			await screen.findByText("Loading: false");
 		},
 		REQUEST_LOG_OUT: async (screen: RenderResult) => {
 			userEvent.click(await screen.findByText("Log out"));

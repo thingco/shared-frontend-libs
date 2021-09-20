@@ -281,9 +281,8 @@ export const machine = createMachine<
 			on: {
 				USERNAME_AND_PASSWORD_VALID: {
 					target: AuthStateId.INTERNAL__deviceSecurityCheck,
-					// REVEIW: unecessary? We're authorised past this point, don't need the `user` but `username` might be useful:
-					// actions: ["assignUser", "assignUsername"]
-					actions: ["clearError"],
+					// REVIEW: unecessary? We're authorised past this point, don't need the `user` but `username` might be useful:
+					actions: ["assignUser", "assignUsername", "clearError"],
 				},
 				USERNAME_AND_PASSWORD_VALID_PASSWORD_CHANGE_REQUIRED: {
 					target: AuthStateId.SubmittingForceChangePassword,
