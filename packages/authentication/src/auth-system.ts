@@ -334,12 +334,12 @@ export const machine = createMachine<
 				PASSWORD_RESET_SUCCESS: {
 					target: AuthStateId.PasswordResetSuccess,
 					actions: ["clearError"],
-				},
-				// TODO will get stuck here, need to figure out how best to handle this:
+				},			
 				PASSWORD_RESET_FAILURE: {
 					target: undefined,
 					actions: ["assignError"]
 				},
+        GO_BACK: AuthStateId.RequestingPasswordReset
 			}
 		},
 		[AuthStateId.ChangingPassword]: {
@@ -348,7 +348,6 @@ export const machine = createMachine<
 					target: AuthStateId.PasswordChangedSuccess,
 					actions: ["clearError"],
 				},
-				// TODO will get stuck here, need to figure out how best to handle this:
 				PASSWORD_CHANGE_FAILURE: {
 					target: undefined,
 					actions: ["assignError"]

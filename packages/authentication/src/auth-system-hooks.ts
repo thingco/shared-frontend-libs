@@ -450,10 +450,13 @@ export function useSubmittingPasswordReset(
 		[authenticator, isActive, username]
 	);
 
+	const cancelPasswordReset = () => authenticator.send({ type: "GO_BACK" });
+
 	return {
 		error,
 		isActive,
 		isLoading,
+		cancelPasswordReset,
 		submitNewPassword,
 		validationErrors,
 	};
