@@ -81,7 +81,7 @@ export function useCheckingForSession(cb: AuthCb.CheckSessionCb) {
 			authenticator.send({ type: "SESSION_PRESENT" });
 		} catch (err) {
 			logger.info("No session present");
-			logger.warn(err);
+			logger.log(err);
 			setIsLoading(false);
 			authenticator.send({ type: "SESSION_NOT_PRESENT" });
 		}
@@ -186,7 +186,7 @@ export function useSubmittingOtp<User = any>(
 				} catch (err) {
 					logger.log(err);
 					if (currentAttempts >= 3) {
-						logger.warn(err);
+						logger.log(err);
 						logger.info("OTP retries exceeded");
 						setIsLoading(false);
 						authenticator.send({
@@ -195,7 +195,7 @@ export function useSubmittingOtp<User = any>(
 						});
 						setAttemptsMade(0);
 					} else {
-						logger.warn(err);
+						logger.log(err);
 						logger.info(`OTP invalid, ${3 - currentAttempts} tries remaining`);
 						setIsLoading(false);
 						authenticator.send({
@@ -498,7 +498,7 @@ export function useCheckingForPin(cb: AuthCb.CheckForExistingPinCb) {
 			setIsLoading(false);
 			authenticator.send({ type: "PIN_IS_SET_UP" });
 		} catch (err) {
-			logger.warn(err);
+			logger.log(err);
 			logger.info("There is no PIN stored on this device.");
 			setIsLoading(false);
 			authenticator.send({ type: "PIN_IS_NOT_SET_UP" });
@@ -545,8 +545,8 @@ export function useSubmittingCurrentPin(
 					setIsLoading(false);
 					authenticator.send({ type: "PIN_VALID" });
 				} catch (err) {
-					logger.warn(err);
-					logger.warn("PIN validation failed");
+					logger.log(err);
+					logger.log("PIN validation failed");
 					setIsLoading(false);
 					authenticator.send({ type: "PIN_INVALID", error: "PIN_INVALID" });
 				}
@@ -639,8 +639,8 @@ export function useSubmittingNewPin(
 					setIsLoading(false);
 					authenticator.send({ type: "NEW_PIN_VALID" });
 				} catch (err) {
-					logger.warn(err);
-					logger.warn("Set PIN action failed.");
+					logger.log(err);
+					logger.log("Set PIN action failed.");
 					setIsLoading(false);
 					authenticator.send({ type: "NEW_PIN_INVALID", error: "NEW_PIN_INVALID" });
 				}
@@ -778,8 +778,8 @@ export function useValidatingPin(
 					setIsLoading(false);
 					authenticator.send({ type: "PIN_VALID" });
 				} catch (err) {
-					logger.warn(err);
-					logger.warn("PIN validation failed");
+					logger.log(err);
+					logger.log("PIN validation failed");
 					setIsLoading(false);
 					authenticator.send({ type: "PIN_INVALID", error: "PIN_INVALID" });
 				}
@@ -833,8 +833,8 @@ export function useChangingPin(
 					setIsLoading(false);
 					authenticator.send({ type: "PIN_CHANGE_SUCCESS" });
 				} catch (err) {
-					logger.warn(err);
-					logger.warn("PIN change failed");
+					logger.log(err);
+					logger.log("PIN change failed");
 					setIsLoading(false);
 					authenticator.send({ type: "PIN_CHANGE_FAILURE", error: "PIN_CHANGE_FAILURE" });
 				}
