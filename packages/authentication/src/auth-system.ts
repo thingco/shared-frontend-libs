@@ -58,6 +58,7 @@ export enum AuthStateId {
 	ChangingPin = "ChangingPin",
 	LoggingOut = "LoggingOut",
 	Authenticated = "Authenticated",
+	PasswordChangedSuccess = "PasswordChangedSuccess",
 }
 
 /**
@@ -101,6 +102,9 @@ type InternalAuthEvent =
 	| { type: "PASSWORD_CHANGE_FAILURE"; error: "PASSWORD_CHANGE_FAILURE" }
 	| { type: "CANCEL_PASSWORD_CHANGE" }
 	| { type: "PASSWORD_RESET_REQUEST_SUCCESS"; username: string }
+	| { type: "CANCEL_PASSWORD_CHANGE" }
+	| { type: "CONFIRM_PASSWORD_RESET" }
+	| { type: "CONFIRM_PASSWORD_CHANGE" }
 	// REVIEW: WHY did it fail?
 	| { type: "PASSWORD_RESET_REQUEST_FAILURE"; error: "PASSWORD_RESET_REQUEST_FAILURE" }
 	| { type: "PASSWORD_RESET_SUCCESS" }
@@ -143,6 +147,7 @@ type InternalAuthTypeState =
 	| { value: AuthStateId.ChangingPassword; context: InternalAuthContext & { username: string } }
 	| { value: AuthStateId.RequestingPasswordReset; context: InternalAuthContext }
 	| { value: AuthStateId.SubmittingPasswordReset; context: InternalAuthContext & { username: string } }
+  | { value: AuthStateId.PasswordChangedSuccess; context: InternalAuthContext }
 	| { value: AuthStateId.CheckingForPin; context: InternalAuthContext & { username?: string } }
 	| { value: AuthStateId.SubmittingCurrentPin; context: InternalAuthContext & { username?: string } }
 	| { value: AuthStateId.ResettingPin; context: InternalAuthContext }
@@ -325,7 +330,7 @@ export const machine = createMachine<
 		[AuthStateId.SubmittingPasswordReset]: {
 			on: {
 				PASSWORD_RESET_SUCCESS: {
-					target: AuthStateId.INTERNAL__deviceSecurityCheck,
+					target: AuthStateId.PasswordChangedSuccess,
 					actions: ["clearError"],
 				},
 				// TODO will get stuck here, need to figure out how best to handle this:
@@ -338,7 +343,7 @@ export const machine = createMachine<
 		[AuthStateId.ChangingPassword]: {
 			on: {
 				PASSWORD_CHANGE_SUCCESS: {
-					target: AuthStateId.Authenticated,
+					target: AuthStateId.PasswordChangedSuccess,
 					actions: ["clearError"],
 				},
 				// TODO will get stuck here, need to figure out how best to handle this:
@@ -347,6 +352,15 @@ export const machine = createMachine<
 					actions: ["assignError"]
 				},
 				CANCEL_PASSWORD_CHANGE: AuthStateId.Authenticated,
+			}
+		},
+    [AuthStateId.PasswordChangedSuccess]: {
+			on: {
+				CONFIRM_PASSWORD_RESET: {
+          target: AuthStateId.SubmittingUsernameAndPassword,
+          actions: ["clearUsername"],
+        },
+				CONFIRM_PASSWORD_CHANGE: AuthStateId.Authenticated,
 			}
 		},
 		[AuthStateId.INTERNAL__deviceSecurityCheck]: {

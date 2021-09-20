@@ -173,6 +173,22 @@ export const ResetPasswordOtpPasswordInput = () => {
 	);
 };
 
+export const PasswordChangedSuccess = () => {
+	const { isActive, confirmPasswordReset } = AuthStage.usePasswordChangedSuccess();
+
+	return (
+		<section className={classnames("auth-stage", { "auth-stage--active": isActive })}>
+			<Form submitCb={confirmPasswordReset}>
+				<Form.Elements disabled={!isActive}>
+					<Form.Controls>
+						<Form.Submit label="Confirm Reset!" testid="resetSuccessConfirm" />
+					</Form.Controls>
+				</Form.Elements>
+			</Form>
+		</section>
+	);
+};
+
 export const OtpInput = () => {
 	const { error, isActive, isLoading, validateOtp } = AuthStage.useSubmittingOtp(
 		async (user, password) => {

@@ -459,6 +459,20 @@ export function useSubmittingPasswordReset(
 	};
 }
 
+export function usePasswordChangedSuccess() {
+	const authenticator = useAuthInterpreter();
+	const isActive = useSelector(authenticator, stateSelectors.isPasswordChangedSuccess);
+
+	const confirmPasswordReset = () => authenticator.send({ type: "CONFIRM_PASSWORD_RESET" });
+	const confirmPasswordChanged = () => authenticator.send({ type: "CONFIRM_PASSWORD_CHANGE" });
+
+	return {
+		isActive,
+		confirmPasswordChanged,
+		confirmPasswordReset,
+	};
+}
+
 /**
  * Given the `CheckForExistingPin` callback, the stage should test for existence
  * of a pin. From this, can infer whether the system should move the user to
