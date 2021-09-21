@@ -26,7 +26,7 @@ import {
 import type { RenderResult } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { AuthProvider, useAuthProvider } from "./AuthSystemProvider";
-import { AuthError } from "./types";
+import { AuthError, LoginFlowType, DeviceSecurityType } from "./types";
 
 /* ========================================================================= *\
  * 1. UTILITIES
@@ -65,7 +65,6 @@ const USER_OBJECT = { description: "I represent the user object returned by the 
 const MockCb = {
 	checkSessionCb: jest.fn(),
 	validateOtpUsernameCb: jest.fn(async (username) => {
-		await sleep(10);
 		if (username === VALID_USERNAME) {
 			return Promise.resolve(USER_OBJECT);
 		} else {
@@ -73,7 +72,6 @@ const MockCb = {
 		}
 	}),
 	validateOtpCb: jest.fn(async (_, otp) => {
-		await sleep(10);
 		if (otp === VALID_CODE) {
 			return Promise.resolve(USER_OBJECT);
 		} else {
@@ -81,7 +79,6 @@ const MockCb = {
 		}
 	}),
 	validateUsernameAndPasswordCb: jest.fn(async (username, password) => {
-		await sleep(10);
 		if (username === VALID_USERNAME && password === VALID_PASSWORD) {
 			return Promise.resolve(USER_OBJECT);
 		} else if (username === VALID_USERNAME && password === OLD_PASSWORD) {
@@ -90,8 +87,7 @@ const MockCb = {
 			return Promise.reject();
 		}
 	}),
-	validateForceChangePasswordCb: jest.fn(async (_, password) => {
-		await sleep(10);
+	validateForceChangePasswordCb: jest.fn(async (user, password) => {
 		if (password === VALID_PASSWORD) {
 			return Promise.resolve();
 		} else {
@@ -105,7 +101,13 @@ const MockCb = {
 			return Promise.reject();
 		}
 	}),
-	submitNewPasswordCb: jest.fn((code, newPassword) => code === VALID_CODE && newPassword === VALID_PASSWORD ? Promise.resolve() : Promise.reject()),
+	submitNewPasswordCb: jest.fn(async (code, newPassword) => {
+		if (code === VALID_CODE && newPassword === VALID_PASSWORD) {
+			return Promise.resolve();
+		} else {
+			return Promise.reject();
+		}
+	}),
 	changePasswordCb: jest.fn((oldPassword, newPassword) => oldPassword === VALID_PASSWORD && newPassword === ANOTHER_VALID_PASSWORD ? Promise.resolve() : Promise.reject()),
 	checkForExistingPinCb: jest.fn(),
 	validatePinCb: jest.fn((pin: string) => pin === VALID_CODE ? Promise.resolve() : Promise.reject()),
@@ -222,7 +224,7 @@ const AuthStageTestReporter = ({
 	isLoading: boolean;
 	stageId: AuthStateId;
 }) => (
-	<header title={stageId}>
+	<header title={`Auth stage ${stageId} reporter`}>
 		<p>Stage: {stageId}</p>
 		<p>Loading: {isLoading.toString()}</p>
 		<p>Error: {errorMsg || "n/a"}</p>
@@ -404,7 +406,7 @@ function RequestNewPassword() {
 			<Form submitCb={requestNewPassword} cbParams={[username]}>
 				<Form.InputGroup
 					id="username"
-					label="Enter your Usename"
+					label="Enter your username"
 					validationErrors={validationErrors["username"]}
 					value={username}
 					valueSetter={setUsername}
@@ -627,11 +629,17 @@ describe("authentication test system using OTP and no device security", () => {
 				meta: {
 					test: async (screen: RenderResult) => {
 						// The overall reporter (prints machine context values to screen):
-						expect(await screen.findByText("Current stage: CheckingForSession")).toBeDefined();
+						expect(
+							await screen.findByText(`Current stage: ${AuthStateId.CheckingForSession}`)
+						).toBeDefined();
 						// NOTE: Only need to check these once, they should stay constant
 						//       throughout the test as they're read-only values:
-						expect(await screen.findByText("Current login flow: OTP")).toBeDefined();
-						expect(await screen.findByText("Current device security: NONE")).toBeDefined();
+						expect(
+							await screen.findByText(`Current login flow: ${"OTP" as LoginFlowType}`)
+						).toBeDefined();
+						expect(
+							await screen.findByText(`Current device security: ${"NONE" as DeviceSecurityType}`)
+						).toBeDefined();
 
 						// The reporter for this stage (prints hook state values):
 						expect(await screen.findByText("Error: n/a")).toBeDefined();
@@ -646,7 +654,9 @@ describe("authentication test system using OTP and no device security", () => {
 				meta: {
 					test: async (screen: RenderResult) => {
 						// The overall reporter (prints machine context values to screen):
-						expect(await screen.findByText("Current stage: SubmittingOtpUsername")).toBeDefined();
+						expect(
+							await screen.findByText(`Current stage: ${AuthStateId.SubmittingOtpUsername}`)
+						).toBeDefined();
 						// The reporter for this stage (prints hook state values):
 						expect(await screen.findByText("Error: n/a")).toBeDefined();
 					},
@@ -659,7 +669,9 @@ describe("authentication test system using OTP and no device security", () => {
 				meta: {
 					test: async (screen: RenderResult) => {
 						// The overall reporter (prints machine context values to screen):
-						expect(await screen.findByText("Current stage: SubmittingOtpUsername")).toBeDefined();
+						expect(
+							await screen.findByText(`Current stage: ${AuthStateId.SubmittingOtpUsername}`)
+						).toBeDefined();
 						// The reporter for this stage (prints hook state values):
 						expect(await screen.findByText("Error: PASSWORD_RETRIES_EXCEEDED")).toBeDefined();
 					},
@@ -672,7 +684,9 @@ describe("authentication test system using OTP and no device security", () => {
 				meta: {
 					test: async (screen: RenderResult) => {
 						// The overall reporter (prints machine context values to screen):
-						expect(await screen.findByText("Current stage: SubmittingOtpUsername")).toBeDefined();
+						expect(
+							await screen.findByText(`Current stage: ${AuthStateId.SubmittingOtpUsername}`)
+						).toBeDefined();
 						// The reporter for this stage (prints hook state values):
 						expect(await screen.findByText("Error: USERNAME_INVALID")).toBeDefined();
 					},
@@ -687,7 +701,9 @@ describe("authentication test system using OTP and no device security", () => {
 				meta: {
 					test: async (screen: RenderResult) => {
 						// The overall reporter (prints machine context values to screen):
-						expect(await screen.findByText("Current stage: SubmittingOtp")).toBeDefined();
+						expect(
+							await screen.findByText(`Current stage: ${AuthStateId.SubmittingOtp}`)
+						).toBeDefined();
 						// The reporter for this stage (prints hook state values):
 						expect(await screen.findByText("Error: n/a")).toBeDefined();
 					},
@@ -702,7 +718,9 @@ describe("authentication test system using OTP and no device security", () => {
 				meta: {
 					test: async (screen: RenderResult) => {
 						// The overall reporter (prints machine context values to screen):
-						expect(await screen.findByText("Current stage: SubmittingOtp")).toBeDefined();
+						expect(
+							await screen.findByText(`Current stage: ${AuthStateId.SubmittingOtp}`)
+						).toBeDefined();
 						// The reporter for this stage (prints hook state values):
 						expect(
 							await screen.findByText("Error: PASSWORD_INVALID_2_RETRIES_REMAINING")
@@ -719,7 +737,9 @@ describe("authentication test system using OTP and no device security", () => {
 				meta: {
 					test: async (screen: RenderResult) => {
 						// The overall reporter (prints machine context values to screen):
-						expect(await screen.findByText("Current stage: SubmittingOtp")).toBeDefined();
+						expect(
+							await screen.findByText(`Current stage: ${AuthStateId.SubmittingOtp}`)
+						).toBeDefined();
 						// The reporter for this stage (prints hook state values):
 						expect(
 							await screen.findByText("Error: PASSWORD_INVALID_1_RETRIES_REMAINING")
@@ -734,7 +754,9 @@ describe("authentication test system using OTP and no device security", () => {
 				meta: {
 					test: async (screen: RenderResult) => {
 						// The overall reporter (prints machine context values to screen):
-						expect(await screen.findByText("Current stage: Authenticated")).toBeDefined();
+						expect(
+							await screen.findByText(`Current stage: ${AuthStateId.Authenticated}`)
+						).toBeDefined();
 						// The reporter for this stage (prints hook state values):
 						expect(await screen.findByText("Error: n/a")).toBeDefined();
 					},
@@ -749,7 +771,9 @@ describe("authentication test system using OTP and no device security", () => {
 				meta: {
 					test: async (screen: RenderResult) => {
 						// The overall reporter (prints machine context values to screen):
-						expect(await screen.findByText("Current stage: LoggingOut")).toBeDefined();
+						expect(
+							await screen.findByText(`Current stage: ${AuthStateId.LoggingOut}`)
+						).toBeDefined();
 						// The reporter for this stage (prints hook state values):
 						expect(await screen.findByText("Error: n/a")).toBeDefined();
 					},
@@ -885,11 +909,17 @@ describe("authentication test system using username password and no device secur
 				meta: {
 					test: async (screen: RenderResult) => {
 						// The overall reporter (prints machine context values to screen):
-						expect(await screen.findByText("Current stage: CheckingForSession")).toBeDefined();
+						expect(
+							await screen.findByText(`Current stage: ${AuthStateId.CheckingForSession}`)
+						).toBeDefined();
 						// NOTE: Only need to check these once, they should stay constant
 						//       throughout the test as they're read-only values:
-						expect(await screen.findByText("Current login flow: USERNAME_PASSWORD")).toBeDefined();
-						expect(await screen.findByText("Current device security: NONE")).toBeDefined();
+						expect(
+							await screen.findByText(`Current login flow: ${"USERNAME_PASSWORD" as LoginFlowType}`)
+						).toBeDefined();
+						expect(
+							await screen.findByText(`Current device security: ${"NONE" as DeviceSecurityType}`)
+						).toBeDefined();
 
 						// The reporter for this stage (prints hook state values):
 						expect(await screen.findByText("Error: n/a")).toBeDefined();
@@ -907,7 +937,7 @@ describe("authentication test system using username password and no device secur
 					test: async (screen: RenderResult) => {
 						// The overall reporter (prints machine context values to screen):
 						expect(
-							await screen.findByText("Current stage: SubmittingUsernameAndPassword")
+							await screen.findByText(`Current stage: ${AuthStateId.SubmittingUsernameAndPassword}`)
 						).toBeDefined();
 						// The reporter for this stage (prints hook state values):
 						expect(await screen.findByText("Error: n/a")).toBeDefined();
@@ -922,7 +952,7 @@ describe("authentication test system using username password and no device secur
 					test: async (screen: RenderResult) => {
 						// The overall reporter (prints machine context values to screen):
 						expect(
-							await screen.findByText("Current stage: SubmittingUsernameAndPassword")
+							await screen.findByText(`Current stage: ${AuthStateId.SubmittingUsernameAndPassword}`)
 						).toBeDefined();
 						// The reporter for this stage (prints hook state values):
 						expect(await screen.findByText("Error: USERNAME_AND_PASSWORD_INVALID")).toBeDefined();
@@ -973,7 +1003,9 @@ describe("authentication test system using username password and no device secur
 				meta: {
 					test: async (screen: RenderResult) => {
 						// The overall reporter (prints machine context values to screen):
-						expect(await screen.findByText("Current stage: RequestingPasswordReset")).toBeDefined();
+						expect(
+							await screen.findByText(`Current stage: ${AuthStateId.RequestingPasswordReset}`)
+						).toBeDefined();
 						// The reporter for this stage (prints hook state values):
 						expect(await screen.findByText("Error: n/a")).toBeDefined();
 					},
@@ -986,7 +1018,9 @@ describe("authentication test system using username password and no device secur
 				meta: {
 					test: async (screen: RenderResult) => {
 						// The overall reporter (prints machine context values to screen):
-						expect(await screen.findByText("Current stage: RequestingPasswordReset")).toBeDefined();
+						expect(
+							await screen.findByText(`Current stage: ${AuthStateId.RequestingPasswordReset}`)
+						).toBeDefined();
 						// The reporter for this stage (prints hook state values):
 						expect(await screen.findByText("Error: PASSWORD_RESET_REQUEST_FAILURE")).toBeDefined();
 					},
@@ -1000,7 +1034,9 @@ describe("authentication test system using username password and no device secur
 				meta: {
 					test: async (screen: RenderResult) => {
 						// The overall reporter (prints machine context values to screen):
-						expect(await screen.findByText("Current stage: SubmittingPasswordReset")).toBeDefined();
+						expect(
+							await screen.findByText(`Current stage: ${AuthStateId.SubmittingPasswordReset}`)
+						).toBeDefined();
 						// The reporter for this stage (prints hook state values):
 						expect(await screen.findByText("Error: n/a")).toBeDefined();
 					},
@@ -1013,7 +1049,9 @@ describe("authentication test system using username password and no device secur
 				meta: {
 					test: async (screen: RenderResult) => {
 						// The overall reporter (prints machine context values to screen):
-						expect(await screen.findByText("Current stage: SubmittingPasswordReset")).toBeDefined();
+						expect(
+							await screen.findByText(`Current stage: ${AuthStateId.SubmittingPasswordReset}`)
+						).toBeDefined();
 						// The reporter for this stage (prints hook state values):
 						expect(await screen.findByText("Error: PASSWORD_CHANGE_FAILURE")).toBeDefined();
 					},
@@ -1026,7 +1064,9 @@ describe("authentication test system using username password and no device secur
 				meta: {
 					test: async (screen: RenderResult) => {
 						// The overall reporter (prints machine context values to screen):
-						expect(await screen.findByText("Current stage: Authenticated")).toBeDefined();
+						expect(
+							await screen.findByText(`Current stage: ${AuthStateId.Authenticated}`)
+						).toBeDefined();
 						// The reporter for this stage (prints hook state values):
 						expect(await screen.findByText("Error: n/a")).toBeDefined();
 					},
@@ -1041,7 +1081,9 @@ describe("authentication test system using username password and no device secur
 				meta: {
 					test: async (screen: RenderResult) => {
 						// The overall reporter (prints machine context values to screen):
-						expect(await screen.findByText("Current stage: LoggingOut")).toBeDefined();
+						expect(
+							await screen.findByText(`Current stage: ${AuthStateId.LoggingOut}`)
+						).toBeDefined();
 						// The reporter for this stage (prints hook state values):
 						expect(await screen.findByText("Error: n/a")).toBeDefined();
 					},
@@ -1240,10 +1282,6 @@ describe("authentication test system using username password and no device secur
 	it("should have full coverage", () => {
 		return model.testCoverage();
 	});
-});
-
-describe("authentication test system using username and password and no device security", () => {
-	test.todo("Add username password flow model test");
 });
 
 describe("authentication test system using PIN device security", () => {
