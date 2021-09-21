@@ -6,6 +6,8 @@ import { variantToTheme } from "../util";
 
 import { buttonImageSources as ImageSources } from "../Icons/ImageSources";
 
+import { Dimensions } from "react-native";
+
 interface ImageButtonProps extends TouchableOpacityProps {
 	image: string;
 	text: string;
@@ -21,6 +23,7 @@ export const ImageButton = ({
 	...props
 }: ImageButtonProps) => {
 	const { theme } = useTheme();
+	const width = Dimensions.get("window").width;
 
 	const custStyle = style instanceof Array ? style : [style];
 	const custTextStyle = textStyle instanceof Array ? textStyle : [textStyle];
@@ -39,6 +42,8 @@ export const ImageButton = ({
 			<ImageSources
 				image={image}
 				style={{
+					minHeight: width / 20,
+					minWidth: width / 20,
 					marginRight: 20,
 				}}
 			/>
