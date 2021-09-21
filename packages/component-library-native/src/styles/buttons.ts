@@ -3,7 +3,7 @@ import type { ThemeColour } from "./defaultTheme";
 export const buttonStyles = (colours: ThemeColour) => ({
 	primary: {
 		borderRadius: 10,
-		height: 50,
+		minHeight: 50,
 		padding: 5,
 		marginVertical: 5,
 		justifyContent: "center",
@@ -16,7 +16,7 @@ export const buttonStyles = (colours: ThemeColour) => ({
 	},
 	secondary: {
 		borderRadius: 10,
-		height: 50,
+		minHeight: 50,
 		marginVertical: 5,
 		padding: 5,
 		justifyContent: "center",
@@ -27,7 +27,7 @@ export const buttonStyles = (colours: ThemeColour) => ({
 	},
 	tertiary: {
 		borderRadius: 20,
-		height: 40,
+		minHeight: 40,
 		marginVertical: 10,
 		padding: 5,
 		justifyContent: "center",
@@ -38,7 +38,7 @@ export const buttonStyles = (colours: ThemeColour) => ({
 	},
 	standalone: {
 		borderRadius: 20,
-		height: 40,
+		minHeight: 40,
 		marginVertical: 10,
 		padding: 5,
 		justifyContent: "center",
@@ -49,7 +49,7 @@ export const buttonStyles = (colours: ThemeColour) => ({
 	},
 	menu: {
 		borderRadius: 20,
-		height: 40,
+		minHeight: 40,
 		marginVertical: 10,
 		padding: 5,
 		backgroundColor: "transparent",
