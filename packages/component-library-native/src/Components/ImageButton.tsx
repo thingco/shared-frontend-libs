@@ -42,8 +42,8 @@ export const ImageButton = ({
 			<ImageSources
 				image={image}
 				style={{
-					minHeight: width / 20,
-					minWidth: width / 20,
+					height: 100,
+					width: 100,
 					marginRight: 20,
 				}}
 			/>
