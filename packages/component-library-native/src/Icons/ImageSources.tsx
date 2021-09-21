@@ -12,13 +12,45 @@ interface ButtonImageSourcesProps {
 export const buttonImageSources = ({ image, style = {} }: ButtonImageSourcesProps) => {
 	switch (image) {
 		case "Account":
-			return <Account height={"100px"} width={"100px"} viewBox={`0 0 100 100`} style={style} />;
+			return (
+				<Account
+					height={"100px"}
+					width={"100px"}
+					viewBox={`0 0 100 100`}
+					preserveAspectRatio="xMidYMid meet"
+					style={style}
+				/>
+			);
 		case "Units":
-			return <Units height={"100px"} width={"100px"} viewBox={`0 0 100 100`} style={style} />;
+			return (
+				<Units
+					height={"100px"}
+					width={"100px"}
+					viewBox={`0 0 100 100`}
+					preserveAspectRatio="xMidYMid meet"
+					style={style}
+				/>
+			);
 		case "Lock":
-			return <Lock height={"100px"} width={"100px"} viewBox={`0 0 100 100`} style={style} />;
+			return (
+				<Lock
+					height={"100px"}
+					width={"100px"}
+					viewBox={`0 0 100 100`}
+					preserveAspectRatio="xMidYMid meet"
+					style={style}
+				/>
+			);
 		case "Login":
-			return <Login height={"100px"} width={"100px"} viewBox={`0 0 100 100`} style={style} />;
+			return (
+				<Login
+					height={"100px"}
+					width={"100px"}
+					viewBox={`0 0 100 100`}
+					preserveAspectRatio="xMidYMid meet"
+					style={style}
+				/>
+			);
 		default:
 			return null;
 	}
