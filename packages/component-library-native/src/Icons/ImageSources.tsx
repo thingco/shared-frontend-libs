@@ -12,13 +12,13 @@ interface ButtonImageSourcesProps {
 export const buttonImageSources = ({ image, style = {} }: ButtonImageSourcesProps) => {
 	switch (image) {
 		case "Account":
-			return <Account style={style} />;
+			return <Account viewBox={`0 0 100 100`} style={style} />;
 		case "Units":
-			return <Units style={style} />;
+			return <Units viewBox={`0 0 100 100`} style={style} />;
 		case "Lock":
-			return <Lock style={style} />;
+			return <Lock viewBox={`0 0 100 100`} style={style} />;
 		case "Login":
-			return <Login style={style} />;
+			return <Login viewBox={`0 0 100 100`} style={style} />;
 		default:
 			return null;
 	}
