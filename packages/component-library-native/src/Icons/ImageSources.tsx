@@ -22,15 +22,7 @@ export const buttonImageSources = ({ image, style = {} }: ButtonImageSourcesProp
 				/>
 			);
 		case "Units":
-			return (
-				<Units
-					height={"100px"}
-					width={"100px"}
-					viewBox={`0 0 100 100`}
-					preserveAspectRatio="xMidYMid meet"
-					style={style}
-				/>
-			);
+			return <Units viewBox={`0 0 100 100`} preserveAspectRatio="xMidYMid meet" style={style} />;
 		case "Lock":
 			return (
 				<Lock
