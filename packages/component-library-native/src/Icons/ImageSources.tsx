@@ -26,7 +26,7 @@ export const buttonImageSources = ({ image, style = {} }: ButtonImageSourcesProp
 				<Units
 					height={"100px"}
 					width={"100px"}
-					viewBox={`0 0 100 100`}
+					viewBox={`0 0 200 200`}
 					preserveAspectRatio="xMidYMid meet"
 					style={style}
 				/>
