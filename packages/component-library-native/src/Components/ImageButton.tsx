@@ -44,6 +44,7 @@ export const ImageButton = ({
 				style={{
 					marginRight: 20,
 				}}
+				width={width / 18}
 			/>
 			<Text style={[...textStyles, ...custTextStyle]}>{text}</Text>
 		</TouchableOpacity>

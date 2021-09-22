@@ -6,19 +6,22 @@ import Login from "./icon_settings_login.svg";
 
 interface ButtonImageSourcesProps {
 	image: string;
+	width?: number;
 	style: any;
 }
 
-export const buttonImageSources = ({ image, style = {} }: ButtonImageSourcesProps) => {
+export const buttonImageSources = ({ image, width, style = {} }: ButtonImageSourcesProps) => {
 	switch (image) {
 		case "Account":
-			return <Account height={"100px"} width={"100px"} style={style} />;
+			return <Account height={`${width}px`} width={`${width}px`} style={style} />;
 		case "Units":
-			return <Units height={"100px"} width={"100px"} style={style} />;
+			return <Units height={`${width}px`} width={`${width}px`} style={style} />;
 		case "Lock":
-			return <Lock height={"100px"} width={"100px"} style={style} />;
+			return (
+				<Lock height={width ? `${width * 1.2}px` : undefined} width={`${width}px`} style={style} />
+			);
 		case "Login":
-			return <Login height={"100px"} width={"100px"} style={style} />;
+			return <Login height={`${width}px`} width={`${width}px`} style={style} />;
 		default:
 			return null;
 	}
