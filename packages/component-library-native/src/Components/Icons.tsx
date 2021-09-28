@@ -3,6 +3,11 @@ import { ViewStyle } from "react-native";
 import Svg, { G, Path } from "react-native-svg";
 import { View } from "./Containers";
 
+import { Dimensions } from "react-native";
+
+const width = Dimensions.get("window").width;
+const IconScalar = width / 400;
+
 export type IconType =
 	| "info-circle"
 	| "key"
@@ -1005,7 +1010,7 @@ function iconSelector(iconType: IconType, strokeWidth: number, stroke?: string):
 
 interface LineIconProps {
 	iconType: IconType;
-	size: number | string;
+	size: number;
 	stroke?: string;
 	strokeWidth?: number;
 	style?: ViewStyle;
@@ -1018,7 +1023,7 @@ export const LineIcon = ({
 	strokeWidth = 2,
 	style = {},
 }: LineIconProps): JSX.Element => (
-	<View style={{ height: size, width: size, ...style }}>
+	<View style={{ height: IconScalar * size, width: IconScalar * size, ...style }}>
 		{iconSelector(iconType as IconType, strokeWidth, stroke)}
 	</View>
 );

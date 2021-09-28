@@ -54,7 +54,7 @@ interface IconButtonProps extends TouchableOpacityProps {
 	isDisabled?: boolean;
 	style?: ViewStyle[] | ViewStyle;
 	icon: IconType;
-	size: number | string;
+	size: number;
 	stroke?: string;
 	strokeWidth?: number;
 }
