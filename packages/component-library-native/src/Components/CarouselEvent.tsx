@@ -1,5 +1,5 @@
 import I18n from "i18n-js";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
 	ActivityIndicator,
 	Dimensions,
@@ -14,14 +14,12 @@ import Warning from "./icon_warning.svg";
 
 const { width: viewportWidth } = Dimensions.get("window");
 
-const adjustedWidth = viewportWidth > 600 ? (viewportWidth * 2) / 3 : viewportWidth;
-const tileWidth = adjustedWidth - 40;
-
 interface CarouselEventProps {
 	item: CarouselItem;
 	index: number;
 	height: number | string;
 	onPress: (e: GestureResponderEvent, index: number) => void;
+	isTablet?: boolean;
 }
 
 interface CarouselEventEmptyProps {
@@ -39,7 +37,16 @@ interface CarouselItem {
 	index: number;
 }
 
-export const CarouselEvent = ({ item, index, height, onPress }: CarouselEventProps) => {
+export const CarouselEvent = ({
+	item,
+	index,
+	height,
+	onPress,
+	isTablet = false,
+}: CarouselEventProps) => {
+	const adjustedWidth = isTablet ? (viewportWidth * 2) / 3 : viewportWidth;
+	const tileWidth = adjustedWidth - 40;
+
 	let event;
 	let icon;
 	let details;
@@ -58,8 +65,8 @@ export const CarouselEvent = ({ item, index, height, onPress }: CarouselEventPro
 						justifyContent: "flex-end",
 					}}
 				>
-					<Text variant={"accent"}>{I18n.t("Distance")}</Text>
-					<Text>
+					<Text variant={"base accent"}>{I18n.t("Distance")}</Text>
+					<Text variant={"base"}>
 						<Text style={{ fontWeight: "bold" }}>{item.distance}</Text>{" "}
 					</Text>
 				</View>
@@ -70,8 +77,10 @@ export const CarouselEvent = ({ item, index, height, onPress }: CarouselEventPro
 						justifyContent: "flex-end",
 					}}
 				>
-					<Text variant={"accent"}>{I18n.t("Duration")}</Text>
-					<Text style={{ fontWeight: "bold" }}>{item.duration}</Text>
+					<Text variant={"base accent"}>{I18n.t("Duration")}</Text>
+					<Text variant={"base"} style={{ fontWeight: "bold" }}>
+						{item.duration}
+					</Text>
 				</View>
 				<View
 					variant={"centred"}
@@ -80,8 +89,8 @@ export const CarouselEvent = ({ item, index, height, onPress }: CarouselEventPro
 						justifyContent: "flex-end",
 					}}
 				>
-					<Text variant={"accent"}>{I18n.t("Avg Speed")}</Text>
-					<Text>
+					<Text variant={"base accent"}>{I18n.t("Avg Speed")}</Text>
+					<Text variant={"base"}>
 						<Text style={{ fontWeight: "bold" }}>{item.avgspeed}</Text>{" "}
 					</Text>
 				</View>
