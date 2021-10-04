@@ -14,7 +14,8 @@ import Warning from "./icon_warning.svg";
 
 const { width: viewportWidth } = Dimensions.get("window");
 
-const tileWidth = viewportWidth - 40;
+const adjustedWidth = viewportWidth > 600 ? (viewportWidth * 2) / 3 : viewportWidth;
+const tileWidth = adjustedWidth - 40;
 
 interface CarouselEventProps {
 	item: CarouselItem;
