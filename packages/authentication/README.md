@@ -2,7 +2,7 @@
 
 ## Overview
 
-Hook-based authentication system for @thingco apps. Built on top the FSM library [XState](https://xstate.js.org). 
+Hook-based authentication system for @thingco apps. Built on top the FSM library [XState](https://xstate.js.org).
 
 ## Prerequisites
 
@@ -31,17 +31,12 @@ yarn add @aws-amplify/auth
 Configure the auth library as directed in the Amplify documentation. Then set up @thingco/authentication. At the entry point of the app:
 
 ```tsx
-import { createAuthenticationSystem, AuthProvider } from @thingco/authentication;
+import { AuthProvider } from @thingco/authentication;
 
 
-const authSystem = createAuthenticationSystem({
-	loginFlowType: "OTP" // this can be "OTP" or "USERNAME_PASSWORD", pull in value from app config
-	deviceSecurityType: "PIN" // this can be "NONE" or "PIN", pull in value from app config
-});
-
-const MyApp = ({ children}: { children: React.ReactNode }) => (
-	<AuthProvider authenticationSystem={authSystem}>
-	  {children}
+const MyApp = () => (
+	<AuthProvider loginFlowType="OTP" deviceSecurityType="PIN">
+	  {/* child component calls here */}
 	</AuthProvider>
 );
 ```
@@ -92,4 +87,3 @@ yarn workspace @thingco/authentication watch
 ```
 
 It will build the code and serve it at localhost:3000.
-

@@ -53,6 +53,7 @@
 		"zx": "^3.0.0"
 	},
 	"resolutions": {
+		"aria-query": "5.0.0",
 		"typicode/husky": "4.3.8"
 	},
 	"husky": {

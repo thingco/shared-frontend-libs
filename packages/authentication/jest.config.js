@@ -1,13 +1,13 @@
-module.exports = {
+export default {
 	globals: {
 		"ts-jest": {
-			tsconfig: "tsconfig.jest.json",
+			tsconfig: "tsconfig.json",
 		},
 	},
 	roots: ["<rootDir>/src"],
 	setupFilesAfterEnv: ["@testing-library/jest-dom/extend-expect"],
 	testEnvironment: "jsdom",
-	testMatch: ["**/__tests__/**/*.+(ts|tsx|js)", "**/?(*.)+(spec|test).+(ts|tsx|js)"],
+	testMatch: ["test/**/*.(ts|tsx|js)", "src/**/*.test.(ts|tsx|js)"],
 	transform: {
 		"^.+\\.(js|ts|tsx)$": "ts-jest",
 	},

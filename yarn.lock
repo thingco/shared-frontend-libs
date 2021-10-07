@@ -1680,17 +1680,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/runtime-corejs3@npm:^7.10.2":
-  version: 7.15.3
-  resolution: "@babel/runtime-corejs3@npm:7.15.3"
-  dependencies:
-    core-js-pure: ^3.16.0
-    regenerator-runtime: ^0.13.4
-  checksum: c33952657d0bec71f46c7ea2595297f4fd61e68ebce812a7de4e3a9841d8ac6af61880049f72560fda9396a86de5b06e5ba6a6f11bd9cf688ec7f4b812730c8b
-  languageName: node
-  linkType: hard
-
-"@babel/runtime@npm:^7.10.2, @babel/runtime@npm:^7.12.5, @babel/runtime@npm:^7.13.10, @babel/runtime@npm:^7.7.2, @babel/runtime@npm:^7.8.4, @babel/runtime@npm:^7.9.2":
+"@babel/runtime@npm:^7.12.5, @babel/runtime@npm:^7.13.10, @babel/runtime@npm:^7.7.2, @babel/runtime@npm:^7.8.4, @babel/runtime@npm:^7.9.2":
   version: 7.15.3
   resolution: "@babel/runtime@npm:7.15.3"
   dependencies:
@@ -3030,6 +3020,7 @@ __metadata:
     "@xstate/react": ^1.5.1
     "@xstate/test": ^0.4.2
     classnames: ^2.3.1
+    compress-tag: ^2.0.1
     esbuild: ^0.12.21
     jest: ^27.0.6
     react: ^17.0.2
@@ -4499,13 +4490,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"aria-query@npm:^4.2.2":
-  version: 4.2.2
-  resolution: "aria-query@npm:4.2.2"
-  dependencies:
-    "@babel/runtime": ^7.10.2
-    "@babel/runtime-corejs3": ^7.10.2
-  checksum: 38401a9a400f26f3dcc24b84997461a16b32869a9893d323602bed8da40a8bcc0243b8d2880e942249a1496cea7a7de769e93d21c0baa439f01e1ee936fed665
+"aria-query@npm:5.0.0":
+  version: 5.0.0
+  resolution: "aria-query@npm:5.0.0"
+  checksum: c41f98866c5a304561ee8cae55856711cddad6f3f85d8cb43cc5f79667078d9b8979ce32d244c1ff364e6463a4d0b6865804a33ccc717fed701b281cf7dc6296
   languageName: node
   linkType: hard
 
@@ -5746,6 +5734,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"compress-tag@npm:^2.0.1":
+  version: 2.0.1
+  resolution: "compress-tag@npm:2.0.1"
+  dependencies:
+    unraw: ^2.0.1
+  checksum: 663b005c799be064dd90b78eced88ff6400f84242e8118b8cca0c54fc7a0da9487f31cd4feecd1ce3a9e1c9ee128a84f6549bf69d612727fa7f1ab5646450f64
+  languageName: node
+  linkType: hard
+
 "compressible@npm:~2.0.16":
   version: 2.0.18
   resolution: "compressible@npm:2.0.18"
@@ -5863,13 +5860,6 @@ __metadata:
     browserslist: ^4.16.7
     semver: 7.0.0
   checksum: 48fc6c5f2a389e58855f7f0c77623878e78b95dad268ec25cbc38fbc98ee60d3241f4b653543252427b26e378a8cbf5e9ae323e16afe00c29c3c47b3a6a7b655
-  languageName: node
-  linkType: hard
-
-"core-js-pure@npm:^3.16.0":
-  version: 3.16.2
-  resolution: "core-js-pure@npm:3.16.2"
-  checksum: e44acd945b78f6faf96f38059a5347eb236eaae9b2fa897e58f52b12b64e5233c2b1243e953b828ddec62c215c5f911ac2d3c9276974ded1c04331961d877869
   languageName: node
   linkType: hard
 
@@ -14560,6 +14550,13 @@ typescript@^4.3.5:
   version: 1.0.0
   resolution: "unpipe@npm:1.0.0"
   checksum: 4fa18d8d8d977c55cb09715385c203197105e10a6d220087ec819f50cb68870f02942244f1017565484237f1f8c5d3cd413631b1ae104d3096f24fdfde1b4aa2
+  languageName: node
+  linkType: hard
+
+"unraw@npm:^2.0.1":
+  version: 2.0.1
+  resolution: "unraw@npm:2.0.1"
+  checksum: af9a9d2f6e420cb4f52fe2f1f5982e6b0be95da640d6ae8d6d9ff631d864771793cb9fe7e2a16ef1ce631b94065f4438e7bd7f1701076fc69296edc4e704d42f
   languageName: node
   linkType: hard
 

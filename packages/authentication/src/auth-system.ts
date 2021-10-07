@@ -46,20 +46,21 @@ export enum AuthStateId {
 	SubmittingOtp = "SubmittingOtp",
 	SubmittingUsernameAndPassword = "SubmittingUsernameAndPassword",
 	SubmittingForceChangePassword = "SubmittingForceChangePassword",
-	ChangingPassword = "ChangingPassword",
-	RequestingPasswordReset = "RequestingPasswordReset",
-	SubmittingPasswordReset = "SubmittingPasswordReset",
+	AuthenticatedChangingPassword = "AuthenticatedChangingPassword",
+	ForgottenPasswordRequestingReset = "ForgottenPasswordRequestingReset",
+	ForgottenPasswordSubmittingReset = "ForgottenPasswordSubmittingReset",
 	INTERNAL__deviceSecurityCheck = "INTERNAL__deviceSecurityCheck",
 	CheckingForPin = "CheckingForPin",
 	SubmittingCurrentPin = "SubmittingCurrentPin",
-	ResettingPin = "ResettingPin",
 	SubmittingNewPin = "SubmittingNewPin",
-	ValidatingPin = "ValidatingPin",
-	ChangingPin = "ChangingPin",
-	LoggingOut = "LoggingOut",
+	ForgottenPinRequestingReset = "ForgottenPinRequestingReset",
+	AuthenticatedValidatingPin = "AuthenticatedValidatingPin",
+	AuthenticatedChangingPin = "AuthenticatedChangingPin",
+	AuthenticatedPinChangeSuccess = "AuthenticatedPinChangeSuccess",
+	AuthenticatedLoggingOut = "AuthenticatedLoggingOut",
 	Authenticated = "Authenticated",
-	PasswordChangedSuccess = "PasswordChangedSuccess",
-	PasswordResetSuccess = "PasswordResetSuccess",
+	AuthenticatedPasswordChangeSuccess = "AuthenticatedPasswordChangeSuccess",
+	ForgottenPasswordResetSuccess = "ForgottenPasswordResetSuccess",
 }
 
 /**
@@ -126,6 +127,7 @@ type InternalAuthEvent =
 	// REVIEW: WHY is it invalid?
 	| { type: "NEW_PIN_INVALID"; error: "NEW_PIN_INVALID" }
 	| { type: "PIN_CHANGE_SUCCESS" }
+	| { type: "CONFIRM_PIN_CHANGE" }
 	// REVIEW: WHY did it fail?
 	| { type: "PIN_CHANGE_FAILURE"; error: "PIN_CHANGE_FAILURE" }
 	| { type: "CANCEL_PIN_CHANGE" }
@@ -145,18 +147,19 @@ type InternalAuthTypeState =
 	| { value: AuthStateId.SubmittingOtp; context: InternalAuthContext & { user: any; username: string } }
 	| { value: AuthStateId.SubmittingUsernameAndPassword; context: InternalAuthContext }
 	| {	value: AuthStateId.SubmittingForceChangePassword; context: InternalAuthContext & { user: any; username: string; error: AuthError } }
-	| { value: AuthStateId.ChangingPassword; context: InternalAuthContext & { username: string } }
-	| { value: AuthStateId.RequestingPasswordReset; context: InternalAuthContext }
-	| { value: AuthStateId.SubmittingPasswordReset; context: InternalAuthContext & { username: string } }
-  | { value: AuthStateId.PasswordChangedSuccess; context: InternalAuthContext }
-  | { value: AuthStateId.PasswordResetSuccess; context: InternalAuthContext & { username: string } }
+	| { value: AuthStateId.AuthenticatedChangingPassword; context: InternalAuthContext & { username: string } }
+	| { value: AuthStateId.ForgottenPasswordRequestingReset; context: InternalAuthContext }
+	| { value: AuthStateId.ForgottenPasswordSubmittingReset; context: InternalAuthContext & { username: string } }
+  | { value: AuthStateId.AuthenticatedPasswordChangeSuccess; context: InternalAuthContext }
+  | { value: AuthStateId.AuthenticatedPinChangeSuccess; context: InternalAuthContext }
+  | { value: AuthStateId.ForgottenPasswordResetSuccess; context: InternalAuthContext & { username: string } }
 	| { value: AuthStateId.CheckingForPin; context: InternalAuthContext & { username?: string } }
 	| { value: AuthStateId.SubmittingCurrentPin; context: InternalAuthContext & { username?: string } }
-	| { value: AuthStateId.ResettingPin; context: InternalAuthContext }
+	| { value: AuthStateId.ForgottenPinRequestingReset; context: InternalAuthContext }
 	| { value: AuthStateId.SubmittingNewPin; context: InternalAuthContext & { username?: string } }
-  | { value: AuthStateId.ValidatingPin; context: InternalAuthContext & { username?: string } }
-	| { value: AuthStateId.ChangingPin; context: InternalAuthContext & { username?: string } }
-	| { value: AuthStateId.LoggingOut; context: InternalAuthContext & { username?: string; } }
+  | { value: AuthStateId.AuthenticatedValidatingPin; context: InternalAuthContext & { username?: string } }
+	| { value: AuthStateId.AuthenticatedChangingPin; context: InternalAuthContext & { username?: string } }
+	| { value: AuthStateId.AuthenticatedLoggingOut; context: InternalAuthContext & { username?: string; } }
 	| { value: AuthStateId.Authenticated; context: InternalAuthContext & { username?: string; } };
 
 /* ------------------------------------------------------------------------------------------------------ *\
@@ -295,7 +298,7 @@ export const machine = createMachine<
 					actions: ["assignError"]
 				},
 				FORGOTTEN_PASSWORD: {
-					target: AuthStateId.RequestingPasswordReset,
+					target: AuthStateId.ForgottenPasswordRequestingReset,
 					actions: ["clearError"],
 				},
 			}
@@ -312,14 +315,14 @@ export const machine = createMachine<
 				},
 			}
 		},
-		[AuthStateId.RequestingPasswordReset]: {
+		[AuthStateId.ForgottenPasswordRequestingReset]: {
 			on: {
 				PASSWORD_RESET_REQUEST_SUCCESS: {
-					target: AuthStateId.SubmittingPasswordReset,
+					target: AuthStateId.ForgottenPasswordSubmittingReset,
 					actions: ["clearError", "assignUsername"],
 				},
 				PASSWORD_RESET_REQUEST_FAILURE: {
-					target: AuthStateId.SubmittingUsernameAndPassword,
+					target: undefined,
 					actions: ["assignError"]
 				},
 				GO_BACK: {
@@ -328,43 +331,25 @@ export const machine = createMachine<
 				},
 			}
 		},
-		[AuthStateId.SubmittingPasswordReset]: {
+		[AuthStateId.ForgottenPasswordSubmittingReset]: {
 			on: {
 				PASSWORD_RESET_SUCCESS: {
-					target: AuthStateId.PasswordResetSuccess,
+					target: AuthStateId.ForgottenPasswordResetSuccess,
 					actions: ["clearError"],
-				},			
+				},
 				PASSWORD_RESET_FAILURE: {
 					target: undefined,
 					actions: ["assignError"]
 				},
-        GO_BACK: AuthStateId.RequestingPasswordReset
+        GO_BACK: AuthStateId.ForgottenPasswordRequestingReset
 			}
 		},
-		[AuthStateId.ChangingPassword]: {
-			on: {
-				PASSWORD_CHANGE_SUCCESS: {
-					target: AuthStateId.PasswordChangedSuccess,
-					actions: ["clearError"],
-				},
-				PASSWORD_CHANGE_FAILURE: {
-					target: undefined,
-					actions: ["assignError"]
-				},
-				CANCEL_PASSWORD_CHANGE: AuthStateId.Authenticated,
-			}
-		},
-    [AuthStateId.PasswordResetSuccess]: {
+    [AuthStateId.ForgottenPasswordResetSuccess]: {
 			on: {
 				CONFIRM_PASSWORD_RESET: {
           target: AuthStateId.SubmittingUsernameAndPassword,
           actions: ["clearUsername"],
         },
-			}
-		},
-    [AuthStateId.PasswordChangedSuccess]: {
-			on: {
-				CONFIRM_PASSWORD_CHANGE: AuthStateId.Authenticated,
 			}
 		},
 		[AuthStateId.INTERNAL__deviceSecurityCheck]: {
@@ -392,12 +377,12 @@ export const machine = createMachine<
 					actions: ["assignError"]
 				},
 				REQUEST_PIN_RESET: {
-					target: AuthStateId.ResettingPin,
+					target: AuthStateId.ForgottenPinRequestingReset,
 					actions: ["clearError"]
 				}
 			}
 		},
-		[AuthStateId.ResettingPin]: {
+		[AuthStateId.ForgottenPinRequestingReset]: {
 			on: {
 				PIN_RESET_SUCCESS: {
 					target: AuthStateId.CheckingForSession,
@@ -425,22 +410,52 @@ export const machine = createMachine<
 				},
 			}
 		},
-    [AuthStateId.ValidatingPin]: {
+		[AuthStateId.Authenticated]: {
+			entry: ["clearError"],
+			on: {
+				REQUEST_LOG_OUT: AuthStateId.AuthenticatedLoggingOut,
+				REQUEST_PIN_CHANGE: AuthStateId.AuthenticatedValidatingPin,
+				REQUEST_PASSWORD_CHANGE: AuthStateId.AuthenticatedChangingPassword,
+			}
+		},
+		[AuthStateId.AuthenticatedChangingPassword]: {
+			on: {
+				PASSWORD_CHANGE_SUCCESS: {
+					target: AuthStateId.AuthenticatedPasswordChangeSuccess,
+					actions: ["clearError"],
+				},
+				PASSWORD_CHANGE_FAILURE: {
+					target: undefined,
+					actions: ["assignError"]
+				},
+				CANCEL_PASSWORD_CHANGE: AuthStateId.Authenticated,
+			}
+		},
+    [AuthStateId.AuthenticatedPasswordChangeSuccess]: {
+			on: {
+				CONFIRM_PASSWORD_CHANGE: AuthStateId.Authenticated,
+			}
+		},
+    [AuthStateId.AuthenticatedValidatingPin]: {
 			on: {
 				PIN_VALID: {
-					target: AuthStateId.ChangingPin,
+					target: AuthStateId.AuthenticatedChangingPin,
 					actions: ["clearError"],
 				},
 				PIN_INVALID: {
 					target: undefined,
 					actions: ["assignError"]
-				}
+				},
+				CANCEL_PIN_CHANGE: {
+					target: AuthStateId.Authenticated,
+					actions: ["clearError"]
+				},
 			}
 		},
-		[AuthStateId.ChangingPin]: {
+		[AuthStateId.AuthenticatedChangingPin]: {
 			on: {
 				PIN_CHANGE_SUCCESS: {
-					target:AuthStateId.Authenticated,
+					target:AuthStateId.AuthenticatedPinChangeSuccess,
 					actions: ["clearError"],
 				},
 				PIN_CHANGE_FAILURE: {
@@ -453,7 +468,12 @@ export const machine = createMachine<
 				}
 			}
 		},
-		[AuthStateId.LoggingOut]: {
+		[AuthStateId.AuthenticatedPinChangeSuccess]: {
+			on: {
+				CONFIRM_PIN_CHANGE: AuthStateId.Authenticated,
+			}
+		},
+		[AuthStateId.AuthenticatedLoggingOut]: {
 			on: {
 				LOG_OUT_SUCCESS: AuthStateId.CheckingForSession,
 				LOG_OUT_FAILURE: {
@@ -461,14 +481,6 @@ export const machine = createMachine<
 					actions: ["assignError"]
 				},
 				CANCEL_LOG_OUT: AuthStateId.Authenticated
-			}
-		},
-		[AuthStateId.Authenticated]: {
-			entry: ["clearError"],
-			on: {
-				REQUEST_LOG_OUT: AuthStateId.LoggingOut,
-				REQUEST_PIN_CHANGE: AuthStateId.ValidatingPin,
-				REQUEST_PASSWORD_CHANGE: AuthStateId.ChangingPassword,
 			}
 		},
 	},
