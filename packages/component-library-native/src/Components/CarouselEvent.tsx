@@ -45,7 +45,7 @@ export const CarouselEvent = ({
 	isTablet = false,
 }: CarouselEventProps) => {
 	const adjustedWidth = isTablet ? 704 : viewportWidth;
-	const tileWidth = adjustedWidth - 40;
+	const tileWidth = adjustedWidth * 0.9;
 
 	let event;
 	let icon;
