@@ -44,7 +44,7 @@ export const CarouselEvent = ({
 	onPress,
 	isTablet = false,
 }: CarouselEventProps) => {
-	const adjustedWidth = isTablet ? (viewportWidth * 2) / 3 : viewportWidth;
+	const adjustedWidth = isTablet ? 704 : viewportWidth;
 	const tileWidth = adjustedWidth - 40;
 
 	let event;
