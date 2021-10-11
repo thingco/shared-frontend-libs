@@ -1023,7 +1023,7 @@ export const LineIcon = ({
 	strokeWidth = 2,
 	style = {},
 }: LineIconProps): JSX.Element => (
-	<View style={{ height: IconScalar * size, width: IconScalar * size, ...style }}>
+	<View style={{ height: size, width: size, ...style }}>
 		{iconSelector(iconType as IconType, strokeWidth, stroke)}
 	</View>
 );
