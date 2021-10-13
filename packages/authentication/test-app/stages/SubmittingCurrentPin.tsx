@@ -1,19 +1,17 @@
 import React, { useState } from "react";
-import { c } from "compress-tag";
+import uiText from "test-app/ui-copy";
 
+import { AuthStateId } from "core/auth-system";
 import { validatePinCb } from "./callback-implementations";
-import { useConfigState } from "../ConfigInjector";
-import { AuthStateId } from "../../auth-system";
-import { useSubmittingCurrentPin } from "../../react";
-import { AuthStageSection, Form } from "../Components";
+import { useSubmittingCurrentPin } from "core/react/useSubmittingCurrentPin";
+import { AuthStageSection, Form } from "test-app/Components";
+import { useConfigState } from "test-app/ConfigInjector";
 
-const description = c`
-If PIN device security is active, if the user is already authenticated,
-i.e. they have a valid authentication token already present, then they
-are taken directly to this stage. If they have forgotten their PIN, they
-may request a reset, but otherwise they will be fully authenticated and
-allowed access to the app on successful submission.
-`;
+const {
+	authStages: {
+		submittingCurrentPin: { description, controlLabels },
+	},
+} = uiText;
 
 export const SubmittingCurrentPin = () => {
 	const { error, isActive, isLoading, validatePin, requestPinReset, validationErrors } =
@@ -38,14 +36,17 @@ export const SubmittingCurrentPin = () => {
 						id="otp"
 						inputType="text"
 						isActive={isActive}
-						label="Enter your PIN"
+						label={controlLabels.pinInput}
 						validationErrors={validationErrors.pin}
 						value={pin}
 						valueSetter={setPin}
 					/>
 					<Form.Controls>
-						<Form.Submit label="Submit your PIN" />
-						<Form.SecondaryAction label="Forgotten PIN" actionCallback={requestPinReset} />
+						<Form.Submit label={controlLabels.submitPin} />
+						<Form.SecondaryAction
+							label={controlLabels.forgotPin}
+							actionCallback={requestPinReset}
+						/>
 					</Form.Controls>
 				</Form.Elements>
 			</Form>

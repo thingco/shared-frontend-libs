@@ -57,6 +57,46 @@ export interface ByTermOptions extends MatcherOptions {
 }
 
 /**
+ * Hack to make the element search work.
+ *
+ * @remarks
+ * I am having severe issues getting `findByRole` to actually, y'know, "find by role" when applied
+ * to a search for "term" elements with a `{ name: /regex/i }` filter applied. `{ name: string }`
+ * works fine, it's the RegExp filter that's failing specifically. So if the initial query returns
+ * an empty list (**WHICH MAY BE ABSOLUTELY FINE**), then will run this function which does the
+ * same thing, essentially.
+ *
+ * @param container - the HTML element containing the DOM to be inspected
+ * @param matcher   - if specified,  the queery will filter on the accessible name of the term. In other
+ *                    words, the text contained in a `<dt>` element.
+ */
+function queryByTermFallback(container: HTMLElement, matcher?: Matcher | RegExp) {
+	const dts = container.querySelectorAll("dt");
+	if (matcher == undefined) {
+		// NOTE: shallow clone to ensure return value of function is `HTMLElement[]` rather
+		// than `NodeList<HTMLElement> | HTMLElement[]`
+		return [...dts];
+	} else {
+		return [...dts].filter((dt) => {
+			const textContent = dt.textContent?.trim();
+			if (!textContent) return false;
+			switch (typeof matcher) {
+				case "string":
+					return textContent.includes(matcher);
+				case "object":
+					return matcher instanceof RegExp && matcher.test(textContent);
+				case "function":
+					return matcher(textContent, dt);
+				default:
+					throw new Error(
+						"Matcher must be either a string, a RegExp, or a custom matcher function"
+					);
+			}
+		});
+	}
+}
+
+/**
  * The core `ByTerm` query. Can be used as-is; the only required field is the container element.
  *
  * @remarks
@@ -64,7 +104,7 @@ export interface ByTermOptions extends MatcherOptions {
  * queries using `queryAll` as a base.
  *
  * @param container - the HTML element containing the DOM to be inspected
- * @param text      - if specified,  the queery will filter on the accessible name of the term. In other
+ * @param matcher      - if specified,  the queery will filter on the accessible name of the term. In other
  *                    words, the text contained in a `<dt>` element.
  * @param opts      - allows standard extra options to be passed + an optional "selector" value. See
  *										{@link https://testing-library.com/docs/queries/about#textmatch | from this section in the testing lib docs}.
@@ -72,14 +112,17 @@ export interface ByTermOptions extends MatcherOptions {
  */
 function queryAllByTerm(
 	container: HTMLElement,
-	text?: Matcher,
+	matcher?: Matcher,
 	opts?: ByTermOptions
 ): HTMLElement[] {
 	let dl_term_elements: HTMLElement[] = [];
 	let dl_description_elements: HTMLElement[] = [];
 
-	if (typeof text !== "number") {
-		dl_term_elements = queryAllByRole(container, "term", { name: text });
+	if (typeof matcher !== "number") {
+		dl_term_elements = queryAllByRole(container, "term", { name: matcher });
+		if (dl_term_elements.length === 0) {
+			dl_term_elements = queryByTermFallback(container, matcher);
+		}
 	}
 
 	if (opts?.selector === "dt" || opts?.selector === "term") {
@@ -160,7 +203,7 @@ const [queryByTerm, getAllByTerm, getByTerm, findAllByTerm, findByTerm] = buildQ
 /**
  * Expose the custom methods as standalone queries:
  */
-const customQueries: { [queryName: string]: Query } = {
+export const byTermQueries: { [queryName: string]: Query } = {
 	queryAllByTerm,
 	queryByTerm,
 	getAllByTerm,
@@ -173,17 +216,8 @@ const customQueries: { [queryName: string]: Query } = {
  * Bind the custom queries to a custom version of the `screen` interface to
  * allow `screen.getByTerm` etc.
  */
-const boundQueries = Object.entries(customQueries).reduce((queries, [queryName, queryFn]) => {
+const boundQueries = Object.entries(byTermQueries).reduce((queries, [queryName, queryFn]) => {
 	return Object.assign(queries, { [queryName]: queryFn.bind(null, document.body) });
-}, {} as BoundFunctions<typeof customQueries>);
+}, {} as BoundFunctions<typeof byTermQueries>);
 
-const customScreen = { ...screen, ...boundQueries };
-
-/**
- * Export the final custom testing tools.
- *
- * REVIEW: Need to split the `customScreen` (and the associated `boundQueries` function) out
- * into a seperate file: one or more files of custom queries, then a custom screen file that
- * pulls them all in and extends the screen interface.
- */
-export { customScreen, customQueries };
+export const customScreen = { ...screen, ...boundQueries };

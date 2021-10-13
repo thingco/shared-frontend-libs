@@ -1,21 +1,16 @@
 import React from "react";
-import { c } from "compress-tag";
+import uiText from "test-app/ui-copy";
 
-import { AuthStateId } from "../../auth-system";
-import { useConfigState } from "../ConfigInjector";
-import { useAuthenticatedPinChangeSuccess } from "../../react";
-import { AuthStageSection, Form } from "../Components";
+import { AuthStateId } from "core/auth-system";
+import { useAuthenticatedPinChangeSuccess } from "core/react/useAuthenticatedPinChangeSuccess";
+import { AuthStageSection, Form } from "test-app/Components";
+import { useConfigState } from "test-app/ConfigInjector";
 
-const description = c`
-The user is authenticated using PIN device security and has successfully
-changed their PIN.
-\n\n
-This state exists to make it easier to communicate this information to the user,
-and to make it easier [from a navigation structure point of view] for the
-user to return to the place in the app from where they started the password
-change process. In an actual app, this could simply be a popup or flash,
-either timed or with a confirm button.
-`;
+const {
+	authStages: {
+		authenticatedPinChangeSuccess: { description, controlLabels },
+	},
+} = uiText;
 
 export const AuthenticatedPinChangeSuccess = () => {
 	const { isActive, confirmPinChange } = useAuthenticatedPinChangeSuccess();
@@ -34,7 +29,7 @@ export const AuthenticatedPinChangeSuccess = () => {
 			<Form submitCb={confirmPinChange}>
 				<Form.Elements disabled={!isActive}>
 					<Form.Controls>
-						<Form.Submit label="Confirm" />
+						<Form.Submit label={controlLabels.confirm} />
 					</Form.Controls>
 				</Form.Elements>
 			</Form>

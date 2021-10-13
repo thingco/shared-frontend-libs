@@ -1,20 +1,16 @@
 import React from "react";
-import { c } from "compress-tag";
+import uiText from "test-app/ui-copy";
 
-import { AuthStateId } from "../../auth-system";
-import { useConfigState } from "../ConfigInjector";
-import { useForgottenPasswordResetSuccess } from "../../react";
-import { AuthStageSection, Form } from "../Components";
+import { AuthStateId } from "core/auth-system";
+import { useForgottenPasswordResetSuccess } from "core/react/useForgottenPasswordResetSuccess";
+import { AuthStageSection, Form } from "test-app/Components";
+import { useConfigState } from "test-app/ConfigInjector";
 
-const description = c`
-The user is unauthenticated using USERNAME_PASSWORD flow and has successfully
-changed their password after indicating that they had forgotten their existing
-password.
-\n\n
-This state exists to make it easier to communicate this information to the user.
-In an actual app, this could simply be a popup or flash, either timed or
-with a confirm button.
-`;
+const {
+	authStages: {
+		forgottenPasswordResetSuccess: { description, controlLabels },
+	},
+} = uiText;
 
 export const ForgottenPasswordResetSuccess = () => {
 	const { isActive, confirmPasswordReset } = useForgottenPasswordResetSuccess();
@@ -33,7 +29,7 @@ export const ForgottenPasswordResetSuccess = () => {
 			<Form submitCb={confirmPasswordReset}>
 				<Form.Elements disabled={!isActive}>
 					<Form.Controls>
-						<Form.Submit label="Confirm" />
+						<Form.Submit label={controlLabels.confirm} />
 					</Form.Controls>
 				</Form.Elements>
 			</Form>

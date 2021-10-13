@@ -1,6 +1,9 @@
-import { AuthStateId } from "../auth-system";
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import classnames from "classnames";
 import React from "react";
+
+import { AuthStateId } from "core/auth-system";
+import uiText from "./ui-copy";
 
 export const AuthStageSection = ({
 	isActive,
@@ -35,12 +38,20 @@ const AuthStageSectionOverview = ({
 		</h1>
 		<dl className="auth-stage__header__meta metalist">
 			<div className="metalist__property">
-				<dt className="metalist__property-key">Loading?</dt>
-				<dd className="metalist__property-value">{isLoading.toString()}</dd>
+				<dt className="metalist__property-key" role="term">
+					{uiText.authStages.common.meta.term.isLoading}
+				</dt>
+				<dd className="metalist__property-value" role="definition">
+					{isLoading.toString()}
+				</dd>
 			</div>
 			<div className="metalist__property">
-				<dt className="metalist__property-key">Error?</dt>
-				<dd className="metalist__property-value">{errorMsg || "n/a"}</dd>
+				<dt className="metalist__property-key" role="term">
+					{uiText.authStages.common.meta.term.error}
+				</dt>
+				<dd className="metalist__property-value" role="definition">
+					{errorMsg || "n/a"}
+				</dd>
 			</div>
 		</dl>
 		<p className="auth-stage__header__description" id={`stage${stageId}Desc`}>

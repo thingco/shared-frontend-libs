@@ -1,20 +1,17 @@
 import React from "react";
-import { c } from "compress-tag";
+import uiText from "test-app/ui-copy";
 
+import { AuthStateId } from "core/auth-system";
 import { validateUsernameAndPasswordCb } from "./callback-implementations";
-import { useConfigState } from "../ConfigInjector";
-import { AuthStateId } from "../../auth-system";
-import { useSubmittingUsernameAndPassword } from "../../react";
-import { AuthStageSection, Form } from "../Components";
+import { useSubmittingUsernameAndPassword } from "core/react/useSubmittingUsernameAndPassword";
+import { AuthStageSection, Form } from "test-app/Components";
+import { useConfigState } from "test-app/ConfigInjector";
 
-const description = c`
-USERNAME_PASSWORD authentication flow requires that the user submit
-their username and their password. If they have forgotten the password,
-they also have the option to request a reset. If this is the first time
-they have logged into the account (or an admin has reset their password),
-the next stage is to change the temporary password they have been assigned,
-but otherwise they are authenticated if this stage is passed successfully.
-`;
+const {
+	authStages: {
+		submittingUsernameAndPassword: { description, controlLabels },
+	},
+} = uiText;
 
 export const SubmittingUsernameAndPassword = () => {
 	const {
@@ -46,7 +43,7 @@ export const SubmittingUsernameAndPassword = () => {
 						id="username"
 						inputType="email"
 						isActive={isActive}
-						label="Enter an email address"
+						label={controlLabels.usernameInput}
 						validationErrors={validationErrors.username}
 						value={username}
 						valueSetter={setUsername}
@@ -55,14 +52,17 @@ export const SubmittingUsernameAndPassword = () => {
 						id="password"
 						inputType="password"
 						isActive={isActive}
-						label="Enter password"
+						label={controlLabels.passwordInput}
 						validationErrors={validationErrors.password}
 						value={password}
 						valueSetter={setPassword}
 					/>
 					<Form.Controls>
-						<Form.SecondaryAction label="Forgotten Password" actionCallback={forgottenPassword} />
-						<Form.Submit label="Log in" />
+						<Form.SecondaryAction
+							label={controlLabels.forgotPassword}
+							actionCallback={forgottenPassword}
+						/>
+						<Form.Submit label={controlLabels.logIn} />
 					</Form.Controls>
 				</Form.Elements>
 			</Form>

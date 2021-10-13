@@ -1,12 +1,23 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-empty-function */
-import { createModel } from "@xstate/test";
-import { waitFor } from "@testing-library/react";
+import React from "react";
+import { waitFor, render } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { createModel } from "@xstate/test";
 import { createMachine } from "xstate";
 
 import { AuthStateId } from "core/auth-system";
+// Import the entire authentication structure from the test app:
+import { Authentication } from "test-app/App";
+// Import the config injection component from the test app:
+import { ConfigInjector } from "test-app/ConfigInjector";
+// The text used the UI, equivalent of translations file:
+import uiText from "test-app/ui-copy";
+// Local storage mock:
+import { localStorageMock } from "test-utils/local-storage";
+// Custom `screen` from `@testing-library/react` enhanced with ...ByTerm queries
 import { customScreen } from "test-utils/find-by-term";
+// Boilerplate query/assertion functions
 import {
 	currentDeviceSecurityTypeIs,
 	currentLoginFlowIs,
@@ -14,6 +25,8 @@ import {
 	stageErrorIs,
 	stageLoadingStatusIs,
 } from "test-utils/assertion-helpers";
+
+// Mock responses + API functions to mock.
 import {
 	INVALID_CODE,
 	INVALID_USERNAME,
@@ -21,7 +34,6 @@ import {
 	VALID_USERNAME,
 	USER_OBJECT,
 } from "test-utils/dummy-responses";
-import uiText from "test-app/ui-copy";
 
 import {
 	checkSessionCb,
@@ -30,7 +42,12 @@ import {
 	logoutCb,
 } from "test-app/stages/callback-implementations";
 
+// Types
 import type { CheckSessionCb, LogoutCb } from "core/react/callback-types";
+
+/* ------------------------------------------------------------------------- *\
+ * 1. MOCKING
+\* ------------------------------------------------------------------------- */
 
 jest.mock("test-app/stages/callback-implementations", () => ({
 	checkSessionCb: jest.fn(),
@@ -50,6 +67,10 @@ jest.mock("test-app/stages/callback-implementations", () => ({
 	}),
 	logOutCb: jest.fn(),
 }));
+
+/* ------------------------------------------------------------------------- *\
+ * 2. SYSTEM UNDER TEST
+\* ------------------------------------------------------------------------- */
 
 const machine = createMachine({
 	id: "otpNoPin",
@@ -278,4 +299,41 @@ const model = createModel(machine).withEvents({
 	},
 });
 
-export const otpNoPin = { machine, model };
+/* ------------------------------------------------------------------------- *\
+ * 3. TESTS
+\* ------------------------------------------------------------------------- */
+
+describe("authentication test system using OTP and no device security", () => {
+	beforeAll(() => {
+		globalThis.localStorage = localStorageMock();
+	});
+
+	afterEach(() => {
+		jest.clearAllMocks();
+	});
+
+	const testPlans = model.getSimplePathPlans();
+
+	testPlans.forEach((plan) => {
+		describe(`authentication test system ${plan.description}`, () => {
+			plan.paths.forEach((path) => {
+				it(path.description, async () => {
+					const screen = render(
+						<ConfigInjector
+							initialLoginFlowType="OTP"
+							initialDeviceSecurityType="NONE"
+							isInTestMode={true}
+						>
+							<Authentication />
+						</ConfigInjector>
+					);
+					await path.test(screen);
+				});
+			});
+		});
+	});
+
+	it("should have full coverage", () => {
+		return model.testCoverage();
+	});
+});

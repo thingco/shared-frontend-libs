@@ -1,7 +1,7 @@
 import React from "react";
 import classnames from "classnames";
 
-import { AuthProvider, useAuthProvider } from "..";
+import { AuthProvider, useAuthProvider } from "core/react";
 import {
 	ConfigInjector,
 	CONFIG_STORAGE_KEY,
@@ -10,9 +10,16 @@ import {
 	useConfigUpdate,
 } from "./ConfigInjector";
 import { ConfigToolbar } from "./ConfigToolbar";
+import uiText from "test-app/ui-copy";
 import * as AuthStage from "./stages";
 
-import { DeviceSecurityType, LoginFlowType } from "../types";
+import { DeviceSecurityType, LoginFlowType } from "core/types";
+
+const {
+	banner: {
+		meta: { term },
+	},
+} = uiText;
 
 const awsCustomFlowClientConfig = {
 	region: "eu-west-1",
@@ -108,20 +115,36 @@ const AuthenticationOverview = () => {
 			</h1>
 			<dl id="bannerMeta" className="auth-app__header__meta metalist">
 				<div className="metalist__property">
-					<dt className="metalist__property-key">Current state ID:</dt>
-					<dd className="metalist__property-value">{currentState}</dd>
+					<dt className="metalist__property-key" role="term">
+						{term.currentState}
+					</dt>
+					<dd className="metalist__property-value" role="definition">
+						{currentState}
+					</dd>
 				</div>
 				<div className="metalist__property">
-					<dt className="metalist__property-key">Login flow type:</dt>
-					<dd className="metalist__property-value">{loginFlowType}</dd>
+					<dt className="metalist__property-key" role="term">
+						{term.currentLoginFlowType}
+					</dt>
+					<dd className="metalist__property-value" role="definition">
+						{loginFlowType}
+					</dd>
 				</div>
 				<div className="metalist__property">
-					<dt className="metalist__property-key">Device Security Type:</dt>
-					<dd className="metalist__property-value">{deviceSecurityType}</dd>
+					<dt className="metalist__property-key" role="term">
+						{term.currentDeviceSecurityType}
+					</dt>
+					<dd className="metalist__property-value" role="definition">
+						{deviceSecurityType}
+					</dd>
 				</div>
 				<div className="metalist__property">
-					<dt className="metalist__property-key">Display preferences:</dt>
-					<dd className="metalist__property-value">{uiLayout}</dd>
+					<dt className="metalist__property-key" role="term">
+						{term.currentUiLayout}
+					</dt>
+					<dd className="metalist__property-value" role="definition">
+						{uiLayout}
+					</dd>
 				</div>
 			</dl>
 			{!isInTestMode && <AuthenticationConfig />}

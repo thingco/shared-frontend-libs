@@ -1,19 +1,17 @@
 import React, { useState } from "react";
-import { c } from "compress-tag";
+import uiText from "test-app/ui-copy";
 
-import { validateOtpCb } from "./callback-implementations";
-import { useConfigState } from "../ConfigInjector";
-import { AuthStateId } from "../../auth-system";
-import { useSubmittingOtp } from "../../react";
-import { AuthStageSection, Form } from "../Components";
+import { AuthStateId } from "core/auth-system";
+import { validateOtpCb } from "test-app/stages/callback-implementations";
+import { useSubmittingOtp } from "core/react/useSubmittingOtp";
+import { useConfigState } from "test-app/ConfigInjector";
+import { AuthStageSection, Form } from "test-app/Components";
 
-const description = c`
-A user on OTP login flow has submitted their username, and have been sent
-a one-time password. From this stage, submitting that code successfully will
-result in them being authenticated. They may also move back to the username
-input stage should they have mis-entered something (or just wish to resend
-the code).
-`;
+const {
+	authStages: {
+		submittingOtp: { description, controlLabels },
+	},
+} = uiText;
 
 export const SubmittingOtp = () => {
 	const { error, isActive, isLoading, validateOtp, goBack, validationErrors } =
@@ -38,14 +36,14 @@ export const SubmittingOtp = () => {
 						id="otp"
 						inputType="text"
 						isActive={isActive}
-						label="Enter the password you were sent"
+						label={controlLabels.otpInput}
 						validationErrors={validationErrors.password}
 						value={otp}
 						valueSetter={setOtp}
 					/>
 					<Form.Controls>
-						<Form.Submit label="Submit OTP" />
-						<Form.SecondaryAction label="Re-enter username" actionCallback={goBack} />
+						<Form.Submit label={controlLabels.submitOtp} />
+						<Form.SecondaryAction label={controlLabels.reenterUsername} actionCallback={goBack} />
 					</Form.Controls>
 				</Form.Elements>
 			</Form>

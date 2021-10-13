@@ -1,18 +1,17 @@
 import React, { useState } from "react";
-import { c } from "compress-tag";
+import uiText from "test-app/ui-copy";
 
+import { AuthStateId } from "core/auth-system";
 import { validatePinCb } from "./callback-implementations";
-import { useConfigState } from "../ConfigInjector";
-import { AuthStateId } from "../../auth-system";
-import { useAuthenticatedValidatingPin } from "../../react";
-import { AuthStageSection, Form } from "../Components";
+import { useAuthenticatedValidatingPin } from "core/react/useAuthenticatedValidatingPin";
+import { AuthStageSection, Form } from "test-app/Components";
+import { useConfigState } from "test-app/ConfigInjector";
 
-const description = c`
-The user is already authenticated, is using PIN security, and has requested
-that they wish to change their PIN. The user needs to validate their
-current PIN before setting a new one. Note that they may cancel this request
-at this point.
-`;
+const {
+	authStages: {
+		authenticatedValidatingPin: { description, controlLabels },
+	},
+} = uiText;
 
 export const AuthenticatedValidatingPin = () => {
 	const { error, isActive, isLoading, validatePin, cancelChangePin, validationErrors } =
@@ -37,14 +36,17 @@ export const AuthenticatedValidatingPin = () => {
 						id="otp"
 						inputType="text"
 						isActive={isActive}
-						label="Enter your PIN"
+						label={controlLabels.enterPin}
 						validationErrors={validationErrors.pin}
 						value={pin}
 						valueSetter={setPin}
 					/>
 					<Form.Controls>
-						<Form.Submit label="Submit your PIN" />
-						<Form.SecondaryAction label="Cancel change PIN" actionCallback={cancelChangePin} />
+						<Form.Submit label={controlLabels.submitPin} />
+						<Form.SecondaryAction
+							label={controlLabels.cancelPinChange}
+							actionCallback={cancelChangePin}
+						/>
 					</Form.Controls>
 				</Form.Elements>
 			</Form>

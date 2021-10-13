@@ -1,17 +1,17 @@
 import React from "react";
-import { c } from "compress-tag";
+import uiText from "test-app/ui-copy";
 
+import { AuthStateId } from "core/auth-system";
 import { validateOtpUsernameCb } from "./callback-implementations";
-import { useConfigState } from "../ConfigInjector";
-import { AuthStateId } from "../../auth-system";
-import { useSubmittingOtpUsername } from "../../react";
-import { AuthStageSection, Form } from "../Components";
+import { useSubmittingOtpUsername } from "core/react/useSubmittingOtpUsername";
+import { AuthStageSection, Form } from "test-app/Components";
+import { useConfigState } from "test-app/ConfigInjector";
 
-const description = c`
-OTP authentication flow requires that the user submit their username
-foirst, in the form of an email address, which triggers the backend
-to send them a one-time password (submission of which is the next stage).
-`;
+const {
+	authStages: {
+		submittingOtpUsername: { description, controlLabels },
+	},
+} = uiText;
 
 export const SubmittingOtpUsername = () => {
 	const { error, isActive, isLoading, validateUsername, validationErrors } =
@@ -36,13 +36,13 @@ export const SubmittingOtpUsername = () => {
 						id="otpUsername"
 						inputType="email"
 						isActive={isActive}
-						label="Enter an email address"
+						label={controlLabels.otpUsernameInput}
 						validationErrors={validationErrors.username}
 						value={username}
 						valueSetter={setUsername}
 					/>
 					<Form.Controls>
-						<Form.Submit label="Submit username" />
+						<Form.Submit label={controlLabels.submitOtpUsername} />
 					</Form.Controls>
 				</Form.Elements>
 			</Form>

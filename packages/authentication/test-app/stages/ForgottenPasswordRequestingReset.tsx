@@ -1,21 +1,17 @@
 import React from "react";
-import { c } from "compress-tag";
 
+import uiText from "test-app/ui-copy";
+import { AuthStateId } from "core/auth-system";
 import { requestNewPasswordCb } from "./callback-implementations";
-import { useConfigState } from "../ConfigInjector";
-import { AuthStateId } from "../../auth-system";
-import { useForgottenPasswordRequestingReset } from "../../react";
-import { AuthStageSection, Form } from "../Components";
+import { useForgottenPasswordRequestingReset } from "core/react/useForgottenPasswordRequestingReset";
+import { AuthStageSection, Form } from "test-app/Components";
+import { useConfigState } from "test-app/ConfigInjector";
 
-const description = c`
-If an unauthenticated user on USERNAME_PASSWORD flow has forgotten their
-password, they can request a reset. The reset process is split into three
-stages -- request, submit and success. If they continue by submitting their
-username (i.e. their email address), then a code will be sent to them that
-will allow them to pass the next stage (submission). Once the user has submitted
-their email, they cannot back out -- the password will have been reset on the
-system, so this stage also allows them a chance to cancel.
-`;
+const {
+	authStages: {
+		forgottenPasswordRequestingReset: { description, controlLabels },
+	},
+} = uiText;
 
 export const ForgottenPasswordRequestingReset = () => {
 	const {
@@ -46,14 +42,17 @@ export const ForgottenPasswordRequestingReset = () => {
 						id="username"
 						inputType="email"
 						isActive={isActive}
-						label="Enter an email address"
+						label={controlLabels.enterEmailInput}
 						validationErrors={validationErrors.username}
 						value={username}
 						valueSetter={setUsername}
 					/>
 					<Form.Controls>
-						<Form.SecondaryAction label="Cancel" actionCallback={cancelResetPasswordRequest} />
-						<Form.Submit label="Submit" />
+						<Form.SecondaryAction
+							label={controlLabels.requestResetCode}
+							actionCallback={cancelResetPasswordRequest}
+						/>
+						<Form.Submit label={controlLabels.cancelPasswordReset} />
 					</Form.Controls>
 				</Form.Elements>
 			</Form>

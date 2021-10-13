@@ -18,8 +18,7 @@ export type AuthError =
 	| "PIN_RESET_FAILURE"
 	| "NEW_PIN_INVALID"
 	| "USERNAME_AND_PASSWORD_INVALID"
-	| "LOG_OUT_FAILURE"
-	| null;
+	| "LOG_OUT_FAILURE";
 
 export type AuthConfig = {
 	loginFlowType?: LoginFlowType;

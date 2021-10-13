@@ -94,7 +94,7 @@ jest.mock("@thingco/logger", () => ({
 	})),
 }));
 
-jest.mock("../../AuthSystemProvider", () => ({
+jest.mock("core/react/AuthSystemProvider", () => ({
 	useAuthInterpreter: jest.fn(() => ({
 		send: (event: AuthEvent) => eventSink.log(event),
 	})),

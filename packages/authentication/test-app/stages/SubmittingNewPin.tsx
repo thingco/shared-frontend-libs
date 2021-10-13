@@ -1,21 +1,17 @@
 import React, { useState } from "react";
-import { c } from "compress-tag";
+import uiText from "test-app/ui-copy";
 
+import { AuthStateId } from "core/auth-system";
 import { setNewPinCb } from "./callback-implementations";
-import { useConfigState } from "../ConfigInjector";
-import { AuthStateId } from "../../auth-system";
-import { useSubmittingNewPin } from "../../react";
-import { AuthStageSection, Form } from "../Components";
+import { useSubmittingNewPin } from "core/react/useSubmittingNewPin";
+import { AuthStageSection, Form } from "test-app/Components";
+import { useConfigState } from "test-app/ConfigInjector";
 
-const description = c`
-If PIN device security is active, when the user logs in they have to set a
-new PIN. The PIN is wiped every time the user logs out, so this stage is
-reached every time they go through the login flow.
-\n\n
-In the actual app, it may be provident to double up on the new PIN input
-("enter your new PIN"/"confirm your new PIN") to ensure that the user
-has correctly entered the PIN they wanted.
-`;
+const {
+	authStages: {
+		submittingNewPin: { description, controlLabels },
+	},
+} = uiText;
 
 export const SubmittingNewPin = () => {
 	const { error, isActive, isLoading, setNewPin, validationErrors } =
@@ -40,13 +36,13 @@ export const SubmittingNewPin = () => {
 						id="otp"
 						inputType="text"
 						isActive={isActive}
-						label="Enter your new PIN"
+						label={controlLabels.newPinInput}
 						validationErrors={validationErrors.pin}
 						value={pin}
 						valueSetter={setPin}
 					/>
 					<Form.Controls>
-						<Form.Submit label="Submit new PIN" />
+						<Form.Submit label={controlLabels.submitPin} />
 					</Form.Controls>
 				</Form.Elements>
 			</Form>

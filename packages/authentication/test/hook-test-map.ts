@@ -194,6 +194,7 @@ export const hookTestMap: HookTestMap = [
 					expectedEvent: { type: "PASSWORD_RESET_FAILURE", error: "PASSWORD_RESET_FAILURE" },
 				},
 			],
+			additionalMethods: [{ method: "cancelPasswordReset", expectedEvent: { type: "GO_BACK" } }],
 		},
 	},
 	{

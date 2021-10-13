@@ -1,18 +1,16 @@
 import React from "react";
-import { c } from "compress-tag";
+import uiText from "test-app/ui-copy";
 
-import { AuthStateId } from "../../auth-system";
-import { useConfigState } from "../ConfigInjector";
-import { useAuthenticated } from "../../react";
-import { AuthStageSection, Form } from "../Components";
+import { AuthStateId } from "core/auth-system";
+import { useConfigState } from "test-app/ConfigInjector";
+import { useAuthenticated } from "core/react/useAuthenticated";
+import { AuthStageSection, Form } from "test-app/Components";
 
-const description = c`
-The user is now authenticated. They have navigated login and a token is
-stored locally. They have set up/input a PIN (if that is a requirement).
-\n\n
-From this state, they can log out, change their password (if the login
-flow is USERNAME_PASSWORD) and change their PIN (if PIN is a requirement).
-`;
+const {
+	authStages: {
+		authenticated: { description, controlLabels },
+	},
+} = uiText;
 
 export const Authenticated = () => {
 	const { isActive, requestLogOut, requestPinChange } = useAuthenticated();
@@ -31,7 +29,7 @@ export const Authenticated = () => {
 			<Form submitCb={requestLogOut}>
 				<Form.Elements disabled={!isActive}>
 					<Form.Controls>
-						<Form.Submit label="I want to log out!" />
+						<Form.Submit label={controlLabels.logOut} />
 					</Form.Controls>
 				</Form.Elements>
 			</Form>
@@ -39,7 +37,7 @@ export const Authenticated = () => {
 				<Form submitCb={requestPinChange}>
 					<Form.Elements disabled={!isActive}>
 						<Form.Controls>
-							<Form.Submit label="I want to change my PIN!" />
+							<Form.Submit label={controlLabels.changePin} />
 						</Form.Controls>
 					</Form.Elements>
 				</Form>

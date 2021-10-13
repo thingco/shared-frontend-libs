@@ -1,22 +1,17 @@
 import React from "react";
-import { c } from "compress-tag";
+import uiText from "test-app/ui-copy";
 
 import { changePasswordCb } from "./callback-implementations";
-import { AuthStateId } from "../../auth-system";
-import { useConfigState } from "../ConfigInjector";
-import { useAuthenticatedChangingPassword } from "../../react";
-import { AuthStageSection, Form } from "../Components";
+import { AuthStateId } from "core/auth-system";
+import { useAuthenticatedChangingPassword } from "core/react/useAuthenticatedChangingPassword";
+import { AuthStageSection, Form } from "test-app/Components";
+import { useConfigState } from "test-app/ConfigInjector";
 
-const description = c`
-The user is already authenticated on USERNAME_PASSWORD flow and has requested
-that they wish to change their password.
-\n\n
-They may cancel this request at this point, but if they continue, the method
-provided by the state hook accepts the current password and the new password.
-In the actual app, it may be provident to double up on the new password input
-("enter your new password"/"confirm your new password") to ensure that the user
-has correctly entered the password they wanted.
-`;
+const {
+	authStages: {
+		authenticatedChangingPassword: { description, controlLabels },
+	},
+} = uiText;
 
 export const AuthenticatedChangingPassword = () => {
 	const { error, isActive, isLoading, submitNewPassword, cancelChangePassword, validationErrors } =
@@ -42,7 +37,7 @@ export const AuthenticatedChangingPassword = () => {
 						id="oldPassword"
 						inputType="text"
 						isActive={isActive}
-						label="Enter your current password"
+						label={controlLabels.currentPasswordInput}
 						validationErrors={validationErrors["oldPassword"]}
 						value={oldPassword}
 						valueSetter={setOldPassword}
@@ -51,15 +46,15 @@ export const AuthenticatedChangingPassword = () => {
 						id="newPassword"
 						inputType="text"
 						isActive={isActive}
-						label="Enter your new password"
+						label={controlLabels.newPasswordInput}
 						validationErrors={validationErrors["newPassword"]}
 						value={newPassword}
 						valueSetter={setNewPassword}
 					/>
 					<Form.Controls>
-						<Form.Submit label="Change your password" />
+						<Form.Submit label={controlLabels.changePassword} />
 						<Form.SecondaryAction
-							label="Cancel password change"
+							label={controlLabels.cancelChangePassword}
 							actionCallback={cancelChangePassword}
 						/>
 					</Form.Controls>

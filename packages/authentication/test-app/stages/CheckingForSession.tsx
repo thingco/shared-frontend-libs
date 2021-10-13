@@ -1,22 +1,17 @@
 import React from "react";
-import { c } from "compress-tag";
+import uiText from "test-app/ui-copy";
 
+import { AuthStateId } from "core/auth-system";
 import { checkSessionCb } from "./callback-implementations";
-import { useConfigState } from "../ConfigInjector";
-import { AuthStateId } from "../../auth-system";
-import { useCheckingForSession } from "../../react";
-import { AuthStageSection, Form } from "../Components";
+import { useCheckingForSession } from "core/react/useCheckingForSession";
+import { AuthStageSection, Form } from "test-app/Components";
+import { useConfigState } from "test-app/ConfigInjector";
 
-const description = c`
-Always the first stage of authentication. The application using the
-authentication system has to check to see if there is a stored
-token that indicates the user is already authenticated. If there
-isn't, they'll have to log in. If there is, they can move on to
-device security (if that is active).
-\n\n
-In a real app, this stage should occur automatically and be hidden
-from the user.
-`;
+const {
+	authStages: {
+		checkingForSession: { description, controlLabels },
+	},
+} = uiText;
 
 export const CheckingForSession = () => {
 	const { isActive, isLoading, checkSession, error } = useCheckingForSession(checkSessionCb);
@@ -35,7 +30,7 @@ export const CheckingForSession = () => {
 			<Form submitCb={checkSession}>
 				<Form.Elements disabled={!isActive || isLoading}>
 					<Form.Controls>
-						<Form.Submit label="Check Session" />
+						<Form.Submit label={controlLabels.checkForExistingSession} />
 					</Form.Controls>
 				</Form.Elements>
 			</Form>

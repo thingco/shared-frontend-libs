@@ -17,7 +17,7 @@ import type {
 	SubmitNewPasswordCb,
 	ChangePasswordCb,
 	LogoutCb,
-} from "../../react/callback-types";
+} from "core/react/callback-types";
 
 /**
  * Check for an active session. Failure of request === no session.

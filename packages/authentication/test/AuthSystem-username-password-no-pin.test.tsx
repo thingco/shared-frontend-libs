@@ -1,12 +1,23 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-empty-function */
-import { createModel } from "@xstate/test";
-import { waitFor } from "@testing-library/react";
+import React from "react";
+import { waitFor, render } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { createModel } from "@xstate/test";
 import { createMachine } from "xstate";
 
 import { AuthStateId } from "core/auth-system";
+// Import the entire authentication structure from the test app:
+import { Authentication } from "test-app/App";
+// Import the config injection component from the test app:
+import { ConfigInjector } from "test-app/ConfigInjector";
+// The text used the UI, equivalent of translations file:
+import uiText from "test-app/ui-copy";
+// Local storage mock:
+import { localStorageMock } from "test-utils/local-storage";
+// Custom `screen` from `@testing-library/react` enhanced with ...ByTerm queries
 import { customScreen } from "test-utils/find-by-term";
+// Boilerplate query/assertion functions
 import {
 	currentDeviceSecurityTypeIs,
 	currentLoginFlowIs,
@@ -14,35 +25,84 @@ import {
 	stageErrorIs,
 	stageLoadingStatusIs,
 } from "test-utils/assertion-helpers";
+
+// Mock responses + API functions to mock.
 import {
-	VALID_USERNAME,
-	INVALID_USERNAME,
-	VALID_CODE,
 	INVALID_CODE,
-	VALID_PASSWORD,
+	INVALID_USERNAME,
 	INVALID_PASSWORD,
 	OLD_PASSWORD,
+	VALID_CODE,
+	VALID_PASSWORD,
+	VALID_USERNAME,
 	USER_OBJECT,
 } from "test-utils/dummy-responses";
-import uiText from "test-app/ui-copy";
 
 import {
 	checkSessionCb,
 	validateUsernameAndPasswordCb,
 	validateForceChangePasswordCb,
-	logoutCb,
 	requestNewPasswordCb,
 	submitNewPasswordCb,
+	changePasswordCb,
+	logoutCb,
 } from "test-app/stages/callback-implementations";
 
-import type { CheckSessionCb, LogoutCb } from "core/react";
+// Types
+import type { CheckSessionCb, LogoutCb } from "core/react/callback-types";
+
+/* ------------------------------------------------------------------------- *\
+ * 1. MOCKING
+\* ------------------------------------------------------------------------- */
 
 jest.mock("test-app/stages/callback-implementations", () => ({
 	checkSessionCb: jest.fn(),
+	validateUsernameAndPasswordCb: jest.fn(async (username, password) => {
+		if (username === VALID_USERNAME && password === VALID_PASSWORD) {
+			return Promise.resolve(USER_OBJECT);
+		} else if (username === VALID_USERNAME && password === OLD_PASSWORD) {
+			return Promise.resolve(["NEW_PASSWORD_REQUIRED", USER_OBJECT]);
+		} else {
+			return Promise.reject();
+		}
+	}),
+	validateForceChangePasswordCb: jest.fn(async (_, password) => {
+		if (password === VALID_PASSWORD) {
+			return Promise.resolve();
+		} else {
+			return Promise.reject();
+		}
+	}),
+	requestNewPasswordCb: jest.fn(async (username) => {
+		if (username === VALID_USERNAME) {
+			return Promise.resolve();
+		} else {
+			return Promise.reject();
+		}
+	}),
+	submitNewPasswordCb: jest.fn(async (username, code, newPassword) => {
+		if (username === VALID_USERNAME && code === VALID_CODE && newPassword === VALID_PASSWORD) {
+			return Promise.resolve();
+		} else {
+			return Promise.reject();
+		}
+	}),
+	changePasswordCb: jest.fn(async (oldPassword, newPassword) => {
+		if (oldPassword === VALID_PASSWORD && newPassword === VALID_PASSWORD) {
+			return Promise.resolve();
+		} else {
+			return Promise.reject();
+		}
+	}),
+	logOutCb: jest.fn(),
 }));
 
+/* ------------------------------------------------------------------------- *\
+ * 2. SYSTEM UNDER TEST
+\* ------------------------------------------------------------------------- */
+
 const machine = createMachine({
-	id: "userenamePasswordNoPin",
+	id: "usernamePasswordNoPin",
 	initial: "CheckingSession",
 	states: {
 		CheckingSession: {
@@ -103,7 +163,7 @@ const machine = createMachine({
 			meta: {
 				test: async () => {
 					await currentStateIs(AuthStateId.SubmittingForceChangePassword);
-					await stageErrorIs("PASSWORD_CHANGE_FAILURE");
+					await stageErrorIs("PASSWORD_RESET_FAILURE");
 				},
 			},
 		},
@@ -133,8 +193,8 @@ const machine = createMachine({
 		},
 		SubmittingNewPassword: {
 			on: {
-				PASSWORD_CHANGE_SUCCESS: "CheckingSession",
-				PASSWORD_CHANGE_FAILURE: "SubmittingNewPasswordError",
+				PASSWORD_RESET_SUCCESS: "CheckingSession",
+				PASSWORD_RESET_FAILURE: "SubmittingNewPasswordError",
 			},
 			meta: {
 				test: async () => {
@@ -145,7 +205,7 @@ const machine = createMachine({
 		},
 		SubmittingNewPasswordError: {
 			on: {
-				PASSWORD_CHANGE_SUCCESS: "CheckingSession",
+				PASSWORD_RESET_SUCCESS: "CheckingSession",
 				REENTER_USERNAME_TO_RESEND_CODE: "RequestingNewPassword",
 			},
 			meta: {
@@ -213,7 +273,6 @@ const model = createModel(machine).withEvents({
 		const controlLabels = uiText.authStages.checkingForSession.controlLabels;
 		userEvent.click(await customScreen.findByText(controlLabels.checkForExistingSession));
 		await waitFor(() => expect(checkSessionCb).toHaveBeenCalled());
-		// expect(await customScreen.findByText("Loading: true")).toBeDefined();
 		await stageLoadingStatusIs("false");
 	},
 	THERE_IS_NO_SESSION: async () => {
@@ -222,7 +281,6 @@ const model = createModel(machine).withEvents({
 		userEvent.click(await customScreen.findByText(controlLabels.checkForExistingSession));
 		await waitFor(() => expect(checkSessionCb).toHaveBeenCalled());
 		(checkSessionCb as jest.MockedFunction<CheckSessionCb>).mockReset();
-		// expect(await customScreen.findByText("Loading: true")).toBeDefined();
 		await stageLoadingStatusIs("false");
 	},
 	GOOD_USERNAME_AND_PASSWORD: async () => {
@@ -315,7 +373,7 @@ const model = createModel(machine).withEvents({
 		const controlLabels = uiText.authStages.forgottenPasswordRequestingReset.controlLabels;
 		userEvent.click(await customScreen.findByText(controlLabels.cancelPasswordReset));
 	},
-	PASSWORD_CHANGE_SUCCESS: async () => {
+	PASSWORD_RESET_SUCCESS: async () => {
 		const controlLabels = uiText.authStages.forgottenPasswordSubmittingReset.controlLabels;
 		const codeinput = await customScreen.findByLabelText(controlLabels.resetCodeInput);
 		const passwordinput = await customScreen.findByLabelText(controlLabels.newPasswordInput);
@@ -329,7 +387,7 @@ const model = createModel(machine).withEvents({
 		);
 		await stageLoadingStatusIs("false");
 	},
-	PASSWORD_CHANGE_FAILURE: async () => {
+	PASSWORD_RESET_FAILURE: async () => {
 		const controlLabels = uiText.authStages.forgottenPasswordSubmittingReset.controlLabels;
 		const codeinput = await customScreen.findByLabelText(controlLabels.resetCodeInput);
 		const passwordinput = await customScreen.findByLabelText(controlLabels.newPasswordInput);
@@ -387,7 +445,7 @@ const model = createModel(machine).withEvents({
 		userEvent.type(newPasswordinput, VALID_PASSWORD);
 		userEvent.click(await customScreen.findByText(controlLabels.changePassword));
 		await waitFor(() =>
-			expect(submitNewPasswordCb).toHaveBeenCalledWith(VALID_PASSWORD, VALID_PASSWORD)
+			expect(changePasswordCb).toHaveBeenCalledWith(VALID_PASSWORD, VALID_PASSWORD)
 		);
 		await stageLoadingStatusIs("false");
 	},
@@ -401,7 +459,7 @@ const model = createModel(machine).withEvents({
 		userEvent.type(newPasswordinput, INVALID_PASSWORD);
 		userEvent.click(await customScreen.findByText(controlLabels.changePassword));
 		await waitFor(() =>
-			expect(submitNewPasswordCb).toHaveBeenCalledWith(INVALID_PASSWORD, INVALID_PASSWORD)
+			expect(changePasswordCb).toHaveBeenCalledWith(INVALID_PASSWORD, INVALID_PASSWORD)
 		);
 		await stageLoadingStatusIs("false");
 	},
@@ -411,4 +469,41 @@ const model = createModel(machine).withEvents({
 	},
 });
 
-export const usernamePasswordNoPin = { machine, model };
+/* ------------------------------------------------------------------------- *\
+ * 3. TESTS
+\* ------------------------------------------------------------------------- */
+
+describe("authentication test system using username password and no device security", () => {
+	beforeAll(() => {
+		globalThis.localStorage = localStorageMock();
+	});
+
+	afterEach(() => {
+		jest.clearAllMocks();
+	});
+
+	const testPlans = model.getSimplePathPlans();
+
+	testPlans.forEach((plan) => {
+		describe(`authentication test system ${plan.description}`, () => {
+			plan.paths.forEach((path) => {
+				it(path.description, async () => {
+					const screen = render(
+						<ConfigInjector
+							initialLoginFlowType="USERNAME_PASSWORD"
+							initialDeviceSecurityType="NONE"
+							isInTestMode={true}
+						>
+							<Authentication />
+						</ConfigInjector>
+					);
+					await path.test(screen);
+				});
+			});
+		});
+	});
+
+	it("should have full coverage", () => {
+		return model.testCoverage();
+	});
+});
