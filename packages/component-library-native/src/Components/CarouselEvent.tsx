@@ -37,15 +37,8 @@ interface CarouselItem {
 	index: number;
 }
 
-export const CarouselEvent = ({
-	item,
-	index,
-	height,
-	onPress,
-	isTablet = false,
-}: CarouselEventProps) => {
-	const adjustedWidth = isTablet ? 704 : viewportWidth;
-	const tileWidth = adjustedWidth * 0.9;
+export const CarouselEvent = ({ item, index, height, onPress }: CarouselEventProps) => {
+	const tileWidth = viewportWidth * 0.9;
 
 	let event;
 	let icon;
