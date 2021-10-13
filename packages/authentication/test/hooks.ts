@@ -24,6 +24,8 @@ import { useSubmittingUsernameAndPassword } from "core/react/useSubmittingUserna
  * 2. can generate tests from a small data structure that is looped over rather than writing a seperate test for each hook.
  *
  * To make things easier to do the above, all the hooks are given a namespace for the tests.
+ *
+ * This is done rather than `import * as AuthHook` to make iteration easier, nothing special.
  */
 export const AuthHook = {
 	useAuthenticated,

@@ -37,7 +37,7 @@ export const SubmittingUsernameAndPassword = () => {
 				description={description}
 				errorMsg={error}
 			/>
-			<Form submitCb={validateUsernameAndPassword} cbParams={[username]}>
+			<Form submitCb={validateUsernameAndPassword} cbParams={[username, password]}>
 				<Form.Elements disabled={!isActive || isLoading} error={error}>
 					<Form.InputGroup
 						id="username"

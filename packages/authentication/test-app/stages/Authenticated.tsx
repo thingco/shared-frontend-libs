@@ -13,8 +13,8 @@ const {
 } = uiText;
 
 export const Authenticated = () => {
-	const { isActive, requestLogOut, requestPinChange } = useAuthenticated();
-	const { uiLayout, deviceSecurityType } = useConfigState();
+	const { isActive, requestLogOut, requestPasswordChange, requestPinChange } = useAuthenticated();
+	const { uiLayout, deviceSecurityType, loginFlowType } = useConfigState();
 
 	if (uiLayout === "MOUNT_WHEN_ACTIVE" && !isActive) return null;
 
@@ -33,6 +33,15 @@ export const Authenticated = () => {
 					</Form.Controls>
 				</Form.Elements>
 			</Form>
+			{loginFlowType === "USERNAME_PASSWORD" && (
+				<Form submitCb={requestPasswordChange}>
+					<Form.Elements disabled={!isActive}>
+						<Form.Controls>
+							<Form.Submit label={controlLabels.changePassword} />
+						</Form.Controls>
+					</Form.Elements>
+				</Form>
+			)}
 			{deviceSecurityType === "PIN" && (
 				<Form submitCb={requestPinChange}>
 					<Form.Elements disabled={!isActive}>

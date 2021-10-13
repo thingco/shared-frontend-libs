@@ -3,7 +3,7 @@ import { createModel } from "@xstate/test";
 import { createMachine, interpret } from "xstate";
 
 import { AuthStateId, createAuthenticationSystem } from "core/auth-system";
-import { USER_OBJECT, VALID_USERNAME } from "./utilities";
+import { USER_OBJECT, VALID_USERNAME } from "test-utils/dummy-responses";
 
 import type { AuthEvent, AuthInterpreter } from "core/auth-system";
 import type { AuthError } from "core/types";

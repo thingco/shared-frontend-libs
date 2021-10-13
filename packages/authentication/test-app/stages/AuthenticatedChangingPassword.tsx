@@ -31,7 +31,7 @@ export const AuthenticatedChangingPassword = () => {
 				description={description}
 				errorMsg={error}
 			/>
-			<Form submitCb={submitNewPassword} cbParams={[oldPassword]}>
+			<Form submitCb={submitNewPassword} cbParams={[oldPassword, newPassword]}>
 				<Form.Elements disabled={!isActive}>
 					<Form.InputGroup
 						id="oldPassword"

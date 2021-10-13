@@ -10,7 +10,7 @@ import {
 	INVALID_PASSWORD,
 	TEMPORARY_PASSWORD,
 	USER_OBJECT,
-} from "./utilities";
+} from "test-utils/dummy-responses";
 
 /**
  * To test the hooks, cycle through a table of hook descriptions, the TestHookMap

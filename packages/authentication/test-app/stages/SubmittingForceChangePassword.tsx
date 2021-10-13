@@ -25,13 +25,13 @@ export const SubmittingForceChangePassword = () => {
 	return (
 		<AuthStageSection isActive={isActive}>
 			<AuthStageSection.Overview
-				stageId={AuthStateId.SubmittingOtpUsername}
+				stageId={AuthStateId.SubmittingForceChangePassword}
 				isLoading={isLoading}
 				description={description}
 				errorMsg={error}
 			/>
 			<Form submitCb={validateNewPassword} cbParams={[password]}>
-				<Form.Elements disabled={isActive}>
+				<Form.Elements disabled={!isActive || isLoading} error={error}>
 					<Form.InputGroup
 						id="password"
 						inputType="text"

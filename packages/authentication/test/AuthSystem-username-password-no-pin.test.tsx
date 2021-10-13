@@ -2,7 +2,6 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import React from "react";
 import { waitFor, render } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 import { createModel } from "@xstate/test";
 import { createMachine } from "xstate";
 
@@ -15,8 +14,6 @@ import { ConfigInjector } from "test-app/ConfigInjector";
 import uiText from "test-app/ui-copy";
 // Local storage mock:
 import { localStorageMock } from "test-utils/local-storage";
-// Custom `screen` from `@testing-library/react` enhanced with ...ByTerm queries
-import { customScreen } from "test-utils/find-by-term";
 // Boilerplate query/assertion functions
 import {
 	currentDeviceSecurityTypeIs,
@@ -25,6 +22,7 @@ import {
 	stageErrorIs,
 	stageLoadingStatusIs,
 } from "test-utils/assertion-helpers";
+import { clickButton, findInputClearInputFillInput } from "test-utils/event-helpers";
 
 // Mock responses + API functions to mock.
 import {
@@ -66,8 +64,8 @@ jest.mock("test-app/stages/callback-implementations", () => ({
 			return Promise.reject();
 		}
 	}),
-	validateForceChangePasswordCb: jest.fn(async (_, password) => {
-		if (password === VALID_PASSWORD) {
+	validateForceChangePasswordCb: jest.fn(async (user, password) => {
+		if (user === USER_OBJECT && password === VALID_PASSWORD) {
 			return Promise.resolve();
 		} else {
 			return Promise.reject();
@@ -163,7 +161,7 @@ const machine = createMachine({
 			meta: {
 				test: async () => {
 					await currentStateIs(AuthStateId.SubmittingForceChangePassword);
-					await stageErrorIs("PASSWORD_RESET_FAILURE");
+					await stageErrorIs("PASSWORD_CHANGE_FAILURE");
 				},
 			},
 		},
@@ -271,27 +269,23 @@ const machine = createMachine({
 const model = createModel(machine).withEvents({
 	THERE_IS_A_SESSION: async () => {
 		const controlLabels = uiText.authStages.checkingForSession.controlLabels;
-		userEvent.click(await customScreen.findByText(controlLabels.checkForExistingSession));
+		await clickButton(controlLabels.checkForExistingSession);
 		await waitFor(() => expect(checkSessionCb).toHaveBeenCalled());
 		await stageLoadingStatusIs("false");
 	},
 	THERE_IS_NO_SESSION: async () => {
 		const controlLabels = uiText.authStages.checkingForSession.controlLabels;
 		(checkSessionCb as jest.MockedFunction<CheckSessionCb>).mockRejectedValueOnce(null);
-		userEvent.click(await customScreen.findByText(controlLabels.checkForExistingSession));
+		await clickButton(controlLabels.checkForExistingSession);
 		await waitFor(() => expect(checkSessionCb).toHaveBeenCalled());
 		(checkSessionCb as jest.MockedFunction<CheckSessionCb>).mockReset();
 		await stageLoadingStatusIs("false");
 	},
 	GOOD_USERNAME_AND_PASSWORD: async () => {
 		const controlLabels = uiText.authStages.submittingUsernameAndPassword.controlLabels;
-		const usernameinput = await customScreen.findByText(controlLabels.usernameInput);
-		const passwordinput = await customScreen.findByText(controlLabels.passwordInput);
-		userEvent.clear(usernameinput);
-		userEvent.clear(passwordinput);
-		userEvent.type(usernameinput, VALID_USERNAME);
-		userEvent.type(passwordinput, VALID_PASSWORD);
-		userEvent.click(await customScreen.findByText(controlLabels.logIn));
+		await findInputClearInputFillInput(controlLabels.usernameInput, VALID_USERNAME);
+		await findInputClearInputFillInput(controlLabels.passwordInput, VALID_PASSWORD);
+		await clickButton(controlLabels.logIn);
 		await waitFor(() =>
 			expect(validateUsernameAndPasswordCb).toHaveBeenCalledWith(VALID_USERNAME, VALID_PASSWORD)
 		);
@@ -299,13 +293,9 @@ const model = createModel(machine).withEvents({
 	},
 	BAD_USERNAME_AND_PASSWORD: async () => {
 		const controlLabels = uiText.authStages.submittingUsernameAndPassword.controlLabels;
-		const usernameinput = await customScreen.findByText(controlLabels.usernameInput);
-		const passwordinput = await customScreen.findByText(controlLabels.passwordInput);
-		userEvent.clear(usernameinput);
-		userEvent.clear(passwordinput);
-		userEvent.type(usernameinput, INVALID_USERNAME);
-		userEvent.type(passwordinput, INVALID_PASSWORD);
-		userEvent.click(await customScreen.findByText(controlLabels.logIn));
+		await findInputClearInputFillInput(controlLabels.usernameInput, INVALID_USERNAME);
+		await findInputClearInputFillInput(controlLabels.passwordInput, INVALID_PASSWORD);
+		await clickButton(controlLabels.logIn);
 		await waitFor(() =>
 			expect(validateUsernameAndPasswordCb).toHaveBeenCalledWith(INVALID_USERNAME, INVALID_PASSWORD)
 		);
@@ -313,13 +303,9 @@ const model = createModel(machine).withEvents({
 	},
 	FORCE_PASSWORD_RESET_REQUIRED: async () => {
 		const controlLabels = uiText.authStages.submittingUsernameAndPassword.controlLabels;
-		const usernameinput = await customScreen.findByText(controlLabels.usernameInput);
-		const passwordinput = await customScreen.findByText(controlLabels.passwordInput);
-		userEvent.clear(usernameinput);
-		userEvent.clear(passwordinput);
-		userEvent.type(usernameinput, VALID_USERNAME);
-		userEvent.type(passwordinput, OLD_PASSWORD);
-		userEvent.click(await customScreen.findByText(controlLabels.logIn));
+		await findInputClearInputFillInput(controlLabels.usernameInput, VALID_USERNAME);
+		await findInputClearInputFillInput(controlLabels.passwordInput, OLD_PASSWORD);
+		await clickButton(controlLabels.logIn);
 		await waitFor(() =>
 			expect(validateUsernameAndPasswordCb).toHaveBeenCalledWith(VALID_USERNAME, OLD_PASSWORD)
 		);
@@ -327,10 +313,8 @@ const model = createModel(machine).withEvents({
 	},
 	GOOD_FORCE_RESET_PASSWORD: async () => {
 		const controlLabels = uiText.authStages.submittingForceChangePassword.controlLabels;
-		const input = await customScreen.findByLabelText(controlLabels.newPasswordInput);
-		userEvent.clear(input);
-		userEvent.type(input, VALID_PASSWORD);
-		userEvent.click(await customScreen.findByText(controlLabels.submitPassword));
+		await findInputClearInputFillInput(controlLabels.newPasswordInput, VALID_PASSWORD);
+		await clickButton(controlLabels.submitPassword);
 		await waitFor(() =>
 			expect(validateForceChangePasswordCb).toHaveBeenCalledWith(USER_OBJECT, VALID_PASSWORD)
 		);
@@ -338,10 +322,8 @@ const model = createModel(machine).withEvents({
 	},
 	BAD_FORCE_RESET_PASSWORD: async () => {
 		const controlLabels = uiText.authStages.submittingForceChangePassword.controlLabels;
-		const input = await customScreen.findByLabelText(controlLabels.newPasswordInput);
-		userEvent.clear(input);
-		userEvent.type(input, INVALID_PASSWORD);
-		userEvent.click(await customScreen.findByText(controlLabels.submitPassword));
+		await findInputClearInputFillInput(controlLabels.newPasswordInput, INVALID_PASSWORD);
+		await clickButton(controlLabels.submitPassword);
 		await waitFor(() =>
 			expect(validateForceChangePasswordCb).toHaveBeenCalledWith(USER_OBJECT, INVALID_PASSWORD)
 		);
@@ -349,39 +331,31 @@ const model = createModel(machine).withEvents({
 	},
 	FORGOT_PASSWORD: async () => {
 		const controlLabels = uiText.authStages.submittingUsernameAndPassword.controlLabels;
-		userEvent.click(await customScreen.findByText(controlLabels.forgotPassword));
+		await clickButton(controlLabels.forgotPassword);
 	},
 	PASSWORD_RESET_REQUEST_SUCCESS: async () => {
 		const controlLabels = uiText.authStages.forgottenPasswordRequestingReset.controlLabels;
-		const input = await customScreen.findByLabelText(controlLabels.enterEmailInput);
-		userEvent.clear(input);
-		userEvent.type(input, VALID_USERNAME);
-		userEvent.click(await customScreen.findByText(controlLabels.requestResetCode));
+		await findInputClearInputFillInput(controlLabels.enterEmailInput, VALID_USERNAME);
+		await clickButton(controlLabels.requestResetCode);
 		await waitFor(() => expect(requestNewPasswordCb).toHaveBeenCalledWith(VALID_USERNAME));
 		await stageLoadingStatusIs("false");
 	},
 	PASSWORD_RESET_REQUEST_FAILURE: async () => {
 		const controlLabels = uiText.authStages.forgottenPasswordRequestingReset.controlLabels;
-		const input = await customScreen.findByLabelText(controlLabels.enterEmailInput);
-		userEvent.clear(input);
-		userEvent.type(input, INVALID_USERNAME);
-		userEvent.click(await customScreen.findByText(controlLabels.requestResetCode));
+		await findInputClearInputFillInput(controlLabels.enterEmailInput, INVALID_USERNAME);
+		await clickButton(controlLabels.requestResetCode);
 		await waitFor(() => expect(requestNewPasswordCb).toHaveBeenCalledWith(INVALID_USERNAME));
 		await stageLoadingStatusIs("false");
 	},
 	CANCEL_PASSWORD_RESET: async () => {
 		const controlLabels = uiText.authStages.forgottenPasswordRequestingReset.controlLabels;
-		userEvent.click(await customScreen.findByText(controlLabels.cancelPasswordReset));
+		await clickButton(controlLabels.cancelPasswordReset);
 	},
 	PASSWORD_RESET_SUCCESS: async () => {
 		const controlLabels = uiText.authStages.forgottenPasswordSubmittingReset.controlLabels;
-		const codeinput = await customScreen.findByLabelText(controlLabels.resetCodeInput);
-		const passwordinput = await customScreen.findByLabelText(controlLabels.newPasswordInput);
-		userEvent.clear(codeinput);
-		userEvent.clear(passwordinput);
-		userEvent.type(codeinput, VALID_CODE);
-		userEvent.type(passwordinput, VALID_PASSWORD);
-		userEvent.click(await customScreen.findByText(controlLabels.submitReset));
+		await findInputClearInputFillInput(controlLabels.resetCodeInput, VALID_CODE);
+		await findInputClearInputFillInput(controlLabels.newPasswordInput, VALID_PASSWORD);
+		await clickButton(controlLabels.submitReset);
 		await waitFor(() =>
 			expect(submitNewPasswordCb).toHaveBeenCalledWith(VALID_USERNAME, VALID_CODE, VALID_PASSWORD)
 		);
@@ -389,13 +363,9 @@ const model = createModel(machine).withEvents({
 	},
 	PASSWORD_RESET_FAILURE: async () => {
 		const controlLabels = uiText.authStages.forgottenPasswordSubmittingReset.controlLabels;
-		const codeinput = await customScreen.findByLabelText(controlLabels.resetCodeInput);
-		const passwordinput = await customScreen.findByLabelText(controlLabels.newPasswordInput);
-		userEvent.clear(codeinput);
-		userEvent.clear(passwordinput);
-		userEvent.type(codeinput, INVALID_CODE);
-		userEvent.type(passwordinput, INVALID_PASSWORD);
-		userEvent.click(await customScreen.findByText(controlLabels.submitReset));
+		await findInputClearInputFillInput(controlLabels.resetCodeInput, INVALID_CODE);
+		await findInputClearInputFillInput(controlLabels.newPasswordInput, INVALID_PASSWORD);
+		await clickButton(controlLabels.submitReset);
 		await waitFor(() =>
 			expect(submitNewPasswordCb).toHaveBeenCalledWith(
 				VALID_USERNAME,
@@ -407,43 +377,39 @@ const model = createModel(machine).withEvents({
 	},
 	REENTER_USERNAME_TO_RESEND_CODE: async () => {
 		const controlLabels = uiText.authStages.forgottenPasswordSubmittingReset.controlLabels;
-		userEvent.click(await customScreen.findByText(controlLabels.resendCode));
+		await clickButton(controlLabels.resendCode);
 	},
 	REQUEST_LOG_OUT: async () => {
 		const controlLabels = uiText.authStages.authenticated.controlLabels;
-		userEvent.click(await customScreen.findByText(controlLabels.logOut));
+		await clickButton(controlLabels.logOut);
 	},
 	CANCEL_LOG_OUT: async () => {
 		const controlLabels = uiText.authStages.authenticatedLoggingOut.controlLabels;
-		userEvent.click(await customScreen.findByText(controlLabels.cancelLogOut));
+		await clickButton(controlLabels.cancelLogOut);
 	},
 	GOOD_LOG_OUT: async () => {
 		const controlLabels = uiText.authStages.authenticatedLoggingOut.controlLabels;
-		userEvent.click(await customScreen.findByText(controlLabels.logOut));
+		await clickButton(controlLabels.logOut);
 		await waitFor(() => expect(logoutCb).toHaveBeenCalled());
 		await stageLoadingStatusIs("false");
 	},
 	BAD_LOG_OUT: async () => {
 		const controlLabels = uiText.authStages.authenticatedLoggingOut.controlLabels;
 		(logoutCb as jest.MockedFunction<LogoutCb>).mockRejectedValueOnce(null);
-		userEvent.click(await customScreen.findByText(controlLabels.logOut));
+		await clickButton(controlLabels.logOut);
 		await waitFor(() => expect(logoutCb).toHaveBeenCalled());
 		(logoutCb as jest.MockedFunction<LogoutCb>).mockReset();
 		await stageLoadingStatusIs("false");
 	},
 	REQUEST_PASSWORD_CHANGE_WHEN_AUTHENTICATED: async () => {
 		const controlLabels = uiText.authStages.authenticated.controlLabels;
-		userEvent.click(await customScreen.findByText(controlLabels.changePassword));
+		await clickButton(controlLabels.changePassword);
 	},
 	SUCCESSFUL_PASSWORD_CHANGE: async () => {
 		const controlLabels = uiText.authStages.authenticatedChangingPassword.controlLabels;
-		const oldPasswordInput = await customScreen.findByLabelText(controlLabels.currentPasswordInput);
-		const newPasswordinput = await customScreen.findByLabelText(controlLabels.newPasswordInput);
-		userEvent.clear(oldPasswordInput);
-		userEvent.clear(newPasswordinput);
-		userEvent.type(oldPasswordInput, VALID_PASSWORD);
-		userEvent.type(newPasswordinput, VALID_PASSWORD);
-		userEvent.click(await customScreen.findByText(controlLabels.changePassword));
+		await findInputClearInputFillInput(controlLabels.currentPasswordInput, VALID_PASSWORD);
+		await findInputClearInputFillInput(controlLabels.newPasswordInput, VALID_PASSWORD);
+		await clickButton(controlLabels.changePassword);
 		await waitFor(() =>
 			expect(changePasswordCb).toHaveBeenCalledWith(VALID_PASSWORD, VALID_PASSWORD)
 		);
@@ -451,13 +417,9 @@ const model = createModel(machine).withEvents({
 	},
 	UNSUCCESSFUL_PASSWORD_CHANGE: async () => {
 		const controlLabels = uiText.authStages.authenticatedChangingPassword.controlLabels;
-		const oldPasswordInput = await customScreen.findByLabelText(controlLabels.currentPasswordInput);
-		const newPasswordinput = await customScreen.findByLabelText(controlLabels.newPasswordInput);
-		userEvent.clear(oldPasswordInput);
-		userEvent.clear(newPasswordinput);
-		userEvent.type(oldPasswordInput, INVALID_PASSWORD);
-		userEvent.type(newPasswordinput, INVALID_PASSWORD);
-		userEvent.click(await customScreen.findByText(controlLabels.changePassword));
+		await findInputClearInputFillInput(controlLabels.currentPasswordInput, INVALID_PASSWORD);
+		await findInputClearInputFillInput(controlLabels.newPasswordInput, INVALID_PASSWORD);
+		await clickButton(controlLabels.changePassword);
 		await waitFor(() =>
 			expect(changePasswordCb).toHaveBeenCalledWith(INVALID_PASSWORD, INVALID_PASSWORD)
 		);
@@ -465,7 +427,7 @@ const model = createModel(machine).withEvents({
 	},
 	CANCEL_PASSWORD_CHANGE: async () => {
 		const controlLabels = uiText.authStages.authenticatedChangingPassword.controlLabels;
-		userEvent.click(await customScreen.findByText(controlLabels.cancelChangePassword));
+		await clickButton(controlLabels.cancelChangePassword);
 	},
 });
 

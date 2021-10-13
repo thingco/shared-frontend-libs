@@ -49,10 +49,10 @@ export const ForgottenPasswordRequestingReset = () => {
 					/>
 					<Form.Controls>
 						<Form.SecondaryAction
-							label={controlLabels.requestResetCode}
+							label={controlLabels.cancelPasswordReset}
 							actionCallback={cancelResetPasswordRequest}
 						/>
-						<Form.Submit label={controlLabels.cancelPasswordReset} />
+						<Form.Submit label={controlLabels.requestResetCode} />
 					</Form.Controls>
 				</Form.Elements>
 			</Form>
