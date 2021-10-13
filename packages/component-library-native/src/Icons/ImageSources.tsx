@@ -3,7 +3,7 @@ import Account from "./icon_settings_account.svg";
 import Units from "./icon_settings_ruler.svg";
 import Lock from "./icon_settings_lock.svg";
 import Login from "./icon_settings_login.svg";
-import Tick from "./icon_settings_login.svg";
+import Tick from "./icon_tick_white.svg";
 
 interface ButtonImageSourcesProps {
 	image: string;
