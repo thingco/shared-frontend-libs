@@ -1,15 +1,15 @@
 {
 	"extends": "../../tsconfig.json",
 	"compilerOptions": {
-		"emitDeclarationOnly": true,
-		"declarationDir": "./lib/types",
-		"skipLibCheck": true,
-		"rootDir": "./src"
+		"baseUrl": ".",
+		"noEmit": true,
+		"paths": {
+			"core/*": ["src/*"],
+			"test-utils/*": ["test/utilities/*"],
+			"test-app/*": ["test-app/*"]
+		},
+		"rootDirs": ["test-app", "src", "test"],
+		"skipLibCheck": true
 	},
-	"typedocOptions": {
-		"entryPoints": ["src/index.ts"],
-		"out": "docs"
-	},
-	"include": ["src/**/*"],
-	"exclude": ["src/*.test.{js,ts,tsx}", "src/test-app/**/*"]
+	"exclude": ["lib", "jest.config.js"]
 }

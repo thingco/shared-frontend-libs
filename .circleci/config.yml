@@ -10,7 +10,7 @@ jobs:
       - run: node --version
       - run: yarn
       - run: yarn workspace @thingco/logger build
-      - run: yarn workspace @thingco/authentication test
+      - run: yarn workspace @thingco/authentication test --silent
 
 workflows:
   version: 2.1

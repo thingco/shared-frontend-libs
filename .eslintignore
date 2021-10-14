@@ -2,7 +2,7 @@
 .pnp.js
 .vscode
 .yarn
-demo
 dist
 lib
 node_modules
+public
