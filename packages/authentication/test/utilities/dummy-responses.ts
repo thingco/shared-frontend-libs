@@ -13,3 +13,6 @@ export const TEMPORARY_PASSWORD = "temporarypassword";
 export const USER_OBJECT = {
 	description: "I represent the user object returned by the OAuth system",
 };
+
+export const VALID_PIN = "1234";
+export const INVALID_PIN = "4321";

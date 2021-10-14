@@ -12,7 +12,6 @@ import type {
 	ValidateUsernameAndPasswordCb,
 	ValidateForceChangePasswordCb,
 	RequestNewPasswordCb,
-	ResetPinCb,
 	SetNewPinCb,
 	SubmitNewPasswordCb,
 	ChangePasswordCb,
@@ -103,14 +102,14 @@ export const changePasswordCb: ChangePasswordCb = async (
 	return await Auth.changePassword(user, oldPassword, newPassword);
 };
 
-const PIN_KEY = "auth_test_app_pin";
+export const PIN_KEY = "auth_test_app_pin";
 
 /**
  * Check that, in the secure async storage being used, there is a value stored under
  * whatever is being used for the PIN key.
  */
 export const checkForExistingPinCb: CheckForExistingPinCb = () => {
-	const pin = window.localStorage.getItem(PIN_KEY);
+	const pin = globalThis.localStorage.getItem(PIN_KEY);
 	return pin === null ? Promise.resolve() : Promise.reject();
 };
 
@@ -118,7 +117,7 @@ export const checkForExistingPinCb: CheckForExistingPinCb = () => {
  * Validate an exiting PIN. Resolved Promise === validation.
  */
 export const validatePinCb: ValidatePinCb = (pin: string) => {
-	const existingPin = window.localStorage.getItem(PIN_KEY);
+	const existingPin = globalThis.localStorage.getItem(PIN_KEY);
 	return pin === existingPin ? Promise.resolve() : Promise.reject();
 };
 
@@ -127,17 +126,8 @@ export const validatePinCb: ValidatePinCb = (pin: string) => {
  * resolve/reject contract for the callback.
  */
 export const setNewPinCb: SetNewPinCb = (pin: string) => {
-	window.localStorage.setItem(PIN_KEY, pin);
+	globalThis.localStorage.setItem(PIN_KEY, pin);
 	return Promise.resolve();
-};
-
-/**
- * Reset the PIN. This is acheived by wiping the current PIN and logging out;
- * The user must re-authenticate.
- */
-export const resetPinCb: ResetPinCb = async () => {
-	window.localStorage.removeItem(PIN_KEY);
-	return await Auth.signOut();
 };
 
 /**
@@ -148,6 +138,11 @@ export const resetPinCb: ResetPinCb = async () => {
  * the callback.
  */
 export const logoutCb: LogoutCb = async () => {
-	// await PINService.clearPin();
+	globalThis.localStorage.removeItem(PIN_KEY);
 	return await Auth.signOut();
 };
+
+/**
+ * Reset the PIN. This does the exact same thing as logout, hence is just an alias for that.
+ */
+export const resetPinCb: LogoutCb = logoutCb;
