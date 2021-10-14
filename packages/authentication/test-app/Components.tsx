@@ -2,7 +2,7 @@
 import classnames from "classnames";
 import React from "react";
 
-import { AuthStateId } from "core/auth-system";
+import { AuthStateId } from "core/enums";
 import uiText from "./ui-copy";
 
 export const AuthStageSection = ({

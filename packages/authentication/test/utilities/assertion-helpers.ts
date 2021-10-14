@@ -1,5 +1,5 @@
 import { customScreen } from "test-utils/find-by-term";
-import { AuthStateId } from "core/auth-system";
+import { AuthStateId } from "core/enums";
 import type { AuthError, LoginFlowType, DeviceSecurityType } from "core/types";
 import uiText from "test-app/ui-copy";
 

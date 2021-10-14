@@ -1,7 +1,7 @@
 import React from "react";
 import uiText from "test-app/ui-copy";
 
-import { AuthStateId } from "core/auth-system";
+import { AuthStateId } from "core/enums";
 import { validateUsernameAndPasswordCb } from "./callback-implementations";
 import { useSubmittingUsernameAndPassword } from "core/react/useSubmittingUsernameAndPassword";
 import { AuthStageSection, Form } from "test-app/Components";

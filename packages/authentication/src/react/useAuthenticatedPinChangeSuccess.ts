@@ -9,6 +9,8 @@ import { stateSelectors } from "./selectors";
  * Once a user has successfully changed their pin, this intermediate state
  * allows for a modal/screen telling the user everything has updated as expected,
  * and letting them get back to where they were in the app.
+ *
+ * @category React
  */
 export function useAuthenticatedPinChangeSuccess() {
 	const authenticator = useAuthInterpreter();
@@ -16,7 +18,6 @@ export function useAuthenticatedPinChangeSuccess() {
 	const logger = useLogger();
 
 	const confirmPinChange = () => {
-		// prettier-ignore
 		logger.info("Confirmation of successful pin change");
 		authenticator.send({ type: "PIN_CHANGE_SUCCESS" });
 	};

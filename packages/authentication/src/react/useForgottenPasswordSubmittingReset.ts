@@ -16,8 +16,7 @@ import type { InputValidationPattern } from "./input-validation";
  * their current password, they are send a reset code. This state hook handles
  * submitting that + the new password.
  *
- * @param cb - an async function that accepts the code the user has been sent + a new password.
- * @param validators - an optional map of validation patterns
+ * @category React
  */
 export function useForgottenPasswordSubmittingReset(
 	cb: SubmitNewPasswordCb,
@@ -48,14 +47,17 @@ export function useForgottenPasswordSubmittingReset(
 				return;
 			} else {
 				setIsLoading(true);
+				logger.log(
+					"By this stage, the user will have been sent a reset code. If they enter that + a new password, their password will be updated."
+				);
 
 				try {
 					const res = await cb(username, code, newPassword);
-					logger.log(res);
+					logger.log(`API response: ${JSON.stringify(res)}`);
 					setIsLoading(false);
 					authenticator.send({ type: "PASSWORD_RESET_SUCCESS" });
 				} catch (err) {
-					logger.log(err);
+					logger.log(`API error: ${JSON.stringify(err)}`);
 					setIsLoading(false);
 					authenticator.send({ type: "PASSWORD_RESET_FAILURE", error: "PASSWORD_RESET_FAILURE" });
 				}

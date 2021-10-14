@@ -13,7 +13,7 @@ import type { CheckSessionCb } from "./callback-types";
  * session is found, can go straight to device security checks (if device security
  * is turned on). If not, the relevant login flow is initiated.
  *
- * @param cb - an async function that checks for an existing session
+ * @category React
  */
 export function useCheckingForSession(cb: CheckSessionCb) {
 	const authenticator = useAuthInterpreter();
@@ -29,13 +29,11 @@ export function useCheckingForSession(cb: CheckSessionCb) {
 		logger.info("Session check initiated: if it resolves, there is a session present. If not, move to login.");
 		try {
 			const res = await cb();
-			logger.info("Session present");
-			logger.log(res);
+			logger.log(`Session present. API response: ${JSON.stringify(res)}`);
 			setIsLoading(false);
 			authenticator.send({ type: "SESSION_PRESENT" });
 		} catch (err) {
-			logger.info("No session present");
-			logger.log(err);
+			logger.log(`No session present. API error: ${JSON.stringify(err)}`);
 			setIsLoading(false);
 			authenticator.send({ type: "SESSION_NOT_PRESENT" });
 		}

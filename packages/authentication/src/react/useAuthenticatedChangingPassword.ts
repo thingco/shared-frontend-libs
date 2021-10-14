@@ -22,8 +22,7 @@ import type { InputValidationPattern } from "./input-validation";
  * in this codebase to ensure the user object is held in the machine context -- that
  * user object is changeable, so not relying on a possibly-stale object is sensible.
  *
- * @param cb - an async function that takes the old password and the new password.
- * 						 Internally it should fetch the user object before executing the change.
+ * @category React
  */
 export function useAuthenticatedChangingPassword(
 	cb: ChangePasswordCb,
@@ -53,14 +52,17 @@ export function useAuthenticatedChangingPassword(
 				return;
 			} else {
 				setIsLoading(true);
+				logger.info(
+					"Attempting to change the current password. If the check resolves, the attempt was successful and they may return to the Authenticated state."
+				);
 
 				try {
 					const res = await cb(oldPassword, newPassword);
-					logger.log(res);
+					logger.log(`Password successfully changed! API response: ${JSON.stringify(res)}`);
 					setIsLoading(false);
 					authenticator.send({ type: "PASSWORD_CHANGE_SUCCESS" });
 				} catch (err) {
-					logger.log(err);
+					logger.log(`Password change failed! API error: ${JSON.stringify(err)}`);
 					setIsLoading(false);
 					authenticator.send({ type: "PASSWORD_CHANGE_FAILURE", error: "PASSWORD_CHANGE_FAILURE" });
 				}

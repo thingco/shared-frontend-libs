@@ -15,8 +15,7 @@ import type { InputValidationPattern } from "./input-validation";
  * and the user has had to go through login), and device security is turned on for the
  * app, then they end up here, where they set up a new PIN.
  *
- * @param cb - an async function that saves a new PIN.
- * @param validators - an optional map of validation patterns
+ * @category React
  */
 export function useSubmittingNewPin(
 	cb: SetNewPinCb,
@@ -40,18 +39,16 @@ export function useSubmittingNewPin(
 				return;
 			} else {
 				setIsLoading(true);
-				// prettier-ignore
-				logger.info("Attempting to set a new PIN. If the check resolves, attempts was successful and they are now Authenticated. If it fails there may be a problem with saving to storage.");
-
+				logger.info(
+					"Attempting to set a new PIN. If the check resolves, attempts was successful and they are now Authenticated. If it fails there may be a problem with saving to storage."
+				);
 				try {
 					const res = await cb(pin);
-					logger.log(res);
-					logger.info("New PIN successfully set.");
+					logger.info(`New PIN successfully set. API response: ${JSON.stringify(res)}`);
 					setIsLoading(false);
 					authenticator.send({ type: "NEW_PIN_VALID" });
 				} catch (err) {
-					logger.log(err);
-					logger.log("Set PIN action failed.");
+					logger.log(`Set PIN action failed. API error: ${JSON.stringify(err)}`);
 					setIsLoading(false);
 					authenticator.send({ type: "NEW_PIN_INVALID", error: "NEW_PIN_INVALID" });
 				}

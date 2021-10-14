@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { AuthStateId, AuthEvent } from "core/auth-system";
+import { AuthStateId } from "core/enums";
+import type { AuthEvent } from "core/types";
 import {
 	VALID_USERNAME,
 	INVALID_USERNAME,

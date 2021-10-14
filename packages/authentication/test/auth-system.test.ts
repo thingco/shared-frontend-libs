@@ -2,11 +2,11 @@
 import { createModel } from "@xstate/test";
 import { createMachine, interpret } from "xstate";
 
-import { AuthStateId, createAuthenticationSystem } from "core/auth-system";
+import { AuthStateId } from "core/enums";
+import { createAuthenticationSystem } from "core/auth-system";
 import { USER_OBJECT, VALID_USERNAME } from "test-utils/dummy-responses";
 
-import type { AuthEvent, AuthInterpreter } from "core/auth-system";
-import type { AuthError } from "core/types";
+import type { AuthEvent, AuthInterpreter, AuthError } from "core/types";
 
 /* ------------------------------------------------------------------------- *\
  * 1. UTILITIES

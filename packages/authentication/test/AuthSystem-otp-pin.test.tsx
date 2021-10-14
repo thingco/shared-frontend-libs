@@ -5,7 +5,7 @@ import { waitFor, render } from "@testing-library/react";
 import { createModel } from "@xstate/test";
 import { createMachine } from "xstate";
 
-import { AuthStateId } from "core/auth-system";
+import { AuthStateId } from "core/enums";
 // Import the entire authentication structure from the test app:
 import { Authentication } from "test-app/App";
 // Import the config injection component from the test app:

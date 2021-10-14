@@ -3,12 +3,13 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { cleanup, renderHook } from "@testing-library/react-hooks";
 
-import { AuthStateId, machine } from "core/auth-system";
+import { AuthStateId } from "core/enums";
+import { machine } from "core/auth-system";
 
 import { hookTestMap } from "./hook-test-map";
 import { AuthHook } from "./hooks";
 
-import type { AuthEvent } from "core/auth-system";
+import type { AuthEvent } from "core/types";
 
 /* ------------------------------------------------------------------------- *\
  * 1. UTILITIES

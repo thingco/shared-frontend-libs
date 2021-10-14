@@ -9,6 +9,8 @@ import { stateSelectors } from "./selectors";
  * Once a user has successfully changed their password, this intermediate state
  * allows for a modal/screen telling the user everything has updated as expected,
  * and letting them get back to where they were in the app.
+ *
+ * @category React
  */
 export function useAuthenticatedPasswordChangeSuccess() {
 	const authenticator = useAuthInterpreter();
@@ -16,7 +18,6 @@ export function useAuthenticatedPasswordChangeSuccess() {
 	const logger = useLogger();
 
 	const confirmPasswordChange = () => {
-		// prettier-ignore
 		logger.info("Confirmation of successful password change sent to system");
 		authenticator.send({ type: "CONFIRM_PASSWORD_RESET" });
 	};

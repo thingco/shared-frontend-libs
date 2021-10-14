@@ -15,8 +15,7 @@ import type { InputValidationPattern } from "./input-validation";
  * First stage of OTP authentication: user submits their username, which will be an email
  * address or a phonenumber, and the system can send send an OTP to that email.
  *
- * @param cb - an async function that accepts a username and sends a code to that user.
- * @param validators -  an optional map of validation patterns: `{ username: { pattern: RegExp, failureMessage: string }[] }`
+ * @category React
  */
 export function useSubmittingOtpUsername<User = any>(
 	cb: ValidateOtpUsernameCb<User>,
@@ -42,18 +41,17 @@ export function useSubmittingOtpUsername<User = any>(
 				return;
 			} else {
 				setIsLoading(true);
-				// prettier-ignore
-				logger.info("OTP username validation initiated: if it resolves, the system will send out an OTP and user can move to the OTP input stage. If not, something is wrong with the username.");
+				logger.info(
+					"OTP username validation initiated: if it resolves, the system will send out an OTP and user can move to the OTP input stage. If not, something is wrong with the username."
+				);
 
 				try {
 					const user = await cb(username);
-					logger.log(user);
-					logger.info("OTP username valid");
+					logger.log(`OTP username valid. API response: ${JSON.stringify(user)}`);
 					setIsLoading(false);
 					authenticator.send({ type: "USERNAME_VALID", username, user });
 				} catch (err) {
-					logger.log(err);
-					logger.info("OTP username invalid");
+					logger.info(`OTP username invalid. API error: ${JSON.stringify(err)}`);
 					setIsLoading(false);
 					authenticator.send({ type: "USERNAME_INVALID", error: "USERNAME_INVALID" });
 				}

@@ -1,7 +1,7 @@
 import React from "react";
 import uiText from "test-app/ui-copy";
 
-import { AuthStateId } from "core/auth-system";
+import { AuthStateId } from "core/enums";
 import { validateOtpUsernameCb } from "./callback-implementations";
 import { useSubmittingOtpUsername } from "core/react/useSubmittingOtpUsername";
 import { AuthStageSection, Form } from "test-app/Components";
