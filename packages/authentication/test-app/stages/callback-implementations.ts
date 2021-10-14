@@ -110,7 +110,7 @@ export const PIN_KEY = "auth_test_app_pin";
  */
 export const checkForExistingPinCb: CheckForExistingPinCb = () => {
 	const pin = globalThis.localStorage.getItem(PIN_KEY);
-	return pin === null ? Promise.resolve() : Promise.reject();
+	return pin !== null ? Promise.resolve() : Promise.reject();
 };
 
 /**
