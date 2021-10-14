@@ -24,7 +24,7 @@ export const buttonImageSources = ({ image, width, style = {} }: ButtonImageSour
 		case "Login":
 			return <Login height={`${width}px`} width={`${width}px`} style={style} />;
 		case "Tick":
-			return <Tick height={`${width}px`} width={`${width}px`} style={style} />;
+			return <Lock height={`${width}px`} width={`${width}px`} style={style} />;
 		default:
 			return null;
 	}

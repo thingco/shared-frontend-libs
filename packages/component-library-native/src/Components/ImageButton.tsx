@@ -52,13 +52,35 @@ export const ImageButton = ({
 };
 
 interface MenuCheckItemProps {
-	label: string;
+	text: string;
 	checked: boolean;
 	highlight: boolean;
 	onPress: () => void;
+	style?: ViewStyle[] | ViewStyle;
+	textStyle?: TextStyle[] | TextStyle;
 }
 
-export const MenuCheckItem = ({ label, checked, highlight, onPress }: MenuCheckItemProps) => {
+export const MenuCheckItem = ({
+	text,
+	checked,
+	highlight,
+	onPress,
+	style = [],
+	textStyle = [],
+	...props
+}: MenuCheckItemProps) => {
+	const custStyle = style instanceof Array ? style : [style];
+	const custTextStyle = textStyle instanceof Array ? textStyle : [textStyle];
+
+	const textStyles: any[] = variantToTheme({
+		component: "text",
+		styles: "menu",
+	});
+	const buttonStyles: any[] = variantToTheme({
+		component: "button",
+		styles: "menu",
+	});
+
 	const Check = () => {
 		return (
 			<View
@@ -73,22 +95,10 @@ export const MenuCheckItem = ({ label, checked, highlight, onPress }: MenuCheckI
 		);
 	};
 
-	let cellstyle = style.cellClear;
-
-	if (highlight) {
-		cellstyle = style.cell;
-	}
-
 	return (
-		<TouchableOpacity style={cellstyle} onPress={onPress}>
+		<TouchableOpacity style={[...buttonStyles, ...custStyle]} {...props}>
 			<View variant="flexRow">
-				<Text
-					style={{
-						...style.label,
-					}}
-				>
-					{label}
-				</Text>
+				<Text style={[...textStyles, ...custTextStyle]}>{text}</Text>
 				<Check />
 			</View>
 		</TouchableOpacity>

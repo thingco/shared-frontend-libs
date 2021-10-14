@@ -70,6 +70,13 @@ export const buttonStyles = (colours: ThemeColour) => ({
 		marginBottom: 0,
 		paddingBottom: 10,
 	},
+	checkItem: {
+		padding: 16,
+	},
+	checkItemSelected: {
+		backgroundColor: colours.primary,
+		padding: 16,
+	},
 });
 
 export type ThemeButton = ReturnType<typeof buttonStyles>;
