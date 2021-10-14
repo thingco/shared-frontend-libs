@@ -319,7 +319,7 @@ const model = createModel(machine).withEvents({
 	THERE_IS_A_SESSION: async () => {
 		const controlLabels = uiText.authStages.checkingForSession.controlLabels;
 		localStorageEmulation.setItem(PIN_KEY, VALID_PIN);
-		await clickButton(controlLabels.checkForExistingSession);
+		clickButton(controlLabels.checkForExistingSession);
 		await waitFor(() => expect(checkSessionCb).toHaveBeenCalled());
 		await stageLoadingStatusIs("false");
 	},
@@ -327,141 +327,141 @@ const model = createModel(machine).withEvents({
 		const controlLabels = uiText.authStages.checkingForSession.controlLabels;
 		localStorageEmulation.clear();
 		(checkSessionCb as jest.MockedFunction<CheckSessionCb>).mockRejectedValueOnce(null);
-		await clickButton(controlLabels.checkForExistingSession);
+		clickButton(controlLabels.checkForExistingSession);
 		await waitFor(() => expect(checkSessionCb).toHaveBeenCalled());
 		(checkSessionCb as jest.MockedFunction<CheckSessionCb>).mockReset();
 		await stageLoadingStatusIs("false");
 	},
 	GOOD_USERNAME: async () => {
 		const controlLabels = uiText.authStages.submittingOtpUsername.controlLabels;
-		await findInputClearInputFillInput(controlLabels.otpUsernameInput, VALID_USERNAME);
-		await clickButton(controlLabels.submitOtpUsername);
+		findInputClearInputFillInput(controlLabels.otpUsernameInput, VALID_USERNAME);
+		clickButton(controlLabels.submitOtpUsername);
 		await waitFor(() => expect(validateOtpUsernameCb).toHaveBeenCalledWith(VALID_USERNAME));
 		await stageLoadingStatusIs("false");
 	},
 	GOOD_OTP: async () => {
 		const controlLabels = uiText.authStages.submittingOtp.controlLabels;
-		await findInputClearInputFillInput(controlLabels.otpInput, VALID_CODE);
-		await clickButton(controlLabels.submitOtp);
+		findInputClearInputFillInput(controlLabels.otpInput, VALID_CODE);
+		clickButton(controlLabels.submitOtp);
 		await waitFor(() => expect(validateOtpCb).toHaveBeenCalledWith(USER_OBJECT, VALID_CODE));
 		await stageLoadingStatusIs("false");
 	},
 	THERE_IS_A_PIN_STORED: async () => {
 		const controlLabels = uiText.authStages.checkingForPin.controlLabels;
-		await clickButton(controlLabels.checkForExistingPin);
+		clickButton(controlLabels.checkForExistingPin);
 		await waitFor(() => expect(checkForExistingPinCb).toHaveBeenCalled());
 		await stageLoadingStatusIs("false");
 	},
 	THERE_IS_NO_PIN_STORED: async () => {
 		const controlLabels = uiText.authStages.checkingForPin.controlLabels;
-		await clickButton(controlLabels.checkForExistingPin);
+		clickButton(controlLabels.checkForExistingPin);
 		await waitFor(() => expect(checkForExistingPinCb).toHaveBeenCalled());
 		await stageLoadingStatusIs("false");
 	},
 	CURRENT_PIN_IS_VALID: async () => {
 		const controlLabels = uiText.authStages.submittingCurrentPin.controlLabels;
-		await findInputClearInputFillInput(controlLabels.pinInput, VALID_PIN);
-		await clickButton(controlLabels.submitPin);
+		findInputClearInputFillInput(controlLabels.pinInput, VALID_PIN);
+		clickButton(controlLabels.submitPin);
 		await waitFor(() => expect(validatePinCb).toHaveBeenCalledWith(VALID_PIN));
 		await stageLoadingStatusIs("false");
 	},
 	CURRENT_PIN_IS_INVALID: async () => {
 		const controlLabels = uiText.authStages.submittingCurrentPin.controlLabels;
-		await findInputClearInputFillInput(controlLabels.pinInput, INVALID_PIN);
-		await clickButton(controlLabels.submitPin);
+		findInputClearInputFillInput(controlLabels.pinInput, INVALID_PIN);
+		clickButton(controlLabels.submitPin);
 		await waitFor(() => expect(validatePinCb).toHaveBeenCalledWith(INVALID_PIN));
 		await stageLoadingStatusIs("false");
 	},
 	FORGOTTEN_PIN: async () => {
 		const controlLabels = uiText.authStages.submittingCurrentPin.controlLabels;
-		await clickButton(controlLabels.forgotPin);
+		clickButton(controlLabels.forgotPin);
 	},
 	CONFIRM_PIN_RESET: async () => {
 		const controlLabels = uiText.authStages.forgottenPinRequestingReset.controlLabels;
-		await clickButton(controlLabels.resetPin);
+		clickButton(controlLabels.resetPin);
 		await waitFor(() => expect(resetPinCb).toHaveBeenCalled());
 		await stageLoadingStatusIs("false");
 	},
 	CANCEL_PIN_RESET: async () => {
 		const controlLabels = uiText.authStages.forgottenPinRequestingReset.controlLabels;
-		await clickButton(controlLabels.cancelReset);
+		clickButton(controlLabels.cancelReset);
 	},
 	NEW_PIN_IS_VALID: async () => {
 		const controlLabels = uiText.authStages.submittingNewPin.controlLabels;
-		await findInputClearInputFillInput(controlLabels.newPinInput, VALID_PIN);
-		await clickButton(controlLabels.submitPin);
+		findInputClearInputFillInput(controlLabels.newPinInput, VALID_PIN);
+		clickButton(controlLabels.submitPin);
 		await waitFor(() => expect(setNewPinCb).toHaveBeenCalledWith(VALID_PIN));
 		await stageLoadingStatusIs("false");
 	},
 	NEW_PIN_IS_INVALID: async () => {
 		const controlLabels = uiText.authStages.submittingNewPin.controlLabels;
-		await findInputClearInputFillInput(controlLabels.newPinInput, INVALID_PIN);
-		await clickButton(controlLabels.submitPin);
+		findInputClearInputFillInput(controlLabels.newPinInput, INVALID_PIN);
+		clickButton(controlLabels.submitPin);
 		await waitFor(() => expect(setNewPinCb).toHaveBeenCalledWith(INVALID_PIN));
 		await stageLoadingStatusIs("false");
 	},
 	REQUEST_PIN_CHANGE: async () => {
 		const controlLabels = uiText.authStages.authenticated.controlLabels;
-		await clickButton(controlLabels.changePin);
+		clickButton(controlLabels.changePin);
 	},
 	CURRENT_PIN_IS_VALID_CHANGE_ALLOWED: async () => {
 		const controlLabels = uiText.authStages.authenticatedValidatingPin.controlLabels;
-		await findInputClearInputFillInput(controlLabels.enterPin, VALID_PIN);
-		await clickButton(controlLabels.submitPin);
+		findInputClearInputFillInput(controlLabels.enterPin, VALID_PIN);
+		clickButton(controlLabels.submitPin);
 		await waitFor(() => expect(validatePinCb).toHaveBeenCalledWith(VALID_PIN));
 		await stageLoadingStatusIs("false");
 	},
 	CURRENT_PIN_IS_INVALID_CHANGE_REJECTED: async () => {
 		const controlLabels = uiText.authStages.authenticatedValidatingPin.controlLabels;
-		await findInputClearInputFillInput(controlLabels.enterPin, INVALID_PIN);
-		await clickButton(controlLabels.submitPin);
+		findInputClearInputFillInput(controlLabels.enterPin, INVALID_PIN);
+		clickButton(controlLabels.submitPin);
 		await waitFor(() => expect(validatePinCb).toHaveBeenCalledWith(INVALID_PIN));
 		await stageLoadingStatusIs("false");
 	},
 	CANCEL_PIN_CHANGE_REQUEST_AT_VALIDATION_STAGE: async () => {
 		const controlLabels = uiText.authStages.authenticatedValidatingPin.controlLabels;
-		await clickButton(controlLabels.cancelPinChange);
+		clickButton(controlLabels.cancelPinChange);
 	},
 	NEW_PIN_IS_VALID_CHANGE_ACCEPTED: async () => {
 		const controlLabels = uiText.authStages.authenticatedChangingPin.controlLabels;
-		await findInputClearInputFillInput(controlLabels.enterPinInput, VALID_PIN);
-		await clickButton(controlLabels.submitPin);
+		findInputClearInputFillInput(controlLabels.enterPinInput, VALID_PIN);
+		clickButton(controlLabels.submitPin);
 		await waitFor(() => expect(setNewPinCb).toHaveBeenCalledWith(VALID_PIN));
 		await stageLoadingStatusIs("false");
 	},
 	NEW_PIN_IS_INVALID_CHANGE_REJECTED: async () => {
 		const controlLabels = uiText.authStages.authenticatedChangingPin.controlLabels;
-		await findInputClearInputFillInput(controlLabels.enterPinInput, INVALID_PIN);
-		await clickButton(controlLabels.submitPin);
+		findInputClearInputFillInput(controlLabels.enterPinInput, INVALID_PIN);
+		clickButton(controlLabels.submitPin);
 		await waitFor(() => expect(setNewPinCb).toHaveBeenCalledWith(INVALID_PIN));
 		await stageLoadingStatusIs("false");
 	},
 	CANCEL_PIN_CHANGE_REQUEST_AT_CHANGE_STAGE: async () => {
 		const controlLabels = uiText.authStages.authenticatedChangingPin.controlLabels;
-		await clickButton(controlLabels.cancelPinChange);
+		clickButton(controlLabels.cancelPinChange);
 	},
 	CONFIRM_SUCCESSFUL_PIN_CHANGE: async () => {
 		const controlLabels = uiText.authStages.authenticatedPinChangeSuccess.controlLabels;
-		await clickButton(controlLabels.confirm);
+		clickButton(controlLabels.confirm);
 	},
 	REQUEST_LOG_OUT: async () => {
 		const controlLabels = uiText.authStages.authenticated.controlLabels;
-		await clickButton(controlLabels.logOut);
+		clickButton(controlLabels.logOut);
 	},
 	CANCEL_LOG_OUT: async () => {
 		const controlLabels = uiText.authStages.authenticatedLoggingOut.controlLabels;
-		await clickButton(controlLabels.cancelLogOut);
+		clickButton(controlLabels.cancelLogOut);
 	},
 	GOOD_LOG_OUT: async () => {
 		const controlLabels = uiText.authStages.authenticatedLoggingOut.controlLabels;
-		await clickButton(controlLabels.logOut);
+		clickButton(controlLabels.logOut);
 		await waitFor(() => expect(logoutCb).toHaveBeenCalled());
 		await stageLoadingStatusIs("false");
 	},
 	BAD_LOG_OUT: async () => {
 		const controlLabels = uiText.authStages.authenticatedLoggingOut.controlLabels;
 		(logoutCb as jest.MockedFunction<LogoutCb>).mockRejectedValueOnce(null);
-		await clickButton(controlLabels.logOut);
+		clickButton(controlLabels.logOut);
 		await waitFor(() => expect(logoutCb).toHaveBeenCalled());
 		(logoutCb as jest.MockedFunction<LogoutCb>).mockReset();
 		await stageLoadingStatusIs("false");

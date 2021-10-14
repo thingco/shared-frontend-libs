@@ -44,6 +44,7 @@ import {
 
 // Types
 import type { CheckSessionCb, LogoutCb } from "core/react/callback-types";
+import { clickButton, findInputClearInputFillInput } from "test-utils/event-helpers";
 
 /* ------------------------------------------------------------------------- *\
  * 1. MOCKING
@@ -192,107 +193,73 @@ const machine = createMachine({
 
 const model = createModel(machine).withEvents({
 	THERE_IS_A_SESSION: async () => {
-		userEvent.click(
-			await customScreen.findByText(
-				uiText.authStages.checkingForSession.controlLabels.checkForExistingSession
-			)
-		);
+		const controlLabels = uiText.authStages.checkingForSession.controlLabels;
+		clickButton(controlLabels.checkForExistingSession);
 		await waitFor(() => expect(checkSessionCb).toHaveBeenCalled());
-		// expect(await customScreen.findByText("Loading: true")).toBeDefined();
 		await stageLoadingStatusIs("false");
 	},
 	THERE_IS_NO_SESSION: async () => {
+		const controlLabels = uiText.authStages.checkingForSession.controlLabels;
 		(checkSessionCb as jest.MockedFunction<CheckSessionCb>).mockRejectedValueOnce(null);
-		userEvent.click(
-			await customScreen.findByText(
-				uiText.authStages.checkingForSession.controlLabels.checkForExistingSession
-			)
-		);
+		clickButton(controlLabels.checkForExistingSession);
 		await waitFor(() => expect(checkSessionCb).toHaveBeenCalled());
 		(checkSessionCb as jest.MockedFunction<CheckSessionCb>).mockReset();
 		// expect(await customScreen.findByText("Loading: true")).toBeDefined();
 		await stageLoadingStatusIs("false");
 	},
 	GOOD_USERNAME: async () => {
-		const input = await customScreen.findByLabelText(
-			uiText.authStages.submittingOtpUsername.controlLabels.otpUsernameInput
-		);
-		userEvent.clear(input);
-		userEvent.type(input, VALID_USERNAME);
-		userEvent.click(
-			await customScreen.findByText(
-				uiText.authStages.submittingOtpUsername.controlLabels.submitOtpUsername
-			)
-		);
+		const controlLabels = uiText.authStages.submittingOtpUsername.controlLabels;
+		findInputClearInputFillInput(controlLabels.otpUsernameInput, VALID_USERNAME);
+		clickButton(controlLabels.submitOtpUsername);
 		await waitFor(() => expect(validateOtpUsernameCb).toHaveBeenCalledWith(VALID_USERNAME));
 		// expect(await customScreen.findByText("Loading: true")).toBeDefined();
 		await stageLoadingStatusIs("false");
 	},
 	BAD_USERNAME: async () => {
-		const input = await customScreen.findByLabelText(
-			uiText.authStages.submittingOtpUsername.controlLabels.otpUsernameInput
-		);
-		userEvent.clear(input);
-		userEvent.type(input, INVALID_USERNAME);
-		userEvent.click(
-			await customScreen.findByText(
-				uiText.authStages.submittingOtpUsername.controlLabels.submitOtpUsername
-			)
-		);
+		const controlLabels = uiText.authStages.submittingOtpUsername.controlLabels;
+		findInputClearInputFillInput(controlLabels.otpUsernameInput, INVALID_USERNAME);
+		clickButton(controlLabels.submitOtpUsername);
 		await waitFor(() => expect(validateOtpUsernameCb).toHaveBeenCalledWith(INVALID_USERNAME));
 		// expect(await customScreen.findByText("Loading: true")).toBeDefined();
 		await stageLoadingStatusIs("false");
 	},
 	GOOD_OTP: async () => {
-		const input = await customScreen.findByLabelText(
-			uiText.authStages.submittingOtp.controlLabels.otpInput
-		);
-		userEvent.clear(input);
-		userEvent.type(input, VALID_CODE);
-		userEvent.click(
-			await customScreen.findByText(uiText.authStages.submittingOtp.controlLabels.submitOtp)
-		);
+		const controlLabels = uiText.authStages.submittingOtp.controlLabels;
+		findInputClearInputFillInput(controlLabels.otpInput, VALID_CODE);
+		clickButton(controlLabels.submitOtp);
 		await waitFor(() => expect(validateOtpCb).toHaveBeenCalledWith(USER_OBJECT, VALID_CODE));
 		// expect(await customScreen.findByText("Loading: true")).toBeDefined();
 		await stageLoadingStatusIs("false");
 	},
 	BAD_OTP: async () => {
-		const input = await customScreen.findByLabelText(
-			uiText.authStages.submittingOtp.controlLabels.otpInput
-		);
-		userEvent.clear(input);
-		userEvent.type(input, INVALID_CODE);
-		userEvent.click(
-			await customScreen.findByText(uiText.authStages.submittingOtp.controlLabels.submitOtp)
-		);
+		const controlLabels = uiText.authStages.submittingOtp.controlLabels;
+		findInputClearInputFillInput(controlLabels.otpInput, INVALID_CODE);
+		clickButton(controlLabels.submitOtp);
 		await waitFor(() => expect(validateOtpCb).toHaveBeenCalledWith(USER_OBJECT, INVALID_CODE));
 		await stageLoadingStatusIs("false");
 	},
 	REENTER_USERNAME: async () => {
-		userEvent.click(
-			await customScreen.findByLabelText(
-				uiText.authStages.submittingOtp.controlLabels.reenterUsername
-			)
-		);
+		const controlLabels = uiText.authStages.submittingOtp.controlLabels;
+		clickButton(controlLabels.reenterUsername);
 	},
 	REQUEST_LOG_OUT: async () => {
 		const controlLabels = uiText.authStages.authenticated.controlLabels;
-		userEvent.click(await customScreen.findByText(controlLabels.logOut));
+		clickButton(controlLabels.logOut);
 	},
 	CANCEL_LOG_OUT: async () => {
 		const controlLabels = uiText.authStages.authenticatedLoggingOut.controlLabels;
-		userEvent.click(await customScreen.findByText(controlLabels.cancelLogOut));
+		clickButton(controlLabels.cancelLogOut);
 	},
 	GOOD_LOG_OUT: async () => {
 		const controlLabels = uiText.authStages.authenticatedLoggingOut.controlLabels;
-		userEvent.click(await customScreen.findByText(controlLabels.logOut));
+		clickButton(controlLabels.logOut);
 		await waitFor(() => expect(logoutCb).toHaveBeenCalled());
 		await stageLoadingStatusIs("false");
 	},
 	BAD_LOG_OUT: async () => {
 		const controlLabels = uiText.authStages.authenticatedLoggingOut.controlLabels;
 		(logoutCb as jest.MockedFunction<LogoutCb>).mockRejectedValueOnce(null);
-		userEvent.click(await customScreen.findByText(controlLabels.logOut));
+		clickButton(controlLabels.logOut);
 		await waitFor(() => expect(logoutCb).toHaveBeenCalled());
 		(logoutCb as jest.MockedFunction<LogoutCb>).mockReset();
 		await stageLoadingStatusIs("false");
