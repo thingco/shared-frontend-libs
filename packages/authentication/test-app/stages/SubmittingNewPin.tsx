@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import uiText from "test-app/ui-copy";
 
-import { AuthStateId } from "core/auth-system";
+import { AuthStateId } from "core/enums";
 import { setNewPinCb } from "./callback-implementations";
 import { useSubmittingNewPin } from "core/react/useSubmittingNewPin";
 import { AuthStageSection, Form } from "test-app/Components";

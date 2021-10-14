@@ -1,4 +1,4 @@
-import { AuthStateId } from "core/auth-system";
+import { AuthStateId } from "core/enums";
 import { AuthHook } from "./hooks";
 
 /* ------------------------------------------------------------------------- *\

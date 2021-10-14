@@ -1,4 +1,5 @@
-import { AuthStateId, machine } from "core/auth-system";
+import { AuthStateId } from "core/enums";
+import { machine } from "core/auth-system";
 
 /* ========================================================================= *\
  * 1. SANITY CHECKS

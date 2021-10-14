@@ -14,14 +14,14 @@ import type { InputValidationPattern } from "./input-validation";
 /**
  * The core USERNAME_PASSWORD login flow hook.
  *
+ * @remarks
  * NOTE: there are peculiarities regarding what the callback must return.
  * The remote authentication system (i.e. Cognito) may resolve but indicate
  * that a user must reset their password. IT IS EXTREMELY IMPORTANT THAT THIS
  * IS HANDLED IN THE CALLBACK. If that isn.t handled, a user who has had
  * a temporary password set will not be able to log in.
  *
- * @param cb - an async function that accepts a username and password.
- * @param validators - an optional map of validation patterns
+ * @category React
  */
 export function useSubmittingUsernameAndPassword<User = any>(
 	cb: ValidateUsernameAndPasswordCb<User>,
@@ -51,12 +51,14 @@ export function useSubmittingUsernameAndPassword<User = any>(
 				return;
 			} else {
 				setIsLoading(true);
+				logger.log("Username/password validation started.");
 
 				try {
 					const resp = await cb(username, password);
-					logger.log(resp);
+					logger.log(`Username and password validated! API response: ${JSON.stringify(resp)}`);
 					setIsLoading(false);
 					if (Array.isArray(resp) && resp[0] === "NEW_PASSWORD_REQUIRED") {
+						logger.log(`Password was temporary, user needs to set a new password`);
 						authenticator.send({
 							type: "USERNAME_AND_PASSWORD_VALID_PASSWORD_CHANGE_REQUIRED",
 							user: resp[1],
@@ -67,7 +69,7 @@ export function useSubmittingUsernameAndPassword<User = any>(
 						authenticator.send({ type: "USERNAME_AND_PASSWORD_VALID", user: resp, username });
 					}
 				} catch (err) {
-					logger.log(err);
+					logger.log(`Username and password validation failed. API error: ${JSON.stringify(err)}`);
 					setIsLoading(false);
 					// REVIEW check errors here to see if can tell if username or password are individually invalid:
 					authenticator.send({

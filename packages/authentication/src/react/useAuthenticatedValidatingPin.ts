@@ -14,8 +14,7 @@ import type { InputValidationPattern } from "./input-validation";
  * When a user is authenticated and they wish to change their PIN, their current
  * PIN must be validated before they can enter a new one.
  *
- * @param cb - an async function that accepts a PIN value and validates it against the PIN system
- * @param validators -  an optional map of validation patterns: `{ pin: { pattern: RegExp, failureMessage: string }[] }`
+ * @category React
  */
 export function useAuthenticatedValidatingPin(
 	cb: ValidatePinCb,
@@ -39,18 +38,17 @@ export function useAuthenticatedValidatingPin(
 				return;
 			} else {
 				setIsLoading(true);
-				// prettier-ignore
-				logger.info("Initiating a check against the existing PIN. If the check resolves, user passes authentication.");
+				logger.info(
+					"Initiating a check against the existing PIN. If the check resolves, user passes authentication."
+				);
 
 				try {
 					const res = await cb(pin);
-					logger.log(res);
-					logger.info("PIN validated");
+					logger.log(`PIN validated API response: ${JSON.stringify(res)}`);
 					setIsLoading(false);
 					authenticator.send({ type: "PIN_VALID" });
 				} catch (err) {
-					logger.log(err);
-					logger.log("PIN validation failed");
+					logger.log(`PIN validation failed. API error: ${JSON.stringify(err)}`);
 					setIsLoading(false);
 					authenticator.send({ type: "PIN_INVALID", error: "PIN_INVALID" });
 				}

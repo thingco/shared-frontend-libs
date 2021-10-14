@@ -14,7 +14,7 @@ import type { LogoutCb } from "./callback-types";
  * against the API. This is done to a. allow cancellation of the logout request and
  * b. allow for a screen/modal with contextual information and logout/cancel logout controls.
  *
- * @param cb - an async function that should execute logout against the API & clear the users PIN
+ * @category React
  */
 export function useAuthenticatedLoggingOut(cb: LogoutCb) {
 	const authenticator = useAuthInterpreter();
@@ -25,20 +25,20 @@ export function useAuthenticatedLoggingOut(cb: LogoutCb) {
 	const [isLoading, setIsLoading] = useState(false);
 
 	const logOut = useCallback(async () => {
-		// prettier-ignore
-		logger.info("Logging out. This call should always succeed: if it hasn't then there is an underlying issue with the system.");
 		setIsLoading(true);
-
+		logger.info(
+			"Logging out. This call should always succeed: if it hasn't then there is an underlying issue with the system."
+		);
 		try {
 			const res = await cb();
-			logger.log(res);
-			logger.info("Logged out!");
+			logger.log(`Logged out! API response: ${JSON.stringify(res)}`);
 			setIsLoading(false);
 			authenticator.send({ type: "LOG_OUT_SUCCESS" });
 		} catch (err) {
-			logger.error(err);
 			logger.error(
-				"There has been an issue logging out. This should not have occured, so this indicates a serious underlying issue with the system."
+				`There has been an issue logging out. This should not have occured, so this indicates a serious underlying issue with the system. API error: ${JSON.stringify(
+					err
+				)}`
 			);
 			setIsLoading(false);
 			authenticator.send({ type: "LOG_OUT_FAILURE", error: "LOG_OUT_FAILURE" });

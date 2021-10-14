@@ -10,6 +10,8 @@ import { stateSelectors } from "./selectors";
  * make this simpler from a logic point of view, this state exists to allow easy
  * transition back to the username/password input (and to allow for a useful message
  * informing them they've succesfully changed their password & need to log back in).
+ *
+ * @category React
  */
 export function useForgottenPasswordResetSuccess() {
 	const authenticator = useAuthInterpreter();
@@ -17,8 +19,9 @@ export function useForgottenPasswordResetSuccess() {
 	const logger = useLogger();
 
 	const confirmPasswordReset = () => {
-		// prettier-ignore
-		logger.info("Confirmation of successful password reset sent to system to allow transition back to unsername/password input");
+		logger.info(
+			"Confirmation of successful password reset sent to system to allow transition back to unsername/password input"
+		);
 		authenticator.send({ type: "CONFIRM_PASSWORD_RESET" });
 	};
 

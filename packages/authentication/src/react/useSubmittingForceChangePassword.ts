@@ -17,8 +17,7 @@ import type { InputValidationPattern } from "./input-validation";
  * admin), they will need to reset that password as it will have been sent to
  * them via plaintext.
  *
- * @param cb - an async function that accepts the current user object + a new password.
- * @param validators - an optional map of validation patterns
+ * @category React
  */
 export function useSubmittingForceChangePassword<User = any>(
 	cb: ValidateForceChangePasswordCb<User>,
@@ -48,11 +47,11 @@ export function useSubmittingForceChangePassword<User = any>(
 
 				try {
 					const user = await cb(currentUserData, password);
-					logger.log(user);
+					logger.log(`Password validated! API response: ${JSON.stringify(user)}`);
 					setIsLoading(false);
 					authenticator.send({ type: "PASSWORD_CHANGE_SUCCESS" });
 				} catch (err) {
-					logger.log(err);
+					logger.log(`Password change failed. API error: ${JSON.stringify(err)}`);
 					setIsLoading(false);
 					authenticator.send({ type: "PASSWORD_CHANGE_FAILURE", error: "PASSWORD_CHANGE_FAILURE" });
 				}

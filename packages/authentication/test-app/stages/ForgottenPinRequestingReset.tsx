@@ -1,7 +1,7 @@
 import React from "react";
 import uiText from "test-app/ui-copy";
 
-import { AuthStateId } from "core/auth-system";
+import { AuthStateId } from "core/enums";
 import { resetPinCb } from "./callback-implementations";
 import { useForgottenPinRequestingReset } from "core/react/useForgottenPinRequestingReset";
 import { AuthStageSection, Form } from "test-app/Components";

@@ -1,7 +1,7 @@
 import React from "react";
 import uiText from "test-app/ui-copy";
 
-import { AuthStateId } from "core/auth-system";
+import { AuthStateId } from "core/enums";
 import { submitNewPasswordCb } from "./callback-implementations";
 import { useForgottenPasswordSubmittingReset } from "core/react/useForgottenPasswordSubmittingReset";
 import { AuthStageSection, Form } from "test-app/Components";

@@ -18,8 +18,7 @@ import type { LogoutCb } from "./callback-types";
  * away: this state allows for UI with context-specific messages + a way to cancel
  * the request before it happens.
  *
- * @param cb - an async function that logs the user out and clears the PIN on the device.
- * @param validators - an optional map of validation patterns
+ * @category React
  */
 export function useForgottenPinRequestingReset(cb: LogoutCb) {
 	const authenticator = useAuthInterpreter();
@@ -30,20 +29,21 @@ export function useForgottenPinRequestingReset(cb: LogoutCb) {
 	const [isLoading, setIsLoading] = useState(false);
 
 	const resetPin = useCallback(async () => {
-		// prettier-ignore
-		logger.info("Resetting PIN. This will log the user out and wipe the current pin. This call should always succeed: if it hasn't then there is an underlying issue with the system.");
+		logger.info(
+			"Resetting PIN. This will log the user out and wipe the current pin. This call should always succeed: if it hasn't then there is an underlying issue with the system."
+		);
 		setIsLoading(true);
 
 		try {
 			const res = await cb();
-			logger.log(res);
-			logger.info("Pin reset, logged out!");
+			logger.log(`Pin reset, logged out! API response: ${JSON.stringify(res)}`);
 			setIsLoading(false);
 			authenticator.send({ type: "PIN_RESET_SUCCESS" });
 		} catch (err) {
-			logger.error(err);
 			logger.error(
-				"There has been an issue logging out. This should not have occured, so this indicates a serious underlying issue with the system."
+				`There has been an issue logging out. This should not have occured, so this indicates a serious underlying issue with the system. API error: ${JSON.stringify(
+					err
+				)}`
 			);
 			setIsLoading(false);
 			authenticator.send({ type: "PIN_RESET_FAILURE", error: "PIN_RESET_FAILURE" });

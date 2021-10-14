@@ -9,9 +9,12 @@ import { stateSelectors, isInStateAccessibleWhileAuthenticated } from "./selecto
  * can be used anywhere past the login flow to provide the methods required to log out,
  * and request password/PIN changes.
  *
+ * @remarks
  * NOTE: the hook also returns a general `isAuthenticated` boolean property: this is
  * provided as a utility to ensure components using the log out/change requests render
  * even though they technically move out of "authenticated" state.
+ *
+ * @category React
  */
 export function useAuthenticated() {
 	const authenticator = useAuthInterpreter();

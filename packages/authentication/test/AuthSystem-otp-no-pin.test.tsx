@@ -2,11 +2,10 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import React from "react";
 import { waitFor, render } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 import { createModel } from "@xstate/test";
 import { createMachine } from "xstate";
 
-import { AuthStateId } from "core/auth-system";
+import { AuthStateId } from "core/enums";
 // Import the entire authentication structure from the test app:
 import { Authentication } from "test-app/App";
 // Import the config injection component from the test app:
@@ -15,8 +14,6 @@ import { ConfigInjector } from "test-app/ConfigInjector";
 import uiText from "test-app/ui-copy";
 // Local storage mock:
 import { localStorageMock } from "test-utils/local-storage";
-// Custom `screen` from `@testing-library/react` enhanced with ...ByTerm queries
-import { customScreen } from "test-utils/find-by-term";
 // Boilerplate query/assertion functions
 import {
 	currentDeviceSecurityTypeIs,

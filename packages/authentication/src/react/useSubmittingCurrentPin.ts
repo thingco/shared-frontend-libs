@@ -16,8 +16,7 @@ import type { InputValidationPattern } from "./input-validation";
  * app, then they end up here, where the exposed methods allow them to either
  * submit their current PIN or indicate they've forgotten it & have it reset.
  *
- * @param cb - an async function that accepts the current pin.
- * @param validators - an optional map of validation patterns
+ * @category React
  */
 export function useSubmittingCurrentPin(
 	cb: ValidatePinCb,
@@ -41,18 +40,17 @@ export function useSubmittingCurrentPin(
 				return;
 			} else {
 				setIsLoading(true);
-				// prettier-ignore
-				logger.info("Initiating a check against the existing PIN. If the check resolves, user passes authentication.");
+				logger.info(
+					"Initiating a check against the existing PIN. If the check resolves, user passes authentication."
+				);
 
 				try {
 					const res = await cb(pin);
-					logger.log(res);
-					logger.info("PIN validated");
+					logger.log(`PIN validated. API response: ${JSON.stringify(res)}`);
 					setIsLoading(false);
 					authenticator.send({ type: "PIN_VALID" });
 				} catch (err) {
-					logger.log(err);
-					logger.log("PIN validation failed");
+					logger.log(`PIN validation failed. API error: ${JSON.stringify(err)}`);
 					setIsLoading(false);
 					authenticator.send({ type: "PIN_INVALID", error: "PIN_INVALID" });
 				}

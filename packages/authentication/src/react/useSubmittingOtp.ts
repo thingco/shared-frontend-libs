@@ -15,8 +15,7 @@ import type { InputValidationPattern } from "./input-validation";
  * After a user has been sent an OTP, this hook handles submitting that.
  * On success, they are authenticated and can move to setting up device security.
  *
- * @param cb - an async function that accepts the one-time password.
- * @param validators - an optional map of validation patterns
+ * @category React
  */
 export function useSubmittingOtp<User = any>(
 	cb: ValidateOtpCb<User>,
@@ -45,19 +44,25 @@ export function useSubmittingOtp<User = any>(
 			} else {
 				setIsLoading(true);
 				const currentAttempts = attemptsMade + 1;
-				// prettier-ignore
-				logger.info(`OTP validation initiated (attempt ${attemptsMade + 1}): if successful, this stage of authentication is passed. If not, ${attemptsMade + 1 === 3 ? "system will require username input again" : "system will allow a retry"}.`);
+				logger.info(
+					`OTP validation initiated (attempt ${
+						attemptsMade + 1
+					}): if successful, this stage of authentication is passed. If not, ${
+						attemptsMade + 1 === 3
+							? "system will require username input again"
+							: "system will allow a retry"
+					}.`
+				);
 
 				try {
 					const user = await cb(currentUserData, password);
-					logger.log(user);
+					logger.log(`OTP validate! API reponse: ${JSON.stringify(user)}`);
 					setIsLoading(false);
 					authenticator.send({ type: "OTP_VALID" });
 				} catch (err) {
 					logger.log(err);
 					if (currentAttempts >= 3) {
-						logger.log(err);
-						logger.info("OTP retries exceeded");
+						logger.log(`OTP retries exceeded. API error: ${JSON.stringify(err)}`);
 						setIsLoading(false);
 						authenticator.send({
 							type: "OTP_INVALID_RETRIES_EXCEEDED",
@@ -65,8 +70,11 @@ export function useSubmittingOtp<User = any>(
 						});
 						setAttemptsMade(0);
 					} else {
-						logger.log(err);
-						logger.info(`OTP invalid, ${3 - currentAttempts} tries remaining`);
+						logger.log(
+							`OTP invalid, ${3 - currentAttempts} tries remaining. API error: ${JSON.stringify(
+								err
+							)}`
+						);
 						setIsLoading(false);
 						authenticator.send({
 							type: "OTP_INVALID",

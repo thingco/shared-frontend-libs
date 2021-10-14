@@ -1,7 +1,7 @@
 import React from "react";
 import uiText from "test-app/ui-copy";
 
-import { AuthStateId } from "core/auth-system";
+import { AuthStateId } from "core/enums";
 import { useAuthenticatedPasswordChangeSuccess } from "core/react/useAuthenticatedPasswordChangeSuccess";
 import { AuthStageSection, Form } from "test-app/Components";
 import { useConfigState } from "test-app/ConfigInjector";

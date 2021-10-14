@@ -16,8 +16,7 @@ import type { InputValidationPattern } from "./input-validation";
  * The system will send them a reset code (temporary password, effectively) which can be used
  * alongside a new password they enter when they submit on the next stage.
  *
- * @param cb - an async function that accepts a username
- * @param validators - an optional map of validation patterns
+ * @category React
  */
 export function useForgottenPasswordRequestingReset(
 	cb: RequestNewPasswordCb,
@@ -43,14 +42,16 @@ export function useForgottenPasswordRequestingReset(
 				return;
 			} else {
 				setIsLoading(true);
-
+				logger.log(
+					"Requesting a password reset. If this succeeds, the user can be taken to a new password entry state."
+				);
 				try {
 					const res = await cb(username);
-					logger.log(res);
+					logger.log(`API response: ${JSON.stringify(res)}`);
 					setIsLoading(false);
 					authenticator.send({ type: "PASSWORD_RESET_REQUEST_SUCCESS", username });
 				} catch (err) {
-					logger.log(err);
+					logger.log(`API error: ${JSON.stringify(err)}`);
 					setIsLoading(false);
 					authenticator.send({
 						type: "PASSWORD_RESET_REQUEST_FAILURE",
