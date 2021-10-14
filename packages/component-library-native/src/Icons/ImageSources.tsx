@@ -3,7 +3,7 @@ import Account from "./icon_settings_account.svg";
 import Units from "./icon_settings_ruler.svg";
 import Lock from "./icon_settings_lock.svg";
 import Login from "./icon_settings_login.svg";
-import Tick from "./icon_tick_white.svg";
+// import Tick from "./icon_tick_white.svg";
 
 interface ButtonImageSourcesProps {
 	image: string;
@@ -23,8 +23,8 @@ export const buttonImageSources = ({ image, width, style = {} }: ButtonImageSour
 			);
 		case "Login":
 			return <Login height={`${width}px`} width={`${width}px`} style={style} />;
-		case "Tick":
-			return <Lock height={`${width}px`} width={`${width}px`} style={style} />;
+		// case "Tick":
+		// 	return <Tick height={`${width}px`} width={`${width}px`} style={style} />;
 		default:
 			return null;
 	}
