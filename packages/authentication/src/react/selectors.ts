@@ -1,8 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { AuthStateId } from "core/enums";
-
-import type { AuthContext, AuthState } from "core/types";
+import { AuthStateId } from "../enums";
+import type { AuthContext, AuthState } from "../types";
 
 /**
  * To access values (states and context) from the auth system FSM in React,

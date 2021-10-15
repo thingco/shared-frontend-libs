@@ -3,10 +3,10 @@ import { useInterpret, useSelector } from "@xstate/react";
 import React, { createContext, useContext } from "react";
 
 import { contextSelectors, currentStateSelector } from "./selectors";
-import { machine } from "core/auth-system";
+import { machine } from "../auth-system";
 
 import type { ReactNode } from "react";
-import type { DeviceSecurityType, LoginFlowType, AuthInterpreter, AuthState } from "core/types";
+import type { DeviceSecurityType, LoginFlowType, AuthInterpreter, AuthState } from "../types";
 
 const AuthProviderContext = createContext<{
 	authenticator: AuthInterpreter;

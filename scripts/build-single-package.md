@@ -84,7 +84,7 @@ try {
 			workspaceBuildDirectoryPath + "/types/"
 		)}`
 	);
-	await $`yarn tsc`;
+	await $`yarn tsc --project tsconfig.build.json`;
 	const commonConfig = {
 		bundle: true,
 		entryPoints: [join(workspaceSourceDirectoryPath, "index.ts")],
