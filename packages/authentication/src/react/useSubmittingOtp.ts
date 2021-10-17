@@ -25,6 +25,7 @@ export function useSubmittingOtp<User = any>(
 	const error = useSelector(authenticator, contextSelectors.error);
 	const isActive = useSelector(authenticator, stateSelectors.isSubmittingOtp!);
 	const currentUserData = useSelector(authenticator, contextSelectors.user);
+	const allowedRetries = useSelector(authenticator, contextSelectors.allowedOtpRetries);
 	const logger = useLogger();
 
 	const [validationErrors, setValidationErrors] = useState<{ password: string[] }>({
@@ -48,7 +49,7 @@ export function useSubmittingOtp<User = any>(
 					`OTP validation initiated (attempt ${
 						attemptsMade + 1
 					}): if successful, this stage of authentication is passed. If not, ${
-						attemptsMade + 1 === 3
+						attemptsMade + 1 === allowedRetries
 							? "system will require username input again"
 							: "system will allow a retry"
 					}.`
@@ -61,7 +62,7 @@ export function useSubmittingOtp<User = any>(
 					authenticator.send({ type: "OTP_VALID" });
 				} catch (err) {
 					logger.log(err);
-					if (currentAttempts >= 3) {
+					if (currentAttempts >= allowedRetries) {
 						logger.log(`OTP retries exceeded. API error: ${JSON.stringify(err)}`);
 						setIsLoading(false);
 						authenticator.send({
@@ -71,9 +72,9 @@ export function useSubmittingOtp<User = any>(
 						setAttemptsMade(0);
 					} else {
 						logger.log(
-							`OTP invalid, ${3 - currentAttempts} tries remaining. API error: ${JSON.stringify(
-								err
-							)}`
+							`OTP invalid, ${
+								allowedRetries - currentAttempts
+							} tries remaining. API error: ${JSON.stringify(err)}`
 						);
 						setIsLoading(false);
 						authenticator.send({
