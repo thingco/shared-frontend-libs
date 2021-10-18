@@ -4,6 +4,8 @@
 setup:
 	# Install everything
 	yarn
+	# Ensure the commitizen changelog adapter is set up (this is just a sanity check)
+	npx commitizen init cz-conventional-changelog --yarn -D -E
 	# Make sure the git config for hooks is set to the .git-hooks directory: git
 	# will deliberately not pick up anything in .git/hooks, so to allow custom
 	# hooks to be registered we set the core.hooksPath in the repo config
