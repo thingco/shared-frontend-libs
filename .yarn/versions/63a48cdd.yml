@@ -1,4 +1,7 @@
-undecided:
+releases:
+  "@thingco/authentication": patch
+
+declined:
   - "@thingco/auth-flows"
   - "@thingco/graphviz"
   - "@thingco/graphviz-native"
