@@ -1,9 +1,8 @@
 {
 	"name": "@thingco/component-library-native",
 	"description": "React Native components",
-	"version": "0.1.41",
-	"main": "lib/index.js",
-	"types": "lib/types/index.d.ts",
+	"version": "0.2.0",
+	"main": "src/index.ts",
 	"files": [
 		"lib/**"
 	],
@@ -13,7 +12,6 @@
 	},
 	"repository": "https://github.com/thingco/shared-frontend-libs",
 	"scripts": {
-		"build": "yarn tsc",
 		"test": "yarn jest",
 		"docs": "yarn rimraf docs && yarn typedoc"
 	},
