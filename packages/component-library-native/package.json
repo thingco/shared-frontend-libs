@@ -1,10 +1,10 @@
 {
 	"name": "@thingco/component-library-native",
 	"description": "React Native components",
-	"version": "0.2.0",
+	"version": "0.3.0",
 	"main": "src/index.ts",
 	"files": [
-		"lib/**"
+		"src/**"
 	],
 	"public": true,
 	"publishConfig": {
