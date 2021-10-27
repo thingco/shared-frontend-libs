@@ -28,13 +28,23 @@ export function createMockUsernamePasswordService(): UsernamePasswordService<str
 		},
 
 		async validateUsernameAndPassword(username: string, password: string): Promise<string> {
-			if (password !== VALID_PASSWORD && username !== VALID_USERNAME) {
-				throw new ServiceError(`INVALID USERNAME AND PASSWORD!`);
+			if (username !== VALID_USERNAME || password !== VALID_PASSWORD) {
+				throw new ServiceError(`INVALID USERNAME OR PASSWORD!`);
 			}
 
 			sessionToken = DUMMY_SESSION_TOKEN;
 			user = DUMMY_USER_OBJECT;
 			return `VALID USERNAME AND PASSWORD! Authorisation complete, session token set`;
+		},
+
+		async validateNewPassword(password: string, newPassword: string): Promise<string> {
+			if (password !== VALID_PASSWORD && newPassword !== VALID_PASSWORD) {
+				throw new ServiceError(`INVALID PASSWORD!`);
+			}
+
+			sessionToken = DUMMY_SESSION_TOKEN;
+			user = DUMMY_USER_OBJECT;
+			return `VALIDPASSWORD! wohoo this mock function is bollox`;
 		},
 
 		async logOut(): Promise<string> {

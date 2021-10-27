@@ -6,14 +6,15 @@ import * as React from "react";
 import {
 	Authorised,
 	ChangeCurrentPinInput,
+	ChangeTemporaryPasswordInput,
 	CurrentPinInput,
 	NewPinInput,
 	OtpLoginFlowInit,
 	OtpPasswordInput,
 	OtpUsernameInput,
 	PinFlowInit,
-	UsernamePasswordInput,
-	UsernamePasswordLoginFlowInit,
+	UsernameAndPasswordInput,
+	UsernameAndPasswordLoginFlowInit,
 } from "./AuthStages";
 
 import type { CognitoUser } from "@aws-amplify/auth";
@@ -61,7 +62,17 @@ const cognitoUsernamePasswordService: UsernamePasswordService<CognitoUser> = {
 	},
 
 	async validateUsernameAndPassword(username: string, password: string) {
-		await AWSAuth.signIn(username, password);
+		const user = await AWSAuth.signIn(username, password);
+		console.log(user);
+		if (user?.challengeName === "NEW_PASSWORD_REQUIRED") {
+			throw new ServiceError("NEW_PASSWORD_REQUIRED");
+		}
+		return await AWSAuth.currentAuthenticatedUser();
+	},
+
+	async validateNewPassword(password: string, newPassword: string) {
+		const user = await AWSAuth.currentAuthenticatedUser();
+		await AWSAuth.changePassword(user, password, newPassword);
 		return await AWSAuth.currentAuthenticatedUser();
 	},
 
@@ -137,8 +148,9 @@ const AuthTest = () => {
 		inOtpLoginFlowInitState,
 		inOtpUsernameInputState,
 		inOtpPasswordInputState,
-		inUsernamePasswordLoginFlowInitState,
-		inUsernamePasswordInputState,
+		inUsernameAndPasswordLoginFlowInitState,
+		inUsernameAndPasswordInputState,
+		inChangeTemporaryPasswordInputState,
 		inPinFlowInitState,
 		inCurrentPinInputState,
 		inNewPinInputState,
@@ -156,10 +168,12 @@ const AuthTest = () => {
 				<OtpUsernameInput isLoading={isLoading} />
 			) : inOtpPasswordInputState ? (
 				<OtpPasswordInput isLoading={isLoading} />
-			) : inUsernamePasswordLoginFlowInitState ? (
-				<UsernamePasswordLoginFlowInit isLoading={isLoading} />
-			) : inUsernamePasswordInputState ? (
-				<UsernamePasswordInput isLoading={isLoading} />
+			) : inUsernameAndPasswordLoginFlowInitState ? (
+				<UsernameAndPasswordLoginFlowInit isLoading={isLoading} />
+			) : inUsernameAndPasswordInputState ? (
+				<UsernameAndPasswordInput isLoading={isLoading} />
+			) : inChangeTemporaryPasswordInputState ? (
+				<ChangeTemporaryPasswordInput isLoading={isLoading} />
 			) : inPinFlowInitState ? (
 				<PinFlowInit isLoading={isLoading} />
 			) : inCurrentPinInputState ? (
@@ -176,7 +190,7 @@ const AuthTest = () => {
 };
 
 const authSystem = createAuthSystem({
-	loginFlowType: "OTP",
+	loginFlowType: "USERNAME_PASSWORD",
 	deviceSecurityType: "PIN",
 	otpServiceApi: cognitoOTPService,
 	usernamePasswordServiceApi: cognitoUsernamePasswordService,

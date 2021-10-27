@@ -31,6 +31,7 @@ export interface UsernamePasswordService<User> {
 	checkForExtantSession(sessionCheckBehaviour?: SessionCheckBehaviour): Promise<unknown>;
 
 	validateUsernameAndPassword(username: string, password: string): Promise<User>;
+	validateNewPassword(password: string, newPassword: string): Promise<User>;
 
 	logOut(): Promise<unknown>;
 }

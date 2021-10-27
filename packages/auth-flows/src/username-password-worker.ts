@@ -11,6 +11,7 @@ const model = createModel(
 	{
 		username: "",
 		password: "",
+		newPassword: "",
 		sessionCheckBehaviour: "normal" as SessionCheckBehaviour,
 	},
 	{
@@ -18,6 +19,10 @@ const model = createModel(
 			LOG_OUT: () => ({}),
 			CHECK_FOR_SESSION: (sessionCheckBehaviour: SessionCheckBehaviour = "normal") => ({
 				sessionCheckBehaviour,
+			}),
+			SUBMIT_NEW_PASSWORD: (password: string, newPassword: string) => ({
+				password,
+				newPassword,
 			}),
 			SUBMIT_USERNAME_AND_PASSWORD: (username: string, password: string) => ({
 				username,
@@ -28,6 +33,8 @@ const model = createModel(
 			WORKER_ASYNC_REQUEST_SETTLED: () => ({}),
 			WORKER_ASYNC_REQUEST_PENDING: () => ({}),
 			WORKER_REQUIRES_USERNAME_AND_PASSWORD: () => ({}),
+			WORKER_REQUIRES_PASSWORD_CHANGE: () => ({}),
+			WORKER_REQUIRES_TEMPORARY_PASSWORD_CHANGE: () => ({}),
 		},
 	}
 );
@@ -47,6 +54,10 @@ const implementations = {
 			throw new ServiceError("No implementation for logOut method");
 		},
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		validateNewPassword: (_c: ModelCtx, _e: ModelEvt) => {
+			throw new ServiceError("No implementation for validateNewPassword method");
+		},
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		validateUsernameAndPassword: (_c: ModelCtx, _e: ModelEvt) => {
 			throw new ServiceError("No implementation for validateUsernameAndPassword method");
 		},
@@ -56,17 +67,29 @@ const implementations = {
 			if (e.type !== "SUBMIT_USERNAME_AND_PASSWORD") return {};
 			return { username: e.username, password: e.password };
 		}),
+		assignPasswordsToContext: model.assign((_, e) => {
+			if (e.type !== "SUBMIT_NEW_PASSWORD") return {};
+			return { password: e.password, newPassword: e.newPassword };
+		}),
 		assignSessionCheckBehaviourToContext: model.assign((_, e) => {
 			if (e.type !== "CHECK_FOR_SESSION") return {};
 			return { sessionCheckBehaviour: e.sessionCheckBehaviour };
 		}),
-		clearPasswordFromContext: model.assign({ password: "" }),
-		clearUsernameAndPasswordFromContext: model.assign({ password: "", username: "" }),
+		clearPasswordsFromContext: model.assign({ password: "", newPassword: "" }),
+		clearUsernameAndPasswordFromContext: model.assign({
+			password: "",
+			newPassword: "",
+			username: "",
+		}),
 		// Keep in touch with yr parents
 		notifyAuthFlowComplete: sendParent(model.events.WORKER_AUTH_FLOW_COMPLETE),
 		notifyLoggedOut: sendParent(model.events.WORKER_LOGGED_OUT),
 		notifyRequestComplete: sendParent(model.events.WORKER_ASYNC_REQUEST_SETTLED),
 		notifyRequestStarted: sendParent(model.events.WORKER_ASYNC_REQUEST_PENDING),
+		requestChangePassword: sendParent(model.events.WORKER_REQUIRES_PASSWORD_CHANGE),
+		requestChangeTemporaryPassword: sendParent(
+			model.events.WORKER_REQUIRES_TEMPORARY_PASSWORD_CHANGE
+		),
 		requestUsernameAndPassword: sendParent(model.events.WORKER_REQUIRES_USERNAME_AND_PASSWORD),
 	},
 };
@@ -75,7 +98,7 @@ const machine = model.createMachine(
 	{
 		id: "usernamePasswordService",
 		context: model.initialContext,
-		initial: "awaitingUsernameAndPasswordInput",
+		initial: "checkingSession",
 		states: {
 			// Check the session. Is it present? Can we jump straight past the login?
 			checkingSession: {
@@ -104,8 +127,6 @@ const machine = model.createMachine(
 				},
 				exit: "notifyRequestComplete",
 			},
-			// Alternatively, username/password flow may be used: this is currently
-			// a config-level option (choice is static and stored in the meta)
 			awaitingUsernameAndPasswordInput: {
 				entry: "requestUsernameAndPassword",
 				on: {
@@ -120,12 +141,36 @@ const machine = model.createMachine(
 				invoke: {
 					id: "validateUsernameAndPassword",
 					src: "validateUsernameAndPassword",
+					onDone: "authComplete",
+					onError: [
+						{
+							cond: (_, e) => e.data.message === "NEW_PASSWORD_REQUIRED",
+							actions: "requestChangeTemporaryPassword",
+							target: "awaitingChangePasswordInput",
+						},
+						{
+							target: "awaitingUsernameAndPasswordInput",
+						},
+					],
+				},
+				exit: "notifyRequestComplete",
+			},
+			awaitingChangePasswordInput: {
+				on: {
+					SUBMIT_NEW_PASSWORD: "validatingNewPassword",
+				},
+			},
+			validatingNewPassword: {
+				entry: "notifyRequestStarted",
+				invoke: {
+					id: "validateNewPassword",
+					src: "validateNewPassword",
 					onDone: {
 						target: "authComplete",
 					},
 					onError: {
-						target: "awaitingUsernameAndPasswordInput",
-						actions: "clearPasswordFromContext",
+						target: "awaitingChangePasswordInput",
+						actions: "clearPasswordsFromContext",
 					},
 				},
 				exit: "notifyRequestComplete",
@@ -142,7 +187,7 @@ const machine = model.createMachine(
 				exit: ["notifyRequestComplete", "notifyLoggedOut"],
 			},
 			authComplete: {
-				entry: ["notifyAuthFlowComplete", "clearUsernameAndPasswordFromContext"],
+				entry: ["notifyAuthFlowComplete", "clearPasswordsFromContext"],
 				on: {
 					LOG_OUT: "loggingOut",
 				},
@@ -161,6 +206,8 @@ export function createUsernamePasswordWorker<User>(
 				serviceApi.checkForExtantSession(ctx.sessionCheckBehaviour),
 			validateUsernameAndPassword: (ctx: ModelCtx) =>
 				serviceApi.validateUsernameAndPassword(ctx.username, ctx.password),
+			validateNewPassword: (ctx: ModelCtx) =>
+				serviceApi.validateNewPassword(ctx.password, ctx.newPassword),
 			logOut: () => serviceApi.logOut(),
 		},
 	});
