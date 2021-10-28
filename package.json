@@ -68,5 +68,6 @@
 	},
 	"dependencies": {
 		"@thingco/graphviz": "workspace:packages/graphviz"
-	}
+	},
+	"packageManager": "yarn@3.1.0"
 }
