@@ -14,7 +14,7 @@
 	"repository": "https://github.com/thingco/shared-frontend-libs",
 	"scripts": {
 		"build": "yarn global:build",
-		"watch": "yarn global:watch",
+		"start": "esbuild test-app/index.tsx --servedir=test-app/public --outdir=test-app/public --bundle --sourcemap",
 		"test": "yarn jest",
 		"docs": "yarn rimraf docs && yarn typedoc --tsconfig ./tsconfig.build.json"
 	},
