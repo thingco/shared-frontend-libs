@@ -57,9 +57,13 @@ export function useSubmittingOtp<User = any>(
 
 				try {
 					const user = await cb(currentUserData, password);
-					logger.log(`OTP validate! API reponse: ${JSON.stringify(user)}`);
-					setIsLoading(false);
-					authenticator.send({ type: "OTP_VALID" });
+					if (user.signInUserSession) {
+						logger.log(`OTP validate! API reponse: ${JSON.stringify(user)}`);
+						setIsLoading(false);
+						authenticator.send({ type: "OTP_VALID" });
+					} else {
+						throw new Error("No valid session found");
+					}
 				} catch (err) {
 					logger.log(err);
 					if (currentAttempts >= allowedRetries) {
