@@ -56,7 +56,7 @@ export function useSubmittingOtp<User = any>(
 				);
 
 				try {
-					const user = await cb(currentUserData, password);
+					const user = (await cb(currentUserData, password)) as any;
 					if (user.signInUserSession) {
 						logger.log(`OTP validate! API reponse: ${JSON.stringify(user)}`);
 						setIsLoading(false);
