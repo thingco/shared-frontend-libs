@@ -55,16 +55,7 @@ export function useSubmittingOtp<User = any>(
 					}.`
 				);
 
-				try {
-					const user = (await cb(currentUserData, password)) as any;
-					if (user.signInUserSession) {
-						logger.log(`OTP validate! API reponse: ${JSON.stringify(user)}`);
-						setIsLoading(false);
-						authenticator.send({ type: "OTP_VALID" });
-					} else {
-						throw new Error("No valid session found");
-					}
-				} catch (err) {
+				const handleError = (err: string) => {
 					logger.log(err);
 					if (currentAttempts >= allowedRetries) {
 						logger.log(`OTP retries exceeded. API error: ${JSON.stringify(err)}`);
@@ -87,13 +78,31 @@ export function useSubmittingOtp<User = any>(
 						});
 						setAttemptsMade(currentAttempts);
 					}
-				}
+				};
+
+				await cb(currentUserData, password)
+					.then((user: any) => {
+						logger.log(`OTP validate! API reponse: ${JSON.stringify(user)}`);
+						if (user.signInUserSession) {
+							setIsLoading(false);
+							setAttemptsMade(0);
+							authenticator.send({ type: "OTP_VALID" });
+						} else {
+							handleError("Invalid Session");
+						}
+					})
+					.catch(handleError);
+				// TODO: This is likely not an error caused by the user
+				// So we might want to handle it differently
 			}
 		},
 		[attemptsMade, authenticator, currentUserData, error, isActive, isLoading, validationErrors]
 	);
 
-	const goBack = () => authenticator.send({ type: "GO_BACK" });
+	const goBack = () => {
+		setAttemptsMade(0);
+		return authenticator.send({ type: "GO_BACK" });
+	};
 
 	return {
 		error,

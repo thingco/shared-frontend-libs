@@ -35,8 +35,10 @@ export const validateOtpUsernameCb: ValidateOtpUsernameCb<CognitoUser> = (userna
  * OTP a configured number of times (default is three) times; on final failure, they will
  * be bumped back to username input.
  */
-export const validateOtpCb: ValidateOtpCb<CognitoUser> = (user: CognitoUser, password: string) =>
-	Auth.sendCustomChallengeAnswer(user, password);
+export const validateOtpCb: ValidateOtpCb<CognitoUser> = async (
+	user: CognitoUser,
+	password: string
+) => Auth.sendCustomChallengeAnswer(user, password);
 
 /**
  * Validate a username and password together. Success will return a user object, failure

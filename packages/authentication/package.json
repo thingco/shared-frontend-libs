@@ -1,7 +1,7 @@
 {
 	"name": "@thingco/authentication",
 	"description": "XState-powered auth flows for React",
-	"version": "1.0.0-rc.1",
+	"version": "1.0.6",
 	"main": "lib/index.js",
 	"types": "lib/types/index.d.ts",
 	"files": [
@@ -53,6 +53,5 @@
 		"react": "*",
 		"react-dom": "*",
 		"xstate": "*"
-	},
-	"stableVersion": "0.10.1"
+	}
 }
