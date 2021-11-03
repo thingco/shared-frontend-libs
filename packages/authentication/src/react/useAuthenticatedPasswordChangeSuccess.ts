@@ -19,7 +19,7 @@ export function useAuthenticatedPasswordChangeSuccess() {
 
 	const confirmPasswordChange = () => {
 		logger.info("Confirmation of successful password change sent to system");
-		authenticator.send({ type: "CONFIRM_PASSWORD_RESET" });
+		authenticator.send({ type: "CONFIRM_PASSWORD_CHANGE" });
 	};
 
 	return {
