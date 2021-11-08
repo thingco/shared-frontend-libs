@@ -51,8 +51,8 @@ export const CarouselStatistic = ({
 					flex: 1,
 				}}
 			>
-				<Text variant={"xlarge greyscale50 centred"}>{value}</Text>
-				<Text variant={"small greyscale50 centred"}>{name}</Text>
+				<Text variant={"xlarge text_appBackground centred"}>{value}</Text>
+				<Text variant={"small text_appBackground centred"}>{name}</Text>
 			</View>
 		);
 	};
@@ -76,8 +76,8 @@ export const CarouselStatistic = ({
 						flex: 1,
 					}}
 				>
-					<Text variant={"xxxlarge greyscale50 centred"}>{stats.StatTotalDistance}</Text>
-					<Text variant={"xxxlarge greyscale50 centred"}>{titles.TotalDistance}</Text>
+					<Text variant={"xxxlarge text_appBackground centred"}>{stats.StatTotalDistance}</Text>
+					<Text variant={"xxxlarge text_appBackground centred"}>{titles.TotalDistance}</Text>
 				</View>
 				<View
 					variant={"flexCol centred"}
@@ -85,8 +85,8 @@ export const CarouselStatistic = ({
 						flex: 1,
 					}}
 				>
-					<Text variant={"xxxlarge greyscale50 centred"}>{stats.StatTotalDuration}</Text>
-					<Text variant={"xxxlarge greyscale50 centred"}>{titles.TotalDuration}</Text>
+					<Text variant={"xxxlarge text_appBackground centred"}>{stats.StatTotalDuration}</Text>
+					<Text variant={"xxxlarge text_appBackground centred"}>{titles.TotalDuration}</Text>
 				</View>
 			</View>
 			<View

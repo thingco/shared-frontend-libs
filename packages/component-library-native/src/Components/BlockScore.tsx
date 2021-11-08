@@ -41,9 +41,9 @@ export const BlockScore = ({
 
 	const progColor =
 		scored && score < scoreBoundaries[0]
-			? theme.colors?.errorLight
+			? theme.colors?.warn_1
 			: scored && score < scoreBoundaries[1]
-			? theme.colors?.errorDark
+			? theme.colors?.warn_2
 			: theme.colors?.primary;
 
 	const change = blockChange ? _.round(blockChange, 0) : undefined;
@@ -73,20 +73,20 @@ export const BlockScore = ({
 						}}
 					/>
 				)}
-				<Text variant={"xsmall greyscale50"}>
+				<Text variant={"xsmall text_appBackground"}>
 					<Text style={{ fontWeight: "bold" }}>{showChange}</Text> {sinceText} {from}
 				</Text>
 			</View>
 		);
 	} else if (change === 0 && from) {
 		since = (
-			<Text variant={"xsmall greyscale50"} style={{ textAlign: "center" }}>
+			<Text variant={"xsmall text_appBackground"} style={{ textAlign: "center" }}>
 				<Text style={{ fontWeight: "bold" }}>{noChangeText}</Text> {"\n"}
 				{sinceText} {from}
 			</Text>
 		);
 	} else if (change === 0) {
-		since = <Text variant={"xsmall greyscale50"}>{noScoreText}</Text>;
+		since = <Text variant={"xsmall text_appBackground"}>{noScoreText}</Text>;
 	}
 
 	return (
@@ -104,7 +104,7 @@ export const BlockScore = ({
 				}}
 				progress={score / 100}
 				progressColor={progColor}
-				backgroundColor={theme.colors?.text_appBackground}
+				backgroundColor={theme.colors?.greyscale600}
 				startAngle={-Math.PI * angle}
 				endAngle={Math.PI * angle}
 				strokeWidth={size / 20}
@@ -150,13 +150,13 @@ export const BlockScoreEmpty = ({ size, angle = 0.8 }: BlockScoreEmptyProps) => 
 				}}
 				progress={0}
 				progressColor={"transparent"}
-				backgroundColor={theme.colors?.text_appBackground}
+				backgroundColor={theme.colors?.greyscale600}
 				startAngle={-Math.PI * angle}
 				endAngle={Math.PI * angle}
 				strokeWidth={size / 20}
 			/>
 			<View variant="centred" style={{ flex: 1, zIndex: 2 }}>
-				<Text variant="desc greyscale50">Loading...</Text>
+				<Text variant="desc text_appBackground">Loading...</Text>
 			</View>
 		</View>
 	);
@@ -185,7 +185,7 @@ export const BlockScoreNoData = ({ size, angle = 0.8 }: BlockScoreEmptyProps) =>
 				strokeWidth={size / 20}
 			/>
 			<View variant="centred" style={{ flex: 1, zIndex: 2 }}>
-				<Text variant="desc greyscale50">No Data Found</Text>
+				<Text variant="desc text_appBackground">No Data Found</Text>
 			</View>
 		</View>
 	);

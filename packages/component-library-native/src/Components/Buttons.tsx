@@ -64,14 +64,14 @@ export const IconButton = ({
 	style = {},
 	icon,
 	stroke,
-	// strokeWidth = 2,
+	strokeWidth = 2,
 	size,
 	...props
 }: IconButtonProps) => {
 	const custStyle = style instanceof Array ? style : [style];
 	return (
 		<TouchableOpacity style={[...custStyle]} disabled={isDisabled} {...props}>
-			<LineIcon iconType={icon} stroke={stroke} size={size} />
+			<LineIcon iconType={icon} stroke={stroke} size={size} strokeWidth={strokeWidth} />
 		</TouchableOpacity>
 	);
 };

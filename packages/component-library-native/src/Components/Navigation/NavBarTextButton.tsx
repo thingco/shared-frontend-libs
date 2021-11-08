@@ -21,7 +21,7 @@ export const NavBarTextButton = ({ text, ...props }: NavBarTextButtonProps) => {
 			}}
 			{...props}
 		>
-			<Text variant="small bold greyscale50">{text}</Text>
+			<Text variant="small bold text_accent">{text}</Text>
 		</TouchableOpacity>
 	);
 };

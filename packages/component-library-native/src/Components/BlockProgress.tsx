@@ -34,7 +34,7 @@ export const BlockProgress = ({
 				paddingVertical: 20,
 			}}
 		>
-			<Text variant={"base greyscale50 centred"}>
+			<Text variant={"base text_appBackground centred"}>
 				<Text variant={"bold"}>{text}</Text>
 			</Text>
 			<Svg width={viewportWidth - 20} height="20">
@@ -43,7 +43,7 @@ export const BlockProgress = ({
 					y1="10"
 					x2={viewportWidth - margin}
 					y2="10"
-					stroke={theme.colors?.text_appBackground}
+					stroke={theme.colors?.greyscale200}
 					strokeWidth={strokeWidth}
 					strokeLinecap="round"
 				/>

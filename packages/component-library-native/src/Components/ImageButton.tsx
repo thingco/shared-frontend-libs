@@ -1,26 +1,25 @@
 import React from "react";
 import { TextStyle, TouchableOpacity, ViewStyle, Text, TouchableOpacityProps } from "react-native";
-import { View } from "./Containers";
-
-import { useTheme } from "../Provider/ThemeProvider";
 import { variantToTheme } from "../util";
 
-import { buttonImageSources as ImageSources } from "../Icons/ImageSources";
-
-import { Dimensions } from "react-native";
-
-const width = Dimensions.get("window").width;
+import { IconType, LineIcon } from "./Icons";
 
 interface ImageButtonProps extends TouchableOpacityProps {
-	image: string;
+	icon: IconType;
+	size: number;
+	stroke?: string;
+	strokeWidth?: number;
 	text: string;
 	style?: ViewStyle[] | ViewStyle;
 	textStyle?: TextStyle[] | TextStyle;
 }
 
 export const ImageButton = ({
-	image,
 	text,
+	icon,
+	stroke,
+	strokeWidth = 2,
+	size,
 	style = [],
 	textStyle = [],
 	...props
@@ -39,13 +38,7 @@ export const ImageButton = ({
 
 	return (
 		<TouchableOpacity style={[...buttonStyles, ...custStyle]} {...props}>
-			<ImageSources
-				image={image}
-				style={{
-					marginRight: 20,
-				}}
-				width={width / 18}
-			/>
+			<LineIcon iconType={icon} stroke={stroke} size={size} strokeWidth={strokeWidth} />
 			<Text style={[...textStyles, ...custTextStyle]}>{text}</Text>
 		</TouchableOpacity>
 	);

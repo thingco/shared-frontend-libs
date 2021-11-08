@@ -24,6 +24,7 @@ export const colours = {
 	warn_1: "hsl(356, 59%, 40%)",
 	warn_2: "hsl(35, 67%, 52%)",
 	warn_3: "hsl(50, 84%, 67%)",
+	warn_4: "hsl(109, 58%, 47%)",
 	text_accent: "#000000",
 	text_accent_dark: "#000000",
 	text_accent_light: "#000000",
