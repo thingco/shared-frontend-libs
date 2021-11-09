@@ -53,7 +53,7 @@ export const buttonStyles = (colours: ThemeColour) => ({
 		marginVertical: 10,
 		padding: 5,
 		backgroundColor: "transparent",
-		alignItems: "flex-start",
+		alignItems: "center",
 		flexDirection: "row",
 	},
 	tab: {

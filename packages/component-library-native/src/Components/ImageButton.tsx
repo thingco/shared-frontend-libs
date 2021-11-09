@@ -38,7 +38,13 @@ export const ImageButton = ({
 
 	return (
 		<TouchableOpacity style={[...buttonStyles, ...custStyle]} {...props}>
-			<LineIcon iconType={icon} stroke={stroke} size={size} strokeWidth={strokeWidth} />
+			<LineIcon
+				iconType={icon}
+				stroke={stroke}
+				size={size}
+				strokeWidth={strokeWidth}
+				style={{ marginRight: 10 }}
+			/>
 			<Text style={[...textStyles, ...custTextStyle]}>{text}</Text>
 		</TouchableOpacity>
 	);

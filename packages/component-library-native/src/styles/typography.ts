@@ -24,6 +24,7 @@ export const buttonText = (colours: ThemeColour, fontSizes: ThemeFontSize) => ({
 		...fontSizes.large,
 		fontWeight: "400" as const,
 		color: colours.text_appBackground,
+		marginLeft: 10,
 	},
 	disabled: {
 		opacity: 0.5,

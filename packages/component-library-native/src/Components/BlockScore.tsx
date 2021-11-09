@@ -4,9 +4,7 @@ import { Text } from "./Typography";
 import { useTheme } from "../Provider/ThemeProvider";
 import { ProgressCircle } from "react-native-svg-charts";
 import _ from "lodash";
-
-import Up from "../Icons/icon_points_up.svg";
-import Down from "../Icons/icon_points_down.svg";
+import { LineIcon } from "./Icons";
 
 interface BlockScoreProps {
 	score: number;
@@ -54,25 +52,13 @@ export const BlockScore = ({
 	if (blockChange && change !== 0 && from) {
 		since = (
 			<View style={{ display: "flex", flexDirection: "row" }}>
-				{blockChange > 0 ? (
-					<Up
-						style={{
-							flex: 0,
-							alignSelf: "center",
-							width: 5,
-							marginRight: 5,
-						}}
-					/>
-				) : (
-					<Down
-						style={{
-							flex: 0,
-							alignSelf: "center",
-							width: 5,
-							marginRight: 5,
-						}}
-					/>
-				)}
+				<LineIcon
+					iconType={blockChange > 0 ? "up-arrow" : "down-arrow"}
+					stroke={theme.colors?.warn_2}
+					size={20}
+					strokeWidth={4}
+					style={{ marginRight: 5 }}
+				/>
 				<Text variant={"xsmall text_appBackground"}>
 					<Text style={{ fontWeight: "bold" }}>{showChange}</Text> {sinceText} {from}
 				</Text>
