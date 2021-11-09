@@ -24,14 +24,14 @@ export const AppCarousel = ({
 	const [activeSlide, setActiveSlide] = useState(0);
 	const { theme } = useTheme();
 
-	const sliderWidth = width - 40;
-	const itemWidth = width - 40;
+	const sliderWidth = width;
+	const itemWidth = width;
 
 	return (
 		<View style={{ height: height }}>
 			<Carousel
 				data={items}
-				renderItem={({ item, index }: { item: any; index: any }) => item}
+				renderItem={({ item }) => item}
 				sliderWidth={sliderWidth}
 				itemWidth={itemWidth}
 				onSnapToItem={(index) => setActiveSlide(index)}
@@ -65,7 +65,7 @@ export const QuestionCarousel = ({
 		<View style={{ height: "100%", width: "100%" }}>
 			<Carousel
 				data={items}
-				renderItem={({ item, index }: { item: any; index: any }) => item}
+				renderItem={({ item }) => item}
 				sliderWidth={width}
 				itemWidth={width}
 				slideStyle={{ width: width }}

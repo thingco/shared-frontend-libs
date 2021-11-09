@@ -18,6 +18,7 @@ interface BlockScoreProps {
 	sinceText?: string;
 	noScoreText?: string;
 	noChangeText?: string;
+	scoreBoundary?: number[];
 }
 export const BlockScore = ({
 	score,
@@ -31,11 +32,12 @@ export const BlockScore = ({
 	sinceText,
 	noScoreText,
 	noChangeText,
+	scoreBoundary = [50, 75],
 }: BlockScoreProps) => {
 	const { theme } = useTheme();
 	const textColor = textVariant ? textVariant : "text_appBackground bold";
 
-	const scoreBoundaries = [50, 75]; // TODO: Get this from config?
+	const scoreBoundaries = scoreBoundary;
 
 	const progColor =
 		scored && score < scoreBoundaries[0]
