@@ -1,7 +1,7 @@
 {
 	"name": "@thingco/authentication",
 	"description": "XState-powered auth flows for React",
-	"version": "1.0.6",
+	"version": "2.0.0",
 	"main": "src/index.js",
 	"files": [
 		"src/**"
