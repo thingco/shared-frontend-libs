@@ -8,9 +8,9 @@ export const NavBar = ({ headerLeft, headerRight, ...props }: StackHeaderOptions
 
 	return {
 		headerStyle: {
-			backgroundColor: theme.colors?.appBackground,
+			backgroundColor: theme.colors?.appNav,
 		},
-		headerTintColor: theme.colors?.text_appBackground,
+		headerTintColor: theme.colors?.appNavInactive,
 		headerLeft: () => headerLeft,
 		headerRight: () => headerRight,
 		...props,

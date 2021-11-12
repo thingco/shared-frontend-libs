@@ -21,7 +21,7 @@ export const inputStyles = (colours: ThemeColour, fontSize: ThemeFontSize) => ({
 		...fontSize.base,
 	},
 	focused: {
-		backgroundColor: colours.secondary,
+		backgroundColor: colours.primary,
 	},
 	cell: {
 		height: 40,
