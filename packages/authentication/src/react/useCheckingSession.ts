@@ -9,23 +9,22 @@ import { stateSelectors, contextSelectors } from "./selectors";
 import type { CheckSessionCb } from "./callback-types";
 
 /**
- * The "CheckingForSession" state is always the first stage of authentication. If a
+ * The "CheckingSession" state is always the first stage of authentication. If a
  * session is found, can go straight to device security checks (if device security
  * is turned on). If not, the relevant login flow is initiated.
  *
  * @category React
  */
-export function useCheckingForSession(cb: CheckSessionCb) {
+export function useCheckingSession(cb: CheckSessionCb) {
 	const authenticator = useAuthInterpreter();
 	const error = useSelector(authenticator, contextSelectors.error);
-	const isActive = useSelector(authenticator, stateSelectors.isCheckingForSession!);
+	const isActive = useSelector(authenticator, stateSelectors.isCheckingSession!);
 	const logger = useLogger();
 
 	const [isLoading, setIsLoading] = useState(false);
 
 	const checkSession = useCallback(async () => {
 		setIsLoading(true);
-		// prettier-ignore
 		logger.info("Session check initiated: if it resolves, there is a session present. If not, move to login.");
 		try {
 			const res = await cb();

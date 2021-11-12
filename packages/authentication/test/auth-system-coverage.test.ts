@@ -29,6 +29,6 @@ describe("sanity checks for the overall auth system", () => {
 	});
 
 	it("should start in an initial state of 'CheckingForSession'", () => {
-		expect(machine.initial).toEqual(AuthStateId.CheckingForSession);
+		expect(machine.initial).toEqual(AuthStateId.CheckingSession);
 	});
 });

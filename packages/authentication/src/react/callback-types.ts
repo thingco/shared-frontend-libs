@@ -1,7 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 /**
- * Check for an active session. Failure of request === no session.
+ * Check for an active session. Failure of request === no session, or an expired
+ * session.
+ *
  * @category React
  */
 export type CheckSessionCb = () => Promise<any>;
@@ -9,6 +11,7 @@ export type CheckSessionCb = () => Promise<any>;
 /**
  * Validate a username when using OTP flow. Success will return a user object, failure
  * means no username found.
+ *
  * @category React
  */
 export type ValidateOtpUsernameCb<User> = (username: string) => Promise<User>;
@@ -17,6 +20,7 @@ export type ValidateOtpUsernameCb<User> = (username: string) => Promise<User>;
  * Validate an OTP. Success will return a user object. The user may attempt to enter the
  * OTP a configured number of times (default is three) times; on final failure, they will
  * be bumped back to username input.
+ *
  * @category React
  */
 export type ValidateOtpCb<User> = (user: User, password: string) => Promise<User>;

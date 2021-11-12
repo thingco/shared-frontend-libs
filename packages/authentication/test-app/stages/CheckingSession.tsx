@@ -3,7 +3,7 @@ import uiText from "test-app/ui-copy";
 
 import { AuthStateId } from "core/enums";
 import { checkSessionCb } from "./callback-implementations";
-import { useCheckingForSession } from "core/react/useCheckingForSession";
+import { useCheckingSession } from "core/react/useCheckingSession";
 import { AuthStageSection, Form } from "test-app/Components";
 import { useConfigState } from "test-app/ConfigInjector";
 
@@ -13,8 +13,8 @@ const {
 	},
 } = uiText;
 
-export const CheckingForSession = () => {
-	const { isActive, isLoading, checkSession, error } = useCheckingForSession(checkSessionCb);
+export const CheckingSession = () => {
+	const { isActive, isLoading, checkSession, error } = useCheckingSession(checkSessionCb);
 	const { uiLayout } = useConfigState();
 
 	if (uiLayout === "MOUNT_WHEN_ACTIVE" && !isActive) return null;
@@ -22,7 +22,7 @@ export const CheckingForSession = () => {
 	return (
 		<AuthStageSection isActive={isActive}>
 			<AuthStageSection.Overview
-				stageId={AuthStateId.CheckingForSession}
+				stageId={AuthStateId.CheckingSession}
 				isLoading={isLoading}
 				description={description}
 				errorMsg={error}

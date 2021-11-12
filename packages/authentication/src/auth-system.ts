@@ -1,4 +1,3 @@
-import { createMachine } from "xstate";
 import { createModel } from "xstate/lib/model";
 
 import { AuthStateId } from "./enums";
@@ -8,7 +7,6 @@ import type {
 	AuthMachine,
 	InternalAuthContext,
 	InternalAuthEvent,
-	InternalAuthTypeState,
 } from "./types";
 
 /* ------------------------------------------------------------------------------------------------------ *\
@@ -28,6 +26,7 @@ export const model = createModel<InternalAuthContext, InternalAuthEvent>({
 	deviceSecurityType: "NONE",
 	allowedOtpRetries: 3,
 	pinLength: 4,
+	loginCompleted: false,
 });
 
 /**
@@ -45,8 +44,7 @@ const implementations = {
 			ctx.loginFlowType === "USERNAME_PASSWORD",
 		isDeviceSecurityTypeNone: (ctx: InternalAuthContext) => ctx.deviceSecurityType === "NONE",
 		isDeviceSecurityTypePin: (ctx: InternalAuthContext) => ctx.deviceSecurityType === "PIN",
-		isDeviceSecurityTypeBiometric: (ctx: InternalAuthContext) =>
-			ctx.deviceSecurityType === "BIOMETRIC",
+		userHasCompletedLogin: (ctx: InternalAuthContext) => ctx.loginCompleted,
 	},
 	actions: {
 		assignError: model.assign((_, e) => {
@@ -55,6 +53,7 @@ const implementations = {
 			}
 			return {};
 		}),
+		assignLoginComplete: model.assign({ loginCompleted: true }),
 		assignUser: model.assign((_, e) => {
 			if (
 				e.type === "USERNAME_VALID" ||
@@ -77,6 +76,7 @@ const implementations = {
 			return {};
 		}),
 		clearError: model.assign({ error: undefined }),
+		clearLoginComplete: model.assign({ loginCompleted: false }),
 		clearUser: model.assign({ user: undefined }),
 		clearUsername: model.assign({ username: undefined }),
 	},
@@ -88,18 +88,14 @@ const implementations = {
  *
  * @internal
  */
-export const machine = createMachine<
-	typeof model,
-	InternalAuthContext,
-	InternalAuthEvent,
-	InternalAuthTypeState
->(
+export const machine = model.createMachine(
 	{
 		id: "authSystem",
-		initial: AuthStateId.CheckingForSession,
+		initial: AuthStateId.CheckingSession,
 		context: model.initialContext,
 		states: {
-			[AuthStateId.CheckingForSession]: {
+			[AuthStateId.CheckingSession]: {
+				entry: ["clearLoginComplete"],
 				on: {
 					SESSION_PRESENT: AuthStateId.INTERNAL__deviceSecurityCheck,
 					SESSION_NOT_PRESENT: AuthStateId.INTERNAL__loginFlowCheck,
@@ -109,10 +105,7 @@ export const machine = createMachine<
 				entry: ["clearError"],
 				always: [
 					{ cond: "isOtpLoginFlow", target: AuthStateId.SubmittingOtpUsername },
-					{
-						cond: "isUsernamePasswordLoginFlow",
-						target: AuthStateId.SubmittingUsernameAndPassword,
-					},
+					{ cond: "isUsernamePasswordLoginFlow", target: AuthStateId.SubmittingUsernameAndPassword, },
 				],
 			},
 			[AuthStateId.SubmittingOtpUsername]: {
@@ -122,7 +115,7 @@ export const machine = createMachine<
 						actions: ["assignUser", "assignUsername", "clearError"],
 					},
 					USERNAME_INVALID: {
-						target: undefined,
+						target: AuthStateId.SubmittingOtpUsername,
 						actions: ["assignError"],
 					},
 				},
@@ -131,10 +124,10 @@ export const machine = createMachine<
 				on: {
 					OTP_VALID: {
 						target: AuthStateId.INTERNAL__deviceSecurityCheck,
-						actions: ["clearError"],
+						actions: ["clearError", "assignLoginComplete"],
 					},
 					OTP_INVALID: {
-						target: undefined,
+						target: AuthStateId.SubmittingOtp,
 						actions: ["assignError"],
 					},
 					OTP_INVALID_RETRIES_EXCEEDED: {
@@ -153,14 +146,14 @@ export const machine = createMachine<
 					USERNAME_AND_PASSWORD_VALID: {
 						target: AuthStateId.INTERNAL__deviceSecurityCheck,
 						// REVIEW: unecessary? We're authorised past this point, don't need the `user` but `username` might be useful:
-						actions: ["assignUser", "assignUsername", "clearError"],
+						actions: ["assignLoginComplete", "assignUser", "assignUsername", "clearError"],
 					},
 					USERNAME_AND_PASSWORD_VALID_PASSWORD_CHANGE_REQUIRED: {
 						target: AuthStateId.SubmittingForceChangePassword,
 						actions: ["assignError", "assignUser", "assignUsername"],
 					},
 					USERNAME_AND_PASSWORD_INVALID: {
-						target: undefined,
+						target: AuthStateId.SubmittingUsernameAndPassword,
 						actions: ["assignError"],
 					},
 					FORGOTTEN_PASSWORD: {
@@ -173,10 +166,10 @@ export const machine = createMachine<
 				on: {
 					PASSWORD_CHANGE_SUCCESS: {
 						target: AuthStateId.INTERNAL__deviceSecurityCheck,
-						actions: ["clearError"],
+						actions: ["assignLoginComplete", "clearError"],
 					},
 					PASSWORD_CHANGE_FAILURE: {
-						target: undefined,
+						target: AuthStateId.SubmittingForceChangePassword,
 						actions: ["assignError"],
 					},
 				},
@@ -188,7 +181,7 @@ export const machine = createMachine<
 						actions: ["clearError", "assignUsername"],
 					},
 					PASSWORD_RESET_REQUEST_FAILURE: {
-						target: undefined,
+						target: AuthStateId.ForgottenPasswordRequestingReset,
 						actions: ["assignError"],
 					},
 					GO_BACK: {
@@ -204,7 +197,7 @@ export const machine = createMachine<
 						actions: ["clearError"],
 					},
 					PASSWORD_RESET_FAILURE: {
-						target: undefined,
+						target: AuthStateId.ForgottenPasswordSubmittingReset,
 						actions: ["assignError"],
 					},
 					GO_BACK: AuthStateId.ForgottenPasswordRequestingReset,
@@ -223,12 +216,14 @@ export const machine = createMachine<
 				always: [
 					{ cond: "isDeviceSecurityTypeNone", target: AuthStateId.Authenticated },
 					{ cond: "isDeviceSecurityTypePin", target: AuthStateId.CheckingForPin },
-					// { cond: "isDeviceSecurityTypeBiometric", target: AuthStateId.Authenticated },
 				],
 			},
 			[AuthStateId.CheckingForPin]: {
 				on: {
-					PIN_IS_SET_UP: AuthStateId.SubmittingCurrentPin,
+					PIN_IS_SET_UP: [
+						{ cond: "userHasCompletedLogin", target: AuthStateId.Authenticated },
+						{ target: AuthStateId.SubmittingCurrentPin },
+					],
 					PIN_IS_NOT_SET_UP: AuthStateId.SubmittingNewPin,
 				},
 			},
@@ -239,7 +234,7 @@ export const machine = createMachine<
 						actions: ["clearError"],
 					},
 					PIN_INVALID: {
-						target: undefined,
+						target: AuthStateId.SubmittingCurrentPin,
 						actions: ["assignError"],
 					},
 					REQUEST_PIN_RESET: {
@@ -251,11 +246,11 @@ export const machine = createMachine<
 			[AuthStateId.ForgottenPinRequestingReset]: {
 				on: {
 					PIN_RESET_SUCCESS: {
-						target: AuthStateId.CheckingForSession,
+						target: AuthStateId.CheckingSession,
 						actions: ["clearError"],
 					},
 					PIN_RESET_FAILURE: {
-						target: undefined,
+						target: AuthStateId.ForgottenPinRequestingReset,
 						actions: ["assignError"],
 					},
 					CANCEL_PIN_RESET: {
@@ -271,7 +266,7 @@ export const machine = createMachine<
 						actions: ["clearError"],
 					},
 					NEW_PIN_INVALID: {
-						target: undefined,
+						target: AuthStateId.SubmittingNewPin,
 						actions: ["assignError"],
 					},
 				},
@@ -291,7 +286,7 @@ export const machine = createMachine<
 						actions: ["clearError"],
 					},
 					PASSWORD_CHANGE_FAILURE: {
-						target: undefined,
+						target: AuthStateId.AuthenticatedChangingPassword,
 						actions: ["assignError"],
 					},
 					CANCEL_PASSWORD_CHANGE: AuthStateId.Authenticated,
@@ -309,7 +304,7 @@ export const machine = createMachine<
 						actions: ["clearError"],
 					},
 					PIN_INVALID: {
-						target: undefined,
+						target: AuthStateId.AuthenticatedValidatingPin,
 						actions: ["assignError"],
 					},
 					CANCEL_PIN_CHANGE: {
@@ -325,7 +320,7 @@ export const machine = createMachine<
 						actions: ["clearError"],
 					},
 					PIN_CHANGE_FAILURE: {
-						target: undefined,
+						target: AuthStateId.AuthenticatedChangingPin,
 						actions: ["assignError"],
 					},
 					CANCEL_PIN_CHANGE: {
@@ -341,9 +336,9 @@ export const machine = createMachine<
 			},
 			[AuthStateId.AuthenticatedLoggingOut]: {
 				on: {
-					LOG_OUT_SUCCESS: AuthStateId.CheckingForSession,
+					LOG_OUT_SUCCESS: AuthStateId.CheckingSession,
 					LOG_OUT_FAILURE: {
-						target: undefined,
+						target: AuthStateId.AuthenticatedLoggingOut,
 						actions: ["assignError"],
 					},
 					CANCEL_LOG_OUT: AuthStateId.Authenticated,
@@ -363,5 +358,11 @@ export function createAuthenticationSystem({
 	allowedOtpRetries = 3,
 	pinLength = 4,
 }: AuthConfig = {}): AuthMachine {
-	return machine.withContext({ loginFlowType, deviceSecurityType, allowedOtpRetries, pinLength });
+	return machine.withContext({
+		allowedOtpRetries,
+		deviceSecurityType,
+		loginCompleted: false,
+		loginFlowType,
+		pinLength
+	});
 }

@@ -56,7 +56,7 @@ jest.mock("test-app/stages/callback-implementations", () => ({
 			return Promise.reject();
 		}
 	}),
-	validateOtpCb: jest.fn(async (_, otp) => {
+	validateOtpCb: jest.fn(async (user, otp) => {
 		if (otp === VALID_CODE) {
 			return Promise.resolve(USER_OBJECT);
 		} else {
@@ -81,7 +81,7 @@ const machine = createMachine({
 			},
 			meta: {
 				test: async () => {
-					await currentStateIs(AuthStateId.CheckingForSession);
+					await currentStateIs(AuthStateId.CheckingSession);
 					await currentLoginFlowIs("OTP");
 					await currentDeviceSecurityTypeIs("NONE");
 					await stageErrorIs("n/a");
@@ -273,7 +273,8 @@ describe("authentication test system using OTP and no device security", () => {
 	});
 
 	afterEach(() => {
-		jest.clearAllMocks();
+		// jest.clearAllMocks();
+		globalThis.localStorage.clear();
 	});
 
 	const testPlans = model.getSimplePathPlans();
@@ -282,6 +283,7 @@ describe("authentication test system using OTP and no device security", () => {
 		describe(`authentication test system ${plan.description}`, () => {
 			plan.paths.forEach((path) => {
 				it(path.description, async () => {
+					console.log(`STARTING ${path.description}`);
 					const screen = render(
 						<ConfigInjector
 							initialLoginFlowType="OTP"
@@ -292,6 +294,8 @@ describe("authentication test system using OTP and no device security", () => {
 						</ConfigInjector>
 					);
 					await path.test(screen);
+					console.log(`ENDING ${path.description}`)
+					console.log(`=======${"=".repeat(path.description.length)}`)
 				});
 			});
 		});

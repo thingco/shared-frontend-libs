@@ -32,23 +32,23 @@ describe("authentication test system using OTP (ignoring device security)", () =
 
 	const machine = createMachine({
 		id: "otpNoPin",
-		initial: "checkingSession",
+		initial: "CheckingSession",
 		states: {
-			checkingSession: {
+			CheckingSession: {
 				on: {
 					THERE_IS_A_SESSION: "Authenticated",
-					THERE_IS_NO_SESSION: "submittingUsername",
+					THERE_IS_NO_SESSION: "SubmittingUsername",
 				},
 				meta: {
 					test: async (service: AuthInterpreter) => {
-						expect(service.state.matches(AuthStateId.CheckingForSession));
+						expect(service.state.matches(AuthStateId.CheckingSession));
 					},
 				},
 			},
-			submittingUsername: {
+			SubmittingUsername: {
 				on: {
-					GOOD_USERNAME: "submittingOtp1",
-					BAD_USERNAME: "usernameError",
+					GOOD_USERNAME: "SubmittingOtp1",
+					BAD_USERNAME: "UsernameError",
 				},
 				meta: {
 					test: async (service: AuthInterpreter) => {
@@ -56,9 +56,9 @@ describe("authentication test system using OTP (ignoring device security)", () =
 					},
 				},
 			},
-			submittingUsernameAfterTooManyRetries: {
+			SubmittingUsernameAfterTooManyRetries: {
 				on: {
-					GOOD_USERNAME: "submittingOtp1",
+					GOOD_USERNAME: "SubmittingOtp1",
 				},
 				meta: {
 					test: async (service: AuthInterpreter) => {
@@ -67,9 +67,9 @@ describe("authentication test system using OTP (ignoring device security)", () =
 					},
 				},
 			},
-			usernameError: {
+			UsernameError: {
 				on: {
-					GOOD_USERNAME: "submittingOtp1",
+					GOOD_USERNAME: "SubmittingOtp1",
 				},
 				meta: {
 					test: async (service: AuthInterpreter) => {
@@ -78,11 +78,11 @@ describe("authentication test system using OTP (ignoring device security)", () =
 					},
 				},
 			},
-			submittingOtp1: {
+			SubmittingOtp1: {
 				on: {
 					GOOD_OTP: "Authenticated",
-					BAD_OTP_1: "submittingOtp2",
-					REENTER_USERNAME: "submittingUsername",
+					BAD_OTP_1: "SubmittingOtp2",
+					REENTER_USERNAME: "SubmittingUsername",
 				},
 				meta: {
 					test: async (service: AuthInterpreter) => {
@@ -92,9 +92,9 @@ describe("authentication test system using OTP (ignoring device security)", () =
 					},
 				},
 			},
-			submittingOtp2: {
+			SubmittingOtp2: {
 				on: {
-					BAD_OTP_2: "submittingOtp3",
+					BAD_OTP_2: "SubmittingOtp3",
 				},
 				meta: {
 					test: async (service: AuthInterpreter) => {
@@ -105,9 +105,9 @@ describe("authentication test system using OTP (ignoring device security)", () =
 					},
 				},
 			},
-			submittingOtp3: {
+			SubmittingOtp3: {
 				on: {
-					BAD_OTP_3: "submittingUsernameAfterTooManyRetries",
+					BAD_OTP_3: "SubmittingUsernameAfterTooManyRetries",
 				},
 				meta: {
 					test: async (service: AuthInterpreter) => {
@@ -130,7 +130,7 @@ describe("authentication test system using OTP (ignoring device security)", () =
 			},
 			AuthenticatedLoggingOut: {
 				on: {
-					LOG_OUT_WORKED: "checkingSession",
+					LOG_OUT_WORKED: "CheckingSession",
 					LOG_OUT_FAILED: "Authenticated",
 					ACTUALLY_NO_STAY_LOGGED_IN: "Authenticated",
 				},
@@ -187,25 +187,25 @@ describe("authentication test system using username and password (ignoring devic
 
 	const machine = createMachine({
 		id: "usernamePasswordNoPin",
-		initial: "checkingSession",
+		initial: "CheckingSession",
 		states: {
-			checkingSession: {
+			CheckingSession: {
 				on: {
 					THERE_IS_A_SESSION: "Authenticated",
-					THERE_IS_NO_SESSION: "submittingUsernameAndPassword",
+					THERE_IS_NO_SESSION: "SubmittingUsernameAndPassword",
 				},
 				meta: {
 					test: async (service: AuthInterpreter) => {
-						expect(service.state.matches(AuthStateId.CheckingForSession));
+						expect(service.state.matches(AuthStateId.CheckingSession));
 					},
 				},
 			},
-			submittingUsernameAndPassword: {
+			SubmittingUsernameAndPassword: {
 				on: {
 					GOOD_LOGIN: "Authenticated",
-					GOOD_LOGIN_BUT_YOU_HAVE_A_TEMPORARY_PASSWORD: "submittingChangeTemporaryPassword",
-					BAD_LOGIN: "usernameAndPasswordError",
-					FORGOT_PASSWORD: "forgotPasswordRequestANewOne",
+					GOOD_LOGIN_BUT_YOU_HAVE_A_TEMPORARY_PASSWORD: "SubmittingChangeTemporaryPassword",
+					BAD_LOGIN: "UsernameAndPasswordError",
+					FORGOT_PASSWORD: "ForgotPasswordRequestANewOne",
 				},
 				meta: {
 					test: async (service: AuthInterpreter) => {
@@ -213,7 +213,7 @@ describe("authentication test system using username and password (ignoring devic
 					},
 				},
 			},
-			usernameAndPasswordError: {
+			UsernameAndPasswordError: {
 				on: {
 					GOOD_LOGIN_ON_SECOND_ATTEMPT: "Authenticated",
 				},
@@ -224,10 +224,10 @@ describe("authentication test system using username and password (ignoring devic
 					},
 				},
 			},
-			submittingChangeTemporaryPassword: {
+			SubmittingChangeTemporaryPassword: {
 				on: {
 					ATTEMPT_TO_CHANGE_TEMPORARY_PASSWORD_SUCCEEDED: "Authenticated",
-					ATTEMPT_TO_CHANGE_TEMPORARY_PASSWORD_FAILED: "submittingChangeTemporaryPasswordError",
+					ATTEMPT_TO_CHANGE_TEMPORARY_PASSWORD_FAILED: "SubmittingChangeTemporaryPasswordError",
 				},
 				meta: {
 					test: async (service: AuthInterpreter) => {
@@ -236,7 +236,7 @@ describe("authentication test system using username and password (ignoring devic
 					},
 				},
 			},
-			submittingChangeTemporaryPasswordError: {
+			SubmittingChangeTemporaryPasswordError: {
 				on: {
 					ATTEMPT_TO_CHANGE_TEMPORARY_PASSWORD_SUCCEEDED_ON_SECOND_ATTEMPT: "Authenticated",
 				},
@@ -247,10 +247,10 @@ describe("authentication test system using username and password (ignoring devic
 					},
 				},
 			},
-			forgotPasswordRequestANewOne: {
+			ForgotPasswordRequestANewOne: {
 				on: {
-					RESET_CODE_REQUEST_SUCCESS: "forgotPasswordSubmitANewOne",
-					RESET_CODE_REQUEST_FAILURE: "forgotPasswordRequestANewOneError",
+					RESET_CODE_REQUEST_SUCCESS: "ForgotPasswordSubmitANewOne",
+					RESET_CODE_REQUEST_FAILURE: "ForgotPasswordRequestANewOneError",
 				},
 				meta: {
 					test: async (service: AuthInterpreter) => {
@@ -258,9 +258,9 @@ describe("authentication test system using username and password (ignoring devic
 					},
 				},
 			},
-			forgotPasswordRequestANewOneError: {
+			ForgotPasswordRequestANewOneError: {
 				on: {
-					RESET_CODE_REQUEST_SUCCESS_ON_SECOND_ATTEMPT: "forgotPasswordSubmitANewOne",
+					RESET_CODE_REQUEST_SUCCESS_ON_SECOND_ATTEMPT: "ForgotPasswordSubmitANewOne",
 				},
 				meta: {
 					test: async (service: AuthInterpreter) => {
@@ -269,10 +269,10 @@ describe("authentication test system using username and password (ignoring devic
 					},
 				},
 			},
-			forgotPasswordSubmitANewOne: {
+			ForgotPasswordSubmitANewOne: {
 				on: {
 					RESET_CODE_AND_NEW_PASSWORD_ARE_FINE: "Authenticated",
-					RESET_CODE_AND_NEW_PASSWORD_ARE_NOT_FINE: "forgotPasswordSubmitANewOneError",
+					RESET_CODE_AND_NEW_PASSWORD_ARE_NOT_FINE: "ForgotPasswordSubmitANewOneError",
 				},
 				meta: {
 					test: async (service: AuthInterpreter) => {
@@ -280,7 +280,7 @@ describe("authentication test system using username and password (ignoring devic
 					},
 				},
 			},
-			forgotPasswordSubmitANewOneError: {
+			ForgotPasswordSubmitANewOneError: {
 				on: {
 					RESET_CODE_AND_NEW_PASSWORD_ARE_FINE_ON_SECOND_ATTEMPT: "Authenticated",
 				},
@@ -303,7 +303,7 @@ describe("authentication test system using username and password (ignoring devic
 					},
 				},
 			},
-			submitPasswordChange: {
+			SubmitPasswordChange: {
 				on: {
 					PASSWORD_CHANGE_IS_FINE: "Authenticated",
 					CANCEL_PASSWORD_CHANGE: "Authenticated",
@@ -317,7 +317,7 @@ describe("authentication test system using username and password (ignoring devic
 			Authenticated: {
 				on: {
 					CAN_I_LOG_OUT_PLEASE: "AuthenticatedLoggingOut",
-					CAN_I_CHANGE_MY_PASSWORD: "submitPasswordChange",
+					CAN_I_CHANGE_MY_PASSWORD: "SubmitPasswordChange",
 				},
 				meta: {
 					test: async (service: AuthInterpreter) => {
@@ -327,7 +327,7 @@ describe("authentication test system using username and password (ignoring devic
 			},
 			AuthenticatedLoggingOut: {
 				on: {
-					LOG_OUT_WORKED: "checkingSession",
+					LOG_OUT_WORKED: "CheckingSession",
 					LOG_OUT_FAILED: "Authenticated",
 					ACTUALLY_NO_STAY_LOGGED_IN: "Authenticated",
 				},
@@ -387,38 +387,30 @@ describe("authentication test system using username and password (ignoring devic
 	});
 });
 
-describe("authentication test system for PIN (ignoring login flow)", () => {
+describe("authentication test system for PIN (user has session)", () => {
 	const subject = createAuthenticationSystem({
 		loginFlowType: "OTP",
 		deviceSecurityType: "PIN",
 	});
 
 	const machine = createMachine({
-		id: "otpWithPin",
-		initial: "checkingSession",
+		id: "otpValidSessionWithPin",
+		initial: "CheckingSession",
 		states: {
-			checkingSession: {
+			CheckingSession: {
 				on: {
 					THERE_IS_A_SESSION: "CheckingForPin",
-					THERE_IS_NO_SESSION: "otpFlowStart",
 				},
 				meta: {
 					test: async (service: AuthInterpreter) => {
-						expect(service.state.matches(AuthStateId.CheckingForSession));
-					},
-				},
-			},
-			otpFlowStart: {
-				meta: {
-					test: async (service: AuthInterpreter) => {
-						expect(service.state.matches(AuthStateId.SubmittingOtpUsername));
+						expect(service.state.matches(AuthStateId.CheckingSession));
 					},
 				},
 			},
 			CheckingForPin: {
 				on: {
-					THERE_IS_A_PIN_SET: "submitCurrentPin",
-					THERE_IS_NO_PIN_SET: "setANewPin",
+					THERE_IS_A_PIN_SET: "SubmitCurrentPin",
+					THERE_IS_NO_PIN_SET: "SetANewPin",
 				},
 				meta: {
 					test: async (service: AuthInterpreter) => {
@@ -426,11 +418,11 @@ describe("authentication test system for PIN (ignoring login flow)", () => {
 					},
 				},
 			},
-			submitCurrentPin: {
+			SubmitCurrentPin: {
 				on: {
 					PIN_SUBMITTED_WAS_CORRECT: "Authenticated",
-					PIN_SUBMITTED_WAS_NOT_CORRECT: "incorrectCurrentPin",
-					I_FORGOT_MY_PIN: "resetPin",
+					PIN_SUBMITTED_WAS_NOT_CORRECT: "IncorrectCurrentPin",
+					I_FORGOT_MY_PIN: "ResetPin",
 				},
 				meta: {
 					test: async (service: AuthInterpreter) => {
@@ -438,30 +430,7 @@ describe("authentication test system for PIN (ignoring login flow)", () => {
 					},
 				},
 			},
-			resetPin: {
-				on: {
-					RESET_OF_PIN_SUCCEEDED: "checkingSession",
-					RESET_OF_PIN_FAILED: "resetPinError",
-					NO_ACTUALLY_CANCEL_THAT_RESET_REQUEST: "submitCurrentPin",
-				},
-				meta: {
-					test: async (service: AuthInterpreter) => {
-						expect(service.state.matches(AuthStateId.ForgottenPinRequestingReset));
-					},
-				},
-			},
-			resetPinError: {
-				on: {
-					SECOND_RESET_ATTEMPT_SUCCEEDED: "checkingSession",
-				},
-				meta: {
-					test: async (service: AuthInterpreter) => {
-						expect(service.state.matches(AuthStateId.ForgottenPinRequestingReset));
-						expect(service.state.context.error).toBe("PIN_RESET_FAILURE" as AuthError);
-					},
-				},
-			},
-			incorrectCurrentPin: {
+			IncorrectCurrentPin: {
 				on: {
 					PIN_SUBMITTED_WAS_CORRECT_ON_SECOND_ATTEMPT: "Authenticated",
 				},
@@ -472,10 +441,33 @@ describe("authentication test system for PIN (ignoring login flow)", () => {
 					},
 				},
 			},
-			setANewPin: {
+			ResetPin: {
+				on: {
+					RESET_OF_PIN_SUCCEEDED: "CheckingSession",
+					RESET_OF_PIN_FAILED: "ResetPinError",
+					NO_ACTUALLY_CANCEL_THAT_RESET_REQUEST: "SubmitCurrentPin",
+				},
+				meta: {
+					test: async (service: AuthInterpreter) => {
+						expect(service.state.matches(AuthStateId.ForgottenPinRequestingReset));
+					},
+				},
+			},
+			ResetPinError: {
+				on: {
+					SECOND_RESET_ATTEMPT_SUCCEEDED: "CheckingSession",
+				},
+				meta: {
+					test: async (service: AuthInterpreter) => {
+						expect(service.state.matches(AuthStateId.ForgottenPinRequestingReset));
+						expect(service.state.context.error).toBe("PIN_RESET_FAILURE" as AuthError);
+					},
+				},
+			},
+			SetANewPin: {
 				on: {
 					NEW_PIN_IS_FINE: "Authenticated",
-					NEW_PIN_IS_NOT_FINE: "errorSettingNewPin",
+					NEW_PIN_IS_NOT_FINE: "ErrorSettingNewPin",
 				},
 				meta: {
 					test: async (service: AuthInterpreter) => {
@@ -483,7 +475,7 @@ describe("authentication test system for PIN (ignoring login flow)", () => {
 					},
 				},
 			},
-			errorSettingNewPin: {
+			ErrorSettingNewPin: {
 				on: {
 					NEW_PIN_IS_FINE_ON_SECOND_ATTEMPT: "Authenticated",
 				},
@@ -494,10 +486,10 @@ describe("authentication test system for PIN (ignoring login flow)", () => {
 					},
 				},
 			},
-			validatePin: {
+			ValidatePin: {
 				on: {
-					PIN_SUBMITTED_WAS_CORRECT: "changeCurrentPin",
-					PIN_SUBMITTED_WAS_NOT_CORRECT: "incorrectCurrentPin",
+					PIN_SUBMITTED_WAS_CORRECT: "ChangeCurrentPin",
+					PIN_SUBMITTED_WAS_NOT_CORRECT: "IncorrectCurrentPin",
 					ACTUALLY_CANCEL_THAT_PIN_CHANGE_REQUEST: "Authenticated",
 				},
 				meta: {
@@ -506,10 +498,10 @@ describe("authentication test system for PIN (ignoring login flow)", () => {
 					},
 				},
 			},
-			changeCurrentPin: {
+			ChangeCurrentPin: {
 				on: {
 					PIN_CHANGE_SUCCEEDED: "Authenticated",
-					PIN_CHANGE_FAILED: "errorChangingCurrentPin",
+					PIN_CHANGE_FAILED: "ErrorChangingCurrentPin",
 					ACTUALLY_CANCEL_THAT_PIN_CHANGE_REQUEST: "Authenticated",
 				},
 				meta: {
@@ -518,7 +510,7 @@ describe("authentication test system for PIN (ignoring login flow)", () => {
 					},
 				},
 			},
-			errorChangingCurrentPin: {
+			ErrorChangingCurrentPin: {
 				on: {
 					PIN_CHANGE_SUCCEEDED_ON_SECOND_ATTEMPT: "Authenticated",
 				},
@@ -531,7 +523,7 @@ describe("authentication test system for PIN (ignoring login flow)", () => {
 			},
 			Authenticated: {
 				on: {
-					CHANGE_CURRENT_PIN_PLEASE: "validatePin",
+					CHANGE_CURRENT_PIN_PLEASE: "ValidatePin",
 				},
 				meta: {
 					test: async (service: AuthInterpreter) => {
@@ -544,7 +536,6 @@ describe("authentication test system for PIN (ignoring login flow)", () => {
 
 	const model = createModel(machine).withEvents({
 		THERE_IS_A_SESSION: doSend({ type: "SESSION_PRESENT" }),
-		THERE_IS_NO_SESSION: doSend({ type: "SESSION_NOT_PRESENT" }),
 		THERE_IS_A_PIN_SET: doSend({ type: "PIN_IS_SET_UP" }),
 		THERE_IS_NO_PIN_SET: doSend({ type: "PIN_IS_NOT_SET_UP" }),
 		PIN_SUBMITTED_WAS_CORRECT: doSend({ type: "PIN_VALID" }),
@@ -563,6 +554,92 @@ describe("authentication test system for PIN (ignoring login flow)", () => {
 		PIN_CHANGE_SUCCEEDED_ON_SECOND_ATTEMPT: doSend({ type: "PIN_CHANGE_SUCCESS" }),
 		ACTUALLY_CANCEL_THAT_PIN_CHANGE_REQUEST: doSend({ type: "CANCEL_PIN_CHANGE" }),
 		CHANGE_CURRENT_PIN_PLEASE: doSend({ type: "REQUEST_PIN_CHANGE" }),
+	});
+
+	const testPlans = model.getSimplePathPlans();
+
+	testPlans.forEach((plan) => {
+		describe(`authentication test system ${plan.description}`, () => {
+			plan.paths.forEach((path) => {
+				it(path.description, async () => {
+					const service = interpret(subject);
+					service.start();
+					await path.test(service);
+				});
+			});
+		});
+	});
+
+	it("should have full coverage", () => {
+		return model.testCoverage();
+	});
+});
+
+describe("authentication test system for PIN (user requires authentication but has a PIN)", () => {
+	const subject = createAuthenticationSystem({
+		loginFlowType: "OTP",
+		deviceSecurityType: "PIN",
+	});
+
+	const machine = createMachine({
+		id: "otpRequiredPinExtant",
+		initial: "CheckingSession",
+		states: {
+			CheckingSession: {
+				on: {
+					THERE_IS_NO_SESSION: "OtpFlowStart",
+				},
+				meta: {
+					test: async (service: AuthInterpreter) => {
+						expect(service.state.matches(AuthStateId.CheckingSession));
+					},
+				},
+			},
+			OtpFlowStart: {
+				on: {
+					USERNAME_VALID: "CompleteOtpFlow"
+				},
+				meta: {
+					test: async (service: AuthInterpreter) => {
+						expect(service.state.matches(AuthStateId.SubmittingOtpUsername));
+					},
+				},
+			},
+			CompleteOtpFlow: {
+				on: {
+					OTP_VALID: "CheckingForPin"
+				},
+				meta: {
+					test: async (service: AuthInterpreter) => {
+						expect(service.state.matches(AuthStateId.SubmittingOtpUsername));
+					},
+				},
+			},
+			CheckingForPin: {
+				on: {
+					THERE_IS_A_PIN_SET: "Authenticated",
+				},
+				meta: {
+					test: async (service: AuthInterpreter) => {
+						expect(service.state.matches(AuthStateId.CheckingForPin));
+					},
+				},
+			},
+			Authenticated: {
+				meta: {
+					test: async (service: AuthInterpreter) => {
+						expect(service.state.matches(AuthStateId.Authenticated));
+					},
+				},
+			},
+		},
+	});
+
+	const model = createModel(machine).withEvents({
+		THERE_IS_NO_SESSION: doSend({ type: "SESSION_NOT_PRESENT" }),
+		THERE_IS_A_PIN_SET: doSend({ type: "PIN_IS_SET_UP" }),
+		GOOD_USERNAME: doSend({ type: "USERNAME_VALID", username: VALID_USERNAME, user: USER_OBJECT }),
+		GOOD_OTP: doSend({ type: "OTP_VALID" }),
 	});
 
 	const testPlans = model.getSimplePathPlans();

@@ -2,7 +2,7 @@
  * The available states of the auth system FSM
  */
 export enum AuthStateId {
-	CheckingForSession = "CheckingForSession",
+	CheckingSession = "CheckingSession",
 	INTERNAL__loginFlowCheck = "INTERNAL__loginFlowCheck",
 	SubmittingOtpUsername = "SubmittingOtpUsername",
 	SubmittingOtp = "SubmittingOtp",

@@ -8,7 +8,6 @@ export * from "./useAuthenticatedPasswordChangeSuccess";
 export * from "./useAuthenticatedPinChangeSuccess";
 export * from "./useAuthenticatedValidatingPin";
 export * from "./useCheckingForPin";
-export * from "./useCheckingForSession";
 export * from "./useForgottenPasswordRequestingReset";
 export * from "./useForgottenPasswordResetSuccess";
 export * from "./useForgottenPasswordSubmittingReset";

@@ -1,5 +1,4 @@
 import { machine, model } from "./auth-system";
-import { AuthStateId } from "./enums";
 
 import type { ContextFrom, EventFrom, InterpreterFrom, StateFrom } from "xstate";
 /**
@@ -38,24 +37,24 @@ import type { ContextFrom, EventFrom, InterpreterFrom, StateFrom } from "xstate"
  */
 export type InternalAuthContext = {
 	/**
-	 * An error message sent to the machine in response to an API call rejection.
-	 */
-	error?: AuthError;
-	/**
-	 * @defaultValue `"OTP"`
-	 */
-	loginFlowType: LoginFlowType;
-	/**
-	 * @defaultValue `"NONE"`
-	 */
-	deviceSecurityType: DeviceSecurityType;
-	/**
 	 * If an OTP login flow is being used, defines how many retries are allowed before
 	 * a user is bumped back to the start of the login process.
 	 *
 	 * @defaultValue `3`
 	 */
 	allowedOtpRetries: number;
+	/**
+	 * An error message sent to the machine in response to an API call rejection.
+	 */
+	error?: AuthError;
+	/**
+	 * @defaultValue `"NONE"`
+	 */
+	deviceSecurityType: DeviceSecurityType;
+	/**
+	 * @defaultValue `"OTP"`
+	 */
+	loginFlowType: LoginFlowType;
 	/**
 	 * If PIN device security is active, defines the length of the PIN.
 	 *
@@ -69,7 +68,7 @@ export type InternalAuthContext = {
 	 * The username may be a one defined by the user, or it may be an email address,
 	 * or it may be a phonenumber. It's stored in the context between some stages
 	 * to allow it to be passed implicitly into states that require it rather than
-	 * making the user reenter it every time.
+	 * making the user reenter it every time (see the `sessionExpired` flag).
 	 */
 	username?: string;
 	/**
@@ -82,7 +81,32 @@ export type InternalAuthContext = {
 	 * be split out, rather than needing all logic in a single stage.
 	 */
 	user?: any;
+	/**
+	 * Whether the user is going through the login flow.
+	 *
+	 * @remarks
+	 * This is important when get to device security: if the user has gone through
+	 * the login flow, but already has a PIN set on the device, there should be no
+	 * reason to ask them to enter the PIN, they are already validated. On
+	 * subsequent run-throughs,  they will have a session, so will go straight to
+	 * the PIN screen.
+	 */
+	loginCompleted: boolean;
 };
+
+
+/**
+ * NEW lets try to reduce the events down to just basics, there are far too many
+ */
+export type NewInternalAuthEvent =
+	| { type: "API_SUCCESS_RESPONSE"; payload?: Partial<AuthContext>; }
+	| { type: "API_SUCCESS_RESPONSE_WITH_WARNING"; payload?: Partial<AuthContext>; error: AuthError; }
+	| { type: "API_FAILURE_RESPONSE"; error: AuthError; }
+	| { type: "CANCEL_AND_GO_BACK" }
+	| { type: "CONFIRM_AND_CONTINUE" }
+	| { type: "REQUEST_LOG_OUT" }
+	| { type: "REQUEST_PASSWORD_CHANGE" }
+	| { type: "REQUEST_PIN_CHANGE" }
 
 /**
  * The available events to trigger state changes in the auth system FSM
@@ -93,13 +117,10 @@ export type InternalAuthEvent =
 	| { type: "SESSION_PRESENT" }
 	| { type: "SESSION_NOT_PRESENT" }
 	| { type: "USERNAME_VALID"; username: string; user: any }
-	// REVIEW: WHY is it invalid?
 	| { type: "USERNAME_INVALID"; error: "USERNAME_INVALID" }
 	| { type: "OTP_VALID" }
-	// REVIEW: WHY is it invalid?
 	| { type: "OTP_INVALID"; error: `PASSWORD_INVALID_${number}_RETRIES_REMAINING` }
 	| { type: "OTP_INVALID_RETRIES_EXCEEDED"; error: "PASSWORD_RETRIES_EXCEEDED" }
-	// REVIEW: unecessary? We're authorised past this point, don't need the `user` but `username` might be useful:
 	| { type: "USERNAME_AND_PASSWORD_VALID"; username: string; user: any }
 	| {
 			type: "USERNAME_AND_PASSWORD_VALID_PASSWORD_CHANGE_REQUIRED";
@@ -107,25 +128,20 @@ export type InternalAuthEvent =
 			username: string;
 			error: "PASSWORD_CHANGE_REQUIRED";
 	  }
-	// REVIEW: WHICH ONE is invalid?
 	| { type: "USERNAME_AND_PASSWORD_INVALID"; error: "USERNAME_AND_PASSWORD_INVALID" }
 	| { type: "GO_BACK" }
 	| { type: "FORGOTTEN_PASSWORD" }
 	| { type: "PASSWORD_CHANGE_SUCCESS" }
-	// REVIEW: WHY did it fail?
 	| { type: "PASSWORD_CHANGE_FAILURE"; error: "PASSWORD_CHANGE_FAILURE" }
 	| { type: "CANCEL_PASSWORD_CHANGE" }
 	| { type: "PASSWORD_RESET_REQUEST_SUCCESS"; username: string }
 	| { type: "CANCEL_PASSWORD_CHANGE" }
 	| { type: "CONFIRM_PASSWORD_RESET" }
 	| { type: "CONFIRM_PASSWORD_CHANGE" }
-	// REVIEW: WHY did it fail?
 	| { type: "PASSWORD_RESET_REQUEST_FAILURE"; error: "PASSWORD_RESET_REQUEST_FAILURE" }
 	| { type: "PASSWORD_RESET_SUCCESS" }
-	// REVIEW: WHY did it fail?
 	| { type: "PASSWORD_RESET_FAILURE"; error: "PASSWORD_RESET_FAILURE" }
 	| { type: "LOG_OUT_SUCCESS" }
-	// REVIEW: WHY did it fail?
 	| { type: "LOG_OUT_FAILURE"; error: "LOG_OUT_FAILURE" }
 	| { type: "CANCEL_LOG_OUT" }
 	| { type: "REQUEST_LOG_OUT" }
@@ -133,14 +149,11 @@ export type InternalAuthEvent =
 	| { type: "PIN_IS_SET_UP" }
 	| { type: "PIN_IS_NOT_SET_UP" }
 	| { type: "PIN_VALID" }
-	// REVIEW: WHY is it invalid?
 	| { type: "PIN_INVALID"; error: "PIN_INVALID" }
 	| { type: "NEW_PIN_VALID" }
-	// REVIEW: WHY is it invalid?
 	| { type: "NEW_PIN_INVALID"; error: "NEW_PIN_INVALID" }
 	| { type: "PIN_CHANGE_SUCCESS" }
 	| { type: "CONFIRM_PIN_CHANGE" }
-	// REVIEW: WHY did it fail?
 	| { type: "PIN_CHANGE_FAILURE"; error: "PIN_CHANGE_FAILURE" }
 	| { type: "CANCEL_PIN_CHANGE" }
 	| { type: "REQUEST_PIN_RESET" }
@@ -148,60 +161,6 @@ export type InternalAuthEvent =
 	| { type: "PIN_RESET_FAILURE"; error: "PIN_RESET_FAILURE" }
 	| { type: "CANCEL_PIN_RESET" }
 	| { type: "REQUEST_PIN_CHANGE" };
-
-/**
- * The type states for the auth system FSM. These specify what the context should look
- * like for each state, *ie* at each point in time.
- *
- * @internal
- */
-export type InternalAuthTypeState =
-	| { value: AuthStateId.CheckingForSession; context: InternalAuthContext }
-	| { value: AuthStateId.SubmittingOtpUsername; context: InternalAuthContext }
-	| {
-			value: AuthStateId.SubmittingOtp;
-			context: InternalAuthContext & { user: any; username: string };
-	  }
-	| { value: AuthStateId.SubmittingUsernameAndPassword; context: InternalAuthContext }
-	| {
-			value: AuthStateId.SubmittingForceChangePassword;
-			context: InternalAuthContext & { user: any; username: string; error: AuthError };
-	  }
-	| {
-			value: AuthStateId.AuthenticatedChangingPassword;
-			context: InternalAuthContext & { username: string };
-	  }
-	| { value: AuthStateId.ForgottenPasswordRequestingReset; context: InternalAuthContext }
-	| {
-			value: AuthStateId.ForgottenPasswordSubmittingReset;
-			context: InternalAuthContext & { username: string };
-	  }
-	| { value: AuthStateId.AuthenticatedPasswordChangeSuccess; context: InternalAuthContext }
-	| { value: AuthStateId.AuthenticatedPinChangeSuccess; context: InternalAuthContext }
-	| {
-			value: AuthStateId.ForgottenPasswordResetSuccess;
-			context: InternalAuthContext & { username: string };
-	  }
-	| { value: AuthStateId.CheckingForPin; context: InternalAuthContext & { username?: string } }
-	| {
-			value: AuthStateId.SubmittingCurrentPin;
-			context: InternalAuthContext & { username?: string };
-	  }
-	| { value: AuthStateId.ForgottenPinRequestingReset; context: InternalAuthContext }
-	| { value: AuthStateId.SubmittingNewPin; context: InternalAuthContext & { username?: string } }
-	| {
-			value: AuthStateId.AuthenticatedValidatingPin;
-			context: InternalAuthContext & { username?: string };
-	  }
-	| {
-			value: AuthStateId.AuthenticatedChangingPin;
-			context: InternalAuthContext & { username?: string };
-	  }
-	| {
-			value: AuthStateId.AuthenticatedLoggingOut;
-			context: InternalAuthContext & { username?: string };
-	  }
-	| { value: AuthStateId.Authenticated; context: InternalAuthContext & { username?: string } };
 
 /**
  * The core strategy used for authentication against the external
@@ -252,9 +211,9 @@ export type AuthError =
  * pass into it.
  */
 export type AuthConfig = {
-	loginFlowType?: LoginFlowType;
-	deviceSecurityType?: DeviceSecurityType;
 	allowedOtpRetries?: number;
+	deviceSecurityType?: DeviceSecurityType;
+	loginFlowType?: LoginFlowType;
 	pinLength?: number;
 };
 

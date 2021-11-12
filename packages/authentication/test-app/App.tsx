@@ -169,7 +169,7 @@ export const Authentication = () => {
 			>
 				<AuthenticationOverview />
 				<main className="auth-stages">
-					<AuthStage.CheckingForSession />
+					<AuthStage.CheckingSession />
 					<AuthStage.SubmittingOtpUsername />
 					<AuthStage.SubmittingOtp />
 					<AuthStage.SubmittingUsernameAndPassword />

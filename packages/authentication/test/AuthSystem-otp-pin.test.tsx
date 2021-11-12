@@ -111,7 +111,7 @@ const machine = createMachine({
 			},
 			meta: {
 				test: async () => {
-					await currentStateIs(AuthStateId.CheckingForSession);
+					await currentStateIs(AuthStateId.CheckingSession);
 					await currentLoginFlowIs("OTP");
 					await currentDeviceSecurityTypeIs("PIN");
 					await stageErrorIs("n/a");
