@@ -17,10 +17,10 @@ export const BlockScoreSmall = ({ score, scored, angle = 0.8, size = 70 }: Block
 
 	const progColor =
 		scored && score < scoreBoundaries[0]
-			? theme.colors?.warn_1
+			? theme.colors?.appError
 			: scored && score < scoreBoundaries[1]
-			? theme.colors?.warn_2
-			: theme.colors?.primary;
+			? theme.colors?.appErrorLight
+			: theme.colors?.appSuccess;
 
 	return (
 		<View

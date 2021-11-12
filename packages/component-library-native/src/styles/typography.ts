@@ -45,12 +45,12 @@ export type ThemeButtonText = ReturnType<typeof buttonText>;
 export const inputText = (colours: ThemeColour, fontSizes: ThemeFontSize) => ({
 	primary: {
 		...fontSizes.large,
-		color: colours.text_primary_dark,
+		color: colours.text_primary,
 		marginTop: 10,
 	},
 	secondary: {
 		...fontSizes.small,
-		color: colours.text_secondary_dark,
+		color: colours.text_secondary,
 		marginTop: 5,
 	},
 	light: {
@@ -94,12 +94,12 @@ export const text = (colours: ThemeColour, fontSizes: ThemeFontSize) => ({
 		...fontSizes.xxsmall,
 	},
 	hint: {
-		color: colours.greyscale50,
+		color: colours.text_appBackground,
 		...fontSizes.xsmall,
 		marginLeft: 5,
 	},
 	error: {
-		color: colours.errorLight,
+		color: colours.appError,
 		...fontSizes.xsmall,
 		marginLeft: 5,
 	},

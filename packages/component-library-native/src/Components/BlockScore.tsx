@@ -41,10 +41,10 @@ export const BlockScore = ({
 
 	const progColor =
 		scored && score < scoreBoundaries[0]
-			? theme.colors?.warn_1
+			? theme.colors?.appError
 			: scored && score < scoreBoundaries[1]
-			? theme.colors?.warn_2
-			: theme.colors?.primary;
+			? theme.colors?.appErrorLight
+			: theme.colors?.appSuccess;
 
 	const change = blockChange ? _.round(blockChange, 0) : undefined;
 	const showChange = change ? Math.abs(change) : undefined;
@@ -53,10 +53,17 @@ export const BlockScore = ({
 
 	if (blockChange && change !== 0 && from) {
 		since = (
-			<View style={{ display: "flex", flexDirection: "row" }}>
+			<View
+				style={{
+					display: "flex",
+					flexDirection: "row",
+					justifyContent: "center",
+					alignItems: "center",
+				}}
+			>
 				<LineIcon
 					iconType={blockChange > 0 ? "up-arrow" : "down-arrow"}
-					stroke={theme.colors?.warn_2}
+					stroke={blockChange > 0 ? theme.colors?.appSuccess : theme.colors?.appErrorLight}
 					size={20}
 					strokeWidth={4}
 					style={{ marginRight: 5 }}
@@ -92,7 +99,7 @@ export const BlockScore = ({
 				}}
 				progress={score / 100}
 				progressColor={progColor}
-				backgroundColor={theme.colors?.greyscale600}
+				backgroundColor={theme.colors?.appGauge}
 				startAngle={-Math.PI * angle}
 				endAngle={Math.PI * angle}
 				strokeWidth={size / 20}
@@ -138,7 +145,7 @@ export const BlockScoreEmpty = ({ size, angle = 0.8 }: BlockScoreEmptyProps) => 
 				}}
 				progress={0}
 				progressColor={"transparent"}
-				backgroundColor={theme.colors?.greyscale600}
+				backgroundColor={theme.colors?.appGauge}
 				startAngle={-Math.PI * angle}
 				endAngle={Math.PI * angle}
 				strokeWidth={size / 20}
@@ -167,7 +174,7 @@ export const BlockScoreNoData = ({ size, angle = 0.8 }: BlockScoreEmptyProps) =>
 				}}
 				progress={0}
 				progressColor={"transparent"}
-				backgroundColor={theme.colors?.text_appBackground}
+				backgroundColor={theme.colors?.appGauge}
 				startAngle={-Math.PI * angle}
 				endAngle={Math.PI * angle}
 				strokeWidth={size / 20}
