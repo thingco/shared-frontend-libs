@@ -1,0 +1,53 @@
+{
+	"name": "@thingco/authentication-react",
+	"description": "React hooks & bindings for the XState-powered auth flow system",
+	"version": "0.1.0",
+	"main": "src/index.ts",
+	"files": [
+		"src/**"
+	],
+	"public": true,
+	"publishConfig": {
+		"registry": "https://npm.pkg.github.com/"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/thingco/shared-frontend-libs",
+		"directory": "packages/authentication-react"
+	},
+	"scripts": {
+		"docs": "typedoc",
+		"start": "esbuild example/index.tsx --servedir=example/www --outdir=example/www --bundle --sourcemap",
+		"test": "jest"
+	},
+	"devDependencies": {
+		"@testing-library/jest-dom": "^5.15.0",
+		"@testing-library/react": "^12.1.2",
+		"@testing-library/user-event": "^13.5.0",
+		"@thingco/authentication-core": "workspace:*",
+		"@types/jest": "^27.0.3",
+		"@types/node": "^16.11.7",
+		"@types/react": "^17.0.34",
+		"@types/react-dom": "^17.0.11",
+		"@types/rimraf": "^3.0.2",
+		"@types/testing-library__jest-dom": "^5.14.1",
+		"@xstate/react": "^1.6.2",
+		"@xstate/test": "^0.5.0",
+		"esbuild": "^0.13.13",
+		"esbuild-jest": "^0.5.0",
+		"jest": "^27.3.1",
+		"react": "^17.0.2",
+		"react-dom": "^17.0.2",
+		"rimraf": "^3.0.2",
+		"ts-jest": "^27.0.7",
+		"typedoc": "^0.22.8",
+		"typescript": "^4.3.5",
+		"xstate": "^4.26.0"
+	},
+	"peerDependencies": {
+		"@thingco/authentication-core": "*",
+		"@xstate/react": "*",
+		"react": "*",
+		"xstate": "*"
+	}
+}

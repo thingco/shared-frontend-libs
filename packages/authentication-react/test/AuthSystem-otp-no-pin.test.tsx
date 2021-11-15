@@ -1,64 +1,45 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-empty-function */
-import React from "react";
-import { waitFor, render } from "@testing-library/react";
+import { render, waitFor } from "@testing-library/react";
+import { AuthStateId } from "@thingco/authentication-core";
+import type { CheckSessionCb, LogoutCb } from "@thingco/authentication-react";
 import { createModel } from "@xstate/test";
+import React from "react";
+import { Authentication } from "test-app/App";
+import { ConfigInjector } from "test-app/ConfigInjector";
+import {
+    checkSessionCb, logoutCb, validateOtpCb, validateOtpUsernameCb
+} from "test-app/stages/callback-implementations";
+import uiText from "test-app/ui-copy";
+import {
+    currentDeviceSecurityTypeIs,
+    currentLoginFlowIs,
+    currentStateIs,
+    stageErrorIs,
+    stageLoadingStatusIs
+} from "test-utils/assertion-helpers";
+import {
+    MOCK_INVALID_CODE,
+    MOCK_INVALID_USERNAME, MOCK_USER_OBJECT, MOCK_VALID_CODE,
+    MOCK_VALID_USERNAME
+} from "test-utils/dummy-responses";
+import { clickButton, findInputClearInputFillInput } from "test-utils/event-helpers";
+import { localStorageMock } from "test-utils/local-storage";
 import { createMachine } from "xstate";
 
-import { AuthStateId } from "core/enums";
-// Import the entire authentication structure from the test app:
-import { Authentication } from "test-app/App";
-// Import the config injection component from the test app:
-import { ConfigInjector } from "test-app/ConfigInjector";
-// The text used the UI, equivalent of translations file:
-import uiText from "test-app/ui-copy";
-// Local storage mock:
-import { localStorageMock } from "test-utils/local-storage";
-// Boilerplate query/assertion functions
-import {
-	currentDeviceSecurityTypeIs,
-	currentLoginFlowIs,
-	currentStateIs,
-	stageErrorIs,
-	stageLoadingStatusIs,
-} from "test-utils/assertion-helpers";
-
-// Mock responses + API functions to mock.
-import {
-	INVALID_CODE,
-	INVALID_USERNAME,
-	VALID_CODE,
-	VALID_USERNAME,
-	USER_OBJECT,
-} from "test-utils/dummy-responses";
-
-import {
-	checkSessionCb,
-	validateOtpUsernameCb,
-	validateOtpCb,
-	logoutCb,
-} from "test-app/stages/callback-implementations";
-
-// Types
-import type { CheckSessionCb, LogoutCb } from "core/react/callback-types";
-import { clickButton, findInputClearInputFillInput } from "test-utils/event-helpers";
-
-/* ------------------------------------------------------------------------- *\
- * 1. MOCKING
-\* ------------------------------------------------------------------------- */
 
 jest.mock("test-app/stages/callback-implementations", () => ({
 	checkSessionCb: jest.fn(),
 	validateOtpUsernameCb: jest.fn(async (username) => {
-		if (username === VALID_USERNAME) {
-			return Promise.resolve(USER_OBJECT);
+		if (username === MOCK_VALID_USERNAME) {
+			return Promise.resolve(MOCK_USER_OBJECT);
 		} else {
 			return Promise.reject();
 		}
 	}),
 	validateOtpCb: jest.fn(async (_user, otp) => {
-		if (otp === VALID_CODE) {
-			return Promise.resolve(USER_OBJECT);
+		if (otp === MOCK_VALID_CODE) {
+			return Promise.resolve(MOCK_USER_OBJECT);
 		} else {
 			return Promise.reject();
 		}
@@ -67,7 +48,7 @@ jest.mock("test-app/stages/callback-implementations", () => ({
 }));
 
 /* ------------------------------------------------------------------------- *\
- * 2. SYSTEM UNDER TEST
+ * SYSTEM UNDER TEST
 \* ------------------------------------------------------------------------- */
 
 const machine = createMachine({
@@ -206,33 +187,33 @@ const model = createModel(machine).withEvents({
 	},
 	GOOD_USERNAME: async () => {
 		const controlLabels = uiText.authStages.submittingOtpUsername.controlLabels;
-		findInputClearInputFillInput(controlLabels.otpUsernameInput, VALID_USERNAME);
+		findInputClearInputFillInput(controlLabels.otpUsernameInput, MOCK_VALID_USERNAME);
 		clickButton(controlLabels.submitOtpUsername);
-		await waitFor(() => expect(validateOtpUsernameCb).toHaveBeenCalledWith(VALID_USERNAME));
+		await waitFor(() => expect(validateOtpUsernameCb).toHaveBeenCalledWith(MOCK_VALID_USERNAME));
 		// expect(await customScreen.findByText("Loading: true")).toBeDefined();
 		await stageLoadingStatusIs("false");
 	},
 	BAD_USERNAME: async () => {
 		const controlLabels = uiText.authStages.submittingOtpUsername.controlLabels;
-		findInputClearInputFillInput(controlLabels.otpUsernameInput, INVALID_USERNAME);
+		findInputClearInputFillInput(controlLabels.otpUsernameInput, MOCK_INVALID_USERNAME);
 		clickButton(controlLabels.submitOtpUsername);
-		await waitFor(() => expect(validateOtpUsernameCb).toHaveBeenCalledWith(INVALID_USERNAME));
+		await waitFor(() => expect(validateOtpUsernameCb).toHaveBeenCalledWith(MOCK_INVALID_USERNAME));
 		// expect(await customScreen.findByText("Loading: true")).toBeDefined();
 		await stageLoadingStatusIs("false");
 	},
 	GOOD_OTP: async () => {
 		const controlLabels = uiText.authStages.submittingOtp.controlLabels;
-		findInputClearInputFillInput(controlLabels.otpInput, VALID_CODE);
+		findInputClearInputFillInput(controlLabels.otpInput, MOCK_VALID_CODE);
 		clickButton(controlLabels.submitOtp);
-		await waitFor(() => expect(validateOtpCb).toHaveBeenCalledWith(USER_OBJECT, VALID_CODE));
+		await waitFor(() => expect(validateOtpCb).toHaveBeenCalledWith(MOCK_USER_OBJECT, MOCK_VALID_CODE));
 		// expect(await customScreen.findByText("Loading: true")).toBeDefined();
 		await stageLoadingStatusIs("false");
 	},
 	BAD_OTP: async () => {
 		const controlLabels = uiText.authStages.submittingOtp.controlLabels;
-		findInputClearInputFillInput(controlLabels.otpInput, INVALID_CODE);
+		findInputClearInputFillInput(controlLabels.otpInput, MOCK_INVALID_CODE);
 		clickButton(controlLabels.submitOtp);
-		await waitFor(() => expect(validateOtpCb).toHaveBeenCalledWith(USER_OBJECT, INVALID_CODE));
+		await waitFor(() => expect(validateOtpCb).toHaveBeenCalledWith(MOCK_USER_OBJECT, MOCK_INVALID_CODE));
 		await stageLoadingStatusIs("false");
 	},
 	REENTER_USERNAME: async () => {
@@ -264,7 +245,7 @@ const model = createModel(machine).withEvents({
 });
 
 /* ------------------------------------------------------------------------- *\
- * 3. TESTS
+ * TESTS
 \* ------------------------------------------------------------------------- */
 
 describe("authentication test system using OTP and no device security", () => {
@@ -273,7 +254,6 @@ describe("authentication test system using OTP and no device security", () => {
 	});
 
 	afterEach(() => {
-		// jest.clearAllMocks();
 		globalThis.localStorage.clear();
 	});
 
@@ -283,7 +263,6 @@ describe("authentication test system using OTP and no device security", () => {
 		describe(`authentication test system ${plan.description}`, () => {
 			plan.paths.forEach((path) => {
 				it(path.description, async () => {
-					console.log(`STARTING ${path.description}`);
 					const screen = render(
 						<ConfigInjector
 							initialLoginFlowType="OTP"
@@ -294,8 +273,6 @@ describe("authentication test system using OTP and no device security", () => {
 						</ConfigInjector>
 					);
 					await path.test(screen);
-					console.log(`ENDING ${path.description}`)
-					console.log(`=======${"=".repeat(path.description.length)}`)
 				});
 			});
 		});
