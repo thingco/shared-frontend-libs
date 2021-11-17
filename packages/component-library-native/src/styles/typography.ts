@@ -8,7 +8,7 @@ export const buttonText = (colours: ThemeColour, fontSizes: ThemeFontSize) => ({
 	secondary: {
 		...fontSizes.base,
 		fontWeight: "600" as const,
-		color: colours.text_secondary,
+		color: colours.text_appBackground,
 	},
 	tertiary: {
 		...fontSizes.base,
