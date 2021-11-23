@@ -47,8 +47,9 @@ jest.mock("test-app/stages/callback-implementations", () => ({
 	logOutCb: jest.fn(),
 }));
 
+
 /* ------------------------------------------------------------------------- *\
- * SYSTEM UNDER TEST
+ * TEST MODEL
 \* ------------------------------------------------------------------------- */
 
 const machine = createMachine({

@@ -4,7 +4,7 @@
 
 [XState](https://xstate.js.org)-powered authentication flow.
 
-## Installation in app
+## Installation
 
 This package contains only the state machine used to sequence authentication plus
 the [Typescript] types. To use it in a React/React Native application, this

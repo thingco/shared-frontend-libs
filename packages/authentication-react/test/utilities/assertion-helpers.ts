@@ -1,6 +1,5 @@
 import type { AuthError, DeviceSecurityType, LoginFlowType } from "@thingco/authentication-core";
 import { AuthStateId } from "@thingco/authentication-core";
-import assert from "assert";
 import uiText from "test-app/ui-copy";
 import { customScreen } from "test-utils/find-by-term";
 

@@ -51,6 +51,7 @@ export function useSubmittingOtpUsername<User = any>(
 					setIsLoading(false);
 					authenticator.send({ type: "USERNAME_VALID", username, user });
 				} catch (err) {
+					console.log("!!!!!!!!!!! ERROR", err)
 					logger.info(`OTP username invalid. API error: ${JSON.stringify(err)}`);
 					setIsLoading(false);
 					authenticator.send({ type: "USERNAME_INVALID", error: "USERNAME_INVALID" });

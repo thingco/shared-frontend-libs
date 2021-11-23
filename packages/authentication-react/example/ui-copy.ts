@@ -12,6 +12,8 @@ const uiText = {
 				currentUiLayout: "Display preference",
 				currentDeviceSecurityType: "Device security type",
 				currentLoginFlowType: "Login flow type",
+				currentAllowedOtpRetries: "Allowed OTP Retries",
+				currentPinLength: "PIN Length",
 			},
 		},
 	},

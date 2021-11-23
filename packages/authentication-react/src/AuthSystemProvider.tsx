@@ -90,7 +90,7 @@ export function AuthProvider({
 	const logger = useLogger();
 
 	useEffect(() => {
-		logger.log(`Creating auth system, ${loginFlowType}, ${deviceSecurityType}`);
+		logger.log(`\nCreating auth system, ${loginFlowType}, ${deviceSecurityType}`);
 	}, [])
 
 	const authenticationSystem = machine.withContext({
