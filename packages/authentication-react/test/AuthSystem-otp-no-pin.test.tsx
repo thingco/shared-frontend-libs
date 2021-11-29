@@ -97,6 +97,7 @@ const machine = createMachine({
 				test: async () => {
 					ReporterAssertions.currentStateIs(AuthStateId.SubmittingOtpUsername);
 					CommonAssertions.stageErrorIs("PASSWORD_RETRIES_EXCEEDED");
+					td.reset();
 				},
 			},
 		},
@@ -108,6 +109,7 @@ const machine = createMachine({
 				test: async () => {
 					ReporterAssertions.currentStateIs(AuthStateId.SubmittingOtpUsername);
 					CommonAssertions.stageErrorIs("USERNAME_INVALID");
+					td.reset();
 				},
 			},
 		},
@@ -134,6 +136,7 @@ const machine = createMachine({
 					ReporterAssertions.currentStateIs(AuthStateId.SubmittingOtp);
 					CommonAssertions.stageErrorIs("PASSWORD_INVALID_2_RETRIES_REMAINING");
 					CommonAssertions.otpAttemptsMadeIs(1);
+					td.reset();
 				},
 			},
 		},
@@ -147,6 +150,7 @@ const machine = createMachine({
 					ReporterAssertions.currentStateIs(AuthStateId.SubmittingOtp);
 					CommonAssertions.stageErrorIs("PASSWORD_INVALID_1_RETRIES_REMAINING");
 					CommonAssertions.otpAttemptsMadeIs(2);
+					td.reset();
 				},
 			},
 		},
@@ -181,6 +185,7 @@ const machine = createMachine({
 				test: async () => {
 					ReporterAssertions.currentStateIs(AuthStateId.AuthenticatedLoggingOut);
 					CommonAssertions.stageErrorIs("LOG_OUT_FAILURE");
+					td.reset();
 				},
 			},
 		},

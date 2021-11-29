@@ -160,14 +160,15 @@ const machine = createMachine({
 				test: async () => {
 					ReporterAssertions.currentStateIs(AuthStateId.CheckingForPin);
 					CommonAssertions.stageErrorIs("n/a");
+					td.reset();
 				},
 			},
 		},
 		SubmittingCurrentPin: {
 			on: {
 				CURRENT_PIN_IS_VALID: "Authenticated",
-				CURRENT_PIN_IS_INVALID: "SubmittingCurrentPinError",
-				FORGOTTEN_PIN: "ForgotPin",
+				CURRENT_PIN_IS_INVALID: "SubmittingCurrentPin__Error",
+				FORGOTTEN_PIN: "ForgottenPinRequestingReset",
 			},
 			meta: {
 				test: async () => {
@@ -176,19 +177,20 @@ const machine = createMachine({
 				},
 			},
 		},
-		SubmittingCurrentPinError: {
+		SubmittingCurrentPin__Error: {
 			on: {
 				CURRENT_PIN_IS_VALID: "Authenticated",
-				FORGOTTEN_PIN: "ForgotPin",
+				FORGOTTEN_PIN: "ForgottenPinRequestingReset",
 			},
 			meta: {
 				test: async () => {
 					ReporterAssertions.currentStateIs(AuthStateId.SubmittingCurrentPin);
 					CommonAssertions.stageErrorIs("PIN_INVALID");
+					td.reset();
 				},
 			},
 		},
-		ForgotPin: {
+		ForgottenPinRequestingReset: {
 			on: {
 				CONFIRM_PIN_RESET: "CheckingSession",
 				CANCEL_PIN_RESET: "SubmittingCurrentPin",
@@ -203,7 +205,7 @@ const machine = createMachine({
 		SubmittingNewPin: {
 			on: {
 				NEW_PIN_IS_VALID: "Authenticated",
-				NEW_PIN_IS_INVALID: "SubmittingNewPinError",
+				NEW_PIN_IS_INVALID: "SubmittingNewPin__Error",
 			},
 			meta: {
 				test: async () => {
@@ -212,7 +214,7 @@ const machine = createMachine({
 				},
 			},
 		},
-		SubmittingNewPinError: {
+		SubmittingNewPin__Error: {
 			on: {
 				NEW_PIN_IS_VALID: "Authenticated",
 			},
@@ -220,13 +222,14 @@ const machine = createMachine({
 				test: async () => {
 					ReporterAssertions.currentStateIs(AuthStateId.SubmittingNewPin);
 					CommonAssertions.stageErrorIs("NEW_PIN_INVALID");
+					td.reset();
 				},
 			},
 		},
 		Authenticated: {
 			on: {
-				REQUEST_LOG_OUT: "LoggingOut",
-				REQUEST_PIN_CHANGE: "ValidatingCurrentPinReadyForPinChange",
+				REQUEST_LOG_OUT: "AuthenticatedLoggingOut",
+				REQUEST_PIN_CHANGE: "AuthenticatedValidatingPin",
 			},
 			meta: {
 				test: async () => {
@@ -235,10 +238,10 @@ const machine = createMachine({
 				},
 			},
 		},
-		ValidatingCurrentPinReadyForPinChange: {
+		AuthenticatedValidatingPin: {
 			on: {
-				CURRENT_PIN_IS_VALID_CHANGE_ALLOWED: "SubmittingNewPinForPinChange",
-				CURRENT_PIN_IS_INVALID_CHANGE_REJECTED: "ValidatingCurrentPinReadyForPinChangeError",
+				CURRENT_PIN_IS_VALID_CHANGE_ALLOWED: "AuthenticatedChangingPin",
+				CURRENT_PIN_IS_INVALID_CHANGE_REJECTED: "AuthenticatedValidatingPin__Error",
 				CANCEL_PIN_CHANGE_REQUEST: "Authenticated",
 			},
 			meta: {
@@ -248,22 +251,23 @@ const machine = createMachine({
 				},
 			},
 		},
-		ValidatingCurrentPinReadyForPinChangeError: {
+		AuthenticatedValidatingPin__Error: {
 			on: {
-				CURRENT_PIN_IS_VALID_CHANGE_ALLOWED: "SubmittingNewPinForPinChange",
+				CURRENT_PIN_IS_VALID_CHANGE_ALLOWED: "AuthenticatedChangingPin",
 				CANCEL_PIN_CHANGE_REQUEST_AT_VALIDATION_STAGE: "Authenticated",
 			},
 			meta: {
 				test: async () => {
 					ReporterAssertions.currentStateIs(AuthStateId.AuthenticatedValidatingPin);
 					CommonAssertions.stageErrorIs("PIN_INVALID");
+					td.reset();
 				},
 			},
 		},
-		SubmittingNewPinForPinChange: {
+		AuthenticatedChangingPin: {
 			on: {
-				NEW_PIN_IS_VALID_CHANGE_ACCEPTED: "PinChangedSuccess",
-				NEW_PIN_IS_INVALID_CHANGE_REJECTED: "SubmittingNewPinForPinChangeError",
+				NEW_PIN_IS_VALID_CHANGE_ACCEPTED: "AuthenticatedPinChangeSuccess",
+				NEW_PIN_IS_INVALID_CHANGE_REJECTED: "AuthenticatedChangingPin__Error",
 				CANCEL_PIN_CHANGE_REQUEST_AT_CHANGE_STAGE: "Authenticated",
 			},
 			meta: {
@@ -273,19 +277,20 @@ const machine = createMachine({
 				},
 			},
 		},
-		SubmittingNewPinForPinChangeError: {
+		AuthenticatedChangingPin__Error: {
 			on: {
-				NEW_PIN_IS_VALID_CHANGE_ACCEPTED: "PinChangedSuccess",
+				NEW_PIN_IS_VALID_CHANGE_ACCEPTED: "AuthenticatedPinChangeSuccess",
 				CANCEL_PIN_CHANGE_REQUEST: "Authenticated",
 			},
 			meta: {
 				test: async () => {
 					ReporterAssertions.currentStateIs(AuthStateId.AuthenticatedChangingPin);
 					CommonAssertions.stageErrorIs("PIN_CHANGE_FAILURE");
+					td.reset();
 				},
 			},
 		},
-		PinChangedSuccess: {
+		AuthenticatedPinChangeSuccess: {
 			on: {
 				CONFIRM_SUCCESSFUL_PIN_CHANGE: "Authenticated",
 			},
@@ -296,16 +301,29 @@ const machine = createMachine({
 				},
 			},
 		},
-		LoggingOut: {
+		AuthenticatedLoggingOut: {
 			on: {
 				GOOD_LOG_OUT: "CheckingSession",
-				BAD_LOG_OUT: "LoggingOut",
+				BAD_LOG_OUT: "AuthenticatedLoggingOut__Error",
 				CANCEL_LOG_OUT: "Authenticated",
 			},
 			meta: {
 				test: async () => {
 					ReporterAssertions.currentStateIs(AuthStateId.AuthenticatedLoggingOut);
 					CommonAssertions.stageErrorIs("n/a");
+				},
+			},
+		},
+		AuthenticatedLoggingOut__Error: {
+			on: {
+				GOOD_LOG_OUT: "CheckingSession",
+				CANCEL_LOG_OUT: "Authenticated",
+			},
+			meta: {
+				test: async () => {
+					ReporterAssertions.currentStateIs(AuthStateId.AuthenticatedLoggingOut);
+					CommonAssertions.stageErrorIs("LOG_OUT_FAILURE");
+					td.reset();
 				},
 			},
 		},

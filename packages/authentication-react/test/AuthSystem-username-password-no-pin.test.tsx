@@ -14,7 +14,6 @@ import {
     MOCK_VALID_PASSWORD,
     MOCK_VALID_USERNAME
 } from "test-utils/dummy-responses";
-import { customScreen as screen } from "test-utils/find-by-term";
 import { createMachine } from "xstate";
 import {
 	Reporter,
@@ -48,7 +47,6 @@ import {
 	AuthenticatedPasswordChangeSuccess,
 	AuthenticatedPasswordChangeSuccessEvents,
 } from "./stages";
-
 
 /* ------------------------------------------------------------------------- *\
  * SYSTEM UNDER TEST
@@ -118,6 +116,7 @@ const machine = createMachine({
 				test: async () => {
 					ReporterAssertions.currentStateIs(AuthStateId.SubmittingUsernameAndPassword);
 					CommonAssertions.stageErrorIs("USERNAME_AND_PASSWORD_INVALID");
+					td.reset();
 				},
 			},
 		},
@@ -141,6 +140,7 @@ const machine = createMachine({
 				test: async () => {
 					ReporterAssertions.currentStateIs(AuthStateId.SubmittingForceChangePassword);
 					CommonAssertions.stageErrorIs("PASSWORD_CHANGE_FAILURE");
+					td.reset();
 				},
 			},
 		},
@@ -164,6 +164,7 @@ const machine = createMachine({
 				test: async () => {
 					ReporterAssertions.currentStateIs(AuthStateId.ForgottenPasswordRequestingReset);
 					CommonAssertions.stageErrorIs("PASSWORD_RESET_REQUEST_FAILURE");
+					td.reset();
 				},
 			},
 		},
@@ -188,6 +189,7 @@ const machine = createMachine({
 				test: async () => {
 					ReporterAssertions.currentStateIs(AuthStateId.ForgottenPasswordSubmittingReset);
 					CommonAssertions.stageErrorIs("PASSWORD_RESET_FAILURE");
+					td.reset();
 				},
 			},
 		},
@@ -233,6 +235,7 @@ const machine = createMachine({
 				test: async () => {
 					ReporterAssertions.currentStateIs(AuthStateId.AuthenticatedLoggingOut);
 					CommonAssertions.stageErrorIs("LOG_OUT_FAILURE");
+					td.reset();
 				},
 			},
 		},
@@ -257,6 +260,7 @@ const machine = createMachine({
 				test: async () => {
 					ReporterAssertions.currentStateIs(AuthStateId.AuthenticatedChangingPassword);
 					CommonAssertions.stageErrorIs("PASSWORD_CHANGE_FAILURE");
+					td.reset();
 				},
 			},
 		},
