@@ -16,5 +16,5 @@ workflows:
   version: 2.1
   build_and_test:
     jobs:
-      - build_packages:
+      - test_packages:
           context: Default
