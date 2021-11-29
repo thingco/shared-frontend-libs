@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useLogger } from "@thingco/logger";
 import { useSelector } from "@xstate/react";
 import { useCallback, useState } from "react";
 import { useAuthInterpreter } from "./AuthSystemProvider";
@@ -26,7 +25,6 @@ export function useSubmittingOtp<User = any>(
 	const isActive = useSelector(authenticator, stateSelectors.isSubmittingOtp!);
 	const currentUserData = useSelector(authenticator, contextSelectors.user);
 	const allowedRetries = useSelector(authenticator, contextSelectors.allowedOtpRetries);
-	const logger = useLogger();
 
 	const [validationErrors, setValidationErrors] = useState<{ password: string[] }>({
 		password: [],
@@ -45,26 +43,14 @@ export function useSubmittingOtp<User = any>(
 			} else {
 				setIsLoading(true);
 				const currentAttempts = attemptsMade + 1;
-				logger.info(
-					`OTP validation initiated (attempt ${
-						attemptsMade + 1
-					}): if successful, this stage of authentication is passed. If not, ${
-						attemptsMade + 1 === allowedRetries
-							? "system will require username input again"
-							: "system will allow a retry"
-					}.`
-				);
 
 				try {
 					const user = await cb(currentUserData, password);
-					logger.log(`OTP validated! API reponse: ${JSON.stringify(user)}`);
 					setIsLoading(false);
 					setAttemptsMade(0);
 					authenticator.send({ type: "OTP_VALID" });
 				} catch (err) {
-					logger.log(err);
 					if (currentAttempts >= allowedRetries) {
-						logger.log(`OTP retries exceeded. API error: ${JSON.stringify(err)}`);
 						setIsLoading(false);
 						setAttemptsMade(0);
 						authenticator.send({
@@ -72,16 +58,11 @@ export function useSubmittingOtp<User = any>(
 							error: "PASSWORD_RETRIES_EXCEEDED",
 						});
 					} else {
-						logger.log(
-							`OTP invalid, ${
-								allowedRetries - currentAttempts
-							} tries remaining. API error: ${JSON.stringify(err)}`
-						);
 						setIsLoading(false);
 						setAttemptsMade(currentAttempts);
 						authenticator.send({
 							type: "OTP_INVALID",
-							error: `PASSWORD_INVALID_${3 - currentAttempts}_RETRIES_REMAINING`,
+							error: `PASSWORD_INVALID_${allowedRetries - currentAttempts}_RETRIES_REMAINING`,
 						});
 					}
 				};

@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { useLogger } from "@thingco/logger";
 import { useSelector } from "@xstate/react";
 import { useCallback, useState } from "react";
 import { useAuthInterpreter } from "./AuthSystemProvider";
@@ -34,7 +33,6 @@ export function useAuthenticatedChangingPassword(
 	const authenticator = useAuthInterpreter();
 	const error = useSelector(authenticator, contextSelectors.error);
 	const isActive = useSelector(authenticator, stateSelectors.isAuthenticatedChangingPassword!);
-	const logger = useLogger();
 
 	const [validationErrors, setValidationErrors] = useState<{
 		oldPassword: string[];
@@ -52,17 +50,11 @@ export function useAuthenticatedChangingPassword(
 				return;
 			} else {
 				setIsLoading(true);
-				logger.info(
-					"Attempting to change the current password. If the check resolves, the attempt was successful and they may return to the Authenticated state."
-				);
-
 				try {
 					const res = await cb(oldPassword, newPassword);
-					logger.log(`Password successfully changed! API response: ${JSON.stringify(res)}`);
 					setIsLoading(false);
 					authenticator.send({ type: "PASSWORD_CHANGE_SUCCESS" });
 				} catch (err) {
-					logger.log(`Password change failed! API error: ${JSON.stringify(err)}`);
 					setIsLoading(false);
 					authenticator.send({ type: "PASSWORD_CHANGE_FAILURE", error: "PASSWORD_CHANGE_FAILURE" });
 				}

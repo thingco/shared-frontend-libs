@@ -4,6 +4,7 @@ import React from "react";
 import { AuthStageSection, Form } from "test-app/Components";
 import { useConfigState } from "test-app/ConfigInjector";
 import uiText from "test-app/ui-copy";
+import { Optional } from "utility-types";
 import { validateOtpUsernameCb } from "./callback-implementations";
 
 
@@ -13,11 +14,16 @@ const {
 	},
 } = uiText;
 
-export const SubmittingOtpUsername = () => {
-	const { error, isActive, isLoading, validateUsername, validationErrors } =
-		useSubmittingOtpUsername(validateOtpUsernameCb);
-	const { uiLayout } = useConfigState();
+type SubmittingOtpUsernameUiProps = Optional<ReturnType<typeof useSubmittingOtpUsername>, "validationErrors"> & Partial<Pick<ReturnType<typeof useConfigState>, "uiLayout">>
 
+export const SubmittingOtpUsernameUi = ({
+	error,
+	isActive,
+	isLoading,
+	validateUsername,
+	validationErrors = { username: [] },
+	uiLayout = "MOUNT_WHEN_ACTIVE",
+}: SubmittingOtpUsernameUiProps) => {
 	const [username, setUsername] = React.useState("");
 
 	if (uiLayout === "MOUNT_WHEN_ACTIVE" && !isActive) return null;
@@ -47,5 +53,22 @@ export const SubmittingOtpUsername = () => {
 				</Form.Elements>
 			</Form>
 		</AuthStageSection>
+	);
+};
+
+export const SubmittingOtpUsername = () => {
+	const { error, isActive, isLoading, validateUsername, validationErrors } =
+		useSubmittingOtpUsername(validateOtpUsernameCb);
+	const { uiLayout } = useConfigState();
+
+	return (
+		<SubmittingOtpUsernameUi
+			error={error}
+			isLoading={isLoading}
+			isActive={isActive}
+			validateUsername={validateUsername}
+			validationErrors={validationErrors}
+			uiLayout={uiLayout}
+		/>
 	);
 };

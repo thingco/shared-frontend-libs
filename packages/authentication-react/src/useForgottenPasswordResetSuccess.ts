@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { useLogger } from "@thingco/logger";
 import { useSelector } from "@xstate/react";
 import { useAuthInterpreter } from "./AuthSystemProvider";
 import { stateSelectors } from "./selectors";
@@ -16,12 +15,8 @@ import { stateSelectors } from "./selectors";
 export function useForgottenPasswordResetSuccess() {
 	const authenticator = useAuthInterpreter();
 	const isActive = useSelector(authenticator, stateSelectors.isForgottenPasswordResetSuccess!);
-	const logger = useLogger();
 
 	const confirmPasswordReset = () => {
-		logger.info(
-			"Confirmation of successful password reset sent to system to allow transition back to unsername/password input"
-		);
 		authenticator.send({ type: "CONFIRM_PASSWORD_RESET" });
 	};
 

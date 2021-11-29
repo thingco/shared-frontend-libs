@@ -1,77 +1,89 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-empty-function */
-import React from "react";
-import { render, waitFor } from "@testing-library/react";
-import { AuthStateId } from "@thingco/authentication-core";
-import type { CheckSessionCb, LogoutCb } from "@thingco/authentication-react";
+import * as td from "testdouble";
+import { suite } from "uvu";
+import { render, cleanup} from "@testing-library/react";
+import { AuthStateId, } from "@thingco/authentication-core";
+import { AuthProvider } from "@thingco/authentication-react";
 import { createModel } from "@xstate/test";
-import { Authentication } from "test-app/App";
-import { ConfigInjector } from "test-app/ConfigInjector";
+import React from "react";
 import {
-    checkForExistingPinCb, checkSessionCb, logoutCb, PIN_KEY, resetPinCb,
-    setNewPinCb, validateOtpCb, validateOtpUsernameCb, validatePinCb
-} from "test-app/stages/callback-implementations";
-import uiText from "test-app/ui-copy";
-import {
-    currentDeviceSecurityTypeIs,
-    currentLoginFlowIs,
-    currentStateIs,
-    stageErrorIs,
-    stageLoadingStatusIs
-} from "test-utils/assertion-helpers";
-import {
-    MOCK_INVALID_PIN, MOCK_USER_OBJECT, MOCK_VALID_CODE, MOCK_VALID_PIN, MOCK_VALID_USERNAME
+	MOCK_INVALID_PIN,
+	MOCK_USER_OBJECT,
+	MOCK_VALID_CODE,
+	MOCK_VALID_PIN,
+	MOCK_VALID_USERNAME
 } from "test-utils/dummy-responses";
-import { clickButton, findInputClearInputFillInput } from "test-utils/event-helpers";
-import { localStorageMock } from "test-utils/local-storage";
 import { createMachine } from "xstate";
+import {
+	Reporter,
+	ReporterAssertions,
+	CommonAssertions,
+	CheckingSession,
+	CheckingSessionEvents,
+	checkSessionCb,
+	SubmittingOtpUsername,
+	SubmittingOtpUsernameEvents,
+	validateOtpUsernameCb,
+	SubmittingOtp,
+	SubmittingOtpEvents,
+	validateOtpCb,
+	CheckingForPin,
+	CheckingForPinEvents,
+	checkForExistingPinCb,
+	SubmittingCurrentPin,
+	SubmittingCurrentPinEvents,
+	ForgottenPinRequestingReset,
+	ForgottenPinRequestingResetEvents,
+	validatePinCb,
+	SubmittingNewPin,
+	SubmittingNewPinEvents,
+	setNewPinCb,
+	Authenticated,
+	AuthenticatedEvents,
+	AuthenticatedLoggingOut,
+	AuthenticatedLoggingOutEvents,
+	logoutCb,
+	AuthenticatedChangingPin,
+	AuthenticatedChangingPinEvents,
+	AuthenticatedValidatingPin,
+	AuthenticatedValidatingPinEvents,
+	AuthenticatedPinChangeSuccess,
+	AuthenticatedPinChangeSuccessEvents,
+} from "./stages";
 
-const MOCK_PIN_KEY = PIN_KEY;
-
-jest.mock("test-app/stages/callback-implementations", () => ({
-	checkSessionCb: jest.fn(),
-	validateOtpUsernameCb: jest.fn(async (username) => {
-		if (username === MOCK_VALID_USERNAME) {
-			return Promise.resolve(MOCK_USER_OBJECT);
-		} else {
-			return Promise.reject();
-		}
-	}),
-	validateOtpCb: jest.fn(async (_, otp) => {
-		if (otp === MOCK_VALID_CODE) {
-			return Promise.resolve(MOCK_USER_OBJECT);
-		} else {
-			return Promise.reject();
-		}
-	}),
-	logOutCb: jest.fn(async () => {
-		globalThis.localStorage.removeItem(MOCK_PIN_KEY);
-		return Promise.resolve();
-	}),
-	resetPinCb: jest.fn(async () => {
-		globalThis.localStorage.removeItem(MOCK_PIN_KEY);
-		return Promise.resolve();
-	}),
-	checkForExistingPinCb: jest.fn(() => {
-		const pin = globalThis.localStorage.getItem(MOCK_PIN_KEY);
-		return pin !== null ? Promise.resolve() : Promise.reject();
-	}),
-	validatePinCb: jest.fn((pin) => {
-		const existingPin = globalThis.localStorage.getItem(MOCK_PIN_KEY);
-		return pin === existingPin ? Promise.resolve() : Promise.reject();
-	}),
-	setNewPinCb: jest.fn((pin) => {
-		if (pin === MOCK_VALID_PIN) {
-			globalThis.localStorage.setItem(MOCK_PIN_KEY, pin);
-			return Promise.resolve();
-		} else {
-			return Promise.reject();
-		}
-	}),
-}));
 
 /* ------------------------------------------------------------------------- *\
  * SYSTEM UNDER TEST
+ *
+ * The `AuthProvider` component provides a property called `eventSink`, which
+ * can be anything, but it receives the entire current state of the auth system
+ * on every event that occurs. This means that it can be used to check that
+ * the React hooks are doing exactly what they're supposed to be doing.
+\* ------------------------------------------------------------------------- */
+
+
+const SUT = () => (
+	<AuthProvider loginFlowType="OTP" deviceSecurityType="PIN" pinLength={4} allowedOtpRetries={3}>
+		<Reporter />
+		<CheckingSession/>
+		<SubmittingOtpUsername/>
+		<SubmittingOtp/>
+		<CheckingForPin/>
+		<SubmittingCurrentPin />
+		<ForgottenPinRequestingReset />
+		<SubmittingNewPin />
+		<Authenticated/>
+		<AuthenticatedLoggingOut/>
+		<AuthenticatedValidatingPin />
+		<AuthenticatedChangingPin />
+		<AuthenticatedPinChangeSuccess />
+	</AuthProvider>
+);
+
+
+/* ------------------------------------------------------------------------- *\
+ * TEST MODEL
 \* ------------------------------------------------------------------------- */
 
 const machine = createMachine({
@@ -80,15 +92,15 @@ const machine = createMachine({
 	states: {
 		CheckingSession: {
 			on: {
-				THERE_IS_A_SESSION: "CheckingForAPinAndThereIsOne",
-				THERE_IS_NO_SESSION: "SubmittingUsername",
+				SESSION_PRESENT: "CheckingForPin__LoginBypassedPinExists",
+				SESSION_NOT_PRESENT: "SubmittingUsername",
 			},
 			meta: {
 				test: async () => {
-					await currentStateIs(AuthStateId.CheckingSession);
-					await currentLoginFlowIs("OTP");
-					await currentDeviceSecurityTypeIs("PIN");
-					await stageErrorIs("n/a");
+					ReporterAssertions.currentStateIs(AuthStateId.CheckingSession);
+					ReporterAssertions.loginFlowIs("OTP");
+					ReporterAssertions.deviceSecurityIs("PIN");
+					ReporterAssertions.pinLengthIs(4);
 				},
 			},
 		},
@@ -100,8 +112,8 @@ const machine = createMachine({
 			},
 			meta: {
 				test: async () => {
-					await currentStateIs(AuthStateId.SubmittingOtpUsername);
-					await stageErrorIs("n/a");
+					ReporterAssertions.currentStateIs(AuthStateId.SubmittingOtpUsername);
+					CommonAssertions.stageErrorIs("n/a");
 				},
 			},
 		},
@@ -109,34 +121,45 @@ const machine = createMachine({
 		// the PIN checking stage.
 		SubmittingOtp: {
 			on: {
-				GOOD_OTP: "CheckingForAPinButThereIsntOne",
+				GOOD_OTP_NEW_ACCOUNT: "CheckingForPin__LoginCompletedNoPinExists",
+				GOOD_OTP_EXISTING_ACCOUNT: "CheckingForPin__LoginCompletedPinExists"
 			},
 			meta: {
 				test: async () => {
-					await currentStateIs(AuthStateId.SubmittingOtp);
-					await stageErrorIs("n/a");
+					ReporterAssertions.currentStateIs(AuthStateId.SubmittingOtp);
+					CommonAssertions.stageErrorIs("n/a");
 				},
 			},
 		},
-		CheckingForAPinAndThereIsOne: {
-			on: {
-				THERE_IS_A_PIN_STORED: "SubmittingCurrentPin",
-			},
-			meta: {
-				test: async () => {
-					await currentStateIs(AuthStateId.CheckingForPin);
-					await stageErrorIs("n/a");
-				},
-			},
-		},
-		CheckingForAPinButThereIsntOne: {
+		CheckingForPin__LoginCompletedNoPinExists: {
 			on: {
 				THERE_IS_NO_PIN_STORED: "SubmittingNewPin",
 			},
 			meta: {
 				test: async () => {
-					await currentStateIs(AuthStateId.CheckingForPin);
-					await stageErrorIs("n/a");
+					ReporterAssertions.currentStateIs(AuthStateId.CheckingForPin);
+					CommonAssertions.stageErrorIs("n/a");
+				},
+			},
+		},
+		CheckingForPin__LoginCompletedPinExists: {
+			on: {
+				THERE_IS_A_PIN_STORED: "Authenticated",
+			},
+			meta: {
+				test: async () => {
+					ReporterAssertions.currentStateIs(AuthStateId.CheckingForPin);
+				},
+			},
+		},
+		CheckingForPin__LoginBypassedPinExists: {
+			on: {
+				THERE_IS_A_PIN_STORED: "SubmittingCurrentPin",
+			},
+			meta: {
+				test: async () => {
+					ReporterAssertions.currentStateIs(AuthStateId.CheckingForPin);
+					CommonAssertions.stageErrorIs("n/a");
 				},
 			},
 		},
@@ -148,8 +171,8 @@ const machine = createMachine({
 			},
 			meta: {
 				test: async () => {
-					await currentStateIs(AuthStateId.SubmittingCurrentPin);
-					await stageErrorIs("n/a");
+					ReporterAssertions.currentStateIs(AuthStateId.SubmittingCurrentPin);
+					CommonAssertions.stageErrorIs("n/a");
 				},
 			},
 		},
@@ -160,8 +183,8 @@ const machine = createMachine({
 			},
 			meta: {
 				test: async () => {
-					await currentStateIs(AuthStateId.SubmittingCurrentPin);
-					await stageErrorIs("PIN_INVALID");
+					ReporterAssertions.currentStateIs(AuthStateId.SubmittingCurrentPin);
+					CommonAssertions.stageErrorIs("PIN_INVALID");
 				},
 			},
 		},
@@ -172,8 +195,8 @@ const machine = createMachine({
 			},
 			meta: {
 				test: async () => {
-					await currentStateIs(AuthStateId.ForgottenPinRequestingReset);
-					await stageErrorIs("n/a");
+					ReporterAssertions.currentStateIs(AuthStateId.ForgottenPinRequestingReset);
+					CommonAssertions.stageErrorIs("n/a");
 				},
 			},
 		},
@@ -184,8 +207,8 @@ const machine = createMachine({
 			},
 			meta: {
 				test: async () => {
-					await currentStateIs(AuthStateId.SubmittingNewPin);
-					await stageErrorIs("n/a");
+					ReporterAssertions.currentStateIs(AuthStateId.SubmittingNewPin);
+					CommonAssertions.stageErrorIs("n/a");
 				},
 			},
 		},
@@ -195,8 +218,8 @@ const machine = createMachine({
 			},
 			meta: {
 				test: async () => {
-					await currentStateIs(AuthStateId.SubmittingNewPin);
-					await stageErrorIs("NEW_PIN_INVALID");
+					ReporterAssertions.currentStateIs(AuthStateId.SubmittingNewPin);
+					CommonAssertions.stageErrorIs("NEW_PIN_INVALID");
 				},
 			},
 		},
@@ -207,8 +230,8 @@ const machine = createMachine({
 			},
 			meta: {
 				test: async () => {
-					await currentStateIs(AuthStateId.Authenticated);
-					await stageErrorIs("n/a");
+					ReporterAssertions.currentStateIs(AuthStateId.Authenticated);
+					CommonAssertions.stageErrorIs("n/a");
 				},
 			},
 		},
@@ -220,8 +243,8 @@ const machine = createMachine({
 			},
 			meta: {
 				test: async () => {
-					await currentStateIs(AuthStateId.AuthenticatedValidatingPin);
-					await stageErrorIs("n/a");
+					ReporterAssertions.currentStateIs(AuthStateId.AuthenticatedValidatingPin);
+					CommonAssertions.stageErrorIs("n/a");
 				},
 			},
 		},
@@ -232,8 +255,8 @@ const machine = createMachine({
 			},
 			meta: {
 				test: async () => {
-					await currentStateIs(AuthStateId.AuthenticatedValidatingPin);
-					await stageErrorIs("PIN_INVALID");
+					ReporterAssertions.currentStateIs(AuthStateId.AuthenticatedValidatingPin);
+					CommonAssertions.stageErrorIs("PIN_INVALID");
 				},
 			},
 		},
@@ -245,8 +268,8 @@ const machine = createMachine({
 			},
 			meta: {
 				test: async () => {
-					await currentStateIs(AuthStateId.AuthenticatedChangingPin);
-					await stageErrorIs("n/a");
+					ReporterAssertions.currentStateIs(AuthStateId.AuthenticatedChangingPin);
+					CommonAssertions.stageErrorIs("n/a");
 				},
 			},
 		},
@@ -257,8 +280,8 @@ const machine = createMachine({
 			},
 			meta: {
 				test: async () => {
-					await currentStateIs(AuthStateId.AuthenticatedChangingPin);
-					await stageErrorIs("PIN_CHANGE_FAILURE");
+					ReporterAssertions.currentStateIs(AuthStateId.AuthenticatedChangingPin);
+					CommonAssertions.stageErrorIs("PIN_CHANGE_FAILURE");
 				},
 			},
 		},
@@ -268,21 +291,21 @@ const machine = createMachine({
 			},
 			meta: {
 				test: async () => {
-					await currentStateIs(AuthStateId.AuthenticatedPinChangeSuccess);
-					await stageErrorIs("n/a");
+					ReporterAssertions.currentStateIs(AuthStateId.AuthenticatedPinChangeSuccess);
+					CommonAssertions.stageErrorIs("n/a");
 				},
 			},
 		},
 		LoggingOut: {
 			on: {
 				GOOD_LOG_OUT: "CheckingSession",
-				// BAD_LOG_OUT: "Authenticated",
+				BAD_LOG_OUT: "LoggingOut",
 				CANCEL_LOG_OUT: "Authenticated",
 			},
 			meta: {
 				test: async () => {
-					await currentStateIs(AuthStateId.AuthenticatedLoggingOut);
-					await stageErrorIs("n/a");
+					ReporterAssertions.currentStateIs(AuthStateId.AuthenticatedLoggingOut);
+					CommonAssertions.stageErrorIs("n/a");
 				},
 			},
 		},
@@ -290,155 +313,111 @@ const machine = createMachine({
 });
 
 const model = createModel(machine).withEvents({
-	THERE_IS_A_SESSION: async () => {
-		const controlLabels = uiText.authStages.checkingForSession.controlLabels;
-		globalThis.localStorage.setItem(PIN_KEY, MOCK_VALID_PIN);
-		clickButton(controlLabels.checkForExistingSession);
-		await waitFor(() => expect(checkSessionCb).toHaveBeenCalled());
-		await stageLoadingStatusIs("false");
+	SESSION_PRESENT: async () => {
+		td.when(checkSessionCb()).thenResolve("Valid session");
+		CheckingSessionEvents.clickCheckSession();
 	},
-	THERE_IS_NO_SESSION: async () => {
-		const controlLabels = uiText.authStages.checkingForSession.controlLabels;
-		globalThis.localStorage.clear();
-		(checkSessionCb as jest.MockedFunction<CheckSessionCb>).mockRejectedValueOnce(null);
-		clickButton(controlLabels.checkForExistingSession);
-		await waitFor(() => expect(checkSessionCb).toHaveBeenCalled());
-		(checkSessionCb as jest.MockedFunction<CheckSessionCb>).mockReset();
-		await stageLoadingStatusIs("false");
+	SESSION_NOT_PRESENT: async () => {
+		td.when(checkSessionCb()).thenReject(Error("Invalid session"));
+		CheckingSessionEvents.clickCheckSession();
 	},
 	GOOD_USERNAME: async () => {
-		const controlLabels = uiText.authStages.submittingOtpUsername.controlLabels;
-		findInputClearInputFillInput(controlLabels.otpUsernameInput, MOCK_VALID_USERNAME);
-		clickButton(controlLabels.submitOtpUsername);
-		await waitFor(() => expect(validateOtpUsernameCb).toHaveBeenCalledWith(MOCK_VALID_USERNAME));
-		await stageLoadingStatusIs("false");
+		td.when(validateOtpUsernameCb(MOCK_VALID_USERNAME)).thenResolve(MOCK_USER_OBJECT);
+		SubmittingOtpUsernameEvents.fillUsernameInput(MOCK_VALID_USERNAME);
+		SubmittingOtpUsernameEvents.clickSubmit();
 	},
-	GOOD_OTP: async () => {
-		const controlLabels = uiText.authStages.submittingOtp.controlLabels;
-		findInputClearInputFillInput(controlLabels.otpInput, MOCK_VALID_CODE);
-		clickButton(controlLabels.submitOtp);
-		await waitFor(() => expect(validateOtpCb).toHaveBeenCalledWith(MOCK_USER_OBJECT, MOCK_VALID_CODE));
-		await stageLoadingStatusIs("false");
+	GOOD_OTP_NEW_ACCOUNT: async () => {
+		td.when(validateOtpCb(MOCK_USER_OBJECT, MOCK_VALID_CODE)).thenResolve(MOCK_USER_OBJECT);
+		SubmittingOtpEvents.fillOtpInput(MOCK_VALID_CODE);
+		SubmittingOtpEvents.clickSubmit();
+	},
+	GOOD_OTP_EXISTING_ACCOUNT: async () => {
+		td.when(validateOtpCb(MOCK_USER_OBJECT, MOCK_VALID_CODE)).thenResolve(MOCK_USER_OBJECT);
+		SubmittingOtpEvents.fillOtpInput(MOCK_VALID_CODE);
+		SubmittingOtpEvents.clickSubmit();
 	},
 	THERE_IS_A_PIN_STORED: async () => {
-		const controlLabels = uiText.authStages.checkingForPin.controlLabels;
-		clickButton(controlLabels.checkForExistingPin);
-		await waitFor(() => expect(checkForExistingPinCb).toHaveBeenCalled());
-		await stageLoadingStatusIs("false");
+		td.when(checkForExistingPinCb()).thenResolve(MOCK_VALID_PIN);
+		CheckingForPinEvents.clickCheckForPin();
 	},
 	THERE_IS_NO_PIN_STORED: async () => {
-		const controlLabels = uiText.authStages.checkingForPin.controlLabels;
-		clickButton(controlLabels.checkForExistingPin);
-		await waitFor(() => expect(checkForExistingPinCb).toHaveBeenCalled());
-		await stageLoadingStatusIs("false");
+		td.when(checkForExistingPinCb()).thenReject(Error("No pin found"));
+		CheckingForPinEvents.clickCheckForPin();
 	},
 	CURRENT_PIN_IS_VALID: async () => {
-		const controlLabels = uiText.authStages.submittingCurrentPin.controlLabels;
-		findInputClearInputFillInput(controlLabels.pinInput, MOCK_VALID_PIN);
-		clickButton(controlLabels.submitPin);
-		await waitFor(() => expect(validatePinCb).toHaveBeenCalledWith(MOCK_VALID_PIN));
-		await stageLoadingStatusIs("false");
+		td.when(validatePinCb(MOCK_VALID_PIN)).thenResolve(null);
+		SubmittingCurrentPinEvents.fillPinInput(MOCK_VALID_PIN);
+		SubmittingCurrentPinEvents.clickSubmit();
 	},
 	CURRENT_PIN_IS_INVALID: async () => {
-		const controlLabels = uiText.authStages.submittingCurrentPin.controlLabels;
-		findInputClearInputFillInput(controlLabels.pinInput, MOCK_INVALID_PIN);
-		clickButton(controlLabels.submitPin);
-		await waitFor(() => expect(validatePinCb).toHaveBeenCalledWith(MOCK_INVALID_PIN));
-		await stageLoadingStatusIs("false");
+		td.when(validatePinCb(MOCK_INVALID_PIN)).thenReject(Error("Invalid PIN"));
+		SubmittingCurrentPinEvents.fillPinInput(MOCK_INVALID_PIN);
+		SubmittingCurrentPinEvents.clickSubmit();
 	},
 	FORGOTTEN_PIN: async () => {
-		const controlLabels = uiText.authStages.submittingCurrentPin.controlLabels;
-		clickButton(controlLabels.forgotPin);
+		SubmittingCurrentPinEvents.clickForgotPin();
 	},
 	CONFIRM_PIN_RESET: async () => {
-		const controlLabels = uiText.authStages.forgottenPinRequestingReset.controlLabels;
-		clickButton(controlLabels.resetPin);
-		await waitFor(() => expect(resetPinCb).toHaveBeenCalled());
-		await stageLoadingStatusIs("false");
+		ForgottenPinRequestingResetEvents.clickResetPin();
 	},
 	CANCEL_PIN_RESET: async () => {
-		const controlLabels = uiText.authStages.forgottenPinRequestingReset.controlLabels;
-		clickButton(controlLabels.cancelReset);
+		ForgottenPinRequestingResetEvents.clickCancel();
 	},
 	NEW_PIN_IS_VALID: async () => {
-		const controlLabels = uiText.authStages.submittingNewPin.controlLabels;
-		findInputClearInputFillInput(controlLabels.newPinInput, MOCK_VALID_PIN);
-		clickButton(controlLabels.submitPin);
-		await waitFor(() => expect(setNewPinCb).toHaveBeenCalledWith(MOCK_VALID_PIN));
-		await stageLoadingStatusIs("false");
+		td.when(setNewPinCb(MOCK_VALID_PIN)).thenResolve(null);
+		SubmittingNewPinEvents.fillPinInput(MOCK_VALID_PIN);
+		SubmittingNewPinEvents.clickSubmit();
 	},
 	NEW_PIN_IS_INVALID: async () => {
-		const controlLabels = uiText.authStages.submittingNewPin.controlLabels;
-		findInputClearInputFillInput(controlLabels.newPinInput, MOCK_INVALID_PIN);
-		clickButton(controlLabels.submitPin);
-		await waitFor(() => expect(setNewPinCb).toHaveBeenCalledWith(MOCK_INVALID_PIN));
-		await stageLoadingStatusIs("false");
+		td.when(setNewPinCb(MOCK_INVALID_PIN)).thenReject(Error("Invalid new PIN"));
+		SubmittingNewPinEvents.fillPinInput(MOCK_INVALID_PIN);
+		SubmittingNewPinEvents.clickSubmit();
 	},
 	REQUEST_PIN_CHANGE: async () => {
-		const controlLabels = uiText.authStages.authenticated.controlLabels;
-		clickButton(controlLabels.changePin);
+		AuthenticatedEvents.clickRequestPinChange();
 	},
 	CURRENT_PIN_IS_VALID_CHANGE_ALLOWED: async () => {
-		const controlLabels = uiText.authStages.authenticatedValidatingPin.controlLabels;
-		findInputClearInputFillInput(controlLabels.enterPin, MOCK_VALID_PIN);
-		clickButton(controlLabels.submitPin);
-		await waitFor(() => expect(validatePinCb).toHaveBeenCalledWith(MOCK_VALID_PIN));
-		await stageLoadingStatusIs("false");
+		td.when(validatePinCb(MOCK_VALID_PIN)).thenResolve(null);
+		AuthenticatedValidatingPinEvents.fillPinInput(MOCK_VALID_PIN);
+		AuthenticatedValidatingPinEvents.clickSubmit();
 	},
 	CURRENT_PIN_IS_INVALID_CHANGE_REJECTED: async () => {
-		const controlLabels = uiText.authStages.authenticatedValidatingPin.controlLabels;
-		findInputClearInputFillInput(controlLabels.enterPin, MOCK_INVALID_PIN);
-		clickButton(controlLabels.submitPin);
-		await waitFor(() => expect(validatePinCb).toHaveBeenCalledWith(MOCK_INVALID_PIN));
-		await stageLoadingStatusIs("false");
+		td.when(validatePinCb(MOCK_INVALID_PIN)).thenReject(Error("Invalid PIN"));
+		AuthenticatedValidatingPinEvents.fillPinInput(MOCK_INVALID_PIN);
+		AuthenticatedValidatingPinEvents.clickSubmit();
 	},
 	CANCEL_PIN_CHANGE_REQUEST_AT_VALIDATION_STAGE: async () => {
-		const controlLabels = uiText.authStages.authenticatedValidatingPin.controlLabels;
-		clickButton(controlLabels.cancelPinChange);
+		AuthenticatedValidatingPinEvents.clickCancel();
 	},
 	NEW_PIN_IS_VALID_CHANGE_ACCEPTED: async () => {
-		const controlLabels = uiText.authStages.authenticatedChangingPin.controlLabels;
-		findInputClearInputFillInput(controlLabels.enterPinInput, MOCK_VALID_PIN);
-		clickButton(controlLabels.submitPin);
-		await waitFor(() => expect(setNewPinCb).toHaveBeenCalledWith(MOCK_VALID_PIN));
-		await stageLoadingStatusIs("false");
+		td.when(setNewPinCb(MOCK_VALID_PIN)).thenResolve(null);
+		AuthenticatedChangingPinEvents.fillPinInput(MOCK_VALID_PIN);
+		AuthenticatedChangingPinEvents.clickPinSubmit();
 	},
 	NEW_PIN_IS_INVALID_CHANGE_REJECTED: async () => {
-		const controlLabels = uiText.authStages.authenticatedChangingPin.controlLabels;
-		findInputClearInputFillInput(controlLabels.enterPinInput, MOCK_INVALID_PIN);
-		clickButton(controlLabels.submitPin);
-		await waitFor(() => expect(setNewPinCb).toHaveBeenCalledWith(MOCK_INVALID_PIN));
-		await stageLoadingStatusIs("false");
+		td.when(setNewPinCb(MOCK_INVALID_PIN)).thenReject(Error("Invalid PIN"));
+		AuthenticatedChangingPinEvents.fillPinInput(MOCK_INVALID_PIN);
+		AuthenticatedChangingPinEvents.clickPinSubmit();
 	},
 	CANCEL_PIN_CHANGE_REQUEST_AT_CHANGE_STAGE: async () => {
-		const controlLabels = uiText.authStages.authenticatedChangingPin.controlLabels;
-		clickButton(controlLabels.cancelPinChange);
+		AuthenticatedChangingPinEvents.clickCancel();
 	},
 	CONFIRM_SUCCESSFUL_PIN_CHANGE: async () => {
-		const controlLabels = uiText.authStages.authenticatedPinChangeSuccess.controlLabels;
-		clickButton(controlLabels.confirm);
+		AuthenticatedPinChangeSuccessEvents.clickConfirm();
 	},
 	REQUEST_LOG_OUT: async () => {
-		const controlLabels = uiText.authStages.authenticated.controlLabels;
-		clickButton(controlLabels.logOut);
+		AuthenticatedEvents.clickRequestLogOut();
 	},
 	CANCEL_LOG_OUT: async () => {
-		const controlLabels = uiText.authStages.authenticatedLoggingOut.controlLabels;
-		clickButton(controlLabels.cancelLogOut);
+		AuthenticatedLoggingOutEvents.clickCancelLogOut();
 	},
 	GOOD_LOG_OUT: async () => {
-		const controlLabels = uiText.authStages.authenticatedLoggingOut.controlLabels;
-		clickButton(controlLabels.logOut);
-		await waitFor(() => expect(logoutCb).toHaveBeenCalled());
-		await stageLoadingStatusIs("false");
+		td.when(logoutCb()).thenResolve(null);
+		AuthenticatedLoggingOutEvents.clickConfirmLogOut();
 	},
 	BAD_LOG_OUT: async () => {
-		const controlLabels = uiText.authStages.authenticatedLoggingOut.controlLabels;
-		(logoutCb as jest.MockedFunction<LogoutCb>).mockRejectedValueOnce(null);
-		clickButton(controlLabels.logOut);
-		await waitFor(() => expect(logoutCb).toHaveBeenCalled());
-		(logoutCb as jest.MockedFunction<LogoutCb>).mockReset();
-		await stageLoadingStatusIs("false");
+		td.when(logoutCb()).thenReject(Error("Logout failure"));
+		AuthenticatedLoggingOutEvents.clickConfirmLogOut();
 	},
 });
 
@@ -446,37 +425,38 @@ const model = createModel(machine).withEvents({
  * TESTS
 \* ------------------------------------------------------------------------- */
 
-describe("authentication test system using OTP and no device security", () => {
-	beforeAll(() => {
-		globalThis.localStorage = localStorageMock();
+
+const testPlans = model.getSimplePathPlans();
+
+testPlans.forEach((plan) => {
+	const testPlanExecutors = suite(`authentication test system ${plan.description}`);
+
+	testPlanExecutors.after(() => {
+	  // NOTE: using the global-jsdom module has some side effects, one of which
+		// is that, if there is an error/timeout, the tests just hang.
+		// Providing a timeout solves this, but *if* there is an error, there
+		// won't be any feedback about *what* the error is, that's the tradeoff.
+		setTimeout(() => {
+			process.exit();
+		}, 500)
 	});
 
-	afterEach(() => {
-		globalThis.localStorage.clear();
+	testPlanExecutors.after.each(() => {
+		cleanup();
+		td.reset();
 	});
 
-	const testPlans = model.getSimplePathPlans();
-
-	testPlans.forEach((plan) => {
-		describe(`authentication test system ${plan.description}`, () => {
-			plan.paths.forEach((path) => {
-				it(path.description, async () => {
-					const screen = render(
-						<ConfigInjector
-							initialLoginFlowType="OTP"
-							initialDeviceSecurityType="PIN"
-							isInTestMode={true}
-						>
-							<Authentication />
-						</ConfigInjector>
-					);
-					await path.test(screen);
-				});
-			});
+	plan.paths.forEach((path) => {
+		testPlanExecutors(path.description, async () => {
+			render(<SUT />);
+			await path.test(null);
 		});
 	});
-
-	it("should have full coverage", () => {
-		return model.testCoverage();
-	});
+	 testPlanExecutors.run();
 });
+
+const coverageTests = suite("additional tests");
+
+coverageTests("system test should have full coverage", () => model.testCoverage());
+
+coverageTests.run();

@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { useLogger } from "@thingco/logger";
 import { useSelector } from "@xstate/react";
 import { useAuthInterpreter } from "./AuthSystemProvider";
 import { stateSelectors } from "./selectors";
@@ -15,10 +14,8 @@ import { stateSelectors } from "./selectors";
 export function useAuthenticatedPinChangeSuccess() {
 	const authenticator = useAuthInterpreter();
 	const isActive = useSelector(authenticator, stateSelectors.isAuthenticatedPinChangeSuccess!);
-	const logger = useLogger();
 
 	const confirmPinChange = () => {
-		logger.info("Confirmation of successful pin change");
 		authenticator.send({ type: "PIN_CHANGE_SUCCESS" });
 	};
 

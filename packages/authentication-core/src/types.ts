@@ -131,6 +131,8 @@ export type InternalAuthEvent =
 	| { type: "USERNAME_AND_PASSWORD_INVALID"; error: "USERNAME_AND_PASSWORD_INVALID" }
 	| { type: "GO_BACK" }
 	| { type: "FORGOTTEN_PASSWORD" }
+	| { type: "PASSWORD_FORCE_CHANGE_SUCCESS"; user: any; }
+	| { type: "PASSWORD_FORCE_CHANGE_FAILURE"; error: "PASSWORD_CHANGE_FAILURE" }
 	| { type: "PASSWORD_CHANGE_SUCCESS" }
 	| { type: "PASSWORD_CHANGE_FAILURE"; error: "PASSWORD_CHANGE_FAILURE" }
 	| { type: "CANCEL_PASSWORD_CHANGE" }

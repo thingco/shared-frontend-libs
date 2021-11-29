@@ -4,6 +4,7 @@ import React from "react";
 import { AuthStageSection, Form } from "test-app/Components";
 import { useConfigState } from "test-app/ConfigInjector";
 import uiText from "test-app/ui-copy";
+import { Optional } from "utility-types";
 import { changePasswordCb } from "./callback-implementations";
 
 
@@ -13,11 +14,17 @@ const {
 	},
 } = uiText;
 
-export const AuthenticatedChangingPassword = () => {
-	const { error, isActive, isLoading, submitNewPassword, cancelChangePassword, validationErrors } =
-		useAuthenticatedChangingPassword(changePasswordCb);
-	const { uiLayout } = useConfigState();
+type AuthenticatedChangingPasswordUiProps = Optional<ReturnType<typeof useAuthenticatedChangingPassword>, "validationErrors"> & Partial<Pick<ReturnType<typeof useConfigState>, "uiLayout">>
 
+export const AuthenticatedChangingPasswordUi = ({
+	error,
+	isActive,
+	isLoading,
+	cancelChangePassword,
+	submitNewPassword,
+	uiLayout = "MOUNT_WHEN_ACTIVE",
+	validationErrors = { oldPassword: [], newPassword: [] },
+}: AuthenticatedChangingPasswordUiProps) => {
 	const [oldPassword, setOldPassword] = React.useState("");
 	const [newPassword, setNewPassword] = React.useState("");
 
@@ -61,5 +68,23 @@ export const AuthenticatedChangingPassword = () => {
 				</Form.Elements>
 			</Form>
 		</AuthStageSection>
+	);
+}
+
+export const AuthenticatedChangingPassword = () => {
+	const { error, isActive, isLoading, submitNewPassword, cancelChangePassword, validationErrors } =
+		useAuthenticatedChangingPassword(changePasswordCb);
+	const { uiLayout } = useConfigState();
+
+	return (
+		<AuthenticatedChangingPasswordUi
+			error={error}
+			isActive={isActive}
+			isLoading={isLoading}
+			cancelChangePassword={cancelChangePassword}
+			submitNewPassword={submitNewPassword}
+			uiLayout={uiLayout}
+			validationErrors={validationErrors}
+		/>
 	);
 };

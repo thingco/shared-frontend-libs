@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { useLogger } from "@thingco/logger";
 import { useSelector } from "@xstate/react";
 import { useCallback, useState } from "react";
 import { useAuthInterpreter } from "./AuthSystemProvider";
@@ -17,20 +16,16 @@ export function useCheckingSession(cb: CheckSessionCb) {
 	const authenticator = useAuthInterpreter();
 	const error = useSelector(authenticator, contextSelectors.error);
 	const isActive = useSelector(authenticator, stateSelectors.isCheckingSession!);
-	const logger = useLogger();
 
 	const [isLoading, setIsLoading] = useState(false);
 
 	const checkSession = useCallback(async () => {
 		setIsLoading(true);
-		logger.info("Session check initiated: if it resolves, there is a session present. If not, move to login.");
 		try {
-			const res = await cb();
-			logger.log(`Session present. API response: ${JSON.stringify(res)}`);
+			await cb();
 			setIsLoading(false);
 			authenticator.send({ type: "SESSION_PRESENT" });
 		} catch (err) {
-			logger.log(`No session present. API error: ${JSON.stringify(err)}`);
 			setIsLoading(false);
 			authenticator.send({ type: "SESSION_NOT_PRESENT" });
 		}

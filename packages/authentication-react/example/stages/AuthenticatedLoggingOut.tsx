@@ -13,10 +13,16 @@ const {
 	},
 } = uiText;
 
-export const AuthenticatedLoggingOut = () => {
-	const { error, isActive, isLoading, logOut, cancelLogOut } = useAuthenticatedLoggingOut(logoutCb);
-	const { uiLayout } = useConfigState();
+type AuthenticatedLoggingOutUiProps = ReturnType<typeof useAuthenticatedLoggingOut> & Partial<Pick<ReturnType<typeof useConfigState>, "uiLayout">>
 
+export const AuthenticatedLoggingOutUi = ({
+	error,
+	isActive,
+	isLoading,
+	logOut,
+	cancelLogOut,
+	uiLayout = "MOUNT_WHEN_ACTIVE",
+}: AuthenticatedLoggingOutUiProps) => {
 	if (uiLayout === "MOUNT_WHEN_ACTIVE" && !isActive) return null;
 
 	return (
@@ -39,5 +45,21 @@ export const AuthenticatedLoggingOut = () => {
 				</Form.Elements>
 			</Form>
 		</AuthStageSection>
+	);
+}
+
+export const AuthenticatedLoggingOut = () => {
+	const { error, isActive, isLoading, logOut, cancelLogOut } = useAuthenticatedLoggingOut(logoutCb);
+	const { uiLayout } = useConfigState();
+
+	return (
+		<AuthenticatedLoggingOutUi
+			error={error}
+			isActive={isActive}
+			isLoading={isLoading}
+			logOut={logOut}
+			cancelLogOut={cancelLogOut}
+			uiLayout={uiLayout}
+		/>
 	);
 };

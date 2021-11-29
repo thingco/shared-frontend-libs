@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useLogger } from "@thingco/logger";
 import { useSelector } from "@xstate/react";
 import { useCallback, useState } from "react";
 import { useAuthInterpreter } from "./AuthSystemProvider";
@@ -33,7 +32,6 @@ export function useSubmittingUsernameAndPassword<User = any>(
 	const authenticator = useAuthInterpreter();
 	const error = useSelector(authenticator, contextSelectors.error);
 	const isActive = useSelector(authenticator, stateSelectors.isSubmittingUsernameAndPassword!);
-	const logger = useLogger();
 
 	const [validationErrors, setValidationErrors] = useState<{
 		username: string[];
@@ -51,25 +49,15 @@ export function useSubmittingUsernameAndPassword<User = any>(
 				return;
 			} else {
 				setIsLoading(true);
-				logger.log("Username/password validation started.");
-
 				try {
 					const resp = await cb(username, password);
-					logger.log(`Username and password validated! API response: ${JSON.stringify(resp)}`);
 					setIsLoading(false);
 					if (Array.isArray(resp) && resp[0] === "NEW_PASSWORD_REQUIRED") {
-						logger.log(`Password was temporary, user needs to set a new password`);
-						authenticator.send({
-							type: "USERNAME_AND_PASSWORD_VALID_PASSWORD_CHANGE_REQUIRED",
-							user: resp[1],
-							username,
-							error: "PASSWORD_CHANGE_REQUIRED",
-						});
+						authenticator.send({ type: "USERNAME_AND_PASSWORD_VALID_PASSWORD_CHANGE_REQUIRED", user: resp[1], username, error: "PASSWORD_CHANGE_REQUIRED" });
 					} else {
 						authenticator.send({ type: "USERNAME_AND_PASSWORD_VALID", user: resp, username });
 					}
 				} catch (err) {
-					logger.log(`Username and password validation failed. API error: ${JSON.stringify(err)}`);
 					setIsLoading(false);
 					// REVIEW check errors here to see if can tell if username or password are individually invalid:
 					authenticator.send({

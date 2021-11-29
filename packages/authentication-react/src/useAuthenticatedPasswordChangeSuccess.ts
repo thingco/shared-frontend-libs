@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { useLogger } from "@thingco/logger";
 import { useSelector } from "@xstate/react";
 import { useAuthInterpreter } from "./AuthSystemProvider";
 import { stateSelectors } from "./selectors";
@@ -15,10 +14,8 @@ import { stateSelectors } from "./selectors";
 export function useAuthenticatedPasswordChangeSuccess() {
 	const authenticator = useAuthInterpreter();
 	const isActive = useSelector(authenticator, stateSelectors.isAuthenticatedPasswordChangeSuccess!);
-	const logger = useLogger();
 
 	const confirmPasswordChange = () => {
-		logger.info("Confirmation of successful password change sent to system");
 		authenticator.send({ type: "CONFIRM_PASSWORD_CHANGE" });
 	};
 

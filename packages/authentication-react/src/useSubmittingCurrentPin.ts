@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { useLogger } from "@thingco/logger";
 import { useSelector } from "@xstate/react";
 import { useCallback, useState } from "react";
 import { useAuthInterpreter } from "./AuthSystemProvider";
@@ -25,7 +24,6 @@ export function useSubmittingCurrentPin(
 	const authenticator = useAuthInterpreter();
 	const error = useSelector(authenticator, contextSelectors.error);
 	const isActive = useSelector(authenticator, stateSelectors.isSubmittingCurrentPin!);
-	const logger = useLogger();
 
 	const [validationErrors, setValidationErrors] = useState<{ pin: string[] }>({ pin: [] });
 	const [isLoading, setIsLoading] = useState(false);
@@ -40,17 +38,12 @@ export function useSubmittingCurrentPin(
 				return;
 			} else {
 				setIsLoading(true);
-				logger.info(
-					"Initiating a check against the existing PIN. If the check resolves, user passes authentication."
-				);
 
 				try {
 					const res = await cb(pin);
-					logger.log(`PIN validated. API response: ${JSON.stringify(res)}`);
 					setIsLoading(false);
 					authenticator.send({ type: "PIN_VALID" });
 				} catch (err) {
-					logger.log(`PIN validation failed. API error: ${JSON.stringify(err)}`);
 					setIsLoading(false);
 					authenticator.send({ type: "PIN_INVALID", error: "PIN_INVALID" });
 				}

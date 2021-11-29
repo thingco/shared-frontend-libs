@@ -1,11 +1,11 @@
 import { AuthStateId } from "@thingco/authentication-core";
 import { useSubmittingForceChangePassword } from "@thingco/authentication-react";
-import React from "react";
+import React, { useState } from "react";
 import { AuthStageSection, Form } from "test-app/Components";
 import { useConfigState } from "test-app/ConfigInjector";
 import uiText from "test-app/ui-copy";
 import { validateForceChangePasswordCb } from "./callback-implementations";
-
+import type { Optional } from "utility-types";
 
 const {
 	authStages: {
@@ -13,12 +13,17 @@ const {
 	},
 } = uiText;
 
-export const SubmittingForceChangePassword = () => {
-	const { error, isLoading, isActive, validationErrors, validateNewPassword } =
-		useSubmittingForceChangePassword(validateForceChangePasswordCb);
-	const { uiLayout } = useConfigState();
+type SubmittingForceChangePasswordUiProps = Optional<ReturnType<typeof useSubmittingForceChangePassword>, "validationErrors"> & Partial<Pick<ReturnType<typeof useConfigState>, "uiLayout">>;
 
-	const [password, setPassword] = React.useState("");
+export const SubmittingForceChangePasswordUi = ({
+	error,
+	isLoading,
+	isActive,
+	validationErrors = {password: []},
+	validateNewPassword,
+	uiLayout = "MOUNT_WHEN_ACTIVE",
+}: SubmittingForceChangePasswordUiProps) => {
+	const [password, setPassword] = useState("");
 
 	if (uiLayout === "MOUNT_WHEN_ACTIVE" && !isActive) return null;
 
@@ -37,7 +42,7 @@ export const SubmittingForceChangePassword = () => {
 						inputType="text"
 						isActive={isActive}
 						label={controlLabels.newPasswordInput}
-						validationErrors={validationErrors["password"]}
+						validationErrors={validationErrors.password}
 						value={password}
 						valueSetter={setPassword}
 					/>
@@ -47,5 +52,22 @@ export const SubmittingForceChangePassword = () => {
 				</Form.Elements>
 			</Form>
 		</AuthStageSection>
+	);
+};
+
+export const SubmittingForceChangePassword = () => {
+	const { error, isLoading, isActive, validationErrors, validateNewPassword } =
+		useSubmittingForceChangePassword(validateForceChangePasswordCb);
+	const { uiLayout } = useConfigState();
+
+	return (
+		<SubmittingForceChangePasswordUi
+			error={error}
+			isLoading={isLoading}
+			isActive={isActive}
+			validationErrors={validationErrors}
+			validateNewPassword={validateNewPassword}
+			uiLayout={uiLayout}
+		/>
 	);
 };

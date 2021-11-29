@@ -1,10 +1,9 @@
 import React from "react";
-import { AuthStateId } from "@thingco/authentication-core";
+import { AuthStateId} from "@thingco/authentication-core";
 import { useAuthenticated } from "@thingco/authentication-react";
 import { AuthStageSection, Form } from "test-app/Components";
 import { useConfigState } from "test-app/ConfigInjector";
 import uiText from "test-app/ui-copy";
-
 
 const {
 	authStages: {
@@ -12,10 +11,17 @@ const {
 	},
 } = uiText;
 
-export const Authenticated = () => {
-	const { isActive, requestLogOut, requestPasswordChange, requestPinChange } = useAuthenticated();
-	const { uiLayout, deviceSecurityType, loginFlowType } = useConfigState();
+type AuthenticatedUiProps = Omit<ReturnType<typeof useAuthenticated>, "isAuthenticated"> & Partial<Pick<ReturnType<typeof useConfigState>, "uiLayout">> & Pick<ReturnType<typeof useConfigState>, "loginFlowType" | "deviceSecurityType">;
 
+export const AuthenticatedUi = ({
+	deviceSecurityType,
+	isActive,
+	loginFlowType,
+	requestLogOut,
+	requestPasswordChange,
+	requestPinChange,
+	uiLayout = "MOUNT_WHEN_ACTIVE",
+}: AuthenticatedUiProps) => {
 	if (uiLayout === "MOUNT_WHEN_ACTIVE" && !isActive) return null;
 
 	return (
@@ -53,4 +59,21 @@ export const Authenticated = () => {
 			)}
 		</AuthStageSection>
 	);
+};
+
+
+export const Authenticated = () => {
+	const { isActive, requestLogOut, requestPasswordChange, requestPinChange } = useAuthenticated();
+	const { uiLayout, deviceSecurityType, loginFlowType } = useConfigState();
+	return (
+		<AuthenticatedUi
+			isActive={isActive}
+			requestLogOut={requestLogOut}
+			requestPasswordChange={requestPasswordChange}
+			requestPinChange={requestPinChange}
+			uiLayout={uiLayout}
+			deviceSecurityType={deviceSecurityType}
+			loginFlowType={loginFlowType}
+		/>
+	)
 };

@@ -2,7 +2,7 @@ import { AuthStateId } from "@thingco/authentication-core";
 import { useForgottenPasswordResetSuccess } from "@thingco/authentication-react";
 import React from "react";
 import { AuthStageSection, Form } from "test-app/Components";
-import { useConfigState } from "test-app/ConfigInjector";
+import { UiLayout, useConfigState } from "test-app/ConfigInjector";
 import uiText from "test-app/ui-copy";
 
 const {
@@ -11,10 +11,17 @@ const {
 	},
 } = uiText;
 
-export const ForgottenPasswordResetSuccess = () => {
-	const { isActive, confirmPasswordReset } = useForgottenPasswordResetSuccess();
-	const { uiLayout } = useConfigState();
+type ForgottenPasswordResetSuccessUiProps = {
+	isActive: boolean;
+	confirmPasswordReset: ReturnType<typeof useForgottenPasswordResetSuccess>["confirmPasswordReset"];
+	uiLayout?: UiLayout;
+}
 
+export const ForgottenPasswordResetSuccessUi = ({
+	isActive,
+	confirmPasswordReset,
+	uiLayout = "MOUNT_WHEN_ACTIVE",
+}: ForgottenPasswordResetSuccessUiProps) => {
 	if (uiLayout === "MOUNT_WHEN_ACTIVE" && !isActive) return null;
 
 	return (
@@ -33,5 +40,18 @@ export const ForgottenPasswordResetSuccess = () => {
 				</Form.Elements>
 			</Form>
 		</AuthStageSection>
+	);
+}
+
+export const ForgottenPasswordResetSuccess = () => {
+	const { isActive, confirmPasswordReset } = useForgottenPasswordResetSuccess();
+	const { uiLayout } = useConfigState();
+
+	return (
+		<ForgottenPasswordResetSuccessUi
+			isActive={isActive}
+			confirmPasswordReset={confirmPasswordReset}
+			uiLayout={uiLayout}
+		/>
 	);
 };

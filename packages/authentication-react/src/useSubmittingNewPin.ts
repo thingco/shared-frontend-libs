@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { useLogger } from "@thingco/logger";
 import { useSelector } from "@xstate/react";
 import { useCallback, useState } from "react";
 import { useAuthInterpreter } from "./AuthSystemProvider";
@@ -24,7 +23,6 @@ export function useSubmittingNewPin(
 	const authenticator = useAuthInterpreter();
 	const error = useSelector(authenticator, contextSelectors.error);
 	const isActive = useSelector(authenticator, stateSelectors.isSubmittingNewPin!);
-	const logger = useLogger();
 
 	const [validationErrors, setValidationErrors] = useState<{ pin: string[] }>({ pin: [] });
 	const [isLoading, setIsLoading] = useState(false);
@@ -39,16 +37,11 @@ export function useSubmittingNewPin(
 				return;
 			} else {
 				setIsLoading(true);
-				logger.info(
-					"Attempting to set a new PIN. If the check resolves, attempts was successful and they are now Authenticated. If it fails there may be a problem with saving to storage."
-				);
 				try {
 					const res = await cb(pin);
-					logger.info(`New PIN successfully set. API response: ${JSON.stringify(res)}`);
 					setIsLoading(false);
 					authenticator.send({ type: "NEW_PIN_VALID" });
 				} catch (err) {
-					logger.log(`Set PIN action failed. API error: ${JSON.stringify(err)}`);
 					setIsLoading(false);
 					authenticator.send({ type: "NEW_PIN_INVALID", error: "NEW_PIN_INVALID" });
 				}

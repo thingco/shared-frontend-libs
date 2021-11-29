@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useLogger } from "@thingco/logger";
 import { useSelector } from "@xstate/react";
 import { useCallback, useState } from "react";
 import { useAuthInterpreter } from "./AuthSystemProvider";
@@ -29,7 +28,6 @@ export function useForgottenPasswordSubmittingReset(
 	const error = useSelector(authenticator, contextSelectors.error);
 	const isActive = useSelector(authenticator, stateSelectors.isForgottenPasswordSubmittingReset!);
 	const username = useSelector(authenticator, contextSelectors.username);
-	const logger = useLogger();
 
 	const [validationErrors, setValidationErrors] = useState<{
 		code: string[];
@@ -47,17 +45,11 @@ export function useForgottenPasswordSubmittingReset(
 				return;
 			} else {
 				setIsLoading(true);
-				logger.log(
-					"By this stage, the user will have been sent a reset code. If they enter that + a new password, their password will be updated."
-				);
-
 				try {
 					const res = await cb(username, code, newPassword);
-					logger.log(`API response: ${JSON.stringify(res)}`);
 					setIsLoading(false);
 					authenticator.send({ type: "PASSWORD_RESET_SUCCESS" });
 				} catch (err) {
-					logger.log(`API error: ${JSON.stringify(err)}`);
 					setIsLoading(false);
 					authenticator.send({ type: "PASSWORD_RESET_FAILURE", error: "PASSWORD_RESET_FAILURE" });
 				}

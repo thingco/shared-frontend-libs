@@ -5,9 +5,8 @@ import type {
     LoginFlowType
 } from "@thingco/authentication-core";
 import { machine } from "@thingco/authentication-core";
-import { useLogger } from "@thingco/logger";
 import { useInterpret, useSelector } from "@xstate/react";
-import { ReactNode, useEffect } from "react";
+import { ReactNode } from "react";
 import React, { createContext, useContext } from "react";
 import { contextSelectors, currentStateSelector } from "./selectors";
 
@@ -87,12 +86,6 @@ export function AuthProvider({
 	useDevTools = false,
 	eventSink = undefined,
 }: AuthProviderProps) {
-	const logger = useLogger();
-
-	useEffect(() => {
-		logger.log(`\nCreating auth system, ${loginFlowType}, ${deviceSecurityType}`);
-	}, [])
-
 	const authenticationSystem = machine.withContext({
 		allowedOtpRetries,
 		deviceSecurityType,

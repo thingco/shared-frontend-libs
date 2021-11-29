@@ -1,8 +1,8 @@
-import { AuthStateId } from "@thingco/authentication-core";
+import { AuthError, AuthStateId } from "@thingco/authentication-core";
 import { useForgottenPasswordRequestingReset } from "@thingco/authentication-react";
 import React from "react";
 import { AuthStageSection, Form } from "test-app/Components";
-import { useConfigState } from "test-app/ConfigInjector";
+import { UiLayout, useConfigState } from "test-app/ConfigInjector";
 import uiText from "test-app/ui-copy";
 import { requestNewPasswordCb } from "./callback-implementations";
 
@@ -12,17 +12,25 @@ const {
 	},
 } = uiText;
 
-export const ForgottenPasswordRequestingReset = () => {
-	const {
-		error,
-		isActive,
-		isLoading,
-		cancelResetPasswordRequest,
-		requestNewPassword,
-		validationErrors,
-	} = useForgottenPasswordRequestingReset(requestNewPasswordCb);
-	const { uiLayout } = useConfigState();
+type ForgottenPasswordRequestingResetUiProps = {
+	error: AuthError;
+	isActive: boolean;
+	isLoading: boolean;
+	cancelResetPasswordRequest: ReturnType<typeof useForgottenPasswordRequestingReset>["cancelResetPasswordRequest"];
+	requestNewPassword: ReturnType<typeof useForgottenPasswordRequestingReset>["requestNewPassword"];
+	validationErrors?: ReturnType<typeof useForgottenPasswordRequestingReset>["validationErrors"];
+	uiLayout?: UiLayout;
+}
 
+export const ForgottenPasswordRequestingResetUi = ({
+	error,
+	isLoading,
+	isActive,
+	cancelResetPasswordRequest,
+	requestNewPassword,
+	validationErrors = { username: [] },
+	uiLayout = "MOUNT_WHEN_ACTIVE",
+}: ForgottenPasswordRequestingResetUiProps) => {
 	const [username, setUsername] = React.useState("");
 
 	if (uiLayout === "MOUNT_WHEN_ACTIVE" && !isActive) return null;
@@ -56,5 +64,29 @@ export const ForgottenPasswordRequestingReset = () => {
 				</Form.Elements>
 			</Form>
 		</AuthStageSection>
+	);
+};
+
+export const ForgottenPasswordRequestingReset = () => {
+	const {
+		error,
+		isActive,
+		isLoading,
+		cancelResetPasswordRequest,
+		requestNewPassword,
+		validationErrors,
+	} = useForgottenPasswordRequestingReset(requestNewPasswordCb);
+	const { uiLayout } = useConfigState();
+
+	return (
+		<ForgottenPasswordRequestingResetUi
+			isActive={isActive}
+			isLoading={isLoading}
+			cancelResetPasswordRequest={cancelResetPasswordRequest}
+			requestNewPassword={requestNewPassword}
+			validationErrors={validationErrors}
+			error={error}
+			uiLayout={uiLayout}
+		/>
 	);
 };

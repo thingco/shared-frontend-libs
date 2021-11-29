@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useLogger } from "@thingco/logger";
 import { useSelector } from "@xstate/react";
 import { useCallback, useState } from "react";
 import { useAuthInterpreter } from "./AuthSystemProvider";
@@ -24,7 +23,6 @@ export function useSubmittingOtpUsername<User = any>(
 	const authenticator = useAuthInterpreter();
 	const error = useSelector(authenticator, contextSelectors.error);
 	const isActive = useSelector(authenticator, stateSelectors.isSubmittingOtpUsername!);
-	const logger = useLogger();
 
 	const [validationErrors, setValidationErrors] = useState<{ username: string[] }>({
 		username: [],
@@ -41,18 +39,12 @@ export function useSubmittingOtpUsername<User = any>(
 				return;
 			} else {
 				setIsLoading(true);
-				logger.info(
-					"OTP username validation initiated: if it resolves, the system will send out an OTP and user can move to the OTP input stage. If not, something is wrong with the username."
-				);
 
 				try {
 					const user = await cb(username);
-					logger.log(`OTP username valid. API response: ${JSON.stringify(user)}`);
 					setIsLoading(false);
 					authenticator.send({ type: "USERNAME_VALID", username, user });
 				} catch (err) {
-					console.log("!!!!!!!!!!! ERROR", err)
-					logger.info(`OTP username invalid. API error: ${JSON.stringify(err)}`);
 					setIsLoading(false);
 					authenticator.send({ type: "USERNAME_INVALID", error: "USERNAME_INVALID" });
 				}

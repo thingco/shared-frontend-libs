@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { useLogger } from "@thingco/logger";
 import { useSelector } from "@xstate/react";
 import { useCallback, useState } from "react";
 import { useAuthInterpreter } from "./AuthSystemProvider";
@@ -20,26 +19,16 @@ export function useAuthenticatedLoggingOut(cb: LogoutCb) {
 	const authenticator = useAuthInterpreter();
 	const error = useSelector(authenticator, contextSelectors.error);
 	const isActive = useSelector(authenticator, stateSelectors.isAuthenticatedLoggingOut!);
-	const logger = useLogger();
 
 	const [isLoading, setIsLoading] = useState(false);
 
 	const logOut = useCallback(async () => {
 		setIsLoading(true);
-		logger.info(
-			"Logging out. This call should always succeed: if it hasn't then there is an underlying issue with the system."
-		);
 		try {
 			const res = await cb();
-			logger.log(`Logged out! API response: ${JSON.stringify(res)}`);
 			setIsLoading(false);
 			authenticator.send({ type: "LOG_OUT_SUCCESS" });
 		} catch (err) {
-			logger.error(
-				`There has been an issue logging out. This should not have occured, so this indicates a serious underlying issue with the system. API error: ${JSON.stringify(
-					err
-				)}`
-			);
 			setIsLoading(false);
 			authenticator.send({ type: "LOG_OUT_FAILURE", error: "LOG_OUT_FAILURE" });
 		}

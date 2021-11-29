@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { useLogger } from "@thingco/logger";
 import { useSelector } from "@xstate/react";
 import { useCallback, useState } from "react";
 import { useAuthInterpreter } from "./AuthSystemProvider";
@@ -24,27 +23,16 @@ export function useForgottenPinRequestingReset(cb: LogoutCb) {
 	const authenticator = useAuthInterpreter();
 	const error = useSelector(authenticator, contextSelectors.error);
 	const isActive = useSelector(authenticator, stateSelectors.isForgottenPinRequestingReset!);
-	const logger = useLogger();
 
 	const [isLoading, setIsLoading] = useState(false);
 
 	const resetPin = useCallback(async () => {
-		logger.info(
-			"Resetting PIN. This will log the user out and wipe the current pin. This call should always succeed: if it hasn't then there is an underlying issue with the system."
-		);
 		setIsLoading(true);
-
 		try {
 			const res = await cb();
-			logger.log(`Pin reset, logged out! API response: ${JSON.stringify(res)}`);
 			setIsLoading(false);
 			authenticator.send({ type: "PIN_RESET_SUCCESS" });
 		} catch (err) {
-			logger.error(
-				`There has been an issue logging out. This should not have occured, so this indicates a serious underlying issue with the system. API error: ${JSON.stringify(
-					err
-				)}`
-			);
 			setIsLoading(false);
 			authenticator.send({ type: "PIN_RESET_FAILURE", error: "PIN_RESET_FAILURE" });
 		}

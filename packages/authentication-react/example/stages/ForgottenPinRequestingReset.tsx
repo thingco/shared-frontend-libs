@@ -1,8 +1,8 @@
-import { AuthStateId } from "@thingco/authentication-core";
+import { AuthError, AuthStateId } from "@thingco/authentication-core";
 import { useForgottenPinRequestingReset } from "@thingco/authentication-react";
 import React from "react";
 import { AuthStageSection, Form } from "test-app/Components";
-import { useConfigState } from "test-app/ConfigInjector";
+import { UiLayout, useConfigState } from "test-app/ConfigInjector";
 import uiText from "test-app/ui-copy";
 import { resetPinCb } from "./callback-implementations";
 
@@ -12,11 +12,23 @@ const {
 	},
 } = uiText;
 
-export const ForgottenPinRequestingReset = () => {
-	const { error, isActive, isLoading, resetPin, cancelResetPin } =
-		useForgottenPinRequestingReset(resetPinCb);
-	const { uiLayout } = useConfigState();
+type ForgottenPinRequestingResetUiProps = {
+	error: AuthError;
+	isActive: boolean;
+	isLoading: boolean;
+	resetPin: ReturnType<typeof useForgottenPinRequestingReset>["resetPin"];
+	cancelResetPin: ReturnType<typeof useForgottenPinRequestingReset>["cancelResetPin"];
+	uiLayout?: UiLayout;
+}
 
+export const ForgottenPinRequestingResetUi = ({
+	error,
+	isLoading,
+	isActive,
+	resetPin,
+	cancelResetPin,
+	uiLayout = "MOUNT_WHEN_ACTIVE",
+}: ForgottenPinRequestingResetUiProps) => {
 	if (uiLayout === "MOUNT_WHEN_ACTIVE" && !isActive) return null;
 
 	return (
@@ -40,4 +52,22 @@ export const ForgottenPinRequestingReset = () => {
 			</Form>
 		</AuthStageSection>
 	);
+};
+
+export const ForgottenPinRequestingReset = () => {
+	const { error, isActive, isLoading, resetPin, cancelResetPin } =
+		useForgottenPinRequestingReset(resetPinCb);
+	const { uiLayout } = useConfigState();
+
+	return (
+		<ForgottenPinRequestingResetUi
+			error={error}
+			isActive={isActive}
+			isLoading={isLoading}
+			resetPin={resetPin}
+			cancelResetPin={cancelResetPin}
+			uiLayout={uiLayout}
+		/>
+	);
+
 };

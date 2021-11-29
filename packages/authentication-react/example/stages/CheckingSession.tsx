@@ -1,8 +1,8 @@
 import React from "react";
-import { AuthStateId } from "@thingco/authentication-core";
+import { AuthError, AuthStateId } from "@thingco/authentication-core";
 import { useCheckingSession } from "@thingco/authentication-react";
 import { AuthStageSection, Form } from "test-app/Components";
-import { useConfigState } from "test-app/ConfigInjector";
+import { UiLayout, useConfigState } from "test-app/ConfigInjector";
 import uiText from "test-app/ui-copy";
 import { checkSessionCb } from "./callback-implementations";
 
@@ -13,10 +13,21 @@ const {
 	},
 } = uiText;
 
-export const CheckingSession = () => {
-	const { isActive, isLoading, checkSession, error } = useCheckingSession(checkSessionCb);
-	const { uiLayout } = useConfigState();
+type CheckingSessionUiProps = {
+	isActive: boolean;
+	isLoading: boolean;
+	checkSession: ReturnType<typeof useCheckingSession>["checkSession"];
+	error: AuthError;
+	uiLayout?: UiLayout;
+}
 
+export const CheckingSessionUi = ({
+	isActive,
+	isLoading,
+	checkSession,
+	error,
+	uiLayout = "MOUNT_WHEN_ACTIVE",
+}: CheckingSessionUiProps) => {
 	if (uiLayout === "MOUNT_WHEN_ACTIVE" && !isActive) return null;
 
 	return (
@@ -35,5 +46,20 @@ export const CheckingSession = () => {
 				</Form.Elements>
 			</Form>
 		</AuthStageSection>
+	);
+};
+
+export const CheckingSession = () => {
+	const { isActive, isLoading, checkSession, error } = useCheckingSession(checkSessionCb);
+	const { uiLayout } = useConfigState();
+
+	return (
+		<CheckingSessionUi
+			isActive={isActive}
+			isLoading={isLoading}
+			checkSession={checkSession}
+			error={error}
+			uiLayout={uiLayout}
+		/>
 	);
 };

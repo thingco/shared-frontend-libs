@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { AuthStageSection, Form } from "test-app/Components";
 import { useConfigState } from "test-app/ConfigInjector";
 import uiText from "test-app/ui-copy";
+import type { Optional } from "utility-types";
 import { setNewPinCb } from "./callback-implementations";
 
 
@@ -13,11 +14,16 @@ const {
 	},
 } = uiText;
 
-export const SubmittingNewPin = () => {
-	const { error, isActive, isLoading, setNewPin, validationErrors } =
-		useSubmittingNewPin(setNewPinCb);
-	const { uiLayout } = useConfigState();
+type SubmittingNewPinUiProps = Optional<ReturnType<typeof useSubmittingNewPin>, "validationErrors"> & Partial<Pick<ReturnType<typeof useConfigState>, "uiLayout">>;
 
+export const SubmittingNewPinUi = ({
+	error,
+	isActive,
+	isLoading,
+	setNewPin,
+	validationErrors = { pin: [] },
+	uiLayout = "MOUNT_WHEN_ACTIVE",
+}: SubmittingNewPinUiProps) => {
 	const [pin, setPin] = useState("");
 
 	if (uiLayout === "MOUNT_WHEN_ACTIVE" && !isActive) return null;
@@ -47,5 +53,22 @@ export const SubmittingNewPin = () => {
 				</Form.Elements>
 			</Form>
 		</AuthStageSection>
+	);
+}
+
+export const SubmittingNewPin = () => {
+	const { error, isActive, isLoading, setNewPin, validationErrors } =
+		useSubmittingNewPin(setNewPinCb);
+	const { uiLayout } = useConfigState();
+
+	return (
+		<SubmittingNewPinUi
+			error={error}
+			isLoading={isLoading}
+			isActive={isActive}
+			setNewPin={setNewPin}
+			validationErrors={validationErrors}
+			uiLayout={uiLayout}
+		/>
 	);
 };

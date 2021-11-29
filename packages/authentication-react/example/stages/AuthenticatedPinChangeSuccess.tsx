@@ -2,7 +2,7 @@ import React from "react";
 import { AuthStateId } from "@thingco/authentication-core";
 import { useAuthenticatedPinChangeSuccess } from "@thingco/authentication-react";
 import { AuthStageSection, Form } from "test-app/Components";
-import { useConfigState } from "test-app/ConfigInjector";
+import { UiLayout, useConfigState } from "test-app/ConfigInjector";
 import uiText from "test-app/ui-copy";
 
 
@@ -12,10 +12,17 @@ const {
 	},
 } = uiText;
 
-export const AuthenticatedPinChangeSuccess = () => {
-	const { isActive, confirmPinChange } = useAuthenticatedPinChangeSuccess();
-	const { uiLayout } = useConfigState();
+type AuthenticatedPinChangeSuccessUiProps = {
+	isActive: boolean;
+	confirmPinChange: ReturnType<typeof useAuthenticatedPinChangeSuccess>["confirmPinChange"];
+	uiLayout?: UiLayout;
+}
 
+export const AuthenticatedPinChangeSuccessUi = ({
+	isActive,
+	confirmPinChange,
+	uiLayout = "MOUNT_WHEN_ACTIVE",
+}: AuthenticatedPinChangeSuccessUiProps) => {
 	if (uiLayout === "MOUNT_WHEN_ACTIVE" && !isActive) return null;
 
 	return (
@@ -34,5 +41,18 @@ export const AuthenticatedPinChangeSuccess = () => {
 				</Form.Elements>
 			</Form>
 		</AuthStageSection>
+	);
+};
+
+export const AuthenticatedPinChangeSuccess = () => {
+	const { isActive, confirmPinChange } = useAuthenticatedPinChangeSuccess();
+	const { uiLayout } = useConfigState();
+
+	return (
+		<AuthenticatedPinChangeSuccessUi
+			isActive={isActive}
+			confirmPinChange={confirmPinChange}
+			uiLayout={uiLayout}
+		/>
 	);
 };

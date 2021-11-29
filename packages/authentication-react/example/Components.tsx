@@ -21,11 +21,13 @@ const AuthStageSectionOverview = ({
 	errorMsg = "",
 	isLoading,
 	stageId,
+	passwordAttemptsMade,
 }: {
 	description: string;
 	errorMsg: string;
 	isLoading: boolean;
 	stageId: AuthStateId;
+	passwordAttemptsMade?: number;
 }) => (
 	<header
 		className="auth-stage__header"
@@ -52,6 +54,16 @@ const AuthStageSectionOverview = ({
 					{errorMsg || "n/a"}
 				</dd>
 			</div>
+			{ Number.isInteger(passwordAttemptsMade) && (
+				<div className="metalist__property">
+					<dt className="metalist__property-key" role="term">
+						{uiText.authStages.common.meta.term.passwordAttemptsMade}
+					</dt>
+					<dd className="metalist__property-value" role="definition">
+						{passwordAttemptsMade}
+					</dd>
+				</div>
+			)}
 		</dl>
 		<p className="auth-stage__header__description" id={`stage${stageId}Desc`}>
 			{description}

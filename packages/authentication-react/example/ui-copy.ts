@@ -23,6 +23,7 @@ const uiText = {
 				term: {
 					isLoading: "Loading",
 					error: "Error message",
+					passwordAttemptsMade: "Password attempts made",
 				},
 			},
 		},

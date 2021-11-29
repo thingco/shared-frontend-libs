@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useLogger } from "@thingco/logger";
 import { useSelector } from "@xstate/react";
 import { useCallback, useState } from "react";
 import { useAuthInterpreter } from "./AuthSystemProvider";
@@ -27,8 +26,6 @@ export function useSubmittingForceChangePassword<User = any>(
 	const error = useSelector(authenticator, contextSelectors.error);
 	const isActive = useSelector(authenticator, stateSelectors.isSubmittingForceChangePassword!);
 	const currentUserData = useSelector(authenticator, contextSelectors.user);
-	const logger = useLogger();
-
 	const [validationErrors, setValidationErrors] = useState<{ password: string[] }>({
 		password: [],
 	});
@@ -47,13 +44,11 @@ export function useSubmittingForceChangePassword<User = any>(
 
 				try {
 					const user = await cb(currentUserData, password);
-					logger.log(`Password validated! API response: ${JSON.stringify(user)}`);
 					setIsLoading(false);
-					authenticator.send({ type: "PASSWORD_CHANGE_SUCCESS" });
+					authenticator.send({ type: "PASSWORD_FORCE_CHANGE_SUCCESS", user });
 				} catch (err) {
-					logger.log(`Password change failed. API error: ${JSON.stringify(err)}`);
 					setIsLoading(false);
-					authenticator.send({ type: "PASSWORD_CHANGE_FAILURE", error: "PASSWORD_CHANGE_FAILURE" });
+					authenticator.send({ type: "PASSWORD_FORCE_CHANGE_FAILURE", error: "PASSWORD_CHANGE_FAILURE" });
 				}
 			}
 		},

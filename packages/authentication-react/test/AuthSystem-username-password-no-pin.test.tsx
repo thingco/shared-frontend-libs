@@ -1,78 +1,82 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-empty-function */
-import React from "react";
-import { render, waitFor } from "@testing-library/react";
-import { AuthStateId } from "@thingco/authentication-core";
-import type { CheckSessionCb, LogoutCb } from "@thingco/authentication-react";
+import * as td from "testdouble";
+import { suite } from "uvu";
+import { render, cleanup } from "@testing-library/react";
+import { AuthStateId, } from "@thingco/authentication-core";
+import { AuthProvider } from "@thingco/authentication-react";
 import { createModel } from "@xstate/test";
-import { Authentication } from "test-app/App";
-import { ConfigInjector } from "test-app/ConfigInjector";
+import React from "react";
 import {
-    changePasswordCb, checkSessionCb, logoutCb, requestNewPasswordCb,
-    submitNewPasswordCb, validateForceChangePasswordCb, validateUsernameAndPasswordCb
-} from "test-app/stages/callback-implementations";
-import uiText from "test-app/ui-copy";
-import {
-    currentDeviceSecurityTypeIs,
-    currentLoginFlowIs,
-    currentStateIs,
-    stageErrorIs,
-    stageLoadingStatusIs
-} from "test-utils/assertion-helpers";
-import {
-    MOCK_INVALID_CODE, MOCK_INVALID_PASSWORD, MOCK_INVALID_USERNAME, MOCK_OLD_PASSWORD, MOCK_USER_OBJECT, MOCK_VALID_CODE,
+    MOCK_INVALID_CODE,
+    MOCK_INVALID_PASSWORD,
+    MOCK_INVALID_USERNAME, MOCK_USER_OBJECT, MOCK_VALID_CODE,
     MOCK_VALID_PASSWORD,
     MOCK_VALID_USERNAME
 } from "test-utils/dummy-responses";
-import { clickButton, findInputClearInputFillInput } from "test-utils/event-helpers";
-import { localStorageMock } from "test-utils/local-storage";
+import { customScreen as screen } from "test-utils/find-by-term";
 import { createMachine } from "xstate";
-
-jest.mock("test-app/stages/callback-implementations", () => ({
-	checkSessionCb: jest.fn(),
-	validateUsernameAndPasswordCb: jest.fn(async (username, password) => {
-		if (username === MOCK_VALID_USERNAME && password === MOCK_VALID_PASSWORD) {
-			return Promise.resolve(MOCK_USER_OBJECT);
-		} else if (username === MOCK_VALID_USERNAME && password === MOCK_OLD_PASSWORD) {
-			return Promise.resolve(["NEW_PASSWORD_REQUIRED", MOCK_USER_OBJECT]);
-		} else {
-			return Promise.reject();
-		}
-	}),
-	validateForceChangePasswordCb: jest.fn(async (user, password) => {
-		if (user === MOCK_USER_OBJECT && password === MOCK_VALID_PASSWORD) {
-			return Promise.resolve();
-		} else {
-			return Promise.reject();
-		}
-	}),
-	requestNewPasswordCb: jest.fn(async (username) => {
-		if (username === MOCK_VALID_USERNAME) {
-			return Promise.resolve();
-		} else {
-			return Promise.reject();
-		}
-	}),
-	submitNewPasswordCb: jest.fn(async (username, code, newPassword) => {
-		if (username === MOCK_VALID_USERNAME && code === MOCK_VALID_CODE && newPassword === MOCK_VALID_PASSWORD) {
-			return Promise.resolve();
-		} else {
-			return Promise.reject();
-		}
-	}),
-	changePasswordCb: jest.fn(async (oldPassword, newPassword) => {
-		if (oldPassword === MOCK_VALID_PASSWORD && newPassword === MOCK_VALID_PASSWORD) {
-			return Promise.resolve();
-		} else {
-			return Promise.reject();
-		}
-	}),
-	logOutCb: jest.fn(),
-}));
+import {
+	Reporter,
+	ReporterAssertions,
+	CommonAssertions,
+	CheckingSession,
+	CheckingSessionEvents,
+	checkSessionCb,
+	SubmittingUsernameAndPassword,
+	SubmittingUsernameAndPasswordEvents,
+	validateUsernameAndPasswordCb,
+	SubmittingForceChangePassword,
+	SubmittingForceChangePasswordEvents,
+	validateForceChangePasswordCb,
+	ForgottenPasswordRequestingReset,
+	ForgottenPasswordRequestingResetEvents,
+	requestNewPasswordCb,
+	ForgottenPasswordSubmittingReset,
+	ForgottenPasswordSubmittingResetEvents,
+	submitNewPasswordCb,
+	ForgottenPasswordResetSuccess,
+	ForgottenPasswordResetSuccessEvents,
+	Authenticated,
+	AuthenticatedEvents,
+	AuthenticatedLoggingOut,
+	AuthenticatedLoggingOutEvents,
+	logoutCb,
+	AuthenticatedChangingPassword,
+	AuthenticatedChangingPasswordEvents,
+	changePasswordCb,
+	AuthenticatedPasswordChangeSuccess,
+	AuthenticatedPasswordChangeSuccessEvents,
+} from "./stages";
 
 
 /* ------------------------------------------------------------------------- *\
  * SYSTEM UNDER TEST
+\* ------------------------------------------------------------------------- */
+
+const SUT = () => (
+	<AuthProvider
+		loginFlowType="USERNAME_PASSWORD"
+		deviceSecurityType="NONE"
+		allowedOtpRetries={3}
+	>
+		<Reporter />
+		<CheckingSession/>
+		<SubmittingUsernameAndPassword />
+		<SubmittingForceChangePassword />
+		<ForgottenPasswordRequestingReset />
+		<ForgottenPasswordSubmittingReset />
+		<ForgottenPasswordResetSuccess />
+		<Authenticated/>
+		<AuthenticatedLoggingOut/>
+		<AuthenticatedChangingPassword />
+		<AuthenticatedPasswordChangeSuccess />
+	</AuthProvider>
+);
+
+
+/* ------------------------------------------------------------------------- *\
+ * TEST MODEL
 \* ------------------------------------------------------------------------- */
 
 const machine = createMachine({
@@ -81,111 +85,119 @@ const machine = createMachine({
 	states: {
 		CheckingSession: {
 			on: {
-				THERE_IS_A_SESSION: "Authenticated",
-				THERE_IS_NO_SESSION: "SubmittingUsernameAndPassword",
+				SESSION_PRESENT: "Authenticated",
+				SESSION_NOT_PRESENT: "SubmittingUsernameAndPassword",
 			},
 			meta: {
 				test: async () => {
-					await currentStateIs(AuthStateId.CheckingSession);
-					await currentLoginFlowIs("USERNAME_PASSWORD");
-					await currentDeviceSecurityTypeIs("NONE");
-					await stageErrorIs("n/a");
+					ReporterAssertions.currentStateIs(AuthStateId.CheckingSession);
+					ReporterAssertions.loginFlowIs("USERNAME_PASSWORD");
+					ReporterAssertions.deviceSecurityIs("NONE");
 				},
 			},
 		},
 		SubmittingUsernameAndPassword: {
 			on: {
-				GOOD_USERNAME_AND_PASSWORD: "Authenticated",
-				FORCE_PASSWORD_RESET_REQUIRED: "SubmittingForceResetPassword",
-				BAD_USERNAME_AND_PASSWORD: "UsernameOrPasswordError",
-				FORGOT_PASSWORD: "RequestingNewPassword",
+				USERNAME_AND_PASSWORD_VALID: "Authenticated",
+				USERNAME_AND_PASSWORD_VALID_PASSWORD_CHANGE_REQUIRED: "SubmittingForceChangePassword",
+				USERNAME_AND_PASSWORD_INVALID: "SubmittingUsernameAndPassword__Error",
+				FORGOTTEN_PASSWORD: "ForgottenPasswordRequestingReset",
 			},
 			meta: {
 				test: async () => {
-					await currentStateIs(AuthStateId.SubmittingUsernameAndPassword);
-					await stageErrorIs("n/a");
+					ReporterAssertions.currentStateIs(AuthStateId.SubmittingUsernameAndPassword);
+					CommonAssertions.stageErrorIs("n/a");
 				},
 			},
 		},
-		UsernameOrPasswordError: {
+		SubmittingUsernameAndPassword__Error: {
 			on: {
-				GOOD_USERNAME_AND_PASSWORD: "Authenticated",
+				USERNAME_AND_PASSWORD_VALID: "Authenticated",
 			},
 			meta: {
 				test: async () => {
-					await currentStateIs(AuthStateId.SubmittingUsernameAndPassword);
-					await stageErrorIs("USERNAME_AND_PASSWORD_INVALID");
+					ReporterAssertions.currentStateIs(AuthStateId.SubmittingUsernameAndPassword);
+					CommonAssertions.stageErrorIs("USERNAME_AND_PASSWORD_INVALID");
 				},
 			},
 		},
-		SubmittingForceResetPassword: {
-			on: {
-				GOOD_FORCE_RESET_PASSWORD: "Authenticated",
-				BAD_FORCE_RESET_PASSWORD: "SubmittingForceResetPasswordError",
-			},
-			meta: {
-				test: async () => {
-					await currentStateIs(AuthStateId.SubmittingForceChangePassword);
-					await stageErrorIs("PASSWORD_CHANGE_REQUIRED");
-				},
-			},
-		},
-		SubmittingForceResetPasswordError: {
+		SubmittingForceChangePassword: {
 			on: {
 				GOOD_FORCE_RESET_PASSWORD: "Authenticated",
+				BAD_FORCE_RESET_PASSWORD: "SubmittingForceChangePassword__Error",
 			},
 			meta: {
 				test: async () => {
-					await currentStateIs(AuthStateId.SubmittingForceChangePassword);
-					await stageErrorIs("PASSWORD_CHANGE_FAILURE");
+					ReporterAssertions.currentStateIs(AuthStateId.SubmittingForceChangePassword);
+					CommonAssertions.stageErrorIs("PASSWORD_CHANGE_REQUIRED");
 				},
 			},
 		},
-		RequestingNewPassword: {
+		SubmittingForceChangePassword__Error: {
 			on: {
-				PASSWORD_RESET_REQUEST_SUCCESS: "SubmittingNewPassword",
-				PASSWORD_RESET_REQUEST_FAILURE: "RequestingNewPasswordError",
+				GOOD_FORCE_RESET_PASSWORD: "Authenticated",
+			},
+			meta: {
+				test: async () => {
+					ReporterAssertions.currentStateIs(AuthStateId.SubmittingForceChangePassword);
+					CommonAssertions.stageErrorIs("PASSWORD_CHANGE_FAILURE");
+				},
+			},
+		},
+		ForgottenPasswordRequestingReset: {
+			on: {
+				PASSWORD_RESET_REQUEST_SUCCESS: "ForgottenPasswordSubmittingReset",
+				PASSWORD_RESET_REQUEST_FAILURE: "ForgottenPasswordRequestingReset__Error",
 				CANCEL_PASSWORD_RESET: "SubmittingUsernameAndPassword",
 			},
 			meta: {
 				test: async () => {
-					await currentStateIs(AuthStateId.ForgottenPasswordRequestingReset);
-					await stageErrorIs("n/a");
+					ReporterAssertions.currentStateIs(AuthStateId.ForgottenPasswordRequestingReset);
 				},
 			},
 		},
-		RequestingNewPasswordError: {
+		ForgottenPasswordRequestingReset__Error: {
 			on: {
-				PASSWORD_RESET_REQUEST_SUCCESS: "SubmittingNewPassword",
+				PASSWORD_RESET_REQUEST_SUCCESS: "ForgottenPasswordSubmittingReset",
 			},
 			meta: {
 				test: async () => {
-					await currentStateIs(AuthStateId.ForgottenPasswordRequestingReset);
-					await stageErrorIs("PASSWORD_RESET_REQUEST_FAILURE");
+					ReporterAssertions.currentStateIs(AuthStateId.ForgottenPasswordRequestingReset);
+					CommonAssertions.stageErrorIs("PASSWORD_RESET_REQUEST_FAILURE");
 				},
 			},
 		},
-		SubmittingNewPassword: {
+		ForgottenPasswordSubmittingReset: {
 			on: {
-				PASSWORD_RESET_SUCCESS: "CheckingSession",
-				PASSWORD_RESET_FAILURE: "SubmittingNewPasswordError",
+				PASSWORD_RESET_SUCCESS: "ForgottenPasswordResetSuccess",
+				PASSWORD_RESET_FAILURE: "ForgottenPasswordSubmittingReset__Error",
+				// CANCEL_PASSWORD_RESET_AT_SUBMIT_STAGE: "SubmittingUsernameAndPassword"
 			},
 			meta: {
 				test: async () => {
-					await currentStateIs(AuthStateId.ForgottenPasswordSubmittingReset);
-					await stageErrorIs("n/a");
+					ReporterAssertions.currentStateIs(AuthStateId.ForgottenPasswordSubmittingReset);
 				},
 			},
 		},
-		SubmittingNewPasswordError: {
+		ForgottenPasswordSubmittingReset__Error: {
 			on: {
-				PASSWORD_RESET_SUCCESS: "CheckingSession",
-				REENTER_USERNAME_TO_RESEND_CODE: "RequestingNewPassword",
+				PASSWORD_RESET_SUCCESS: "ForgottenPasswordResetSuccess",
+				REENTER_USERNAME_TO_RESEND_CODE: "ForgottenPasswordRequestingReset",
 			},
 			meta: {
 				test: async () => {
-					await currentStateIs(AuthStateId.ForgottenPasswordSubmittingReset);
-					await stageErrorIs("PASSWORD_RESET_FAILURE");
+					ReporterAssertions.currentStateIs(AuthStateId.ForgottenPasswordSubmittingReset);
+					CommonAssertions.stageErrorIs("PASSWORD_RESET_FAILURE");
+				},
+			},
+		},
+		ForgottenPasswordResetSuccess: {
+			on: {
+				CONFIRM_SUCCESSFUL_PASSWORD_CHANGE: "SubmittingUsernameAndPassword",
+			},
+			meta: {
+				test: async () => {
+					ReporterAssertions.currentStateIs(AuthStateId.ForgottenPasswordResetSuccess);
 				},
 			},
 		},
@@ -196,46 +208,65 @@ const machine = createMachine({
 			},
 			meta: {
 				test: async () => {
-					await currentStateIs(AuthStateId.Authenticated);
-					await stageErrorIs("n/a");
+					ReporterAssertions.currentStateIs(AuthStateId.Authenticated);
 				},
 			},
 		},
 		AuthenticatedLoggingOut: {
 			on: {
 				GOOD_LOG_OUT: "CheckingSession",
-				// BAD_LOG_OUT: "Authenticated",
+				BAD_LOG_OUT: "AuthenticatedLoggingOut__Error",
 				CANCEL_LOG_OUT: "Authenticated",
 			},
 			meta: {
 				test: async () => {
-					await currentStateIs(AuthStateId.AuthenticatedLoggingOut);
-					await stageErrorIs("n/a");
+					ReporterAssertions.currentStateIs(AuthStateId.AuthenticatedLoggingOut);
+				},
+			},
+		},
+		AuthenticatedLoggingOut__Error: {
+			on: {
+				GOOD_LOG_OUT: "CheckingSession",
+				CANCEL_LOG_OUT: "Authenticated",
+			},
+			meta: {
+				test: async () => {
+					ReporterAssertions.currentStateIs(AuthStateId.AuthenticatedLoggingOut);
+					CommonAssertions.stageErrorIs("LOG_OUT_FAILURE");
 				},
 			},
 		},
 		AuthenticatedChangingPassword: {
 			on: {
-				SUCCESSFUL_PASSWORD_CHANGE: "Authenticated",
-				UNSUCCESSFUL_PASSWORD_CHANGE: "AuthenticatedChangingPasswordError",
+				SUCCESSFUL_PASSWORD_CHANGE: "AuthenticatedChangingPasswordSuccess",
+				UNSUCCESSFUL_PASSWORD_CHANGE: "AuthenticatedChangingPassword__Error",
 				CANCEL_PASSWORD_CHANGE: "Authenticated",
 			},
 			meta: {
 				test: async () => {
-					await currentStateIs(AuthStateId.AuthenticatedChangingPassword);
-					await stageErrorIs("n/a");
+					ReporterAssertions.currentStateIs(AuthStateId.AuthenticatedChangingPassword);
 				},
 			},
 		},
-		AuthenticatedChangingPasswordError: {
+		AuthenticatedChangingPassword__Error: {
 			on: {
-				SUCCESSFUL_PASSWORD_CHANGE: "Authenticated",
+				SUCCESSFUL_PASSWORD_CHANGE: "AuthenticatedChangingPasswordSuccess",
 				CANCEL_PASSWORD_CHANGE: "Authenticated",
 			},
 			meta: {
 				test: async () => {
-					await currentStateIs(AuthStateId.AuthenticatedChangingPassword);
-					await stageErrorIs("PASSWORD_CHANGE_FAILURE");
+					ReporterAssertions.currentStateIs(AuthStateId.AuthenticatedChangingPassword);
+					CommonAssertions.stageErrorIs("PASSWORD_CHANGE_FAILURE");
+				},
+			},
+		},
+		AuthenticatedChangingPasswordSuccess: {
+			on: {
+				CONFIRM_SUCCESSFUL_AUTHENTICATED_PASSWORD_CHANGE: "Authenticated",
+			},
+			meta: {
+				test: async () => {
+					ReporterAssertions.currentStateIs(AuthStateId.AuthenticatedPasswordChangeSuccess);
 				},
 			},
 		},
@@ -243,205 +274,150 @@ const machine = createMachine({
 });
 
 const model = createModel(machine).withEvents({
-	THERE_IS_A_SESSION: async () => {
-		const controlLabels = uiText.authStages.checkingForSession.controlLabels;
-		clickButton(controlLabels.checkForExistingSession);
-		await waitFor(() => expect(checkSessionCb).toHaveBeenCalled());
-		await stageLoadingStatusIs("false");
+	SESSION_PRESENT: async () => {
+		td.when(checkSessionCb()).thenResolve("Valid session");
+		CheckingSessionEvents.clickCheckSession();
 	},
-	THERE_IS_NO_SESSION: async () => {
-		const controlLabels = uiText.authStages.checkingForSession.controlLabels;
-		(checkSessionCb as jest.MockedFunction<CheckSessionCb>).mockRejectedValueOnce(null);
-		clickButton(controlLabels.checkForExistingSession);
-		await waitFor(() => expect(checkSessionCb).toHaveBeenCalled());
-		(checkSessionCb as jest.MockedFunction<CheckSessionCb>).mockReset();
-		await stageLoadingStatusIs("false");
+	SESSION_NOT_PRESENT: async () => {
+		td.when(checkSessionCb()).thenReject(new Error("Invalid session"));
+		CheckingSessionEvents.clickCheckSession();
 	},
-	GOOD_USERNAME_AND_PASSWORD: async () => {
-		const controlLabels = uiText.authStages.submittingUsernameAndPassword.controlLabels;
-		findInputClearInputFillInput(controlLabels.usernameInput, MOCK_VALID_USERNAME);
-		findInputClearInputFillInput(controlLabels.passwordInput, MOCK_VALID_PASSWORD);
-		clickButton(controlLabels.logIn);
-		await waitFor(() =>
-			expect(validateUsernameAndPasswordCb).toHaveBeenCalledWith(MOCK_VALID_USERNAME, MOCK_VALID_PASSWORD)
-		);
-		await stageLoadingStatusIs("false");
+	USERNAME_AND_PASSWORD_VALID: async () => {
+		td.when(validateUsernameAndPasswordCb(MOCK_VALID_USERNAME, MOCK_VALID_PASSWORD)).thenResolve(MOCK_USER_OBJECT as any);
+		SubmittingUsernameAndPasswordEvents.fillUsernameInput(MOCK_VALID_USERNAME);
+		SubmittingUsernameAndPasswordEvents.fillPasswordInput(MOCK_VALID_PASSWORD);
+		SubmittingUsernameAndPasswordEvents.clickSubmit();
 	},
-	BAD_USERNAME_AND_PASSWORD: async () => {
-		const controlLabels = uiText.authStages.submittingUsernameAndPassword.controlLabels;
-		findInputClearInputFillInput(controlLabels.usernameInput, MOCK_INVALID_USERNAME);
-		findInputClearInputFillInput(controlLabels.passwordInput, MOCK_INVALID_PASSWORD);
-		clickButton(controlLabels.logIn);
-		await waitFor(() =>
-			expect(validateUsernameAndPasswordCb).toHaveBeenCalledWith(MOCK_INVALID_USERNAME, MOCK_INVALID_PASSWORD)
-		);
-		await stageLoadingStatusIs("false");
+	USERNAME_AND_PASSWORD_VALID_PASSWORD_CHANGE_REQUIRED: async () => {
+		td.when(validateUsernameAndPasswordCb(MOCK_VALID_USERNAME, MOCK_VALID_PASSWORD)).thenResolve(["NEW_PASSWORD_REQUIRED", MOCK_USER_OBJECT] as any);
+		SubmittingUsernameAndPasswordEvents.fillUsernameInput(MOCK_VALID_USERNAME);
+		SubmittingUsernameAndPasswordEvents.fillPasswordInput(MOCK_VALID_PASSWORD);
+		SubmittingUsernameAndPasswordEvents.clickSubmit();
 	},
-	FORCE_PASSWORD_RESET_REQUIRED: async () => {
-		const controlLabels = uiText.authStages.submittingUsernameAndPassword.controlLabels;
-		findInputClearInputFillInput(controlLabels.usernameInput, MOCK_VALID_USERNAME);
-		findInputClearInputFillInput(controlLabels.passwordInput, MOCK_OLD_PASSWORD);
-		clickButton(controlLabels.logIn);
-		await waitFor(() =>
-			expect(validateUsernameAndPasswordCb).toHaveBeenCalledWith(MOCK_VALID_USERNAME, MOCK_OLD_PASSWORD)
-		);
-		await stageLoadingStatusIs("false");
+	USERNAME_AND_PASSWORD_INVALID: async () => {
+		td.when(validateUsernameAndPasswordCb(MOCK_INVALID_USERNAME, MOCK_INVALID_PASSWORD)).thenReject(new Error("Username and password validation failure"));
+		SubmittingUsernameAndPasswordEvents.fillUsernameInput(MOCK_INVALID_USERNAME);
+		SubmittingUsernameAndPasswordEvents.fillPasswordInput(MOCK_INVALID_PASSWORD);
+		SubmittingUsernameAndPasswordEvents.clickSubmit();
+	},
+	FORGOTTEN_PASSWORD: async () => {
+		SubmittingUsernameAndPasswordEvents.clickForgotPassword();
 	},
 	GOOD_FORCE_RESET_PASSWORD: async () => {
-		const controlLabels = uiText.authStages.submittingForceChangePassword.controlLabels;
-		findInputClearInputFillInput(controlLabels.newPasswordInput, MOCK_VALID_PASSWORD);
-		clickButton(controlLabels.submitPassword);
-		await waitFor(() =>
-			expect(validateForceChangePasswordCb).toHaveBeenCalledWith(MOCK_USER_OBJECT, MOCK_VALID_PASSWORD)
-		);
-		await stageLoadingStatusIs("false");
+		td.when(validateForceChangePasswordCb(MOCK_USER_OBJECT, MOCK_VALID_PASSWORD)).thenResolve(MOCK_USER_OBJECT);
+		SubmittingForceChangePasswordEvents.fillPasswordInput(MOCK_VALID_PASSWORD)
+		SubmittingForceChangePasswordEvents.clickSubmit();
 	},
 	BAD_FORCE_RESET_PASSWORD: async () => {
-		const controlLabels = uiText.authStages.submittingForceChangePassword.controlLabels;
-		findInputClearInputFillInput(controlLabels.newPasswordInput, MOCK_INVALID_PASSWORD);
-		clickButton(controlLabels.submitPassword);
-		await waitFor(() =>
-			expect(validateForceChangePasswordCb).toHaveBeenCalledWith(MOCK_USER_OBJECT, MOCK_INVALID_PASSWORD)
-		);
-		await stageLoadingStatusIs("false");
-	},
-	FORGOT_PASSWORD: async () => {
-		const controlLabels = uiText.authStages.submittingUsernameAndPassword.controlLabels;
-		clickButton(controlLabels.forgotPassword);
+		td.when(validateForceChangePasswordCb(MOCK_USER_OBJECT, MOCK_INVALID_PASSWORD)).thenReject(new Error("New password doesn't validate"));
+		SubmittingForceChangePasswordEvents.fillPasswordInput(MOCK_INVALID_PASSWORD)
+		SubmittingForceChangePasswordEvents.clickSubmit();
 	},
 	PASSWORD_RESET_REQUEST_SUCCESS: async () => {
-		const controlLabels = uiText.authStages.forgottenPasswordRequestingReset.controlLabels;
-		findInputClearInputFillInput(controlLabels.enterEmailInput, MOCK_VALID_USERNAME);
-		clickButton(controlLabels.requestResetCode);
-		await waitFor(() => expect(requestNewPasswordCb).toHaveBeenCalledWith(MOCK_VALID_USERNAME));
-		await stageLoadingStatusIs("false");
+		td.when(requestNewPasswordCb(MOCK_VALID_USERNAME)).thenResolve(MOCK_USER_OBJECT);
+		ForgottenPasswordRequestingResetEvents.fillEmailInput(MOCK_VALID_USERNAME);
+		ForgottenPasswordRequestingResetEvents.clickRequestNewPassword();
 	},
 	PASSWORD_RESET_REQUEST_FAILURE: async () => {
-		const controlLabels = uiText.authStages.forgottenPasswordRequestingReset.controlLabels;
-		findInputClearInputFillInput(controlLabels.enterEmailInput, MOCK_INVALID_USERNAME);
-		clickButton(controlLabels.requestResetCode);
-		await waitFor(() => expect(requestNewPasswordCb).toHaveBeenCalledWith(MOCK_INVALID_USERNAME));
-		await stageLoadingStatusIs("false");
+		td.when(requestNewPasswordCb(MOCK_INVALID_USERNAME)).thenReject(new Error("Password request failed"));
+		ForgottenPasswordRequestingResetEvents.fillEmailInput(MOCK_INVALID_USERNAME);
+		ForgottenPasswordRequestingResetEvents.clickRequestNewPassword();
 	},
 	CANCEL_PASSWORD_RESET: async () => {
-		const controlLabels = uiText.authStages.forgottenPasswordRequestingReset.controlLabels;
-		clickButton(controlLabels.cancelPasswordReset);
+		ForgottenPasswordRequestingResetEvents.clickCancel();
 	},
 	PASSWORD_RESET_SUCCESS: async () => {
-		const controlLabels = uiText.authStages.forgottenPasswordSubmittingReset.controlLabels;
-		findInputClearInputFillInput(controlLabels.resetCodeInput, MOCK_VALID_CODE);
-		findInputClearInputFillInput(controlLabels.newPasswordInput, MOCK_VALID_PASSWORD);
-		clickButton(controlLabels.submitReset);
-		await waitFor(() =>
-			expect(submitNewPasswordCb).toHaveBeenCalledWith(MOCK_VALID_USERNAME, MOCK_VALID_CODE, MOCK_VALID_PASSWORD)
-		);
-		await stageLoadingStatusIs("false");
+		td.when(submitNewPasswordCb(MOCK_VALID_USERNAME, MOCK_VALID_CODE, MOCK_VALID_PASSWORD)).thenResolve(MOCK_USER_OBJECT);
+		ForgottenPasswordSubmittingResetEvents.fillCodeInput(MOCK_VALID_CODE);
+		ForgottenPasswordSubmittingResetEvents.fillPasswordInput(MOCK_VALID_PASSWORD);
+		ForgottenPasswordSubmittingResetEvents.clickSubmit();
 	},
 	PASSWORD_RESET_FAILURE: async () => {
-		const controlLabels = uiText.authStages.forgottenPasswordSubmittingReset.controlLabels;
-		findInputClearInputFillInput(controlLabels.resetCodeInput, MOCK_INVALID_CODE);
-		findInputClearInputFillInput(controlLabels.newPasswordInput, MOCK_INVALID_PASSWORD);
-		clickButton(controlLabels.submitReset);
-		await waitFor(() =>
-			expect(submitNewPasswordCb).toHaveBeenCalledWith(
-				MOCK_VALID_USERNAME,
-				MOCK_INVALID_CODE,
-				MOCK_INVALID_PASSWORD
-			)
-		);
-		await stageLoadingStatusIs("false");
+		td.when(submitNewPasswordCb(MOCK_VALID_USERNAME, MOCK_INVALID_CODE, MOCK_VALID_PASSWORD)).thenReject(Error("Password reset failure"));
+		ForgottenPasswordSubmittingResetEvents.fillCodeInput(MOCK_INVALID_CODE);
+		ForgottenPasswordSubmittingResetEvents.fillPasswordInput(MOCK_VALID_PASSWORD);
+		ForgottenPasswordSubmittingResetEvents.clickSubmit();
 	},
 	REENTER_USERNAME_TO_RESEND_CODE: async () => {
-		const controlLabels = uiText.authStages.forgottenPasswordSubmittingReset.controlLabels;
-		clickButton(controlLabels.resendCode);
+		ForgottenPasswordSubmittingResetEvents.clickResendCode();
+	},
+	CONFIRM_SUCCESSFUL_PASSWORD_CHANGE: async () => {
+		ForgottenPasswordResetSuccessEvents.confirmReset();
 	},
 	REQUEST_LOG_OUT: async () => {
-		const controlLabels = uiText.authStages.authenticated.controlLabels;
-		clickButton(controlLabels.logOut);
+		AuthenticatedEvents.clickRequestLogOut();
 	},
 	CANCEL_LOG_OUT: async () => {
-		const controlLabels = uiText.authStages.authenticatedLoggingOut.controlLabels;
-		clickButton(controlLabels.cancelLogOut);
+		AuthenticatedLoggingOutEvents.clickCancelLogOut();
 	},
 	GOOD_LOG_OUT: async () => {
-		const controlLabels = uiText.authStages.authenticatedLoggingOut.controlLabels;
-		clickButton(controlLabels.logOut);
-		await waitFor(() => expect(logoutCb).toHaveBeenCalled());
-		await stageLoadingStatusIs("false");
+		td.when(logoutCb()).thenResolve(null);
+		AuthenticatedLoggingOutEvents.clickConfirmLogOut();
 	},
 	BAD_LOG_OUT: async () => {
-		const controlLabels = uiText.authStages.authenticatedLoggingOut.controlLabels;
-		(logoutCb as jest.MockedFunction<LogoutCb>).mockRejectedValueOnce(null);
-		clickButton(controlLabels.logOut);
-		await waitFor(() => expect(logoutCb).toHaveBeenCalled());
-		(logoutCb as jest.MockedFunction<LogoutCb>).mockReset();
-		await stageLoadingStatusIs("false");
+		td.when(logoutCb()).thenReject(Error("Logout failure"));
+		AuthenticatedLoggingOutEvents.clickConfirmLogOut();
 	},
 	REQUEST_PASSWORD_CHANGE_WHEN_AUTHENTICATED: async () => {
-		const controlLabels = uiText.authStages.authenticated.controlLabels;
-		clickButton(controlLabels.changePassword);
+		AuthenticatedEvents.clickRequestPasswordChange();
 	},
 	SUCCESSFUL_PASSWORD_CHANGE: async () => {
-		const controlLabels = uiText.authStages.authenticatedChangingPassword.controlLabels;
-		findInputClearInputFillInput(controlLabels.currentPasswordInput, MOCK_VALID_PASSWORD);
-		findInputClearInputFillInput(controlLabels.newPasswordInput, MOCK_VALID_PASSWORD);
-		clickButton(controlLabels.changePassword);
-		await waitFor(() =>
-			expect(changePasswordCb).toHaveBeenCalledWith(MOCK_VALID_PASSWORD, MOCK_VALID_PASSWORD)
-		);
-		await stageLoadingStatusIs("false");
+		td.when(changePasswordCb(MOCK_VALID_PASSWORD, MOCK_VALID_PASSWORD)).thenResolve(null);
+		AuthenticatedChangingPasswordEvents.fillCurrentPasswordInput(MOCK_VALID_PASSWORD);
+		AuthenticatedChangingPasswordEvents.fillNewPasswordInput(MOCK_VALID_PASSWORD);
+		AuthenticatedChangingPasswordEvents.clickSubmit();
 	},
 	UNSUCCESSFUL_PASSWORD_CHANGE: async () => {
-		const controlLabels = uiText.authStages.authenticatedChangingPassword.controlLabels;
-		findInputClearInputFillInput(controlLabels.currentPasswordInput, MOCK_INVALID_PASSWORD);
-		findInputClearInputFillInput(controlLabels.newPasswordInput, MOCK_INVALID_PASSWORD);
-		clickButton(controlLabels.changePassword);
-		await waitFor(() =>
-			expect(changePasswordCb).toHaveBeenCalledWith(MOCK_INVALID_PASSWORD, MOCK_INVALID_PASSWORD)
-		);
-		await stageLoadingStatusIs("false");
+		td.when(changePasswordCb(MOCK_VALID_PASSWORD, MOCK_INVALID_PASSWORD)).thenReject(Error("Password change failure"));
+		AuthenticatedChangingPasswordEvents.fillCurrentPasswordInput(MOCK_VALID_PASSWORD);
+		AuthenticatedChangingPasswordEvents.fillNewPasswordInput(MOCK_INVALID_PASSWORD);
+		AuthenticatedChangingPasswordEvents.clickSubmit();
 	},
 	CANCEL_PASSWORD_CHANGE: async () => {
-		const controlLabels = uiText.authStages.authenticatedChangingPassword.controlLabels;
-		clickButton(controlLabels.cancelChangePassword);
+		AuthenticatedChangingPasswordEvents.clickCancel();
+	},
+	CONFIRM_SUCCESSFUL_AUTHENTICATED_PASSWORD_CHANGE: async () => {
+		AuthenticatedPasswordChangeSuccessEvents.clickConfirm();
 	},
 });
+
 
 /* ------------------------------------------------------------------------- *\
  * TESTS
 \* ------------------------------------------------------------------------- */
 
-describe("authentication test system using username password and no device security", () => {
-	beforeAll(() => {
-		globalThis.localStorage = localStorageMock();
+
+const testPlans = model.getSimplePathPlans();
+
+testPlans.forEach((plan) => {
+	const testPlanExecutors = suite(`authentication test system ${plan.description}`);
+
+	testPlanExecutors.after(() => {
+	  // NOTE: using the global-jsdom module has some side effects, one of which
+		// is that, if there is an error/timeout, the tests just hang.
+		// Providing a timeout solves this, but *if* there is an error, there
+		// won't be any feedback about *what* the error is, that's the tradeoff.
+		// setTimeout(() => {
+		// 	process.exit();
+		// }, 500)
 	});
 
-	afterEach(() => {
-		globalThis.localStorage.clear();
+	testPlanExecutors.after.each(() => {
+		cleanup();
+		td.reset();
 	});
 
-	const testPlans = model.getSimplePathPlans();
-
-	testPlans.forEach((plan) => {
-		describe(`authentication test system ${plan.description}`, () => {
-			plan.paths.forEach((path) => {
-				it(path.description, async () => {
-					const screen = render(
-						<ConfigInjector
-							initialLoginFlowType="USERNAME_PASSWORD"
-							initialDeviceSecurityType="NONE"
-							isInTestMode={true}
-						>
-							<Authentication />
-						</ConfigInjector>
-					);
-					await path.test(screen);
-				});
-			});
+	plan.paths.forEach((path) => {
+		testPlanExecutors(path.description, async () => {
+			render(<SUT />);
+			await path.test(null);
 		});
 	});
-
-	it("should have full coverage", () => {
-		return model.testCoverage();
-	});
+	testPlanExecutors.run();
 });
+
+const coverageTests = suite("additional tests");
+
+coverageTests("system test should have full coverage", () => model.testCoverage());
+
+coverageTests.run();

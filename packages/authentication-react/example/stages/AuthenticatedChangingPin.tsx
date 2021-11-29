@@ -1,9 +1,10 @@
-import { AuthStateId } from "@thingco/authentication-core";
+import { AuthError, AuthStateId } from "@thingco/authentication-core";
 import { useAuthenticatedChangingPin } from "@thingco/authentication-react";
 import React, { useState } from "react";
 import { AuthStageSection, Form } from "test-app/Components";
-import { useConfigState } from "test-app/ConfigInjector";
+import { UiLayout, useConfigState } from "test-app/ConfigInjector";
 import uiText from "test-app/ui-copy";
+import { Optional } from "utility-types";
 import { setNewPinCb } from "./callback-implementations";
 
 
@@ -13,24 +14,30 @@ const {
 	},
 } = uiText;
 
-export const AuthenticatedChangingPin = () => {
-	const { error, isActive, isLoading, changePin, cancelChangePin, validationErrors } =
-		useAuthenticatedChangingPin(setNewPinCb);
-	const { uiLayout } = useConfigState();
+type AuthenticatedChangingPinUiProps = Optional<ReturnType<typeof useAuthenticatedChangingPin>, "validationErrors"> & Partial<Pick<ReturnType<typeof useConfigState>, "uiLayout">>
 
-	const [pin, setPin] = useState("");
+export const AuthenticatedChangingPinUi = ({
+	error,
+	isActive,
+	isLoading,
+	changePin,
+	cancelChangePin,
+	uiLayout = "MOUNT_WHEN_ACTIVE",
+	validationErrors = { newPin: [] }
+}: AuthenticatedChangingPinUiProps) => {
+	const [newPin, setNewPin] = useState("");
 
 	if (uiLayout === "MOUNT_WHEN_ACTIVE" && !isActive) return null;
 
 	return (
 		<AuthStageSection isActive={isActive}>
 			<AuthStageSection.Overview
-				stageId={AuthStateId.SubmittingCurrentPin}
+				stageId={AuthStateId.AuthenticatedChangingPin}
 				isLoading={isLoading}
 				description={description}
 				errorMsg={error}
 			/>
-			<Form submitCb={changePin} cbParams={[pin]}>
+			<Form submitCb={changePin} cbParams={[newPin]}>
 				<Form.Elements disabled={!isActive || isLoading} error={error}>
 					<Form.InputGroup
 						id="otp"
@@ -38,8 +45,8 @@ export const AuthenticatedChangingPin = () => {
 						isActive={isActive}
 						label={controlLabels.enterPinInput}
 						validationErrors={validationErrors.newPin}
-						value={pin}
-						valueSetter={setPin}
+						value={newPin}
+						valueSetter={setNewPin}
 					/>
 					<Form.Controls>
 						<Form.Submit label={controlLabels.submitPin} />
@@ -51,5 +58,23 @@ export const AuthenticatedChangingPin = () => {
 				</Form.Elements>
 			</Form>
 		</AuthStageSection>
+	);
+}
+
+export const AuthenticatedChangingPin = () => {
+	const { error, isActive, isLoading, changePin, cancelChangePin, validationErrors } =
+		useAuthenticatedChangingPin(setNewPinCb);
+	const { uiLayout } = useConfigState();
+
+	return (
+		<AuthenticatedChangingPinUi
+			error={error}
+			isActive={isActive}
+			isLoading={isLoading}
+			changePin={changePin}
+			cancelChangePin={cancelChangePin}
+			uiLayout={uiLayout}
+			validationErrors={validationErrors}
+		/>
 	);
 };

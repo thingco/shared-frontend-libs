@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { useLogger } from "@thingco/logger";
 import { useSelector } from "@xstate/react";
 import { useCallback, useState } from "react";
 import { useAuthInterpreter } from "./AuthSystemProvider";
@@ -25,7 +24,6 @@ export function useForgottenPasswordRequestingReset(
 	const authenticator = useAuthInterpreter();
 	const error = useSelector(authenticator, contextSelectors.error);
 	const isActive = useSelector(authenticator, stateSelectors.isForgottenPasswordRequestingReset!);
-	const logger = useLogger();
 
 	const [validationErrors, setValidationErrors] = useState<{ username: string[] }>({
 		username: [],
@@ -42,16 +40,11 @@ export function useForgottenPasswordRequestingReset(
 				return;
 			} else {
 				setIsLoading(true);
-				logger.log(
-					"Requesting a password reset. If this succeeds, the user can be taken to a new password entry state."
-				);
 				try {
 					const res = await cb(username);
-					logger.log(`API response: ${JSON.stringify(res)}`);
 					setIsLoading(false);
 					authenticator.send({ type: "PASSWORD_RESET_REQUEST_SUCCESS", username });
 				} catch (err) {
-					logger.log(`API error: ${JSON.stringify(err)}`);
 					setIsLoading(false);
 					authenticator.send({
 						type: "PASSWORD_RESET_REQUEST_FAILURE",

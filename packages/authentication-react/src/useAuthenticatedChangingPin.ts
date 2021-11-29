@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { useLogger } from "@thingco/logger";
 import { useSelector } from "@xstate/react";
 import { useCallback, useState } from "react";
 import { useAuthInterpreter } from "./AuthSystemProvider";
@@ -23,7 +22,6 @@ export function useAuthenticatedChangingPin(
 	const authenticator = useAuthInterpreter();
 	const error = useSelector(authenticator, contextSelectors.error);
 	const isActive = useSelector(authenticator, stateSelectors.isAuthenticatedChangingPin!);
-	const logger = useLogger();
 
 	const [validationErrors, setValidationErrors] = useState<{ newPin: string[] }>({ newPin: [] });
 	const [isLoading, setIsLoading] = useState(false);
@@ -38,16 +36,11 @@ export function useAuthenticatedChangingPin(
 				return;
 			} else {
 				setIsLoading(true);
-				logger.info(
-					"Attempting to change the current PIN. If the check resolves, the attempt was successful and they may return to the Authenticated state."
-				);
 				try {
 					const res = await cb(newPin);
-					logger.log(`PIN change succeeded. API response: ${JSON.stringify(res)}`);
 					setIsLoading(false);
 					authenticator.send({ type: "PIN_CHANGE_SUCCESS" });
 				} catch (err) {
-					logger.log(`PIN change failed. API error: ${JSON.stringify(err)}`);
 					setIsLoading(false);
 					authenticator.send({ type: "PIN_CHANGE_FAILURE", error: "PIN_CHANGE_FAILURE" });
 				}

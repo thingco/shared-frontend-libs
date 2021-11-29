@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { AuthStageSection, Form } from "test-app/Components";
 import { useConfigState } from "test-app/ConfigInjector";
 import uiText from "test-app/ui-copy";
+import { Optional } from "utility-types";
 import { validateOtpCb } from "./callback-implementations";
 
 
@@ -13,11 +14,18 @@ const {
 	},
 } = uiText;
 
-export const SubmittingOtp = () => {
-	const { error, isActive, isLoading, validateOtp, goBack, validationErrors } =
-		useSubmittingOtp(validateOtpCb);
-	const { uiLayout } = useConfigState();
+type SubmittingOtpUiProps = Optional<ReturnType<typeof useSubmittingOtp>, "validationErrors"> & Partial<Pick<ReturnType<typeof useConfigState>, "uiLayout">>
 
+export const SubmittingOtpUi = ({
+	error,
+	attemptsMade,
+	isActive,
+	isLoading,
+	validateOtp,
+	goBack,
+	validationErrors = { password: []},
+	uiLayout ="MOUNT_WHEN_ACTIVE",
+}: SubmittingOtpUiProps) => {
 	const [otp, setOtp] = useState("");
 
 	if (uiLayout === "MOUNT_WHEN_ACTIVE" && !isActive) return null;
@@ -29,6 +37,7 @@ export const SubmittingOtp = () => {
 				isLoading={isLoading}
 				description={description}
 				errorMsg={error}
+				passwordAttemptsMade={attemptsMade}
 			/>
 			<Form submitCb={validateOtp} cbParams={[otp]}>
 				<Form.Elements disabled={!isActive || isLoading} error={error}>
@@ -48,5 +57,24 @@ export const SubmittingOtp = () => {
 				</Form.Elements>
 			</Form>
 		</AuthStageSection>
+	);
+};
+
+export const SubmittingOtp = () => {
+	const { attemptsMade, error, isActive, isLoading, validateOtp, goBack, validationErrors } =
+		useSubmittingOtp(validateOtpCb);
+	const { uiLayout } = useConfigState();
+
+	return (
+		<SubmittingOtpUi
+			attemptsMade={attemptsMade}
+			error={error}
+			isLoading={isLoading}
+			isActive={isActive}
+			validateOtp={validateOtp}
+			goBack={goBack}
+			validationErrors={validationErrors}
+			uiLayout={uiLayout}
+		/>
 	);
 };

@@ -1,9 +1,10 @@
-import { AuthStateId } from "@thingco/authentication-core";
+import {  AuthStateId } from "@thingco/authentication-core";
 import { useAuthenticatedValidatingPin } from "@thingco/authentication-react";
 import React, { useState } from "react";
 import { AuthStageSection, Form } from "test-app/Components";
-import { useConfigState } from "test-app/ConfigInjector";
+import {  useConfigState } from "test-app/ConfigInjector";
 import uiText from "test-app/ui-copy";
+import { Optional } from "utility-types";
 import { validatePinCb } from "./callback-implementations";
 
 
@@ -13,11 +14,19 @@ const {
 	},
 } = uiText;
 
-export const AuthenticatedValidatingPin = () => {
-	const { error, isActive, isLoading, validatePin, cancelChangePin, validationErrors } =
-		useAuthenticatedValidatingPin(validatePinCb);
-	const { uiLayout } = useConfigState();
 
+type AuthenticatedValidatingPinUiProps = Optional<ReturnType<typeof useAuthenticatedValidatingPin>, "validationErrors"> & Partial<Pick<ReturnType<typeof useConfigState>, "uiLayout">>
+
+
+export const AuthenticatedValidatingPinUi = ({
+	error,
+	isActive,
+	isLoading,
+	validatePin,
+	cancelChangePin,
+	validationErrors = { pin: [] },
+	uiLayout = "MOUNT_WHEN_ACTIVE",
+}: AuthenticatedValidatingPinUiProps) => {
 	const [pin, setPin] = useState("");
 
 	if (uiLayout === "MOUNT_WHEN_ACTIVE" && !isActive) return null;
@@ -51,5 +60,23 @@ export const AuthenticatedValidatingPin = () => {
 				</Form.Elements>
 			</Form>
 		</AuthStageSection>
+	);
+}
+
+export const AuthenticatedValidatingPin = () => {
+	const { error, isActive, isLoading, validatePin, cancelChangePin, validationErrors } =
+		useAuthenticatedValidatingPin(validatePinCb);
+	const { uiLayout } = useConfigState();
+
+	return (
+		<AuthenticatedValidatingPinUi
+			error={error}
+			isActive={isActive}
+			isLoading={isLoading}
+			validatePin={validatePin}
+			cancelChangePin={cancelChangePin}
+			validationErrors={validationErrors}
+			uiLayout={uiLayout}
+		/>
 	);
 };
