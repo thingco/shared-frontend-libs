@@ -1,5 +1,7 @@
 undecided:
   - "@thingco/auth-flows"
+  - "@thingco/authentication"
+  - "@thingco/authentication-core"
   - "@thingco/graphviz"
   - "@thingco/graphviz-native"
   - "@thingco/graphviz-web"
