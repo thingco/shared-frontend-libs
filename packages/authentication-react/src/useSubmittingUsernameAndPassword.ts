@@ -1,14 +1,12 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useSelector } from "@xstate/react";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useAuthInterpreter } from "./AuthSystemProvider";
 import type { ValidateUsernameAndPasswordCb } from "./callback-types";
 import type { InputValidationPattern } from "./input-validation";
 import { validateInputs } from "./input-validation";
 import { contextSelectors, stateSelectors } from "./selectors";
-
-
 
 /**
  * The core USERNAME_PASSWORD login flow hook.
@@ -29,6 +27,7 @@ export function useSubmittingUsernameAndPassword<User = any>(
 		password: InputValidationPattern[];
 	} = { username: [], password: [] }
 ) {
+	const isMounted = useRef(true);
 	const authenticator = useAuthInterpreter();
 	const error = useSelector(authenticator, contextSelectors.error);
 	const isActive = useSelector(authenticator, stateSelectors.isSubmittingUsernameAndPassword!);
@@ -38,6 +37,10 @@ export function useSubmittingUsernameAndPassword<User = any>(
 		password: string[];
 	}>({ username: [], password: [] });
 	const [isLoading, setIsLoading] = useState(false);
+
+	useEffect(() => () => {
+		isMounted.current = false;
+	}, []);
 
 	const validateUsernameAndPassword = useCallback(
 		async (username, password) => {
@@ -51,19 +54,19 @@ export function useSubmittingUsernameAndPassword<User = any>(
 				setIsLoading(true);
 				try {
 					const resp = await cb(username, password);
-					setIsLoading(false);
 					if (Array.isArray(resp) && resp[0] === "NEW_PASSWORD_REQUIRED") {
 						authenticator.send({ type: "USERNAME_AND_PASSWORD_VALID_PASSWORD_CHANGE_REQUIRED", user: resp[1], username, error: "PASSWORD_CHANGE_REQUIRED" });
 					} else {
 						authenticator.send({ type: "USERNAME_AND_PASSWORD_VALID", user: resp, username });
 					}
 				} catch (err) {
-					setIsLoading(false);
 					// REVIEW check errors here to see if can tell if username or password are individually invalid:
 					authenticator.send({
 						type: "USERNAME_AND_PASSWORD_INVALID",
 						error: "USERNAME_AND_PASSWORD_INVALID",
 					});
+				} finally {
+					if (isMounted.current) setIsLoading(false);
 				}
 			}
 		},

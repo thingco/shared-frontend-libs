@@ -1,12 +1,11 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { useSelector } from "@xstate/react";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useAuthInterpreter } from "./AuthSystemProvider";
 import type { SetNewPinCb } from "./callback-types";
 import type { InputValidationPattern } from "./input-validation";
 import { validateInputs } from "./input-validation";
 import { contextSelectors, stateSelectors } from "./selectors";
-
 
 
 /**
@@ -19,11 +18,17 @@ export function useAuthenticatedChangingPin(
 	cb: SetNewPinCb,
 	validators: { newPin: InputValidationPattern[] } = { newPin: [] }
 ) {
+	const isMounted = useRef(true);
 	const authenticator = useAuthInterpreter();
 	const error = useSelector(authenticator, contextSelectors.error);
 	const isActive = useSelector(authenticator, stateSelectors.isAuthenticatedChangingPin!);
 
 	const [validationErrors, setValidationErrors] = useState<{ newPin: string[] }>({ newPin: [] });
+
+	useEffect(() => () => {
+		isMounted.current = false;
+	}, []);
+
 	const [isLoading, setIsLoading] = useState(false);
 
 	const changePin = useCallback(
@@ -38,11 +43,11 @@ export function useAuthenticatedChangingPin(
 				setIsLoading(true);
 				try {
 					const res = await cb(newPin);
-					setIsLoading(false);
 					authenticator.send({ type: "PIN_CHANGE_SUCCESS" });
 				} catch (err) {
-					setIsLoading(false);
 					authenticator.send({ type: "PIN_CHANGE_FAILURE", error: "PIN_CHANGE_FAILURE" });
+				} finally {
+					if (isMounted.current) setIsLoading(false);
 				}
 			}
 		},

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { useSelector } from "@xstate/react";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useAuthInterpreter } from "./AuthSystemProvider";
 import type { ValidatePinCb } from "./callback-types";
 import type { InputValidationPattern } from "./input-validation";
@@ -19,12 +19,17 @@ export function useAuthenticatedValidatingPin(
 	cb: ValidatePinCb,
 	validators: { pin: InputValidationPattern[] } = { pin: [] }
 ) {
+	const isMounted = useRef(true);
 	const authenticator = useAuthInterpreter();
 	const error = useSelector(authenticator, contextSelectors.error);
 	const isActive = useSelector(authenticator, stateSelectors.isAuthenticatedValidatingPin!);
 
 	const [validationErrors, setValidationErrors] = useState<{ pin: string[] }>({ pin: [] });
 	const [isLoading, setIsLoading] = useState(false);
+
+	useEffect(() => () => {
+		isMounted.current = false;
+	}, []);
 
 	const validatePin = useCallback(
 		async (pin: string) => {
@@ -39,11 +44,11 @@ export function useAuthenticatedValidatingPin(
 
 				try {
 					const _ = await cb(pin);
-					setIsLoading(false);
 					authenticator.send({ type: "PIN_VALID" });
 				} catch (err) {
-					setIsLoading(false);
 					authenticator.send({ type: "PIN_INVALID", error: "PIN_INVALID" });
+				} finally {
+					if (isMounted.current) setIsLoading(false);
 				}
 			}
 		},

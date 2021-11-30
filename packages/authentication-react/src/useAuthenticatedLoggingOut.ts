@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { useSelector } from "@xstate/react";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useAuthInterpreter } from "./AuthSystemProvider";
 import type { LogoutCb } from "./callback-types";
 import { contextSelectors, stateSelectors } from "./selectors";
@@ -16,21 +16,26 @@ import { contextSelectors, stateSelectors } from "./selectors";
  * @category React
  */
 export function useAuthenticatedLoggingOut(cb: LogoutCb) {
+	const isMounted = useRef(true);
 	const authenticator = useAuthInterpreter();
 	const error = useSelector(authenticator, contextSelectors.error);
 	const isActive = useSelector(authenticator, stateSelectors.isAuthenticatedLoggingOut!);
 
 	const [isLoading, setIsLoading] = useState(false);
 
+	useEffect(() => () => {
+		isMounted.current = false;
+	}, []);
+
 	const logOut = useCallback(async () => {
 		setIsLoading(true);
 		try {
 			const res = await cb();
-			setIsLoading(false);
 			authenticator.send({ type: "LOG_OUT_SUCCESS" });
 		} catch (err) {
-			setIsLoading(false);
 			authenticator.send({ type: "LOG_OUT_FAILURE", error: "LOG_OUT_FAILURE" });
+		} finally {
+			if (isMounted.current) setIsLoading(false);
 		}
 	}, [authenticator, error, isActive, isLoading]);
 

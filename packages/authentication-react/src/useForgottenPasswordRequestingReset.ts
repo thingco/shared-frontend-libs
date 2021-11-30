@@ -1,13 +1,11 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { useSelector } from "@xstate/react";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useAuthInterpreter } from "./AuthSystemProvider";
 import type { RequestNewPasswordCb } from "./callback-types";
 import type { InputValidationPattern } from "./input-validation";
 import { validateInputs } from "./input-validation";
 import { contextSelectors, stateSelectors } from "./selectors";
-
-
 
 /**
  * If a user has forgotten their password, they can request a reset by entering their username.
@@ -21,6 +19,7 @@ export function useForgottenPasswordRequestingReset(
 	cb: RequestNewPasswordCb,
 	validators: { username: InputValidationPattern[] } = { username: [] }
 ) {
+	const isMounted = useRef(true);
 	const authenticator = useAuthInterpreter();
 	const error = useSelector(authenticator, contextSelectors.error);
 	const isActive = useSelector(authenticator, stateSelectors.isForgottenPasswordRequestingReset!);
@@ -29,6 +28,10 @@ export function useForgottenPasswordRequestingReset(
 		username: [],
 	});
 	const [isLoading, setIsLoading] = useState(false);
+
+	useEffect(() => () => {
+		isMounted.current = false;
+	}, []);
 
 	const requestNewPassword = useCallback(
 		async (username) => {
@@ -42,14 +45,14 @@ export function useForgottenPasswordRequestingReset(
 				setIsLoading(true);
 				try {
 					const res = await cb(username);
-					setIsLoading(false);
 					authenticator.send({ type: "PASSWORD_RESET_REQUEST_SUCCESS", username });
 				} catch (err) {
-					setIsLoading(false);
 					authenticator.send({
 						type: "PASSWORD_RESET_REQUEST_FAILURE",
 						error: "PASSWORD_RESET_REQUEST_FAILURE",
 					});
+				} finally {
+					if (isMounted.current) setIsLoading(false);
 				}
 			}
 		},

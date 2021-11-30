@@ -1,11 +1,9 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { useSelector } from "@xstate/react";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useAuthInterpreter } from "./AuthSystemProvider";
 import type { CheckForExistingPinCb } from "./callback-types";
 import { contextSelectors, stateSelectors } from "./selectors";
-
-
 
 /**
  * Test for for existence of a pin. From this, can infer whether the system
@@ -14,21 +12,26 @@ import { contextSelectors, stateSelectors } from "./selectors";
  * @category React
  */
 export function useCheckingForPin(cb: CheckForExistingPinCb) {
+	const isMounted = useRef(true);
 	const authenticator = useAuthInterpreter();
 	const error = useSelector(authenticator, contextSelectors.error);
 	const isActive = useSelector(authenticator, stateSelectors.isCheckingForPin!);
 
 	const [isLoading, setIsLoading] = useState(false);
 
+	useEffect(() => () => {
+		isMounted.current = false;
+	}, []);
+
 	const checkForExistingPin = useCallback(async () => {
 		setIsLoading(true);
 		try {
 			const _ = await cb();
-			setIsLoading(false);
 			authenticator.send({ type: "PIN_IS_SET_UP" });
 		} catch (err) {
-			setIsLoading(false);
 			authenticator.send({ type: "PIN_IS_NOT_SET_UP" });
+		} finally {
+			if (isMounted.current) setIsLoading(false);
 		}
 	}, [authenticator, error, isActive, isLoading]);
 

@@ -1,14 +1,12 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useSelector } from "@xstate/react";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useAuthInterpreter } from "./AuthSystemProvider";
 import type { ValidateForceChangePasswordCb } from "./callback-types";
 import type { InputValidationPattern } from "./input-validation";
 import { validateInputs } from "./input-validation";
 import { contextSelectors, stateSelectors } from "./selectors";
-
-
 
 /**
  * When using USERNAME_PASSWORD flow, if a user has a temporary password (i.e.
@@ -22,6 +20,7 @@ export function useSubmittingForceChangePassword<User = any>(
 	cb: ValidateForceChangePasswordCb<User>,
 	validators: { password: InputValidationPattern[] } = { password: [] }
 ) {
+	const isMounted = useRef(true);
 	const authenticator = useAuthInterpreter();
 	const error = useSelector(authenticator, contextSelectors.error);
 	const isActive = useSelector(authenticator, stateSelectors.isSubmittingForceChangePassword!);
@@ -30,6 +29,10 @@ export function useSubmittingForceChangePassword<User = any>(
 		password: [],
 	});
 	const [isLoading, setIsLoading] = useState(false);
+
+	useEffect(() => () => {
+		isMounted.current = false;
+	}, []);
 
 	const validateNewPassword = useCallback(
 		async (password) => {
@@ -44,11 +47,11 @@ export function useSubmittingForceChangePassword<User = any>(
 
 				try {
 					const user = await cb(currentUserData, password);
-					setIsLoading(false);
 					authenticator.send({ type: "PASSWORD_FORCE_CHANGE_SUCCESS", user });
 				} catch (err) {
-					setIsLoading(false);
 					authenticator.send({ type: "PASSWORD_FORCE_CHANGE_FAILURE", error: "PASSWORD_CHANGE_FAILURE" });
+				} finally {
+					if (isMounted.current) setIsLoading(false);
 				}
 			}
 		},

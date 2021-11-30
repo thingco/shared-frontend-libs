@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { useSelector } from "@xstate/react";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useAuthInterpreter } from "./AuthSystemProvider";
 import type { ChangePasswordCb } from "./callback-types";
 import type { InputValidationPattern } from "./input-validation";
@@ -30,6 +30,7 @@ export function useAuthenticatedChangingPassword(
 		newPassword: InputValidationPattern[];
 	} = { oldPassword: [], newPassword: [] }
 ) {
+	const isMounted = useRef(true);
 	const authenticator = useAuthInterpreter();
 	const error = useSelector(authenticator, contextSelectors.error);
 	const isActive = useSelector(authenticator, stateSelectors.isAuthenticatedChangingPassword!);
@@ -38,6 +39,11 @@ export function useAuthenticatedChangingPassword(
 		oldPassword: string[];
 		newPassword: string[];
 	}>({ oldPassword: [], newPassword: [] });
+
+	useEffect(() => () => {
+		isMounted.current = false;
+	}, []);
+
 	const [isLoading, setIsLoading] = useState(false);
 
 	const submitNewPassword = useCallback(
@@ -52,11 +58,11 @@ export function useAuthenticatedChangingPassword(
 				setIsLoading(true);
 				try {
 					const res = await cb(oldPassword, newPassword);
-					setIsLoading(false);
 					authenticator.send({ type: "PASSWORD_CHANGE_SUCCESS" });
 				} catch (err) {
-					setIsLoading(false);
 					authenticator.send({ type: "PASSWORD_CHANGE_FAILURE", error: "PASSWORD_CHANGE_FAILURE" });
+				} finally {
+					if (isMounted.current) setIsLoading(false);
 				}
 			}
 		},

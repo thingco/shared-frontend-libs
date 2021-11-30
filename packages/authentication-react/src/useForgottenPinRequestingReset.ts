@@ -1,11 +1,9 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { useSelector } from "@xstate/react";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useAuthInterpreter } from "./AuthSystemProvider";
 import type { LogoutCb } from "./callback-types";
 import { contextSelectors, stateSelectors } from "./selectors";
-
-
 
 /**
  * If user has forgotten their PIN, then this handles resetting it. We don't do
@@ -20,21 +18,26 @@ import { contextSelectors, stateSelectors } from "./selectors";
  * @category React
  */
 export function useForgottenPinRequestingReset(cb: LogoutCb) {
+	const isMounted = useRef(true);
 	const authenticator = useAuthInterpreter();
 	const error = useSelector(authenticator, contextSelectors.error);
 	const isActive = useSelector(authenticator, stateSelectors.isForgottenPinRequestingReset!);
 
 	const [isLoading, setIsLoading] = useState(false);
 
+	useEffect(() => () => {
+		isMounted.current = false;
+	}, []);
+
 	const resetPin = useCallback(async () => {
 		setIsLoading(true);
 		try {
 			const res = await cb();
-			setIsLoading(false);
 			authenticator.send({ type: "PIN_RESET_SUCCESS" });
 		} catch (err) {
-			setIsLoading(false);
 			authenticator.send({ type: "PIN_RESET_FAILURE", error: "PIN_RESET_FAILURE" });
+		} finally {
+			if (isMounted.current) setIsLoading(false);
 		}
 	}, [authenticator, error, isActive, isLoading]);
 

@@ -1,14 +1,12 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useSelector } from "@xstate/react";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useAuthInterpreter } from "./AuthSystemProvider";
 import type { ValidateOtpUsernameCb } from "./callback-types";
 import type { InputValidationPattern } from "./input-validation";
 import { validateInputs } from "./input-validation";
 import { contextSelectors, stateSelectors } from "./selectors";
-
-
 
 /**
  * First stage of OTP authentication: user submits their username, which will be an email
@@ -20,6 +18,7 @@ export function useSubmittingOtpUsername<User = any>(
 	cb: ValidateOtpUsernameCb<User>,
 	validators: { username: InputValidationPattern[] } = { username: [] }
 ) {
+	const isMounted = useRef(true);
 	const authenticator = useAuthInterpreter();
 	const error = useSelector(authenticator, contextSelectors.error);
 	const isActive = useSelector(authenticator, stateSelectors.isSubmittingOtpUsername!);
@@ -28,6 +27,10 @@ export function useSubmittingOtpUsername<User = any>(
 		username: [],
 	});
 	const [isLoading, setIsLoading] = useState(false);
+
+	useEffect(() => () => {
+		isMounted.current = false;
+	}, []);
 
 	const validateUsername = useCallback(
 		async (username: string) => {
@@ -42,11 +45,11 @@ export function useSubmittingOtpUsername<User = any>(
 
 				try {
 					const user = await cb(username);
-					setIsLoading(false);
 					authenticator.send({ type: "USERNAME_VALID", username, user });
 				} catch (err) {
-					setIsLoading(false);
 					authenticator.send({ type: "USERNAME_INVALID", error: "USERNAME_INVALID" });
+				} finally {
+					if (isMounted.current) setIsLoading(false);
 				}
 			}
 		},

@@ -1,7 +1,7 @@
 {
 	"name": "@thingco/authentication-react",
 	"description": "React hooks & bindings for the XState-powered auth flow system",
-	"version": "0.2.0",
+	"version": "0.2.1",
 	"main": "src/index.ts",
 	"files": [
 		"src/**"
