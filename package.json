@@ -44,7 +44,6 @@
 		"@types/rimraf": "^3.0.2",
 		"@typescript-eslint/eslint-plugin": "^5.3.1",
 		"@typescript-eslint/parser": "^5.3.1",
-		"commitizen": "^4.2.4",
 		"esbuild": "^0.13.13",
 		"eslint": "^8.2.0",
 		"eslint-config-prettier": "^8.3.0",
@@ -71,14 +70,6 @@
 	"lint-staged": {
 		"*.{js,json,rjson,jsx,ts,tsx}": "eslint --fix",
 		"*.{css,html,js,json,jsx,mjs,rjson,ts,tsx}": "prettier --write"
-	},
-	"dependencies": {
-		"cz-conventional-changelog": "^3.3.0"
-	},
-	"config": {
-		"commitizen": {
-			"path": "./node_modules/cz-conventional-changelog"
-		}
 	},
 	"packageManager": "yarn@3.1.0"
 }
