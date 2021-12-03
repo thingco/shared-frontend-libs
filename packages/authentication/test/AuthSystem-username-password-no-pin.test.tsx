@@ -110,7 +110,7 @@ const machine = createMachine({
 			},
 			meta: {
 				test: async () => {
-					await currentStateIs(AuthStateId.CheckingForSession);
+					await currentStateIs(AuthStateId.CheckingSession);
 					await currentLoginFlowIs("USERNAME_PASSWORD");
 					await currentDeviceSecurityTypeIs("NONE");
 					await stageErrorIs("n/a");

@@ -6,16 +6,23 @@
 		{
 			"name": "Daniel Couper",
 			"email": "daniel.couper@thingco.com"
+		},
+		{
+			"name": "Daniel Woodward",
+			"email": "daniel.woodward@thingco.com"
+		},
+		{
+			"name": "Carlo Conner-Hill",
+			"email": "carlo.connerhill@thingco.com"
 		}
 	],
 	"private": true,
 	"workspaces": [
-		"packages/*",
-		"playground"
+		"packages/*"
 	],
 	"scripts": {
-		"packages:build-all": "FORCE_COLOR=1 yarn workspaces foreach -v --topological-dev --exclude @thingco/shared-frontend-libs-playground run build",
-		"packages:test-all": "yarn workspaces foreach --exclude @thingco/shared-frontend-libs-playground run test",
+		"packages:build-all": "yarn workspaces foreach -v --topological-dev run build",
+		"packages:test-all": "yarn workspaces foreach run test",
 		"package:auth-flows": "yarn workspace @thingco/auth-flows",
 		"package:graphviz": "yarn workspace @thingco/graphviz",
 		"package:graphviz-web": "yarn workspace @thingco/graphviz-web",
@@ -26,32 +33,31 @@
 		"package:user-preferences": "yarn workspace @thingco/user-preferences",
 		"package:user-preferences-store-web": "yarn workspace @thingco/user-preferences-store-web",
 		"package:user-preferences-store-native": "yarn workspace @thingco/user-preferences-store-native",
-		"playground": "yarn workspace @thingco/shared-frontend-libs-playground",
 		"global:build": "cd $INIT_CWD && zx ../../scripts/build-single-package.md",
 		"global:watch": "cd $INIT_CWD && zx ../../scripts/develop-against-test-app.md"
 	},
 	"devDependencies": {
-		"@types/eslint": "^7.28.0",
+		"@types/eslint": "^7.28.2",
 		"@types/eslint-plugin-prettier": "^3.1.0",
-		"@types/node": "^16.6.2",
-		"@types/prettier": "^2.3.2",
+		"@types/node": "^16.11.7",
+		"@types/prettier": "^2.4.1",
 		"@types/rimraf": "^3.0.2",
-		"@typescript-eslint/eslint-plugin": "^4.29.2",
-		"@typescript-eslint/parser": "^4.29.2",
+		"@typescript-eslint/eslint-plugin": "^5.3.1",
+		"@typescript-eslint/parser": "^5.3.1",
 		"commitizen": "^4.2.4",
-		"esbuild": "^0.12.21",
-		"eslint": "^7.32.0",
+		"esbuild": "^0.13.13",
+		"eslint": "^8.2.0",
 		"eslint-config-prettier": "^8.3.0",
-		"eslint-plugin-prettier": "^3.4.0",
-		"eslint-plugin-react": "^7.24.0",
-		"eslint-plugin-react-hooks": "^4.2.0",
+		"eslint-plugin-prettier": "^3.4.1",
+		"eslint-plugin-react": "^7.27.0",
+		"eslint-plugin-react-hooks": "^4.3.0",
 		"eslint-plugin-tsdoc": "^0.2.14",
 		"husky": "6",
-		"lint-staged": "^11.1.2",
-		"prettier": "^2.3.2",
+		"lint-staged": "^11.2.6",
+		"prettier": "^2.4.1",
 		"rimraf": "^3.0.2",
 		"typescript": "^4.3.5",
-		"zx": "^3.0.0"
+		"zx": "^4.2.0"
 	},
 	"resolutions": {
 		"aria-query": "5.0.0",
@@ -73,5 +79,6 @@
 		"commitizen": {
 			"path": "./node_modules/cz-conventional-changelog"
 		}
-	}
+	},
+	"packageManager": "yarn@3.1.0"
 }

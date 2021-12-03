@@ -55,16 +55,22 @@ export function useSubmittingOtp<User = any>(
 					}.`
 				);
 
-				const handleError = (err: string) => {
+				try {
+					const user = await cb(currentUserData, password);
+					logger.log(`OTP validated! API reponse: ${JSON.stringify(user)}`);
+					setIsLoading(false);
+					setAttemptsMade(0);
+					authenticator.send({ type: "OTP_VALID" });
+				} catch (err) {
 					logger.log(err);
 					if (currentAttempts >= allowedRetries) {
 						logger.log(`OTP retries exceeded. API error: ${JSON.stringify(err)}`);
 						setIsLoading(false);
+						setAttemptsMade(0);
 						authenticator.send({
 							type: "OTP_INVALID_RETRIES_EXCEEDED",
 							error: "PASSWORD_RETRIES_EXCEEDED",
 						});
-						setAttemptsMade(0);
 					} else {
 						logger.log(
 							`OTP invalid, ${
@@ -72,28 +78,13 @@ export function useSubmittingOtp<User = any>(
 							} tries remaining. API error: ${JSON.stringify(err)}`
 						);
 						setIsLoading(false);
+						setAttemptsMade(currentAttempts);
 						authenticator.send({
 							type: "OTP_INVALID",
 							error: `PASSWORD_INVALID_${3 - currentAttempts}_RETRIES_REMAINING`,
 						});
-						setAttemptsMade(currentAttempts);
 					}
 				};
-
-				await cb(currentUserData, password)
-					.then((user: any) => {
-						logger.log(`OTP validate! API reponse: ${JSON.stringify(user)}`);
-						if (user.signInUserSession) {
-							setIsLoading(false);
-							setAttemptsMade(0);
-							authenticator.send({ type: "OTP_VALID" });
-						} else {
-							handleError("Invalid Session");
-						}
-					})
-					.catch(handleError);
-				// TODO: This is likely not an error caused by the user
-				// So we might want to handle it differently
 			}
 		},
 		[attemptsMade, authenticator, currentUserData, error, isActive, isLoading, validationErrors]

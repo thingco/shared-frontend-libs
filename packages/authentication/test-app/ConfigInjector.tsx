@@ -58,20 +58,23 @@ export type Configs = {
 	 */
 	deviceSecurityType: DeviceSecurityType;
 	/**
-	 * Whether to show all stages in the UI. If this is false, components for stages will unmount
-	 * when the stage is inactive, which is how it should operate in a real app. If set to true,
-	 * then all stages will be show in the UI, which is useful for development, as it gives a
-	 * full picture of the app that can be very helpful for debugging purposes. By default, this
+	 * Whether to show all stages in the UI. If this is false, components for
+	 * stages will unmount when the stage is inactive, which is how it should
+	 * operate in a real app. If set to true, then all stages will be shown in the
+	 * UI, which is useful for development, as it gives a full picture of the
+	 * app that can be very helpful for debugging purposes. By default, this
 	 * property should be set to false.
 	 */
 	uiLayout: UiLayout;
 	/**
-	 * Whether to use the XState inspector or not (see {@link https://xstate.js.org/docs/packages/xstate-inspect/} for more details)
+	 * Whether to use the XState inspector or not (see
+	 * {@link https://xstate.js.org/docs/packages/xstate-inspect/}
+	 * for more details)
 	 */
 	devToolsStatus: DevTools;
 	/**
-	 * If the app is being used to run tests against, we want to prefill some configs and prevent others
-	 * having an effect.
+	 * If the app is being used to run tests against, we want to prefill some
+	 * configs and prevent others having an effect.
 	 */
 	isInTestMode: boolean;
 };
@@ -187,31 +190,33 @@ type ConfigInjectorProps = {
 	 * An object containing the configuration for a Cognito USERNAME_PASSWORD flow, initialised
 	 * using {@link https://docs.amplify.aws/lib/auth/start/q/platform/js/#re-use-existing-authentication-resource | AWS Amplify's `Auth.config` function}.
 	 *
-	 * NOTE: this method of auth is not recommended by AWS, is is marked as legacy -- it sends
-	 * the username/password over the wire, so is susceptible to attack.
+	 * NOTE: this method of auth is not recommended by AWS, is is marked as
+	 * legacy -- it sends the username/password over the wire, so is susceptible
+	 * to attack.
 	 *
 	 * @defaultValue undefined
 	 */
 	awsUsernamePasswordClientConfig?: any;
 	/**
-	 * A defined device security type should you wish to preconfigure the config (for example, if you are writing
-	 * an integration test for a specific flow).
+	 * A defined device security type should you wish to preconfigure the config
+	 * (for example, if you are writing an integration test for a specific flow).
 	 *
 	 * @defaultValue "NONE"
 	 */
 	initialDeviceSecurityType?: DeviceSecurityType;
 	/**
-	 * A defined login flow type should you wish to preconfigure the config (for example, if you are writing
-	 * an integration test for a specific flow).
+	 * A defined login flow type should you wish to preconfigure the config
+	 * (for example, if you are writing an integration test for a specific flow).
 	 *
 	 * @defaultValue "OTP"
 	 */
 	initialLoginFlowType?: LoginFlowType;
 	/**
-	 * A defined UI display preference should you wish to preconfigure the config. If you are writing
-	 * an integration test for a specific flow, you probably do not want all the stages visible as that
-	 * would then require granular targeting of elements in the test. If you are developing/debugging
-	 * having all the stages visible is likely to be useful.
+	 * A defined UI display preference should you wish to preconfigure the config.
+	 * If you are writing an integration test for a specific flow, you probably
+	 * do not want all the stages visible as that would then require granular
+	 * targeting of elements in the test. If you are developing/debugging having
+	 * all the stages visible is likely to be useful.
 	 *
 	 * @defaultValue "MOUNT_WHEN_ACTIVE"
 	 */
@@ -335,7 +340,7 @@ export function useConfigUpdate(): ConfigUpdateMethods {
 	const configSwitchers = React.useContext(ConfigUpdateContext);
 
 	if (!configSwitchers)
-		throw new Error("useConfigSwitcher must be below the FlowSwitchProvider in the component tree");
+		throw new Error("useConfigUpdate must be below the ConfigInjector in the component tree");
 
 	return configSwitchers;
 }

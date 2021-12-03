@@ -1,0 +1,14 @@
+{
+	"extends": "../../tsconfig.json",
+	"compilerOptions": {
+		"baseUrl": ".",
+		"noEmit": true,
+		"paths": {
+			"@thingco/authentication-core": ["src/index.ts"],
+			"test-utils/*": ["test/utilities/*"]
+		},
+		"rootDirs": ["src", "test"],
+		"skipLibCheck": true
+	},
+	"exclude": ["lib", "jest.config.js"]
+}

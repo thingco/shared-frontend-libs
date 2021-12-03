@@ -38,7 +38,15 @@ export const validateOtpUsernameCb: ValidateOtpUsernameCb<CognitoUser> = (userna
 export const validateOtpCb: ValidateOtpCb<CognitoUser> = async (
 	user: CognitoUser,
 	password: string
-) => Auth.sendCustomChallengeAnswer(user, password);
+) => {
+	const resp = await Auth.sendCustomChallengeAnswer(user, password);
+	if (resp.signInUserSession) {
+		return resp;
+	} else {
+		throw new Error("Invalid Session");
+	}
+}
+
 
 /**
  * Validate a username and password together. Success will return a user object, failure

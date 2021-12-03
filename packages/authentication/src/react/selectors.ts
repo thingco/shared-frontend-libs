@@ -72,7 +72,7 @@ type ExposedStateSelectorMap = {
  * @internal
  */
 export const stateSelectors: ExposedStateSelectorMap = {
-	isCheckingForSession: (state) => state.matches(AuthStateId.CheckingForSession),
+	isCheckingSession: (state) => state.matches(AuthStateId.CheckingSession),
 	isSubmittingOtpUsername: (state) => state.matches(AuthStateId.SubmittingOtpUsername),
 	isSubmittingOtp: (state) => state.matches(AuthStateId.SubmittingOtp),
 	isSubmittingUsernameAndPassword: (state) =>
@@ -142,11 +142,12 @@ type ContextSelectorMap<S = AuthState, C = AuthContext> = Record<keyof C, (state
  * Map of every context value as a selector function.
  */
 export const contextSelectors: ContextSelectorMap = {
+	allowedOtpRetries: (state) => state.context.allowedOtpRetries,
+	deviceSecurityType: (state) => state.context.deviceSecurityType,
 	error: (state) => state.context.error,
 	loginFlowType: (state) => state.context.loginFlowType,
-	allowedOtpRetries: (state) => state.context.allowedOtpRetries,
+	loginCompleted: (state) => state.context.loginCompleted,
 	pinLength: (state) => state.context.pinLength,
-	deviceSecurityType: (state) => state.context.deviceSecurityType,
 	user: (state) => state.context.user,
 	username: (state) => state.context.username,
 };

@@ -1,11 +1,10 @@
 {
 	"name": "@thingco/logger",
 	"description": "React logging provider",
-	"version": "0.1.0",
-	"main": "lib/index.js",
-	"types": "lib/types/index.d.ts",
+	"version": "0.1.1",
+	"main": "src/index.ts",
 	"files": [
-		"lib/**"
+		"src/**"
 	],
 	"public": true,
 	"publishConfig": {
@@ -13,24 +12,23 @@
 	},
 	"repository": "https://github.com/thingco/shared-frontend-libs",
 	"scripts": {
-		"build": "yarn global:build",
 		"test": "yarn jest",
 		"docs": "yarn rimraf docs && yarn typedoc"
 	},
 	"devDependencies": {
-		"@testing-library/react": "^12.0.0",
-		"@types/jest": "^26.0.24",
-		"@types/node": "^16.6.2",
-		"@types/react": "^17.0.19",
-		"@types/react-dom": "^17.0.9",
+		"@testing-library/react": "^12.1.2",
+		"@types/jest": "^27.0.2",
+		"@types/node": "^16.11.7",
+		"@types/react": "^17.0.34",
+		"@types/react-dom": "^17.0.11",
 		"@types/rimraf": "^3.0.2",
-		"esbuild": "^0.12.21",
-		"jest": "^27.0.6",
+		"esbuild": "^0.13.13",
+		"jest": "^27.3.1",
 		"react": "^17.0.2",
 		"react-dom": "^17.0.2",
 		"rimraf": "^3.0.2",
-		"ts-jest": "^27.0.5",
-		"typedoc": "^0.21.6",
+		"ts-jest": "^27.0.7",
+		"typedoc": "^0.22.8",
 		"typescript": "^4.3.5"
 	},
 	"peerDependencies": {

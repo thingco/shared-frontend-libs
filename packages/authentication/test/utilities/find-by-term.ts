@@ -162,7 +162,7 @@ function queryAllByTerm(
  * @param container - the HTML element containing the DOM to be inspected
  * @param name      - the name of the element being targeted by the query
  */
-function getMultipleError(_: HTMLElement, name: string) {
+function getMultipleError(_: Element | null, name: string) {
 	return `Found multiple term elements with the name: ${name}`;
 }
 
@@ -173,7 +173,7 @@ function getMultipleError(_: HTMLElement, name: string) {
  * @param container - the HTML element containing the DOM to be inspected
  * @param name      - the name of the element being targeted by the query
  */
-function getMissingError(_: HTMLElement, name: string) {
+function getMissingError(_: Element | null, name: string) {
 	return `Unable to find a term element with the name of: ${name}`;
 }
 

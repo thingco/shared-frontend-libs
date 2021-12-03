@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-types */
 import { useInterpret, useSelector } from "@xstate/react";
 import React, { createContext, useContext } from "react";
+import { useLogger } from "@thingco/logger";
 
 import { contextSelectors, currentStateSelector } from "./selectors";
 import { machine } from "../auth-system";
@@ -87,13 +88,18 @@ export function AuthProvider({
 	useDevTools = false,
 	eventSink = undefined,
 }: AuthProviderProps) {
-	console.log(`Creating auth system, ${loginFlowType}, ${deviceSecurityType}`);
+	const logger = useLogger();
+
+	logger.log(`Creating auth system, ${loginFlowType}, ${deviceSecurityType}`);
+
 	const authenticationSystem = machine.withContext({
 		allowedOtpRetries,
 		deviceSecurityType,
 		loginFlowType,
 		pinLength,
+		loginCompleted: false,
 	});
+
 	const authenticator = useInterpret(
 		authenticationSystem,
 		{ devTools: useDevTools },

@@ -1,0 +1,13 @@
+{
+	"extends": "../../tsconfig.json",
+	"compilerOptions": {
+		"baseUrl": ".",
+		"noEmit": true,
+		"paths": {
+			"@thingco/authentication-react": ["src/index.ts"],
+			"test-app/*": ["example/*"],
+			"test-utils/*": ["test/utilities/*"]
+		},
+		"skipLibCheck": true
+	}
+}
