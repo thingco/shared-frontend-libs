@@ -3036,7 +3036,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@thingco/graphviz-web@workspace:packages/graphviz-web":
+"@thingco/graphviz-web@workspace:*, @thingco/graphviz-web@workspace:packages/graphviz-web":
   version: 0.0.0-use.local
   resolution: "@thingco/graphviz-web@workspace:packages/graphviz-web"
   dependencies:
