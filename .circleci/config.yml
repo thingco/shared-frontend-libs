@@ -1,16 +1,28 @@
+# Use the latest 2.1 version of CircleCI pipeline process engine.
+# See: https://circleci.com/docs/2.0/configuration-reference
 version: 2.1
+
+orbs:
+  # The Node.js orb contains a set of prepackaged CircleCI configuration you can utilize
+  # Orbs reduce the amount of configuration required for common tasks.
+  # See the orb documentation here: https://circleci.com/developer/orbs/orb/circleci/node
+  node: circleci/node@4.8.1
 
 jobs:
   test_packages:
     docker:
-      - image: cimg/node:15.11.0
+      - image: cimg/node:16.13.1
     working_directory: ~/repo
     steps:
       - checkout
-      - run: node --version
-      - run: yarn
-      - run: yarn workspace @thingco/authentication-core test --bail
-      - run: yarn workspace @thingco/authentication-react test --bail
+      - node/install-packages:
+        pkg-manager: yarn
+      - run:
+        name: Test authentication-core
+        command: yarn workspace @thingco/authentication-core test --bail
+      - run:
+        name: Test authentication-react
+        command: yarn workspace @thingco/authentication-react test --bail
 
 workflows:
   version: 2.1
