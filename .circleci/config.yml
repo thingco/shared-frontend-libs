@@ -16,13 +16,13 @@ jobs:
     steps:
       - checkout
       - node/install-packages:
-        pkg-manager: yarn
+          pkg-manager: yarn
       - run:
-        name: Test authentication-core
-        command: yarn workspace @thingco/authentication-core test --bail
+          name: Test authentication-core
+          command: yarn workspace @thingco/authentication-core test --bail
       - run:
-        name: Test authentication-react
-        command: yarn workspace @thingco/authentication-react test --bail
+          name: Test authentication-react
+          command: yarn workspace @thingco/authentication-react test --bail
 
 workflows:
   version: 2.1
