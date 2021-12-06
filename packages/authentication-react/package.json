@@ -21,6 +21,7 @@
 		"test": "uvu -r global-jsdom/register -r esbuild-runner/register test -i stages -i utilities"
 	},
 	"devDependencies": {
+		"@aws-amplify/auth": "^4.3.18",
 		"@testing-library/react": "^12.1.2",
 		"@testing-library/user-event": "^13.5.0",
 		"@thingco/authentication-core": "workspace:*",
@@ -32,6 +33,7 @@
 		"@types/testing-library__jest-dom": "^5.14.2",
 		"@xstate/react": "^1.6.3",
 		"@xstate/test": "^0.5.0",
+		"classnames": "^2.3.1",
 		"esbuild": "^0.14.1",
 		"esbuild-jest": "^0.5.0",
 		"esbuild-runner": "^2.2.1",
