@@ -3,14 +3,12 @@
 	"compilerOptions": {
 		"emitDeclarationOnly": true,
 		"declarationDir": "./lib/types",
-		"rootDir": "./src",
-		"types": ["react", "jest"],
-		"jsx": "react-native"
+		"rootDir": "./src"
 	},
 	"typedocOptions": {
 		"entryPoints": ["src/index.ts"],
 		"out": "docs"
 	},
 	"include": ["src/**/*"],
-	"exclude": ["src/**/*.test.{ts,tsx}", "src/__fixtures__/*.{ts, tsx}"]
+	"exclude": ["src/**/*.test.{ts,tsx}"]
 }

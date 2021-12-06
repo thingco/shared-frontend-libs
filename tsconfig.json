@@ -4,6 +4,8 @@
 		"module": "ES2020",
 		"declaration": true,
 		"declarationMap": true,
+		"skipDefaultLibCheck": true,
+		"skipLibCheck": true,
 		"jsx": "react",
 		"sourceMap": true,
 		"strict": true,
