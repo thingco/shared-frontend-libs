@@ -1,7 +1,7 @@
 undecided:
   - "@thingco/auth-flows"
   - "@thingco/authentication"
-  - "@thingco/component-library-core"
+  - "@thingco/authentication-core"
   - "@thingco/graphviz"
   - "@thingco/graphviz-native"
   - "@thingco/graphviz-web"
@@ -12,4 +12,3 @@ undecided:
   - "@thingco/user-preferences"
   - "@thingco/user-preferences-store-native"
   - "@thingco/user-preferences-store-web"
-  - "@thingco/shared-frontend-libs-playground"
