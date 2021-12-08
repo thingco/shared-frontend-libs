@@ -23,6 +23,7 @@
 		"@thingco/shared-types": "*",
 		"@types/node": "^16.11.11",
 		"cross-env": "^7.0.3",
+		"date-fns": "^2.27.0",
 		"esbuild": "^0.14.1",
 		"esbuild-runner": "^2.2.1",
 		"fast-check": "^2.20.0",
@@ -31,6 +32,7 @@
 		"uvu": "^0.5.2"
 	},
 	"peerDependencies": {
-		"@thingco/shared-types": "*"
+		"@thingco/shared-types": "*",
+		"date-fns": "*"
 	}
 }

@@ -3266,6 +3266,7 @@ __metadata:
     "@thingco/shared-types": "*"
     "@types/node": ^16.11.11
     cross-env: ^7.0.3
+    date-fns: ^2.27.0
     esbuild: ^0.14.1
     esbuild-runner: ^2.2.1
     fast-check: ^2.20.0
@@ -3274,6 +3275,7 @@ __metadata:
     uvu: ^0.5.2
   peerDependencies:
     "@thingco/shared-types": "*"
+    date-fns: "*"
   languageName: unknown
   linkType: soft
 
@@ -5837,6 +5839,13 @@ __metadata:
     whatwg-mimetype: ^3.0.0
     whatwg-url: ^10.0.0
   checksum: 00c71280d5d8146a2f19f3fce3ce59c3b860c66cd584f4e7db8764477a9c97966fa06543c9d9d28b762784f50e21c2e2ccb2d0be24b392ec82eb21daf7804b3e
+  languageName: node
+  linkType: hard
+
+"date-fns@npm:^2.27.0":
+  version: 2.27.0
+  resolution: "date-fns@npm:2.27.0"
+  checksum: db62036b3816eb0322c9532b353beac7f660a91e1a55dbd21c14893c621ebb8509f21c66ba287844dabd34dee0207edd54a9537bce6bb7cab9383dedc6b8bc90
   languageName: node
   linkType: hard
 
