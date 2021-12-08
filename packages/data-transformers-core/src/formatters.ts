@@ -1,22 +1,20 @@
+import type {
+    DistancePrecisionPreference,
+    DistanceUnitPreference,
+    LocalePreference,
+    TimeDisplayPreference
+} from "@thingco/shared-types";
 import { blockDistanceRemaining } from "./calculators";
 import {
-	kmphToMph,
-	metersToKilometers,
-	metersToMiles,
-	mpsToKmph,
-	mpsToMph,
-	secondsToDurationObj,
+    kmphToMph,
+    metersToKilometers,
+    metersToMiles,
+    mpsToKmph,
+    mpsToMph,
+    secondsToDurationObj
 } from "./converters";
-import { formatDecimal } from "./number-utils";
 import { normaliseTimestamp } from "./date-utils";
 
-import type {
-	DistancePrecisionPreference,
-	DistanceUnitPreference,
-	LocalePreference,
-	TimeDisplayPreference,
-} from "@thingco/shared-types";
-import { format as formatDate } from "date-fns";
 
 export interface DistanceOpts {
 	distanceUntilScored?: number;
@@ -25,43 +23,49 @@ export interface DistanceOpts {
 	locale?: LocalePreference | undefined;
 }
 
-/**
- * Factory for the distance formatter.
- */
 export function distance({
 	unitPreference = "km",
 	precision = 0,
 	locale = undefined,
 }: DistanceOpts = {}): (distanceInMetres: number | string) => string {
-	return function (distanceInMetres: number | string) {
-		distanceInMetres = Number(distanceInMetres);
+	const formatter = Intl.NumberFormat(locale, {
+		style: "decimal",
+		useGrouping: true,
+		minimumFractionDigits: precision,
+		maximumFractionDigits: precision,
+	});
 
+	return function (distanceInMetres: number | string) {
 		switch (unitPreference) {
 			case "km":
-				return `${formatDecimal(metersToKilometers(distanceInMetres), precision, locale)} km`;
+				return `${formatter.format(metersToKilometers(Number(distanceInMetres)))} km`;
 			case "mi":
-				return `${formatDecimal(metersToMiles(distanceInMetres), precision, locale)} km`;
+				return `${formatter.format(metersToMiles(Number(distanceInMetres)))} mi`;
 		}
 	};
 }
 
-/**
- * Factory for the distanceUntilScored formatter.
- */
 export function distanceUntilScored({
 	unitPreference = "km",
 	distanceUntilScored = 160934,
 	precision = 0,
 	locale = undefined,
 }: DistanceOpts = {}): (distanceCompletedInMetres: number | string) => string {
+	const formatter = Intl.NumberFormat(locale, {
+		style: "decimal",
+		useGrouping: true,
+		minimumFractionDigits: precision,
+		maximumFractionDigits: precision,
+	});
+
 	return function (distanceCompletedInMetres: number | string) {
 		const progress = blockDistanceRemaining(distanceUntilScored, Number(distanceCompletedInMetres));
 
 		switch (unitPreference) {
 			case "km":
-				return `${formatDecimal(metersToKilometers(progress), precision, locale)} km`;
+				return `${formatter.format(metersToKilometers(progress))} km`;
 			case "mi":
-				return `${formatDecimal(metersToMiles(progress), precision, locale)} mi`;
+				return `${formatter.format(metersToMiles(progress))} mi`;
 		}
 	};
 }
@@ -72,29 +76,27 @@ export interface SpeedOpts {
 	locale?: LocalePreference | undefined;
 }
 
-/**
- * Factory for the speed formatter.
- */
 export function speed({
 	unitPreference = "km",
 	precision = 0,
 	locale = undefined,
 }: SpeedOpts = {}): (speedInKmph: number | string) => string {
+	const formatter = new Intl.NumberFormat(locale, {
+		style: "decimal",
+		useGrouping: true,
+		minimumFractionDigits: precision,
+		maximumFractionDigits: precision,
+	});
 	return function (speedInKmph: number | string) {
-		speedInKmph = Number(speedInKmph);
-
 		switch (unitPreference) {
 			case "km":
-				return `${formatDecimal(speedInKmph, precision, locale)} km/h`;
+				return `${formatter.format(Number(speedInKmph))} km/h`;
 			case "mi":
-				return `${formatDecimal(kmphToMph(speedInKmph), precision, locale)} mph`;
+				return `${formatter.format(kmphToMph(Number(speedInKmph)))} mph`;
 		}
 	};
 }
 
-/**
- * Factory for the averageSpeed formatter.
- */
 export function averageSpeed({
 	unitPreference = "km",
 	precision = 0,
@@ -103,14 +105,20 @@ export function averageSpeed({
 	distanceInMetres: number | string,
 	durationInSeconds: number | string
 ) => string {
+	const formatter = new Intl.NumberFormat(locale, {
+		style: "decimal",
+		useGrouping: true,
+		minimumFractionDigits: precision,
+		maximumFractionDigits: precision,
+	});
 	return function (distanceInMetres: number | string, durationInSeconds: number | string) {
 		const metresPerSecond = Number(distanceInMetres) / Number(durationInSeconds);
 
 		switch (unitPreference) {
 			case "km":
-				return `${formatDecimal(mpsToKmph(metresPerSecond), precision, locale)} km/h`;
+				return `${formatter.format(mpsToKmph(metresPerSecond))} km/h`;
 			case "mi":
-				return `${formatDecimal(mpsToMph(metresPerSecond), precision, locale)} mph`;
+				return `${formatter.format(mpsToMph(metresPerSecond))} mph`;
 		}
 	};
 }
@@ -129,7 +137,8 @@ export function date({ locale = undefined }: DateOpts = {}): (
 	});
 
 	return function (timestamp: string | number) {
-		return formatter.format(new Date(Number(timestamp)));
+		const date = new Date(normaliseTimestamp(timestamp));
+		return formatter.format(date);
 	};
 }
 
@@ -141,14 +150,15 @@ export interface TimeOpts {
 export function time({ locale = undefined, timeDisplay = "24" }: TimeOpts = {}): (
 	timestamp: string | number
 ) => string {
+	const formatter = new Intl.DateTimeFormat(locale, {
+		hour: timeDisplay === "12" ? "numeric" : "2-digit",
+		minute: "2-digit",
+		hour12: timeDisplay === "12",
+	});
+
 	return function (timestamp: string | number) {
 		const date = new Date(normaliseTimestamp(timestamp));
-		switch (timeDisplay) {
-			case "12":
-				return formatDate(date, "p");
-			case "24":
-				return formatDate(date, "k:mm");
-		}
+		return formatter.format(date);
 	};
 }
 
@@ -160,14 +170,18 @@ export interface DateTimeOpts {
 export function dateTime({ locale = undefined, timeDisplay = "24" }: DateTimeOpts = {}): (
 	timestamp: string | number
 ) => string {
+	const formatter = new Intl.DateTimeFormat(locale, {
+		year: "numeric",
+		month: "numeric",
+		day: "numeric",
+		hour: timeDisplay === "12" ? "numeric" : "2-digit",
+		minute: "2-digit",
+		hour12: timeDisplay === "12",
+	});
+
 	return function (timestamp: string | number) {
 		const date = new Date(normaliseTimestamp(timestamp));
-		switch (timeDisplay) {
-			case "12":
-				return formatDate(date, "P p");
-			case "24":
-				return formatDate(date, "P k:mm");
-		}
+		return formatter.format(date);
 	};
 }
 
@@ -179,18 +193,33 @@ export interface DurationOpts {
 export function duration({ locale = undefined, displayStyle = "compact" }: DurationOpts = {}): (
 	durationInSeconds: number | string
 ) => string {
+	const hourFormatter = new Intl.NumberFormat(locale, {
+		style: "decimal",
+		minimumIntegerDigits: displayStyle === "expanded" ? 1 : 2,
+		maximumFractionDigits: 0,
+	});
+
+	const minuteFormatter = new Intl.NumberFormat(locale, {
+		style: "decimal",
+		minimumIntegerDigits: displayStyle === "expanded" ? 1 : 2,
+		maximumFractionDigits: 0,
+	});
+
 	return function (durationInSeconds: number | string): string {
 		const { hours, minutes } = secondsToDurationObj(Number(durationInSeconds));
+		const hrSuffix = hours === 1 ? "hr" : "hrs";
+		const minSuffix = minutes === 1 ? "min" : "mins";
+
 		switch (displayStyle) {
 			case "compact":
-				return `${hoursString}:${minutesString}`;
+				return `${hourFormatter.format(hours)}:${minuteFormatter.format(minutes)}`;
 			case "expanded":
 				if (!hours && minutes) {
-					return `${minutesString} mins`;
+					return `${minuteFormatter.format(minutes)} ${minSuffix}`;
 				} else if (hours && !minutes) {
-					return `${hoursString} ${hrString}`;
+					return `${hourFormatter.format(hours)} ${hrSuffix}`;
 				} else {
-					return `${hoursString} ${hrString}, ${minutesString} mins`;
+					return `${hourFormatter.format(hours)} ${hrSuffix}, ${minuteFormatter.format(minutes)} ${minSuffix}`;
 				}
 		}
 	};
