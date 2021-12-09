@@ -1,9 +1,8 @@
 import type {
-    DistancePrecisionPreference,
-    DistanceUnitPreference,
-    LocalePreference,
-    TimeDisplayPreference
-} from "@thingco/shared-types";
+    DistanceUnit,
+    Locale,
+    TimeDisplay
+} from "./types";
 import { blockDistanceRemaining } from "./calculators";
 import {
     kmphToMph,
@@ -18,11 +17,16 @@ import { normaliseTimestamp } from "./date-utils";
 
 export interface DistanceOpts {
 	distanceUntilScored?: number;
-	unitPreference?: DistanceUnitPreference;
-	precision?: DistancePrecisionPreference;
-	locale?: LocalePreference | undefined;
+	unitPreference?: DistanceUnit;
+	precision?: number;
+	locale?: Locale;
 }
 
+/**
+ * Factory function for creating distance formatters.
+ *
+ * @category Formatters
+ */
 export function distance({
 	unitPreference = "km",
 	precision = 0,
@@ -45,6 +49,17 @@ export function distance({
 	};
 }
 
+
+/**
+ * Factory function for creating distanceUntilScored formatters.
+ *
+ * @remarks
+ * "Distance until scored" refers to the distance remaining (in metres) until a
+ * block is scored -- this averages out by default at ~100miles, but that
+ * will naturally change depending on individual journey length.
+ *
+ * @category Formatters
+ */
 export function distanceUntilScored({
 	unitPreference = "km",
 	distanceUntilScored = 160934,
@@ -71,11 +86,17 @@ export function distanceUntilScored({
 }
 
 export interface SpeedOpts {
-	unitPreference?: DistanceUnitPreference;
-	precision?: DistancePrecisionPreference;
-	locale?: LocalePreference | undefined;
+	unitPreference?: DistanceUnit;
+	precision?: number;
+	locale?: Locale;
 }
 
+
+/**
+ * Factory function for creating speed formatters.
+ *
+ * @category Formatters
+ */
 export function speed({
 	unitPreference = "km",
 	precision = 0,
@@ -97,6 +118,16 @@ export function speed({
 	};
 }
 
+
+/**
+ * Factory function for creating *average* speed formatters.
+ *
+ * @remarks
+ * This formatter is used when what is available is distance & duration -- for
+ * example, when journey data is handed to it.
+ *
+ * @category Formatters
+ */
 export function averageSpeed({
 	unitPreference = "km",
 	precision = 0,
@@ -124,9 +155,14 @@ export function averageSpeed({
 }
 
 export interface DateOpts {
-	locale?: LocalePreference;
+	locale?: Locale;
 }
 
+/**
+ * Factory function for creating date formatters.
+ *
+ * @category Formatters
+ */
 export function date({ locale = undefined }: DateOpts = {}): (
 	timestamp: string | number
 ) => string {
@@ -143,16 +179,24 @@ export function date({ locale = undefined }: DateOpts = {}): (
 }
 
 export interface TimeOpts {
-	locale?: LocalePreference | undefined;
-	timeDisplay?: TimeDisplayPreference;
+	locale?: Locale;
+	showSeconds?: boolean;
+	timeDisplay?: TimeDisplay;
 }
 
-export function time({ locale = undefined, timeDisplay = "24" }: TimeOpts = {}): (
+
+/**
+ * Factory function for creating time formatters.
+ *
+ * @category Formatters
+ */
+export function time({ locale = undefined, showSeconds = false, timeDisplay = "24" }: TimeOpts = {}): (
 	timestamp: string | number
 ) => string {
 	const formatter = new Intl.DateTimeFormat(locale, {
 		hour: timeDisplay === "12" ? "numeric" : "2-digit",
 		minute: "2-digit",
+		second: showSeconds ? "2-digit" : undefined,
 		hour12: timeDisplay === "12",
 	});
 
@@ -163,11 +207,17 @@ export function time({ locale = undefined, timeDisplay = "24" }: TimeOpts = {}):
 }
 
 export interface DateTimeOpts {
-	locale?: LocalePreference | undefined;
-	timeDisplay?: TimeDisplayPreference;
+	locale?: Locale;
+	showSeconds?: boolean;
+	timeDisplay?: TimeDisplay;
 }
 
-export function dateTime({ locale = undefined, timeDisplay = "24" }: DateTimeOpts = {}): (
+/**
+ * Factory function for creating dateTime formatters.
+ *
+ * @category Formatters
+ */
+export function dateTime({ locale = undefined, showSeconds = false, timeDisplay = "24" }: DateTimeOpts = {}): (
 	timestamp: string | number
 ) => string {
 	const formatter = new Intl.DateTimeFormat(locale, {
@@ -176,6 +226,7 @@ export function dateTime({ locale = undefined, timeDisplay = "24" }: DateTimeOpt
 		day: "numeric",
 		hour: timeDisplay === "12" ? "numeric" : "2-digit",
 		minute: "2-digit",
+		second: showSeconds ? "2-digit" : undefined,
 		hour12: timeDisplay === "12",
 	});
 
@@ -186,41 +237,43 @@ export function dateTime({ locale = undefined, timeDisplay = "24" }: DateTimeOpt
 }
 
 export interface DurationOpts {
-	locale?: LocalePreference | undefined;
+	locale?: Locale;
 	displayStyle?: "compact" | "expanded";
+	showSeconds?: boolean;
 }
 
-export function duration({ locale = undefined, displayStyle = "compact" }: DurationOpts = {}): (
+/**
+ * Factory function for creating duration formatters.
+ *
+ * @category Formatters
+ */
+export function duration({ locale = undefined, displayStyle = "compact", showSeconds = false }: DurationOpts = {}): (
 	durationInSeconds: number | string
 ) => string {
-	const hourFormatter = new Intl.NumberFormat(locale, {
-		style: "decimal",
-		minimumIntegerDigits: displayStyle === "expanded" ? 1 : 2,
-		maximumFractionDigits: 0,
-	});
-
-	const minuteFormatter = new Intl.NumberFormat(locale, {
+	const numberFormatter = new Intl.NumberFormat(locale, {
 		style: "decimal",
 		minimumIntegerDigits: displayStyle === "expanded" ? 1 : 2,
 		maximumFractionDigits: 0,
 	});
 
 	return function (durationInSeconds: number | string): string {
-		const { hours, minutes } = secondsToDurationObj(Number(durationInSeconds));
+		const { hours, minutes, seconds } = secondsToDurationObj(Number(durationInSeconds));
+
 		const hrSuffix = hours === 1 ? "hr" : "hrs";
 		const minSuffix = minutes === 1 ? "min" : "mins";
+		const secSuffix = seconds === 1 ? "sec" : "secs";
 
 		switch (displayStyle) {
 			case "compact":
-				return `${hourFormatter.format(hours)}:${minuteFormatter.format(minutes)}`;
+				let compactStr = `${numberFormatter.format(hours)}:${numberFormatter.format(minutes)}`;
+				if (showSeconds && seconds) compactStr += `:${numberFormatter.format(seconds)} ${secSuffix}`;
+				return compactStr;
 			case "expanded":
-				if (!hours && minutes) {
-					return `${minuteFormatter.format(minutes)} ${minSuffix}`;
-				} else if (hours && !minutes) {
-					return `${hourFormatter.format(hours)} ${hrSuffix}`;
-				} else {
-					return `${hourFormatter.format(hours)} ${hrSuffix}, ${minuteFormatter.format(minutes)} ${minSuffix}`;
-				}
+				let expandedStr = [];
+				if (hours) expandedStr.push(`${numberFormatter.format(hours)} ${hrSuffix}`);
+				if (minutes) expandedStr.push(`${numberFormatter.format(minutes)} ${minSuffix}`);
+				if (showSeconds && seconds) expandedStr.push(`${numberFormatter.format(seconds)} ${secSuffix}`);
+				return expandedStr.join(", ");
 		}
 	};
 }

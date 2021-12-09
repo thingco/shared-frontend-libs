@@ -1,4 +1,5 @@
 {
+	"categoryOrder": ["Formatters", "Converters", "*"],
   "entryPoints": ["src/index.ts"],
   "out": "docs"
 }

@@ -3263,7 +3263,6 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@thingco/data-transformers-core@workspace:packages/data-transformers-core"
   dependencies:
-    "@thingco/shared-types": "*"
     "@types/node": ^16.11.11
     esbuild: ^0.14.1
     esbuild-runner: ^2.2.1
@@ -3271,8 +3270,6 @@ __metadata:
     typedoc: ^0.22.10
     typescript: ^4.5.2
     uvu: ^0.5.2
-  peerDependencies:
-    "@thingco/shared-types": "*"
   languageName: unknown
   linkType: soft
 
@@ -3387,7 +3384,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@thingco/shared-types@*, @thingco/shared-types@workspace:*, @thingco/shared-types@workspace:packages/shared-types":
+"@thingco/shared-types@workspace:*, @thingco/shared-types@workspace:packages/shared-types":
   version: 0.0.0-use.local
   resolution: "@thingco/shared-types@workspace:packages/shared-types"
   languageName: unknown
