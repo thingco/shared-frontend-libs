@@ -18,7 +18,7 @@
 		"docs": "yarn rimraf docs && yarn typedoc"
 	},
 	"devDependencies": {
-		"@testing-library/jest-dom": "^5.16.0",
+		"@testing-library/jest-dom": "^5.16.1",
 		"@testing-library/react": "^12.1.2",
 		"@types/jest": "^27.0.3",
 		"@types/react": "^17.0.37",
@@ -32,7 +32,7 @@
 		"rimraf": "^3.0.2",
 		"shortid": "^2.2.16",
 		"theme-ui": "^0.10.0",
-		"ts-jest": "^27.0.7",
+		"ts-jest": "^27.1.1",
 		"typedoc": "^0.22.10",
 		"typescript": "^4.5.2"
 	},

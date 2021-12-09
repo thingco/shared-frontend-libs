@@ -16,14 +16,14 @@
 		"docs": "yarn rimraf docs && yarn typedoc"
 	},
 	"devDependencies": {
-		"@testing-library/jest-dom": "^5.16.0",
+		"@testing-library/jest-dom": "^5.16.1",
 		"@thingco/shared-types": "workspace:*",
 		"@types/jest": "^27.0.3",
 		"@types/rimraf": "^3.0.2",
 		"@types/testing-library__jest-dom": "^5.14.2",
 		"jest": "^27.4.3",
 		"rimraf": "^3.0.2",
-		"ts-jest": "^27.0.7",
+		"ts-jest": "^27.1.1",
 		"typedoc": "^0.22.10",
 		"typescript": "^4.5.2"
 	},
