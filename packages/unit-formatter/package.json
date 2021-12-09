@@ -2,10 +2,9 @@
 	"name": "@thingco/unit-formatter",
 	"description": "React-based unit formatters",
 	"version": "1.4.1",
-	"main": "lib/index.js",
-	"types": "lib/types/index.d.ts",
+	"main": "src/index.ts",
 	"files": [
-		"lib/**"
+		"src/**"
 	],
 	"public": true,
 	"publishConfig": {
@@ -13,7 +12,6 @@
 	},
 	"repository": "https://github.com/thingco/shared-frontend-libs",
 	"scripts": {
-		"build": "yarn global:build",
 		"test": "yarn jest",
 		"docs": "yarn rimraf docs && yarn typedoc"
 	},

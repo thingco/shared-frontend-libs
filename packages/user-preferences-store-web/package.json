@@ -2,10 +2,9 @@
 	"name": "@thingco/user-preferences-store-web",
 	"description": "Web persistance for ThingCo React apps' user preferences",
 	"version": "0.6.1",
-	"main": "lib/index.js",
-	"types": "lib/types/index.d.ts",
+	"main": "src/index.ts",
 	"files": [
-		"lib/**"
+		"src/**"
 	],
 	"public": true,
 	"publishConfig": {
@@ -13,7 +12,6 @@
 	},
 	"repository": "https://github.com/thingco/shared-frontend-libs",
 	"scripts": {
-		"build": "yarn global:build",
 		"test": "yarn jest",
 		"docs": "yarn rimraf docs && yarn typedoc"
 	},
