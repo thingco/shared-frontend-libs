@@ -3223,7 +3223,7 @@ __metadata:
     "@testing-library/jest-dom": ^5.14.1
     "@testing-library/react": ^12.0.0
     "@thingco/component-library-core": 0.1.1
-    "@thingco/unit-formatter": 1.4.0
+    "@thingco/unit-formatter": 1.4.1
     "@types/i18n-js": ^3
     "@types/jest": ^26.0.24
     "@types/lodash": ^4
@@ -3376,14 +3376,14 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@thingco/unit-formatter@1.4.0, @thingco/unit-formatter@workspace:packages/unit-formatter":
+"@thingco/unit-formatter@1.4.1, @thingco/unit-formatter@workspace:packages/unit-formatter":
   version: 0.0.0-use.local
   resolution: "@thingco/unit-formatter@workspace:packages/unit-formatter"
   dependencies:
     "@testing-library/jest-dom": ^5.16.0
     "@testing-library/react": ^12.1.2
     "@thingco/shared-types": "workspace:*"
-    "@thingco/user-preferences": 0.9.0
+    "@thingco/user-preferences": 0.9.1
     "@types/jest": ^27.0.3
     "@types/react": ^17.0.37
     "@types/react-dom": ^17.0.11
@@ -3447,7 +3447,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@thingco/user-preferences@0.9.0, @thingco/user-preferences@workspace:packages/user-preferences":
+"@thingco/user-preferences@0.9.1, @thingco/user-preferences@workspace:packages/user-preferences":
   version: 0.0.0-use.local
   resolution: "@thingco/user-preferences@workspace:packages/user-preferences"
   dependencies:

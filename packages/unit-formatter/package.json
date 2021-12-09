@@ -1,7 +1,7 @@
 {
 	"name": "@thingco/unit-formatter",
 	"description": "React-based unit formatters",
-	"version": "1.4.0",
+	"version": "1.4.1",
 	"main": "lib/index.js",
 	"types": "lib/types/index.d.ts",
 	"files": [
@@ -21,7 +21,7 @@
 		"@testing-library/jest-dom": "^5.16.0",
 		"@testing-library/react": "^12.1.2",
 		"@thingco/shared-types": "workspace:*",
-		"@thingco/user-preferences": "0.9.0",
+		"@thingco/user-preferences": "0.9.1",
 		"@types/jest": "^27.0.3",
 		"@types/react": "^17.0.37",
 		"@types/react-dom": "^17.0.11",

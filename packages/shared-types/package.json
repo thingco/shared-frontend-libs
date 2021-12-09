@@ -1,7 +1,7 @@
 {
 	"name": "@thingco/shared-types",
 	"description": "Internal shared types for the shared-frontend-libs repo",
-	"version": "0.5.0",
+	"version": "0.5.1",
 	"main": "index.js",
 	"types": "index.d.ts",
 	"files": [
