@@ -12,17 +12,23 @@ jobs:
   test_packages:
     docker:
       - image: cimg/node:16.13.1
+        environment:
+           TZ: "Europe/London"
     working_directory: ~/repo
     steps:
       - checkout
       - node/install-packages:
           pkg-manager: yarn
+          override-ci-command: yarn install --immutable
       - run:
           name: Test authentication-core
           command: yarn workspace @thingco/authentication-core test --bail
       - run:
           name: Test authentication-react
           command: yarn workspace @thingco/authentication-react test --bail
+      - run:
+          name: Test data-transformers-core
+          command: yarn workspace @thingco/data-transformers-core test --bail
 
 workflows:
   version: 2.1
