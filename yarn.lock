@@ -3259,7 +3259,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@thingco/data-transformers-core@workspace:packages/data-transformers-core":
+"@thingco/data-transformers-core@workspace:*, @thingco/data-transformers-core@workspace:packages/data-transformers-core":
   version: 0.0.0-use.local
   resolution: "@thingco/data-transformers-core@workspace:packages/data-transformers-core"
   dependencies:
@@ -3270,6 +3270,34 @@ __metadata:
     typedoc: ^0.22.10
     typescript: ^4.5.2
     uvu: ^0.5.2
+  languageName: unknown
+  linkType: soft
+
+"@thingco/data-transformers-react@workspace:packages/data-transformers-react":
+  version: 0.0.0-use.local
+  resolution: "@thingco/data-transformers-react@workspace:packages/data-transformers-react"
+  dependencies:
+    "@testing-library/react": ^12.1.2
+    "@testing-library/user-event": ^13.5.0
+    "@thingco/data-transformers-core": "workspace:*"
+    "@types/jsdom": ^16.2.13
+    "@types/node": ^16.11.12
+    "@types/react": ^17.0.37
+    "@types/react-dom": ^17.0.11
+    esbuild: ^0.14.2
+    esbuild-runner: ^2.2.1
+    fast-check: ^2.20.0
+    global-jsdom: ^8.4.0
+    jsdom: ^19.0.0
+    react: ^17.0.2
+    react-dom: ^17.0.2
+    testdouble: ^3.16.3
+    typedoc: ^0.22.10
+    typescript: ^4.5.2
+    uvu: ^0.5.2
+  peerDependencies:
+    "@thingco/data-transformers-core": "*"
+    react: "*"
   languageName: unknown
   linkType: soft
 
