@@ -1,8 +1,8 @@
 import {
-    ClockFormat,
-    DateDisplayFormat,
-    DistanceUnit, formatters,
-    Locale
+	ClockFormat,
+	DateDisplayFormat,
+	DistanceUnit, formatters,
+	Locale
 } from "@thingco/data-transformers-core";
 import { useCallback } from "react";
 
@@ -10,7 +10,7 @@ export type FormatterFunctions = {
 	[K in keyof typeof formatters]: ReturnType<typeof formatters[K]>;
 };
 
-export type FormatterHookOverrrides = {
+export type FormatterHookOverrides = {
 	locale?: Locale;
 	clockFormat?: ClockFormat;
 	dateDisplayFormat?: DateDisplayFormat;
@@ -28,7 +28,7 @@ export function useFormatter({
 	dateDisplayFormat = "compact",
 	precision = 0,
 	showSeconds = false,
-}: FormatterHookOverrrides = {}): FormatterFunctions {
+}: FormatterHookOverrides = {}): FormatterFunctions {
 	// prettier-ignore
 	return {
 		averageSpeed: useCallback(
@@ -57,7 +57,7 @@ export function useFormatter({
 		),
 		speed: useCallback(
 			formatters.speed({ locale, precision, distanceUnit }),
-			[locale, precision, distanceUnit ]
+			[locale, precision, distanceUnit]
 		),
 		time: useCallback(
 			formatters.time({ locale, clockFormat, showSeconds }),
