@@ -260,7 +260,7 @@ input[type="password"] {
 	font-weight: 700;
 }
 
-.auth-app {
+.app {
 	background-color: var(--grayscale-100);
 	background: linear-gradient(10deg, var(--grayscale-600) 0%, var(--grayscale-400) 100%);
 	display: flex;
@@ -269,24 +269,10 @@ input[type="password"] {
 	width: 100%;
 }
 
-.auth-app--all-stages-layout {
-	min-height: 100vh;
-	overflow-y: auto;
-}
-
-.auth-app--single-stage-layout {
-	height: 100vh;
-	overflow-y: hidden;
-}
-
-.auth-app__header,
-.auth-stage__header {
+.app__header {
 	background-color: var(--grayscale-900);
-	color: var(--grayscale-100);
-}
-
-.auth-app__header {
 	border-bottom: 2px solid var(--grayscale-200);
+	color: var(--grayscale-100);
 	display: flex;
 	gap: 2rem;
 	min-height: 4rem;
@@ -294,24 +280,14 @@ input[type="password"] {
 	position: relative;
 }
 
-.auth-stages {
+.formatter-examples {
 	align-items: stretch;
 	display: flex;
 	flex-direction: column;
 	flex: 1;
 }
 
-.auth-app--single-stage-layout .auth-stages {
-	background-color: var(--grayscale-900);
-}
-
-.auth-app--single-stage-layout .auth-stage {
-	width: 100ch;
-	max-width: 100%;
-	margin: auto;
-}
-
-.auth-stage {
+.formatter-example {
 	background-color: var(--grayscale-900);
 	border-bottom: 1px solid var(--grayscale-700);
 	color: var(--grayscale-200);
@@ -322,16 +298,16 @@ input[type="password"] {
 	padding: 1rem;
 }
 
-.auth-stage:last-child {
+.formatter-example:last-child {
 	border-bottom: 0;
 }
 
-.auth-stage--inactive {
+.formatter-example--inactive {
 	opacity: 0.35;
 	pointer-events: none;
 }
 
-.auth-stage__header {
+.formatter-example__header {
 	display: flex;
 	flex-direction: column;
 	align-items: stretch;
@@ -339,7 +315,7 @@ input[type="password"] {
 	padding-bottom: 1rem;
 }
 
-.auth-stage__header__meta {
+.formatter-example__header__meta {
 	display: flex;
 	gap: 2rem;
 }

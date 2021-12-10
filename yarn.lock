@@ -3158,8 +3158,8 @@ __metadata:
     "@types/node": ^16.11.12
     "@types/react": ^17.0.37
     "@types/react-dom": ^17.0.11
-    "@types/rimraf": ^3.0.2
     "@types/testing-library__jest-dom": ^5.14.2
+    "@xstate/inspect": ^0.5.2
     "@xstate/react": ^1.6.3
     "@xstate/test": ^0.5.0
     classnames: ^2.3.1
@@ -3170,7 +3170,6 @@ __metadata:
     jsdom: ^19.0.0
     react: ^17.0.2
     react-dom: ^17.0.2
-    rimraf: ^3.0.2
     testdouble: ^3.16.3
     typedoc: ^0.22.10
     typescript: ^4.5.2
@@ -3284,6 +3283,7 @@ __metadata:
     "@types/node": ^16.11.12
     "@types/react": ^17.0.37
     "@types/react-dom": ^17.0.11
+    classnames: ^2.3.1
     esbuild: ^0.14.2
     esbuild-runner: ^2.2.1
     fast-check: ^2.20.0
@@ -4082,6 +4082,17 @@ __metadata:
   peerDependencies:
     xstate: ^4.9.0
   checksum: 9368e1d706069069a955579a1e50bc2d8c28baa1d1e074373b6fbcb8d0daa1bbe3020a4e516225952d20c1de804037ee9f23bd26ec7a4f5ce1945fff1684807b
+  languageName: node
+  linkType: hard
+
+"@xstate/inspect@npm:^0.5.2":
+  version: 0.5.2
+  resolution: "@xstate/inspect@npm:0.5.2"
+  dependencies:
+    fast-safe-stringify: ^2.0.7
+  peerDependencies:
+    ws: ^7.3.1
+  checksum: ad1471272c100ebb1a1dc548709e41cfb1e52766147036754071b7b85a13943a365bc9beca8f87707d0caf0608fe6f706ce535dead5a149902afc0505fa13c2a
   languageName: node
   linkType: hard
 
@@ -6974,6 +6985,13 @@ __metadata:
   version: 2.0.6
   resolution: "fast-levenshtein@npm:2.0.6"
   checksum: 92cfec0a8dfafd9c7a15fba8f2cc29cd0b62b85f056d99ce448bbcd9f708e18ab2764bda4dd5158364f4145a7c72788538994f0d1787b956ef0d1062b0f7c24c
+  languageName: node
+  linkType: hard
+
+"fast-safe-stringify@npm:^2.0.7":
+  version: 2.1.1
+  resolution: "fast-safe-stringify@npm:2.1.1"
+  checksum: a851cbddc451745662f8f00ddb622d6766f9bd97642dabfd9a405fb0d646d69fc0b9a1243cbf67f5f18a39f40f6fa821737651ff1bceeba06c9992ca2dc5bd3d
   languageName: node
   linkType: hard
 
