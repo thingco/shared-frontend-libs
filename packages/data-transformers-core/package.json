@@ -1,7 +1,7 @@
 {
 	"name": "@thingco/data-transformers-core",
 	"description": "Data transformation functions for frontend use in @thingco apps",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"main": "src/index.ts",
 	"files": [
 		"src/**"
