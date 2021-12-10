@@ -4,7 +4,7 @@ undecided:
   - "@thingco/authentication-react"
   - "@thingco/component-library-core"
   - "@thingco/component-library-native"
-  - "@thingco/data-transformers-react"
+  - "@thingco/data-transformers-core"
   - "@thingco/graphviz"
   - "@thingco/graphviz-native"
   - "@thingco/graphviz-web"
