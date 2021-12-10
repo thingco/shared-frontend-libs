@@ -1,16 +1,17 @@
 import type {
-    DistanceUnit,
-    Locale,
-    TimeDisplay
+	DateFormat,
+	DistanceUnit,
+	Locale,
+	TimeDisplay
 } from "./types";
 import { blockDistanceRemaining } from "./calculators";
 import {
-    kmphToMph,
-    metersToKilometers,
-    metersToMiles,
-    mpsToKmph,
-    mpsToMph,
-    secondsToDurationObj
+	kmphToMph,
+	metersToKilometers,
+	metersToMiles,
+	mpsToKmph,
+	mpsToMph,
+	secondsToDurationObj
 } from "./converters";
 import { normaliseTimestamp } from "./date-utils";
 
@@ -238,7 +239,7 @@ export function dateTime({ locale = undefined, showSeconds = false, timeDisplay 
 
 export interface DurationOpts {
 	locale?: Locale;
-	displayStyle?: "compact" | "expanded";
+	displayStyle?: DateFormat;
 	showSeconds?: boolean;
 }
 
@@ -269,7 +270,7 @@ export function duration({ locale = undefined, displayStyle = "compact", showSec
 				if (showSeconds && seconds) compactStr += `:${numberFormatter.format(seconds)} ${secSuffix}`;
 				return compactStr;
 			case "expanded":
-				let expandedStr = [];
+				const expandedStr = [];
 				if (hours) expandedStr.push(`${numberFormatter.format(hours)} ${hrSuffix}`);
 				if (minutes) expandedStr.push(`${numberFormatter.format(minutes)} ${minSuffix}`);
 				if (showSeconds && seconds) expandedStr.push(`${numberFormatter.format(seconds)} ${secSuffix}`);
