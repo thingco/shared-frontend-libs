@@ -5,7 +5,8 @@ import {
 	duration,
 	speed,
 	time,
-	TimeOpts
+	TimeOpts,
+	DateDisplayFormat,
 } from "@thingco/data-transformers-core";
 import { strict as assert } from "assert";
 import { suite } from "uvu";
@@ -37,7 +38,7 @@ distanceInKilometres.run();
 const distanceInMiles = suite("distance in miles");
 
 distanceInMiles.before((ctx) => {
-	ctx.dist = distance({ locale: "en-GB", unitPreference: "mi", precision: 1 });
+	ctx.dist = distance({ locale: "en-GB", distanceUnit: "mi", precision: 1 });
 });
 
 for (const [m, mi] of [
@@ -80,7 +81,7 @@ speedInKilometresPerHour.run();
 const speedInMilesPerHour = suite("speed in miles per hour");
 
 speedInMilesPerHour.before((ctx) => {
-	ctx.sp = speed({ locale: "en-GB", unitPreference: "mi", precision: 1 });
+	ctx.sp = speed({ locale: "en-GB", distanceUnit: "mi", precision: 1 });
 });
 
 for (const [kmph, mph] of [
@@ -155,7 +156,7 @@ dateFormatter.run();
 
 const durationInSeconds = suite("duration in seconds");
 
-for (const [s, displayStyle, d] of [
+for (const [s, dateDisplayFormat, d] of [
 	["1000", "compact", "00:16"],
 	["1000", "expanded", "16 mins"],
 	["12345", "compact", "03:25"],
@@ -163,8 +164,8 @@ for (const [s, displayStyle, d] of [
 	["10800", "compact", "03:00"],
 	["10800", "expanded", "3 hrs"],
 ]) {
-	durationInSeconds(`formats a duration of ${s} as ${d} with display preference of "${displayStyle}"`, () => {
-		const dur = duration({ locale: "en-GB", displayStyle: displayStyle as "compact" | "expanded" });
+	durationInSeconds(`formats a duration of ${s} as ${d} with display preference of "${dateDisplayFormat}"`, () => {
+		const dur = duration({ locale: "en-GB", dateDisplayFormat: dateDisplayFormat as DateDisplayFormat });
 			assert.equal(dur(+s), d);
 	});
 }

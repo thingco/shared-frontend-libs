@@ -1,8 +1,8 @@
 import type {
-	DateFormat,
+	DateDisplayFormat,
 	DistanceUnit,
 	Locale,
-	TimeDisplay
+	ClockFormat
 } from "./types";
 import { blockDistanceRemaining } from "./calculators";
 import {
@@ -18,7 +18,7 @@ import { normaliseTimestamp } from "./date-utils";
 
 export interface DistanceOpts {
 	distanceUntilScored?: number;
-	unitPreference?: DistanceUnit;
+	distanceUnit?: DistanceUnit;
 	precision?: number;
 	locale?: Locale;
 }
@@ -29,7 +29,7 @@ export interface DistanceOpts {
  * @category Formatters
  */
 export function distance({
-	unitPreference = "km",
+	distanceUnit = "km",
 	precision = 0,
 	locale = undefined,
 }: DistanceOpts = {}): (distanceInMetres: number | string) => string {
@@ -41,7 +41,7 @@ export function distance({
 	});
 
 	return function (distanceInMetres: number | string) {
-		switch (unitPreference) {
+		switch (distanceUnit) {
 			case "km":
 				return `${formatter.format(metersToKilometers(Number(distanceInMetres)))} km`;
 			case "mi":
@@ -62,7 +62,7 @@ export function distance({
  * @category Formatters
  */
 export function distanceUntilScored({
-	unitPreference = "km",
+	distanceUnit = "km",
 	distanceUntilScored = 160934,
 	precision = 0,
 	locale = undefined,
@@ -77,7 +77,7 @@ export function distanceUntilScored({
 	return function (distanceCompletedInMetres: number | string) {
 		const progress = blockDistanceRemaining(distanceUntilScored, Number(distanceCompletedInMetres));
 
-		switch (unitPreference) {
+		switch (distanceUnit) {
 			case "km":
 				return `${formatter.format(metersToKilometers(progress))} km`;
 			case "mi":
@@ -87,7 +87,7 @@ export function distanceUntilScored({
 }
 
 export interface SpeedOpts {
-	unitPreference?: DistanceUnit;
+	distanceUnit?: DistanceUnit;
 	precision?: number;
 	locale?: Locale;
 }
@@ -99,7 +99,7 @@ export interface SpeedOpts {
  * @category Formatters
  */
 export function speed({
-	unitPreference = "km",
+	distanceUnit = "km",
 	precision = 0,
 	locale = undefined,
 }: SpeedOpts = {}): (speedInKmph: number | string) => string {
@@ -110,7 +110,7 @@ export function speed({
 		maximumFractionDigits: precision,
 	});
 	return function (speedInKmph: number | string) {
-		switch (unitPreference) {
+		switch (distanceUnit) {
 			case "km":
 				return `${formatter.format(Number(speedInKmph))} km/h`;
 			case "mi":
@@ -130,7 +130,7 @@ export function speed({
  * @category Formatters
  */
 export function averageSpeed({
-	unitPreference = "km",
+	distanceUnit = "km",
 	precision = 0,
 	locale = undefined,
 }: SpeedOpts = {}): (
@@ -146,7 +146,7 @@ export function averageSpeed({
 	return function (distanceInMetres: number | string, durationInSeconds: number | string) {
 		const metresPerSecond = Number(distanceInMetres) / Number(durationInSeconds);
 
-		switch (unitPreference) {
+		switch (distanceUnit) {
 			case "km":
 				return `${formatter.format(mpsToKmph(metresPerSecond))} km/h`;
 			case "mi":
@@ -182,7 +182,7 @@ export function date({ locale = undefined }: DateOpts = {}): (
 export interface TimeOpts {
 	locale?: Locale;
 	showSeconds?: boolean;
-	timeDisplay?: TimeDisplay;
+	clockFormat?: ClockFormat;
 }
 
 
@@ -191,14 +191,14 @@ export interface TimeOpts {
  *
  * @category Formatters
  */
-export function time({ locale = undefined, showSeconds = false, timeDisplay = "24" }: TimeOpts = {}): (
+export function time({ locale = undefined, showSeconds = false, clockFormat = "24" }: TimeOpts = {}): (
 	timestamp: string | number
 ) => string {
 	const formatter = new Intl.DateTimeFormat(locale, {
-		hour: timeDisplay === "12" ? "numeric" : "2-digit",
+		hour: clockFormat === "12" ? "numeric" : "2-digit",
 		minute: "2-digit",
 		second: showSeconds ? "2-digit" : undefined,
-		hour12: timeDisplay === "12",
+		hour12: clockFormat === "12",
 	});
 
 	return function (timestamp: string | number) {
@@ -210,7 +210,7 @@ export function time({ locale = undefined, showSeconds = false, timeDisplay = "2
 export interface DateTimeOpts {
 	locale?: Locale;
 	showSeconds?: boolean;
-	timeDisplay?: TimeDisplay;
+	clockFormat?: ClockFormat;
 }
 
 /**
@@ -218,17 +218,17 @@ export interface DateTimeOpts {
  *
  * @category Formatters
  */
-export function dateTime({ locale = undefined, showSeconds = false, timeDisplay = "24" }: DateTimeOpts = {}): (
+export function dateTime({ locale = undefined, showSeconds = false, clockFormat = "24" }: DateTimeOpts = {}): (
 	timestamp: string | number
 ) => string {
 	const formatter = new Intl.DateTimeFormat(locale, {
 		year: "numeric",
 		month: "numeric",
 		day: "numeric",
-		hour: timeDisplay === "12" ? "numeric" : "2-digit",
+		hour: clockFormat === "12" ? "numeric" : "2-digit",
 		minute: "2-digit",
 		second: showSeconds ? "2-digit" : undefined,
-		hour12: timeDisplay === "12",
+		hour12: clockFormat === "12",
 	});
 
 	return function (timestamp: string | number) {
@@ -239,7 +239,7 @@ export function dateTime({ locale = undefined, showSeconds = false, timeDisplay 
 
 export interface DurationOpts {
 	locale?: Locale;
-	displayStyle?: DateFormat;
+	dateDisplayFormat?: DateDisplayFormat;
 	showSeconds?: boolean;
 }
 
@@ -248,12 +248,12 @@ export interface DurationOpts {
  *
  * @category Formatters
  */
-export function duration({ locale = undefined, displayStyle = "compact", showSeconds = false }: DurationOpts = {}): (
+export function duration({ locale = undefined, dateDisplayFormat = "compact", showSeconds = false }: DurationOpts = {}): (
 	durationInSeconds: number | string
 ) => string {
 	const numberFormatter = new Intl.NumberFormat(locale, {
 		style: "decimal",
-		minimumIntegerDigits: displayStyle === "expanded" ? 1 : 2,
+		minimumIntegerDigits: dateDisplayFormat === "expanded" ? 1 : 2,
 		maximumFractionDigits: 0,
 	});
 
@@ -264,7 +264,7 @@ export function duration({ locale = undefined, displayStyle = "compact", showSec
 		const minSuffix = minutes === 1 ? "min" : "mins";
 		const secSuffix = seconds === 1 ? "sec" : "secs";
 
-		switch (displayStyle) {
+		switch (dateDisplayFormat) {
 			case "compact":
 				let compactStr = `${numberFormatter.format(hours)}:${numberFormatter.format(minutes)}`;
 				if (showSeconds && seconds) compactStr += `:${numberFormatter.format(seconds)} ${secSuffix}`;

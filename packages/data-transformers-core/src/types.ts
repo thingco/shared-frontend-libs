@@ -6,7 +6,13 @@ export type DistanceUnit = "mi" | "km";
 /**
  * Whether to show time in 12 or 24 hour format.
  */
-export type TimeDisplay = "12" | "24";
+export type ClockFormat = "12" | "24";
+
+/**
+ * Whether to show a compact (`01/02/03` for example) or an expanded
+ * (`1st February 2003`) date/time
+ */
+export type DateDisplayFormat = "compact" | "expanded";
 
 /**
  * The locale used for formatting. Note that this is currently set as the Unicode
