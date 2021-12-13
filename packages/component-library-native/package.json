@@ -1,7 +1,7 @@
 {
 	"name": "@thingco/component-library-native",
 	"description": "React Native components",
-	"version": "0.3.12",
+	"version": "0.3.13",
 	"main": "src/index.ts",
 	"files": [
 		"src/**"
