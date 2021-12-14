@@ -17,3 +17,4 @@ export * from "./BlockProgress";
 export * from "./CarouselStatistic";
 export * from "./CarouselEvent";
 export * from "./Logo/Logo";
+export * from "./MenuList";
