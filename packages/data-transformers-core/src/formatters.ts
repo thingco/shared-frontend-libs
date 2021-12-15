@@ -119,42 +119,6 @@ export function speed({
 	};
 }
 
-
-/**
- * Factory function for creating *average* speed formatters.
- *
- * @remarks
- * This formatter is used when what is available is distance & duration -- for
- * example, when journey data is handed to it.
- *
- * @category Formatters
- */
-export function averageSpeed({
-	distanceUnit = "km",
-	precision = 0,
-	locale = undefined,
-}: SpeedOpts = {}): (
-	distanceInMetres: number | string,
-	durationInSeconds: number | string
-) => string {
-	const formatter = new Intl.NumberFormat(locale, {
-		style: "decimal",
-		useGrouping: true,
-		minimumFractionDigits: precision,
-		maximumFractionDigits: precision,
-	});
-	return function (distanceInMetres: number | string, durationInSeconds: number | string) {
-		const metresPerSecond = Number(distanceInMetres) / Number(durationInSeconds);
-
-		switch (distanceUnit) {
-			case "km":
-				return `${formatter.format(mpsToKmph(metresPerSecond))} km/h`;
-			case "mi":
-				return `${formatter.format(mpsToMph(metresPerSecond))} mph`;
-		}
-	};
-}
-
 export interface DateOpts {
 	locale?: Locale;
 }

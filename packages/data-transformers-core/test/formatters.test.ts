@@ -10,6 +10,11 @@ import {
 } from "@thingco/data-transformers-core";
 import { strict as assert } from "assert";
 import { suite } from "uvu";
+import * as fc from "fast-check";
+
+
+// groups of thousands should be delimited with a comma
+//
 
 // ---
 

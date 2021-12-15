@@ -50,6 +50,7 @@ function useReadPreferences(): PreferencesReadContextValue {
 	}
 	return prefContext
 }
+
 function useWritePreferences(): PreferencesWriteContextValue {
 	const prefContext = useContext(PreferencesWriteContext);
 	if (prefContext == null) {

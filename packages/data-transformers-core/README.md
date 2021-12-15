@@ -2,71 +2,33 @@
 
 ## Overview
 
-Locale-aware and configurable data transformations for ThingCo frontends. The library includes:
+Locale-aware and configurable data transformations for ThingCo frontends.
+The library includes:
 
+- conversion functions used internally but made available as exports
+- math functions used internally but made available as exports
 - string formatter functions
 - calculation functions for dealing with business-specific values
-- calculation functions for turning arrays of values into graph coordinates
 
-The library functions are designed to react opaquely in-app to user preference changes: for example
-if a user changes their preferred units from imperial to metric, then the string formatters for distance
-and speed will reflect that automatically. This is the main reason for this library existing.
+The library functions are designed to react opaquely in-app to user preference
+changes: for example if a user changes their preferred units from imperial to
+metric, then the string formatters for distance and speed should reflect that
+automatically.
+
+So each formatter is a factory that returns the actual formater function itself.
+By passing altered preferences to the factory, a new formatter is created.
 
 ## Installation
 
-The library requires that [`@thingco/application-configuration`](../application-configuration/README.md) be installed and set up. It makes direct
-use of the `usePreferences` and `useConfig` hooks, so without those available it will break when used. See that library's readme for instructions.
-
 ```
-yarn add @thingco/data-transformers
+yarn add @thingco/data-transformers@{version}
 ```
 
-> **NOTE** this library makes use of the browser `Intl` API. This is not an issue on web or on iOS, but the JS Core version used by React Native on Android does not include the API, and will need a polyfill.
+> **NOTE** this library makes use of the browser `Intl` API. This is not an
+> issue on web or on iOS, but the JS Core version used by React Native on
+> Android does not include the API, and will need a polyfill.
 
-## Usage (formatters)
+## Testing and locales
 
-The `useFormatter()` hook returns a collection of formatter functions. Just give them a string or number and they will return a locale- and config-aware formatted string.
-
-```typescript
-function useFormatter(): {
-	/**
-	 * speed in kmph or mph depending on user preference.
-	 */
-	averageSpeed: (distanceInMetres: string | number, durationInSeconds: string | number) => string;
-	/**
-	 * returns a time in the form HH:MM (12 or 24 hr depending on user preference)
-	 */
-	compactDuration: (durationInSeconds: string | number) => string;
-	date: (timestamp: string | number) => string;
-	dateTime: (timestamp: string | number) => string;
-	/**
-	 * distance in km or mi depending on user preference.
-	 */
-	distance: (distanceInMetres: string | number) => string;
-	/**
-	 * the remaining distance on a block in km or mi depending on user preference.
-	 */
-	distanceUntilScored: (distanceCompletedInMetres: string | number) => string;
-	expandedDuration: (durationInSeconds: string | number) => string;
-	speed: (speedInKmph: string | number) => string;
-	time: (timestamp: string | number) => string;
-};
-```
-
-Then in a component (assuming that the `ApplicationConfigProvider` has been added at the top of the component tree):
-
-```tsx
-import { useFormatter } from "@thingco/data-transformers";
-import { Text } from "my-component-library";
-
-export const MyComponent = ({ data }: { data: SomeApiData }) => {
-	const { date, distance, duration, time } = useFormatter();
-
-	return (
-		<Text>
-			On {date(data.startTime)} at {time(data.startTime)} you travelled{" "}
-			{distance(data.journeyDistance)} in {duration(distance.journeyDuration)}.
-		</Text>
-	);
-};
-```
+ Tests are run using the "en-GB" locale. This *must* be set on the Docker
+ container on the CI server, otherwise all date-based tests will fail
