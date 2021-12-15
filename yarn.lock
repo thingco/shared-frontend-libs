@@ -3397,7 +3397,7 @@ __metadata:
     "@testing-library/jest-dom": ^5.16.1
     "@testing-library/react": ^12.1.2
     "@thingco/shared-types": "workspace:*"
-    "@thingco/user-preferences": 0.9.1
+    "@thingco/user-preferences": 0.9.2
     "@types/jest": ^27.0.3
     "@types/react": ^17.0.37
     "@types/react-dom": ^17.0.11
@@ -3461,7 +3461,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@thingco/user-preferences@0.9.1, @thingco/user-preferences@workspace:packages/user-preferences":
+"@thingco/user-preferences@0.9.2, @thingco/user-preferences@workspace:packages/user-preferences":
   version: 0.0.0-use.local
   resolution: "@thingco/user-preferences@workspace:packages/user-preferences"
   dependencies:

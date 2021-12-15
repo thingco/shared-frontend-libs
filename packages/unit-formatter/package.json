@@ -19,7 +19,7 @@
 		"@testing-library/jest-dom": "^5.16.1",
 		"@testing-library/react": "^12.1.2",
 		"@thingco/shared-types": "workspace:*",
-		"@thingco/user-preferences": "0.9.1",
+		"@thingco/user-preferences": "0.9.2",
 		"@types/jest": "^27.0.3",
 		"@types/react": "^17.0.37",
 		"@types/react-dom": "^17.0.11",
