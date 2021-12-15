@@ -1,6 +1,6 @@
 import React from "react";
 
-import type { Storage, UserPreferences } from "@thingco/shared-types";
+import { Storage, UserPreferences } from "@thingco/shared-types";
 
 const UserPrefsRead = React.createContext<UserPreferences | null>(null);
 const UserPrefsWrite = React.createContext<{
