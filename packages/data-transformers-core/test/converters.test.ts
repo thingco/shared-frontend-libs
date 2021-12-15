@@ -11,15 +11,15 @@ import { strict as assert } from "assert";
 import { test } from "uvu";
 
 
-for (const [input, precision, output] of [
+for (const [input, fractionalDigits, output] of [
 	[1, 0, 1],
 	[1.1, 0, 1],
 	[1.245, 1, 1.2],
 	[1.245, 2, 1.25],
 	[1.005, 2, 1.01],
 ]) {
-	test(`\`roundTo()\` rounds input of ${input} to ${output} when precision is ${precision}`, () => {
-		assert.equal(roundTo(input, precision), output);
+	test(`\`roundTo()\` rounds input of ${input} to ${output} when fractionalDigits is ${fractionalDigits}`, () => {
+		assert.equal(roundTo(input, fractionalDigits), output);
 	});
 }
 

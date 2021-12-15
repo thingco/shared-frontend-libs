@@ -19,7 +19,7 @@ import { normaliseTimestamp } from "./date-utils";
 export interface DistanceOpts {
 	distanceUntilScored?: number;
 	distanceUnit?: DistanceUnit;
-	precision?: number;
+	fractionalDigits?: number;
 	locale?: Locale;
 }
 
@@ -30,14 +30,14 @@ export interface DistanceOpts {
  */
 export function distance({
 	distanceUnit = "km",
-	precision = 0,
+	fractionalDigits = 0,
 	locale = undefined,
 }: DistanceOpts = {}): (distanceInMetres: number | string) => string {
 	const formatter = Intl.NumberFormat(locale, {
 		style: "decimal",
 		useGrouping: true,
-		minimumFractionDigits: precision,
-		maximumFractionDigits: precision,
+		minimumFractionDigits: fractionalDigits,
+		maximumFractionDigits: fractionalDigits,
 	});
 
 	return function (distanceInMetres: number | string) {
@@ -64,14 +64,14 @@ export function distance({
 export function distanceUntilScored({
 	distanceUnit = "km",
 	distanceUntilScored = 160934,
-	precision = 0,
+	fractionalDigits = 0,
 	locale = undefined,
 }: DistanceOpts = {}): (distanceCompletedInMetres: number | string) => string {
 	const formatter = Intl.NumberFormat(locale, {
 		style: "decimal",
 		useGrouping: true,
-		minimumFractionDigits: precision,
-		maximumFractionDigits: precision,
+		minimumFractionDigits: fractionalDigits,
+		maximumFractionDigits: fractionalDigits,
 	});
 
 	return function (distanceCompletedInMetres: number | string) {
@@ -88,7 +88,7 @@ export function distanceUntilScored({
 
 export interface SpeedOpts {
 	distanceUnit?: DistanceUnit;
-	precision?: number;
+	fractionalDigits?: number;
 	locale?: Locale;
 }
 
@@ -100,14 +100,14 @@ export interface SpeedOpts {
  */
 export function speed({
 	distanceUnit = "km",
-	precision = 0,
+	fractionalDigits = 0,
 	locale = undefined,
 }: SpeedOpts = {}): (speedInKmph: number | string) => string {
 	const formatter = new Intl.NumberFormat(locale, {
 		style: "decimal",
 		useGrouping: true,
-		minimumFractionDigits: precision,
-		maximumFractionDigits: precision,
+		minimumFractionDigits: fractionalDigits,
+		maximumFractionDigits: fractionalDigits,
 	});
 	return function (speedInKmph: number | string) {
 		switch (distanceUnit) {
@@ -115,6 +115,42 @@ export function speed({
 				return `${formatter.format(Number(speedInKmph))} km/h`;
 			case "mi":
 				return `${formatter.format(kmphToMph(Number(speedInKmph)))} mph`;
+		}
+	};
+}
+
+
+/**
+ * Factory function for creating *average* speed formatters.
+ *
+ * @remarks
+ * This formatter is used when what is available is distance & duration -- for
+ * example, when journey data is handed to it.
+ *
+ * @category Formatters
+ */
+export function averageSpeed({
+	distanceUnit = "km",
+	fractionalDigits = 0,
+	locale = undefined,
+}: SpeedOpts = {}): (
+	distanceInMetres: number | string,
+	durationInSeconds: number | string
+) => string {
+	const formatter = new Intl.NumberFormat(locale, {
+		style: "decimal",
+		useGrouping: true,
+		minimumFractionDigits: fractionalDigits,
+		maximumFractionDigits: fractionalDigits,
+	});
+	return function (distanceInMetres: number | string, durationInSeconds: number | string) {
+		const metresPerSecond = Number(distanceInMetres) / Number(durationInSeconds);
+
+		switch (distanceUnit) {
+			case "km":
+				return `${formatter.format(mpsToKmph(metresPerSecond))} km/h`;
+			case "mi":
+				return `${formatter.format(mpsToMph(metresPerSecond))} mph`;
 		}
 	};
 }

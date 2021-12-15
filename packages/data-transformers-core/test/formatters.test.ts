@@ -10,11 +10,8 @@ import {
 } from "@thingco/data-transformers-core";
 import { strict as assert } from "assert";
 import { suite } from "uvu";
-import * as fc from "fast-check";
 
 
-// groups of thousands should be delimited with a comma
-//
 
 // ---
 
@@ -43,7 +40,7 @@ distanceInKilometres.run();
 const distanceInMiles = suite("distance in miles");
 
 distanceInMiles.before((ctx) => {
-	ctx.dist = distance({ locale: "en-GB", distanceUnit: "mi", precision: 1 });
+	ctx.dist = distance({ locale: "en-GB", distanceUnit: "mi", fractionalDigits: 1 });
 });
 
 for (const [m, mi] of [
@@ -53,7 +50,7 @@ for (const [m, mi] of [
 	[99999.9, "62.1 mi"],
 	[999999.9, "621.4 mi"],
 ]) {
-	distanceInMiles(`formats a distance of ${m} meters as "${mi}" when unit pref is "mile" and precision set to 1`, (ctx) => {
+	distanceInMiles(`formats a distance of ${m} meters as "${mi}" when unit pref is "mile" and fractionalDigits set to 1`, (ctx) => {
 		assert.equal(ctx.dist(+m), mi);
 	});
 }
@@ -86,7 +83,7 @@ speedInKilometresPerHour.run();
 const speedInMilesPerHour = suite("speed in miles per hour");
 
 speedInMilesPerHour.before((ctx) => {
-	ctx.sp = speed({ locale: "en-GB", distanceUnit: "mi", precision: 1 });
+	ctx.sp = speed({ locale: "en-GB", distanceUnit: "mi", fractionalDigits: 1 });
 });
 
 for (const [kmph, mph] of [
@@ -95,7 +92,7 @@ for (const [kmph, mph] of [
 	[55.9, "34.7 mph"],
 	[110.555, "68.7 mph"],
 ]) {
-	speedInMilesPerHour(`formats a speed of ${kmph} kilometers per hour as "${mph}" when unit preference is "mile" and precision is set to 1`, (ctx) => {
+	speedInMilesPerHour(`formats a speed of ${kmph} kilometers per hour as "${mph}" when unit preference is "mile" and fractionalDigits is set to 1`, (ctx) => {
 		assert.equal(ctx.sp(+kmph), mph);
 	});
 }

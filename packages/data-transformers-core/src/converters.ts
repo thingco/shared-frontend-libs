@@ -2,60 +2,60 @@ import { roundTo } from "./math-utils";
 
 /**!
  * The converter module consists of **generic** unit conversion functions.
- * All take a number and a precision, and return a converted unit at the
- * specified precision.
+ * All take a number and a fractionalDigits, and return a converted unit at the
+ * specified fractionalDigits.
  *
  * @category Converters
  */
 
 /**
- * Given a numeric distance in metres, return that distance in Km to a given precision.
+ * Given a numeric distance in metres, return that distance in Km to a given fractionalDigits.
  *
  * @category Converters
  */
-export function metersToKilometers(distanceInMetres: number, precision?: number): number {
+export function metersToKilometers(distanceInMetres: number, fractionalDigits?: number): number {
 	const kilometres = distanceInMetres * 0.001;
-	return precision ? roundTo(kilometres, precision) : kilometres;
+	return fractionalDigits ? roundTo(kilometres, fractionalDigits) : kilometres;
 }
 
 /**
- * Given a numeric distance in metres, return that distance in mi to a given precision.
+ * Given a numeric distance in metres, return that distance in mi to a given fractionalDigits.
  *
  * @category Converters
  */
-export function metersToMiles(distanceInMetres: number, precision?: number): number {
+export function metersToMiles(distanceInMetres: number, fractionalDigits?: number): number {
 	const miles = distanceInMetres * 0.000621371;
-	return precision ? roundTo(miles, precision) : miles;
+	return fractionalDigits ? roundTo(miles, fractionalDigits) : miles;
 }
 
 /**
- * Given a numeric speed in Kmph, return that speed in mph to a given precision.
+ * Given a numeric speed in Kmph, return that speed in mph to a given fractionalDigits.
  *
  * @category Converters
  */
-export function kmphToMph(speed: number, precision?: number): number {
+export function kmphToMph(speed: number, fractionalDigits?: number): number {
 	const mph = speed * 0.621371;
-	return precision ? roundTo(mph, precision) : mph;
+	return fractionalDigits ? roundTo(mph, fractionalDigits) : mph;
 }
 
 /**
- * Given a numeric speed in metres per second, return that speed in Km/ph to a given precision.
+ * Given a numeric speed in metres per second, return that speed in Km/ph to a given fractionalDigits.
  *
  * @category Converters
  */
-export function mpsToKmph(speed: number, precision?: number): number {
+export function mpsToKmph(speed: number, fractionalDigits?: number): number {
 	const kmph = speed * 3.6;
-	return precision ? roundTo(kmph, precision) : kmph;
+	return fractionalDigits ? roundTo(kmph, fractionalDigits) : kmph;
 }
 
 /**
- * Given a numeric speed in metres per second, return that speed in Km/ph to a given precision.
+ * Given a numeric speed in metres per second, return that speed in Km/ph to a given fractionalDigits.
  *
  * @category Converters
  */
-export function mpsToMph(speed: number, precision?: number): number {
+export function mpsToMph(speed: number, fractionalDigits?: number): number {
 	const mph = speed * 2.23694;
-	return precision ? roundTo(mph, precision) : mph;
+	return fractionalDigits ? roundTo(mph, fractionalDigits) : mph;
 }
 
 /**
