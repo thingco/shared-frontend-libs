@@ -3,6 +3,7 @@ undecided:
   - "@thingco/authentication-core"
   - "@thingco/authentication-react"
   - "@thingco/component-library-core"
+  - "@thingco/component-library-native"
   - "@thingco/data-transformers-core"
   - "@thingco/graphviz"
   - "@thingco/graphviz-native"
@@ -13,4 +14,3 @@ undecided:
   - "@thingco/unit-formatter"
   - "@thingco/user-preferences"
   - "@thingco/user-preferences-store-native"
-  - "@thingco/user-preferences-store-web"

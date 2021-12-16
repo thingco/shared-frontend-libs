@@ -1,7 +1,7 @@
 {
 	"name": "@thingco/user-preferences-store-native",
 	"description": "React Native persistance for ThingCo React apps' user preferences",
-	"version": "0.6.1",
+	"version": "0.6.2",
 	"main": "src/index.ts",
 	"files": [
 		"src/**"
