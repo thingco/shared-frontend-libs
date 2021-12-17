@@ -1,11 +1,10 @@
 {
 	"name": "@thingco/react-component-library",
 	"description": "React component lobrary",
-	"version": "0.7.0",
-	"main": "lib/index.js",
-	"types": "lib/types/index.d.ts",
+	"version": "0.7.1",
+	"main": "src/index.ts",
 	"files": [
-		"lib/**"
+		"src/**"
 	],
 	"public": true,
 	"publishConfig": {
@@ -13,7 +12,6 @@
 	},
 	"repository": "https://github.com/thingco/shared-frontend-libs",
 	"scripts": {
-		"build": "yarn tsc",
 		"test": "yarn jest",
 		"docs": "yarn rimraf docs && yarn typedoc"
 	},
