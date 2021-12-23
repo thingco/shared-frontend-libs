@@ -35,16 +35,11 @@ type IconType =
 	| "star_full"
 	| "star_empty";
 
-/**
- * @param iconType
- * @param stroke
- * @param strokeWidth
- */
 function iconSelector(iconType: IconType, stroke: string, strokeWidth: number): JSX.Element {
 	switch (iconType) {
 		case "info-circle":
 			return (
-				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" height="auto" width="100%">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" height="100%" width="100%">
 					<g>
 						<path
 							d="M60,32A28,28,0,1,1,32,4,28,28,0,0,1,60,32Z"
@@ -75,7 +70,7 @@ function iconSelector(iconType: IconType, stroke: string, strokeWidth: number): 
 			);
 		case "key":
 			return (
-				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" height="auto" width="100%">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" height="100%" width="100%">
 					<g>
 						<path
 							d="M25.83,34.66a13.49,13.49,0,1,1,8.83-8.83L54.9,46.08l.89,9.71-9.71-.89-2.42-2.41-.93-5.88-6.42-1v-6.1H30.66Zm-.95-13.95a4.18,4.18,0,1,0-4.17,4.17A4.18,4.18,0,0,0,24.88,20.71Z"
@@ -90,7 +85,7 @@ function iconSelector(iconType: IconType, stroke: string, strokeWidth: number): 
 			);
 		case "pencil":
 			return (
-				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" height="auto" width="100%">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" height="100%" width="100%">
 					<g>
 						<g>
 							<path
@@ -123,7 +118,7 @@ function iconSelector(iconType: IconType, stroke: string, strokeWidth: number): 
 			);
 		case "pin":
 			return (
-				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" height="auto" width="100%">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" height="100%" width="100%">
 					<g>
 						<g>
 							<path
@@ -140,7 +135,7 @@ function iconSelector(iconType: IconType, stroke: string, strokeWidth: number): 
 			);
 		case "road":
 			return (
-				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" height="auto" width="100%">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" height="100%" width="100%">
 					<g>
 						<g>
 							<path
@@ -191,7 +186,7 @@ function iconSelector(iconType: IconType, stroke: string, strokeWidth: number): 
 			);
 		case "lock":
 			return (
-				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" height="auto" width="100%">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" height="100%" width="100%">
 					<g>
 						<g>
 							<path
@@ -227,7 +222,7 @@ function iconSelector(iconType: IconType, stroke: string, strokeWidth: number): 
 			);
 		case "map":
 			return (
-				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" height="auto" width="100%">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" height="100%" width="100%">
 					<g>
 						<g>
 							<path
@@ -244,7 +239,7 @@ function iconSelector(iconType: IconType, stroke: string, strokeWidth: number): 
 			);
 		case "speed":
 			return (
-				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" height="auto" width="100%">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" height="100%" width="100%">
 					<g>
 						<g>
 							<path
@@ -287,7 +282,7 @@ function iconSelector(iconType: IconType, stroke: string, strokeWidth: number): 
 			);
 		case "tick":
 			return (
-				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" height="auto" width="100%">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" height="100%" width="100%">
 					<g>
 						<path
 							fill="none"
@@ -302,7 +297,7 @@ function iconSelector(iconType: IconType, stroke: string, strokeWidth: number): 
 			);
 		case "warn-circle":
 			return (
-				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" height="auto" width="100%">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" height="100%" width="100%">
 					<g>
 						<path
 							d="M60,32A28,28,0,1,1,32,4,28,28,0,0,1,60,32Z"
@@ -333,7 +328,7 @@ function iconSelector(iconType: IconType, stroke: string, strokeWidth: number): 
 			);
 		case "warn-triangle":
 			return (
-				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" height="auto" width="100%">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" height="100%" width="100%">
 					<g>
 						<path
 							d="M29.63,9a2,2,0,0,1,3.46,0L45.36,30.23,57.63,51.48a2,2,0,0,1-1.74,3H6.82a2,2,0,0,1-1.73-3L17.36,30.23Z"
@@ -364,7 +359,7 @@ function iconSelector(iconType: IconType, stroke: string, strokeWidth: number): 
 			);
 		case "warn-triangle-marker":
 			return (
-				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" height="auto" width="100%">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" height="100%" width="100%">
 					<g>
 						<path
 							d="M30.24,15.63a1.29,1.29,0,0,1,2.24,0l7.91,13.71,7.92,13.71A1.29,1.29,0,0,1,47.19,45H15.53a1.29,1.29,0,0,1-1.12-1.93l7.92-13.71Z"
@@ -405,7 +400,7 @@ function iconSelector(iconType: IconType, stroke: string, strokeWidth: number): 
 			);
 		case "card":
 			return (
-				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" height="auto" width="100%">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" height="100%" width="100%">
 					<g>
 						<g>
 							<path
@@ -446,7 +441,7 @@ function iconSelector(iconType: IconType, stroke: string, strokeWidth: number): 
 			);
 		case "car-marker":
 			return (
-				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" height="auto" width="100%">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" height="100%" width="100%">
 					<g>
 						<g>
 							<path
@@ -495,7 +490,7 @@ function iconSelector(iconType: IconType, stroke: string, strokeWidth: number): 
 			);
 		case "person":
 			return (
-				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" height="auto" width="100%">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" height="100%" width="100%">
 					<g>
 						<g>
 							<path
@@ -520,7 +515,7 @@ function iconSelector(iconType: IconType, stroke: string, strokeWidth: number): 
 			);
 		case "graph":
 			return (
-				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" height="auto" width="100%">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" height="100%" width="100%">
 					<g>
 						<g>
 							<path
@@ -569,7 +564,7 @@ function iconSelector(iconType: IconType, stroke: string, strokeWidth: number): 
 			);
 		case "back":
 			return (
-				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" height="auto" width="100%">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" height="100%" width="100%">
 					<g>
 						<path
 							fill="none"
@@ -584,7 +579,7 @@ function iconSelector(iconType: IconType, stroke: string, strokeWidth: number): 
 			);
 		case "clock":
 			return (
-				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" height="auto" width="100%">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" height="100%" width="100%">
 					<g>
 						<g>
 							<path
@@ -609,7 +604,7 @@ function iconSelector(iconType: IconType, stroke: string, strokeWidth: number): 
 			);
 		case "eye":
 			return (
-				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" height="auto" width="100%">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" height="100%" width="100%">
 					<g>
 						<path
 							d="M4,32s8.41-20,28-20S60,32,60,32,51.59,52,32,52,4,32,4,32Z"
@@ -632,7 +627,7 @@ function iconSelector(iconType: IconType, stroke: string, strokeWidth: number): 
 			);
 		case "car":
 			return (
-				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" height="auto" width="100%">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" height="100%" width="100%">
 					<g>
 						<g>
 							<path
@@ -673,7 +668,7 @@ function iconSelector(iconType: IconType, stroke: string, strokeWidth: number): 
 			);
 		case "refer":
 			return (
-				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" height="auto" width="100%">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" height="100%" width="100%">
 					<g>
 						<g>
 							<path
@@ -714,7 +709,7 @@ function iconSelector(iconType: IconType, stroke: string, strokeWidth: number): 
 			);
 		case "down-arrow":
 			return (
-				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" height="auto" width="100%">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" height="100%" width="100%">
 					<g>
 						<g>
 							<g>
@@ -733,7 +728,7 @@ function iconSelector(iconType: IconType, stroke: string, strokeWidth: number): 
 			);
 		case "video":
 			return (
-				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" height="auto" width="100%">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" height="100%" width="100%">
 					<g>
 						<g>
 							<path
@@ -756,7 +751,7 @@ function iconSelector(iconType: IconType, stroke: string, strokeWidth: number): 
 			);
 		case "measure":
 			return (
-				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" height="auto" width="100%">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" height="100%" width="100%">
 					<g>
 						<g>
 							<path
@@ -830,7 +825,7 @@ function iconSelector(iconType: IconType, stroke: string, strokeWidth: number): 
 			);
 		case "steering-wheel":
 			return (
-				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" height="auto" width="100%">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" height="100%" width="100%">
 					<g>
 						<path
 							fill="none"
@@ -869,7 +864,7 @@ function iconSelector(iconType: IconType, stroke: string, strokeWidth: number): 
 			);
 		case "up-arrow":
 			return (
-				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" height="auto" width="100%">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" height="100%" width="100%">
 					<g>
 						<g>
 							<g>
@@ -888,7 +883,7 @@ function iconSelector(iconType: IconType, stroke: string, strokeWidth: number): 
 			);
 		case "profile":
 			return (
-				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" height="auto" width="100%">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" height="100%" width="100%">
 					<g>
 						<g>
 							<path
@@ -921,7 +916,7 @@ function iconSelector(iconType: IconType, stroke: string, strokeWidth: number): 
 			);
 		case "close":
 			return (
-				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" height="auto" width="100%">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" height="100%" width="100%">
 					<g>
 						<g>
 							<path
@@ -946,7 +941,7 @@ function iconSelector(iconType: IconType, stroke: string, strokeWidth: number): 
 			);
 		case "forward":
 			return (
-				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" height="auto" width="100%">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" height="100%" width="100%">
 					<path
 						fill="none"
 						stroke={stroke}
@@ -959,7 +954,7 @@ function iconSelector(iconType: IconType, stroke: string, strokeWidth: number): 
 			);
 		case "settings":
 			return (
-				<svg viewBox="0 0 64 64" height="auto" width="100%">
+				<svg viewBox="0 0 64 64" height="100%" width="100%">
 					<path
 						fill="none"
 						stroke={stroke}
@@ -972,7 +967,7 @@ function iconSelector(iconType: IconType, stroke: string, strokeWidth: number): 
 			);
 		case "star_full":
 			return (
-				<svg viewBox="0 0 64 64" height="auto" width="100%">
+				<svg viewBox="0 0 64 64" height="100%" width="100%">
 					<path
 						fill={stroke}
 						stroke={stroke}
@@ -985,7 +980,7 @@ function iconSelector(iconType: IconType, stroke: string, strokeWidth: number): 
 			);
 		case "star_empty":
 			return (
-				<svg viewBox="0 0 64 64" height="auto" width="100%">
+				<svg viewBox="0 0 64 64" height="100%" width="100%">
 					<path
 						fill="none"
 						stroke={stroke}
