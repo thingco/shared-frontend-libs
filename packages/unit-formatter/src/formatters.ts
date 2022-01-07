@@ -154,6 +154,7 @@ export function time({ locale = undefined, timeDisplay = "24" }: TimeOpts = {}):
 	const formatter = new Intl.DateTimeFormat(locale, {
 		hour: timeDisplay === "12" ? "numeric" : "2-digit",
 		minute: "2-digit",
+		second: "2-digit",
 		hour12: timeDisplay === "12",
 	});
 
@@ -176,6 +177,7 @@ export function dateTime({ locale = undefined, timeDisplay = "24" }: DateTimeOpt
 		day: "numeric",
 		hour: timeDisplay === "12" ? "numeric" : "2-digit",
 		minute: "2-digit",
+		second: "2-digit",
 		hour12: timeDisplay === "12",
 	});
 
@@ -204,22 +206,38 @@ export function duration({ locale = undefined, displayStyle = "compact" }: Durat
 		maximumFractionDigits: 0,
 	});
 
+	const secondFormatter = new Intl.NumberFormat(locale, {
+		style: "decimal",
+		minimumIntegerDigits: displayStyle === "expanded" ? 1 : 2,
+		maximumFractionDigits: 0,
+	});
+
 	return function (durationInSeconds: number | string): string {
-		const { hours, minutes } = secondsToDurationObj(Number(durationInSeconds));
+		const { hours, minutes, seconds } = secondsToDurationObj(Number(durationInSeconds));
 		const hoursString = hourFormatter.format(hours);
 		const minutesString = minuteFormatter.format(minutes);
+		const secondString = secondFormatter.format(seconds);
 		const hrString = Number(hoursString) === 1 ? "hr" : "hrs";
 		switch (displayStyle) {
 			case "compact":
-				return `${hoursString}:${minutesString}`;
+				return `${hoursString}:${minutesString}:${secondString}`;
 			case "expanded":
-				if (!hours && minutes) {
+				if (!hours && !minutes && seconds) {
+					return `${secondString} secs`;
+				} else if (!hours && minutes && !seconds) {
 					return `${minutesString} mins`;
-				} else if (hours && !minutes) {
+				} else if (hours && !minutes && !seconds) {
 					return `${hoursString} ${hrString}`;
-				} else {
+				} else if (!hours && minutes && seconds) {
+					return `${minutesString} mins, ${secondString} secs`;
+				} else if (hours && !minutes && seconds) {
+					return `${hoursString} ${hrString}, ${secondString} secs`;
+				} else if (hours && minutes && !seconds) {
 					return `${hoursString} ${hrString}, ${minutesString} mins`;
+				} else {
+					return `${hoursString} ${hrString}, ${minutesString} mins, ${secondString} secs`;
 				}
+				
 		}
 	};
 }
