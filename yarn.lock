@@ -3113,9 +3113,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@thingco/auth-flows@workspace:packages/auth-flows":
+"@thingco/auth-flows@workspace:packages/DEPRECATED_auth-flows":
   version: 0.0.0-use.local
-  resolution: "@thingco/auth-flows@workspace:packages/auth-flows"
+  resolution: "@thingco/auth-flows@workspace:packages/DEPRECATED_auth-flows"
   dependencies:
     "@testing-library/react": ^12.1.2
     "@types/jest": ^27.0.3
@@ -3286,9 +3286,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@thingco/graphviz-native@workspace:packages/graphviz-native":
+"@thingco/graphviz-native@workspace:packages/DEPRECATED_graphviz-native":
   version: 0.0.0-use.local
-  resolution: "@thingco/graphviz-native@workspace:packages/graphviz-native"
+  resolution: "@thingco/graphviz-native@workspace:packages/DEPRECATED_graphviz-native"
   dependencies:
     "@react-native-community/slider": ^4.1.12
     "@thingco/graphviz": "workspace:*"
@@ -3312,9 +3312,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@thingco/graphviz-web@workspace:packages/graphviz-web":
+"@thingco/graphviz-web@workspace:packages/DEPRECATED_graphviz-web":
   version: 0.0.0-use.local
-  resolution: "@thingco/graphviz-web@workspace:packages/graphviz-web"
+  resolution: "@thingco/graphviz-web@workspace:packages/DEPRECATED_graphviz-web"
   dependencies:
     "@thingco/graphviz": "workspace:*"
     "@types/react": ^17.0.38
@@ -3331,9 +3331,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@thingco/graphviz@workspace:*, @thingco/graphviz@workspace:packages/graphviz":
+"@thingco/graphviz@workspace:*, @thingco/graphviz@workspace:packages/DEPRECATED_graphviz":
   version: 0.0.0-use.local
-  resolution: "@thingco/graphviz@workspace:packages/graphviz"
+  resolution: "@thingco/graphviz@workspace:packages/DEPRECATED_graphviz"
   dependencies:
     "@types/rimraf": ^3.0.2
     jest: ^27.4.5
@@ -3346,32 +3346,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@thingco/logger@workspace:packages/logger":
+"@thingco/react-component-library@workspace:packages/DEPRECATED_react-component-library":
   version: 0.0.0-use.local
-  resolution: "@thingco/logger@workspace:packages/logger"
-  dependencies:
-    "@testing-library/react": ^12.1.2
-    "@types/jest": ^27.0.3
-    "@types/node": ^17.0.4
-    "@types/react": ^17.0.38
-    "@types/react-dom": ^17.0.11
-    "@types/rimraf": ^3.0.2
-    esbuild: ^0.14.8
-    jest: ^27.4.5
-    react: ^17.0.2
-    react-dom: ^17.0.2
-    rimraf: ^3.0.2
-    ts-jest: ^27.1.2
-    typedoc: ^0.22.10
-    typescript: ^4.5.2
-  peerDependencies:
-    react: "*"
-  languageName: unknown
-  linkType: soft
-
-"@thingco/react-component-library@workspace:packages/react-component-library":
-  version: 0.0.0-use.local
-  resolution: "@thingco/react-component-library@workspace:packages/react-component-library"
+  resolution: "@thingco/react-component-library@workspace:packages/DEPRECATED_react-component-library"
   dependencies:
     "@testing-library/jest-dom": ^5.16.1
     "@testing-library/react": ^12.1.2
@@ -3397,15 +3374,15 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@thingco/shared-types@workspace:*, @thingco/shared-types@workspace:packages/shared-types":
+"@thingco/shared-types@workspace:*, @thingco/shared-types@workspace:packages/DEPRECATED_shared-types":
   version: 0.0.0-use.local
-  resolution: "@thingco/shared-types@workspace:packages/shared-types"
+  resolution: "@thingco/shared-types@workspace:packages/DEPRECATED_shared-types"
   languageName: unknown
   linkType: soft
 
-"@thingco/unit-formatter@1.4.2, @thingco/unit-formatter@workspace:packages/unit-formatter":
+"@thingco/unit-formatter@1.4.2, @thingco/unit-formatter@workspace:packages/DEPRECATED_unit-formatter":
   version: 0.0.0-use.local
-  resolution: "@thingco/unit-formatter@workspace:packages/unit-formatter"
+  resolution: "@thingco/unit-formatter@workspace:packages/DEPRECATED_unit-formatter"
   dependencies:
     "@testing-library/jest-dom": ^5.16.1
     "@testing-library/react": ^12.1.2
@@ -3430,9 +3407,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@thingco/user-preferences-store-native@workspace:packages/user-preferences-store-native":
+"@thingco/user-preferences-store-native@workspace:packages/DEPRECATED_user-preferences-store-native":
   version: 0.0.0-use.local
-  resolution: "@thingco/user-preferences-store-native@workspace:packages/user-preferences-store-native"
+  resolution: "@thingco/user-preferences-store-native@workspace:packages/DEPRECATED_user-preferences-store-native"
   dependencies:
     "@react-native-async-storage/async-storage": ^1.15.14
     "@thingco/shared-types": "workspace:*"
@@ -3455,9 +3432,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@thingco/user-preferences-store-web@workspace:packages/user-preferences-store-web":
+"@thingco/user-preferences-store-web@workspace:packages/DEPRECATED_user-preferences-store-web":
   version: 0.0.0-use.local
-  resolution: "@thingco/user-preferences-store-web@workspace:packages/user-preferences-store-web"
+  resolution: "@thingco/user-preferences-store-web@workspace:packages/DEPRECATED_user-preferences-store-web"
   dependencies:
     "@testing-library/jest-dom": ^5.16.1
     "@thingco/shared-types": "workspace:*"
@@ -3474,9 +3451,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@thingco/user-preferences@0.9.3, @thingco/user-preferences@workspace:packages/user-preferences":
+"@thingco/user-preferences@0.9.3, @thingco/user-preferences@workspace:packages/DEPRECATED_user-preferences":
   version: 0.0.0-use.local
-  resolution: "@thingco/user-preferences@workspace:packages/user-preferences"
+  resolution: "@thingco/user-preferences@workspace:packages/DEPRECATED_user-preferences"
   dependencies:
     "@testing-library/jest-dom": ^5.16.1
     "@testing-library/react": ^12.1.2
@@ -12116,7 +12093,6 @@ __metadata:
     "@types/rimraf": ^3.0.2
     "@typescript-eslint/eslint-plugin": ^5.8.0
     "@typescript-eslint/parser": ^5.8.0
-    esbuild: ^0.14.8
     eslint: ^8.5.0
     eslint-config-prettier: ^8.3.0
     eslint-plugin-prettier: ^4.0.0
