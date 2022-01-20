@@ -194,19 +194,7 @@ export interface DurationOpts {
 export function duration({ locale = undefined, displayStyle = "compact" }: DurationOpts = {}): (
 	durationInSeconds: number | string
 ) => string {
-	const hourFormatter = new Intl.NumberFormat(locale, {
-		style: "decimal",
-		minimumIntegerDigits: displayStyle === "expanded" ? 1 : 2,
-		maximumFractionDigits: 0,
-	});
-
-	const minuteFormatter = new Intl.NumberFormat(locale, {
-		style: "decimal",
-		minimumIntegerDigits: displayStyle === "expanded" ? 1 : 2,
-		maximumFractionDigits: 0,
-	});
-
-	const secondFormatter = new Intl.NumberFormat(locale, {
+	const timePartFormatter = new Intl.NumberFormat(locale, {
 		style: "decimal",
 		minimumIntegerDigits: displayStyle === "expanded" ? 1 : 2,
 		maximumFractionDigits: 0,
@@ -214,30 +202,31 @@ export function duration({ locale = undefined, displayStyle = "compact" }: Durat
 
 	return function (durationInSeconds: number | string): string {
 		const { hours, minutes, seconds } = secondsToDurationObj(Number(durationInSeconds));
-		const hoursString = hourFormatter.format(hours);
-		const minutesString = minuteFormatter.format(minutes);
-		const secondString = secondFormatter.format(seconds);
-		const hrString = Number(hoursString) === 1 ? "hr" : "hrs";
+		const hrString = hours === 1 ? " hr" : " hrs";
+		const minString = minutes === 1 ? " min" : " mins";
+		const secString = seconds === 1 ? " sec" : " secs"
+		
 		switch (displayStyle) {
 			case "compact":
-				return `${hoursString}:${minutesString}:${secondString}`;
+				return `${timePartFormatter.format(hours)}:${timePartFormatter.format(minutes)}:${timePartFormatter.format(seconds)}`;
 			case "expanded":
-				if (!hours && !minutes && seconds) {
-					return `${secondString} secs`;
-				} else if (!hours && minutes && !seconds) {
-					return `${minutesString} mins`;
-				} else if (hours && !minutes && !seconds) {
-					return `${hoursString} ${hrString}`;
-				} else if (!hours && minutes && seconds) {
-					return `${minutesString} mins, ${secondString} secs`;
-				} else if (hours && !minutes && seconds) {
-					return `${hoursString} ${hrString}, ${secondString} secs`;
-				} else if (hours && minutes && !seconds) {
-					return `${hoursString} ${hrString}, ${minutesString} mins`;
-				} else {
-					return `${hoursString} ${hrString}, ${minutesString} mins, ${secondString} secs`;
+				const expandedTimes = []
+				if (hours !== 0) {
+					expandedTimes.push(timePartFormatter.format(hours) + hrString);
+				}
+				if (minutes !== 0) {
+					expandedTimes.push(timePartFormatter.format(minutes) + minString);
+				}
+				if (seconds !== 0) {
+					expandedTimes.push(timePartFormatter.format(seconds) + secString);
 				}
 				
+				if (expandedTimes.length === 0) {
+					console.warn("Duration is 0, this may be a data error");
+					return "N/A"
+				} else {
+					return expandedTimes.join(", ");
+				}
 		}
 	};
 }
