@@ -1,8 +1,9 @@
 {
 	"name": "@thingco/user-preferences-store-web",
 	"description": "Web persistance for ThingCo React apps' user preferences",
-	"version": "0.6.2",
+	"version": "0.6.3",
 	"main": "src/index.ts",
+	"type": "module",
 	"files": [
 		"src/**"
 	],
