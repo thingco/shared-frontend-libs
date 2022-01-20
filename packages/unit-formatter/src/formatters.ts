@@ -154,6 +154,7 @@ export function time({ locale = undefined, timeDisplay = "24" }: TimeOpts = {}):
 	const formatter = new Intl.DateTimeFormat(locale, {
 		hour: timeDisplay === "12" ? "numeric" : "2-digit",
 		minute: "2-digit",
+		second: "2-digit",
 		hour12: timeDisplay === "12",
 	});
 
@@ -176,6 +177,7 @@ export function dateTime({ locale = undefined, timeDisplay = "24" }: DateTimeOpt
 		day: "numeric",
 		hour: timeDisplay === "12" ? "numeric" : "2-digit",
 		minute: "2-digit",
+		second: "2-digit",
 		hour12: timeDisplay === "12",
 	});
 
@@ -192,33 +194,38 @@ export interface DurationOpts {
 export function duration({ locale = undefined, displayStyle = "compact" }: DurationOpts = {}): (
 	durationInSeconds: number | string
 ) => string {
-	const hourFormatter = new Intl.NumberFormat(locale, {
-		style: "decimal",
-		minimumIntegerDigits: displayStyle === "expanded" ? 1 : 2,
-		maximumFractionDigits: 0,
-	});
-
-	const minuteFormatter = new Intl.NumberFormat(locale, {
+	const timePartFormatter = new Intl.NumberFormat(locale, {
 		style: "decimal",
 		minimumIntegerDigits: displayStyle === "expanded" ? 1 : 2,
 		maximumFractionDigits: 0,
 	});
 
 	return function (durationInSeconds: number | string): string {
-		const { hours, minutes } = secondsToDurationObj(Number(durationInSeconds));
-		const hoursString = hourFormatter.format(hours);
-		const minutesString = minuteFormatter.format(minutes);
-		const hrString = Number(hoursString) === 1 ? "hr" : "hrs";
+		const { hours, minutes, seconds } = secondsToDurationObj(Number(durationInSeconds));
+		const hrString = hours === 1 ? " hr" : " hrs";
+		const minString = minutes === 1 ? " min" : " mins";
+		const secString = seconds === 1 ? " sec" : " secs"
+		
 		switch (displayStyle) {
 			case "compact":
-				return `${hoursString}:${minutesString}`;
+				return `${timePartFormatter.format(hours)}:${timePartFormatter.format(minutes)}:${timePartFormatter.format(seconds)}`;
 			case "expanded":
-				if (!hours && minutes) {
-					return `${minutesString} mins`;
-				} else if (hours && !minutes) {
-					return `${hoursString} ${hrString}`;
+				const expandedTimes = []
+				if (hours !== 0) {
+					expandedTimes.push(timePartFormatter.format(hours) + hrString);
+				}
+				if (minutes !== 0) {
+					expandedTimes.push(timePartFormatter.format(minutes) + minString);
+				}
+				if (seconds !== 0) {
+					expandedTimes.push(timePartFormatter.format(seconds) + secString);
+				}
+				
+				if (expandedTimes.length === 0) {
+					console.warn("Duration is 0, this may be a data error");
+					return "N/A"
 				} else {
-					return `${hoursString} ${hrString}, ${minutesString} mins`;
+					return expandedTimes.join(", ");
 				}
 		}
 	};
