@@ -59,7 +59,7 @@ describe("speed in miles per hour", () => {
 });
 
 const thurs9Jul2020at2054 = 1594324475214;
-const thurs9Jul2020at0854 = 1594279801000;
+const thurs9Jul2020at0854 = 1594279800000;
 
 xdescribe("time in hours and minutes", () => {
 	for (const [secs, formattedTime, opts] of [
@@ -75,9 +75,9 @@ xdescribe("time in hours and minutes", () => {
 
 xdescribe("date time", () => {
 	for (const [secs, formattedTime, opts] of [
-		[thurs9Jul2020at0854, "09/07/2020, 08:30:01", { locale: "en-GB" }],
-		[thurs9Jul2020at2054, "09/07/2020, 20:54:35", { locale: "en-GB" }],
-		[thurs9Jul2020at0854, "09/07/2020, 8:30 am", { locale: "en-GB", hour12: false }],
+		[thurs9Jul2020at0854, "09/07/2020, 08:30", { locale: "en-GB" }],
+		[thurs9Jul2020at2054, "09/07/2020, 20:54", { locale: "en-GB" }],
+		[thurs9Jul2020at0854, "09/07/2020, 8:30 am", { locale: "en-GB", hour12: true }],
 		[thurs9Jul2020at2054, "09/07/2020, 8:54 pm", { locale: "en-GB", hour12: true }],
 	])
 		it(`formats a timestamp of ${secs} as "${formattedTime}" with ${JSON.stringify(opts)}`, () => {
@@ -97,11 +97,11 @@ xdescribe("date", () => {
 
 describe("duration in seconds", () => {
 	for (const [s, displayStyle, d] of [
-		["1000", "compact", "00:16:40"],
-		["1000", "expanded", "16 mins, 40 secs"],
-		["12345", "compact", "03:25:45"],
-		["12345", "expanded", "3 hrs, 25 mins, 45 secs"],
-		["10800", "compact", "03:00:00"],
+		["1000", "compact", "00:16"],
+		["1000", "expanded", "16 mins"],
+		["12345", "compact", "03:25"],
+		["12345", "expanded", "3 hrs, 25 mins"],
+		["10800", "compact", "03:00"],
 		["10800", "expanded", "3 hrs"],
 	])
 		it(`formats a duration of ${s} as ${d} with display preference of "${displayStyle}"`, () => {
