@@ -1,5 +1,4 @@
 undecided:
-  - "@thingco/auth-flows"
   - "@thingco/authentication-core"
   - "@thingco/authentication-react"
   - "@thingco/component-library-core"
