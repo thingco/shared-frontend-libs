@@ -1,7 +1,7 @@
 {
 	"name": "@thingco/component-library-native",
 	"description": "React Native components",
-	"version": "0.4.0",
+	"version": "0.4.1",
 	"main": "src/index.ts",
 	"files": [
 		"src/**"
@@ -31,8 +31,8 @@
 		"@types/jest": "^27.0.3",
 		"@types/lodash": "^4.14.178",
 		"@types/mapbox__polyline": "^1.0.2",
-		"@types/react": "^17.0.38",
-		"@types/react-dom": "^17.0.11",
+		"@types/react": "^18.0.0",
+		"@types/react-dom": "^18.0.0",
 		"@types/react-native-snap-carousel": "^3.8.5",
 		"@types/react-native-svg-charts": "^5.0.12",
 		"@types/react-navigation": "^3.4.0",
@@ -41,8 +41,8 @@
 		"i18n-js": "^3.8.0",
 		"jest": "^27.4.5",
 		"lodash": "^4.17.21",
-		"react": "^17.0.2",
-		"react-dom": "^17.0.2",
+		"react": "^18.0.0",
+		"react-dom": "^18.0.0",
 		"react-native-confirmation-code-field": "^7.2.0",
 		"react-native-maps": "0.30.1",
 		"react-native-snap-carousel": "^3.9.1",
