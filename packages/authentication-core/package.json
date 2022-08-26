@@ -1,7 +1,7 @@
 {
 	"name": "@thingco/authentication-core",
 	"description": "XState-powered auth flow system",
-	"version": "0.2.0",
+	"version": "0.2.1",
 	"main": "src/index.ts",
 	"files": [
 		"src/**"
@@ -16,6 +16,7 @@
 		"directory": "packages/authentication-core"
 	},
 	"scripts": {
+		"build": "yarn build",
 		"docs": "typedoc",
 		"test": "uvu -r esbuild-runner/register test -i utilities"
 	},

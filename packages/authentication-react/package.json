@@ -1,7 +1,7 @@
 {
 	"name": "@thingco/authentication-react",
 	"description": "React hooks & bindings for the XState-powered auth flow system",
-	"version": "0.2.1",
+	"version": "0.2.2",
 	"main": "src/index.ts",
 	"files": [
 		"src/**"
@@ -16,6 +16,7 @@
 		"directory": "packages/authentication-react"
 	},
 	"scripts": {
+		"build": "yarn build",
 		"docs": "typedoc",
 		"start": "esbuild example/index.tsx --servedir=example/www --outdir=example/www --bundle --sourcemap",
 		"test": "uvu -r global-jsdom/register -r esbuild-runner/register test -i stages -i utilities"
