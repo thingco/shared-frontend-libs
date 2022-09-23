@@ -5,8 +5,9 @@ import { DataCell } from "./DataCell";
 import { Row } from "./Row";
 
 export interface TableCompoundBodyRowProps {
-  columnData: Array<string | number | React.ReactNode>
-  testid?: string
+	columnData: Array<string | number | React.ReactNode>;
+	url?: string;
+	testid?: string;
 }
 
 /**
@@ -16,12 +17,13 @@ export interface TableCompoundBodyRowProps {
  * @visibleName Table.CompoundBodyRow
  */
 export const CompoundBodyRow = ({
-  columnData,
-  testid = "Row"
+	columnData,
+	url,
+	testid = "Row",
 }: TableCompoundBodyRowProps): JSX.Element => (
-  <Row testid={testid}>
-    {columnData.map((datum) => (
-      <DataCell key={shortid.generate()}>{datum}</DataCell>
-    ))}
-  </Row>
-)
+	<Row testid={testid} url={url}>
+		{columnData.map((datum) => (
+			<DataCell key={shortid.generate()}>{datum}</DataCell>
+		))}
+	</Row>
+);

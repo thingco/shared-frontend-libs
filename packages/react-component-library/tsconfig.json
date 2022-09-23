@@ -12,5 +12,5 @@
 		"out": "docs"
 	},
 	"include": ["src/**/*"],
-	"exclude": ["src/**/*.test.{ts,tsx}", "src/__fixtures__/*.{ts, tsx}"]
+	"exclude": ["src/**/*.test.{ts,tsx}", "src/__fixtures__/*.{ts, tsx}", "node_modules"]
 }

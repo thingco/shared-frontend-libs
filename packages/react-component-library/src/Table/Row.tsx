@@ -6,6 +6,7 @@ export interface TableRowProps extends BoxProps {
 	sx?: ThemeUIStyleObject;
 	rowStyle?: "zebra" | "none";
 	testid?: string;
+	url?: string;
 }
 
 /**
@@ -21,6 +22,7 @@ export const Row = ({
 	rowStyle = "zebra",
 	sx = {},
 	testid = "Row",
+	url = "",
 }: TableRowProps): JSX.Element => (
 	<Box
 		data-testid={testid}
@@ -31,7 +33,14 @@ export const Row = ({
 			},
 			...sx,
 		}}
+		onClick={() => openLink(url)}
 	>
 		{children}
 	</Box>
 );
+
+function openLink(url: string) {
+	if (url) {
+		window.open(url, "_blank");
+	}
+}

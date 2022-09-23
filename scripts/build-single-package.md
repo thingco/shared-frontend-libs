@@ -84,13 +84,13 @@ try {
 			workspaceBuildDirectoryPath + "/types/"
 		)}`
 	);
-	await $`yarn tsc --project tsconfig.build.json`;
+	await $`yarn tsc --project tsconfig.json`;
 	const commonConfig = {
 		bundle: true,
 		entryPoints: [join(workspaceSourceDirectoryPath, "index.ts")],
 		external: peerDependenciesArray,
 		sourcemap: true,
-		tsconfig: join(workspacePath, "tsconfig.build.json"),
+		tsconfig: join(workspacePath, "tsconfig.json"),
 	};
 
 	warnLog(`ESM builds currently turned off due to publication issues.`);
