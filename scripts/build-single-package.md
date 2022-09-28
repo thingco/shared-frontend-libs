@@ -94,26 +94,26 @@ try {
 	};
 
 	warnLog(`ESM builds currently turned off due to publication issues.`);
-	// buildLog(
-	// 	`Compiling and bundling source code in ESModule format to ${chalk.underline(
-	// 		workspaceBuildDirectoryPath
-	// 	)}`
-	// );
-	// await build({
-	// 	...commonConfig,
-	// 	outfile: join(workspaceBuildDirectoryPath, "index.esm.js"),
-	// 	format: "esm",
-	// });
 	buildLog(
-		`Compiling and bundling source code in CJS format to ${chalk.underline(
+		`Compiling and bundling source code in ESModule format to ${chalk.underline(
 			workspaceBuildDirectoryPath
 		)}`
 	);
 	await build({
 		...commonConfig,
-		outfile: join(workspaceBuildDirectoryPath, "index.js"),
-		format: "cjs",
+		outfile: join(workspaceBuildDirectoryPath, "index.esm.js"),
+		format: "esm",
 	});
+	// buildLog(
+	// 	`Compiling and bundling source code in CJS format to ${chalk.underline(
+	// 		workspaceBuildDirectoryPath
+	// 	)}`
+	// );
+	// await build({
+	// 	...commonConfig,
+	// 	outfile: join(workspaceBuildDirectoryPath, "index.js"),
+	// 	format: "cjs",
+	// });
 
 	const end = await Date.now();
 	finLog(`Finished building ${name} in ${end - start}ms`);
